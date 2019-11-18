@@ -1,0 +1,394 @@
+    \documentclass[11pt,
+        usenames, % allows access to some tikz colors
+        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+    ]{article}
+    \usepackage{
+        amsmath,
+        amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        cancel % can cancel things out!
+    }
+    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+
+    \newtheorem{theorem}{Theorem}[section]
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \DeclarePairedDelimiter\bra{\langle}{\rvert}
+    \DeclarePairedDelimiter\ket{\lvert}{\rangle}
+    \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+    \DeclarePairedDelimiter\ev{\langle}{\rangle}
+    \DeclarePairedDelimiter\p{\lparen}{\rparen}
+    \DeclarePairedDelimiter\s{\lbrack}{\rbrack}
+    \DeclarePairedDelimiter\z{\lbrace}{\rbrace}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\def\Snospace~{\S{}} % hack to remove the space left after autorefs
+\renewcommand*{\sectionautorefname}{\Snospace}
+\renewcommand*{\appendixautorefname}{\Snospace}
+\renewcommand*{\figureautorefname}{Fig.}
+\renewcommand*{\equationautorefname}{Eq.}
+\renewcommand*{\tableautorefname}{Tab.}
+
+\onehalfspacing
+
+\pagestyle{fancy}
+\rfoot{Yubo Su}
+\rhead{}
+\cfoot{\thepage/\pageref{LastPage}}
+
+\title{Eccentric Tides}
+\author{Yubo Su}
+
+\maketitle
+
+\section{Kushnir et.\ al., 2016}
+
+We coarsely follow the derivation of Kushnir et.\ al., 2016 (KZ) to express the
+traveling wave regime of dynamical tides in high-mass stars (convective core,
+radiative envelope) in analytical form.
+
+\subsection{Plane Parallel Case}
+
+We will consider IGW in a plane parallel atmosphere in the Boussinesq
+approximation. Consider buoyancy frequency
+\begin{equation}
+    N^2 = -g\p*{\rd{\ln \rho}{r} + \frac{g}{c_s^2}},
+\end{equation}
+where $c_s \to \infty$ is the sound speed in the fluid. Then the Boussinesq
+equations can be written in terms of some \emph{buoyancy} variable $b$
+\begin{subequations}\label{eq:bouss}
+    \begin{align}
+        \md{\vec{u}}{t} &= \frac{\vec{\nabla}P}{\rho_0} + b\hat{z},\\
+        \md{b}{t} &= -N^2 u_z,\\
+        \vec{\nabla} \cdot \vec{u} &= 0.
+    \end{align}
+\end{subequations}
+Note that $b \equiv -\frac{\rho'}{\rho_0} g$, as can be verified via
+direct substitution into the Euler equations:
+\begin{subequations}\label{eq:bouss}
+    \begin{align}
+        0 &= \md{\rho'}{t} + \vec{u} \cdot \vec{\nabla}\rho_0 =
+            \md{\rho'}{t} - u_z \frac{N^2}{g} \rho',\\
+        \md{\vec{u}}{t} &= \frac{\vec{\nabla}P'}{\rho_0}
+                - \frac{\rho'}{\rho_0^2} \vec{\nabla} P_0
+            = \frac{\vec{\nabla}P'}{\rho_0} - \frac{\rho'}{\rho_0}g\hat{z}.
+    \end{align}
+\end{subequations}
+
+These equations can be solved for $u_z$, or we can just recall the IGW
+dispersion relation $\omega^2 k^2 = N^2k_{\perp}^2$ and write down PDE
+\begin{equation}
+    \ptd{}{t} \nabla^2 u_z = -N^2\nabla_{\perp}^2 u_z.\label{eq:igw_pde}
+\end{equation}
+
+Now, we might recall that in tidally-forced stars, $\omega$ the tidal forcing
+frequency obeys $\omega \ll N$, or $k \gg k_\perp$. But the tidal potential, the
+quadrupolar expansion of the gravitational perturbation from the companion, has
+no quickly-varying directions, or can only excite $k \simeq k_\perp$ modes.
+Thus, we intuit that waves must be excited where $N$ is much smaller than its
+typical value, or near the \emph{radiative-convective boundary} (RCB). At the
+RCB, $N^2 = 0$, and we are concerned with the turning point where $\omega^2 =
+N^2$. We perform linear expansion about this turning point $z_c$, and for
+convenience we set $z_c = 0$, then
+\begin{equation}
+    N^2 \approx \omega^2 + \rd{N^2}{z}z,
+\end{equation}
+where compared to KZ I've taken $N_0^2 = \omega^2$, there seems to be little
+harm here. Making then general ansatz $u_z(z, \vec{r}_\perp, t) = \tilde{u}_z(z)
+e^{i\p*{\vec{k}_{\perp} \cdot \vec{r}_{\perp} - \omega t}}$ we obtain
+\begin{align}
+    -\omega^2 \p*{-k_\perp^2 \tilde{u}_z + \tilde{u}_z''}
+            &= N^2k_\perp^2 u_z,\\
+        \tilde{u}_z'' + k_\perp^2\p*{\frac{N^2}{\omega^2} - 1}\tilde{u}_z &= 0
+            ,\\
+        \tilde{u}_z'' + k_\perp^2\rd{N^2}{z}\frac{z}{\omega^2}\tilde{u}_z &= 0.
+\end{align}
+It's easiest now to rescale $\tilde{k}_\perp^2 \equiv k_\perp^23
+\rd{N^2}{z}\frac{1}{\omega^2}$ so that
+\begin{equation}
+    \tilde{u}_z'' + \tilde{k}_\perp z\tilde{u}_z = 0.
+\end{equation}
+The general solution to this ODE is written in terms of Airy functions for
+arbitrary constants $a, b$
+\begin{equation}
+    \tilde{u}_z(z) = a\mathrm{Ai}\p*{-\frac{z}{\lambda}}
+        + b\mathrm{Bi}\p*{-\frac{z}{\lambda}},\label{eq:gen_uz}
+\end{equation}
+where $\lambda = \tilde{k}_\perp^{-2/3}$. For large $-z$, it turns out that
+\begin{align}
+    \mathrm{Ai}\p*{-z} &\sim \frac{\sin\p*{\frac{2}{3}z^{3/2} +
+        \frac{\pi}{4}}}{z^{1/4}} + \mathcal{O}\p*{z^{-7/4}},\\
+    \mathrm{Bi}\p*{-z} &\sim \frac{\cos\p*{\frac{2}{3}z^{3/2} +
+        \frac{\pi}{4}}}{z^{1/4}} + \mathcal{O}\p*{z^{-7/4}}.
+\end{align}
+In order for us to get traveling waves with \emph{group velocity} going outwards
+(towards $z > 0$), we need $\tilde{u}_z(z) \sim e^{-ik_zz}$ such that $u(z, t)
+\propto e^{i\p*{-k_zz - \omega t}}$ (phase velocity goes inwards, group velocity
+goes outwards for IGW). Thus, $a = -ib$ in \autoref{eq:gen_uz}, and we obtain
+\begin{equation}
+    \tilde{u}_z(z) = b\p*{-i\mathrm{Ai}\p*{-\frac{z}{\lambda}}
+        + \mathrm{Bi}\p*{-\frac{z}{\lambda}}},\label{eq:gen_uz}
+\end{equation}
+
+Now we just need to fix $b$. This is traditionally accomplished by mandating a
+particular $\rd{\delta z}{z}$ the displacement of the mode at the turning point
+$z = 0$. That the forcing results in a constraint on $\rd{\delta z}{z}$ is
+similar to what I did in my IGW breaking forcing, where forcing induces a jump
+in the $\rd{u_z}{z}$ above/below $z_c$ whose magnitude is fixed by the strength
+of the forcing term. In the stellar problem, it appears the correct way to
+obtain the $\delta z$ is to solve the inhomogeneous problem in the convective
+zone where $N^2 = 0$ including the tidal potential, so it's not a perfect
+analogy. But since $\mathrm{Ai}'(0) = -\frac{1}{3^{1/3}\Gamma(1/3)},
+\mathrm{Bi}'(0) = \frac{3^{1/6}}{\Gamma(1/3)}$, this is not so difficult to
+evaluate, and I cite the KZ result
+\begin{equation}
+    \rd{\delta z}{z} = -\frac{ib}{\lambda \omega}\frac{2}{3^{1/3}\Gamma(1/3)}
+        \frac{3^{1/2} + i}{2}.
+\end{equation}
+
+Finally, we impose one more step: we will compute the luminosity or \emph{energy
+flux} associated with the wave, since this is the easiest way to get the
+resulting torque. We can easily write down the energy density of the wave
+$\frac{\rho_0}{2}\p*{v^2 + \frac{b^2}{N^2}}$, for which the energy flux is
+$\vec{F} = \vec{v}P$. Noting furthermore that $\pd{u_z}{z} = -ik_\perp u_x =
+-\frac{ik_\perp P}{\rho_0}\frac{k_\perp }{\omega}$, we can explicitly express
+$P$ in terms of $u_z'$, and so the energy flux density is then simply (I'm not
+evaluating this, but KZ do)
+\begin{align}
+    \frac{\delta L}{\delta A} &= \frac{1}{2}\Re\p*{P u_z^*}
+            = \frac{\rho_0 \omega}{2k_\perp^2} \Re\p*{iu_z'u_z^*},\\
+        &= \frac{3^{2/3}\Gamma^2(1/3) \lambda \omega^3 \rho_0}{8\pi k_\perp^2}
+            \p*{\rd{\delta z}{z}}^2.
+\end{align}
+We would then compute $L = \int \frac{\delta L}{\delta A}\;\mathrm{d}A$, which
+for us is just $\frac{\delta L}{\delta A}A$ where $A$ is the surface area of the
+wave.
+
+Finally, we would compute the total torque from $L = \tau \omega$ (the same
+as $E = \vec{F} \cdot \vec{v}$).
+
+\subsection{Spherical Case}
+
+To go to the spherical case, we simply replace $z \to r$ and $k_\perp^2 \to l(l
++ 1)/r^2$, which gives
+\begin{equation}
+    \lambda = \p*{\frac{l(l + 1)}{r^2\omega^2} \rd{N^2}{r}}^{-1/3}.
+\end{equation}
+Then to get $\rd{\delta z}{z} \to \rd{\delta r}{r}$, we use prescription
+\begin{equation}
+    \rd{\delta r}{r} = \alpha \frac{\Phi}{gr}
+        \p*{1 - \frac{\rho(r)}{\bar{\rho}(r)}}.
+\end{equation}
+Here, $\alpha \sim 1$ depends on the specific stellar structure in the
+convective zone, while $\bar{\rho}$ is the average density inside $r$. Finally,
+instead of getting a clean $L = \frac{\delta L}{\delta A}A$, we have to actually
+do the integral of $L = \int \frac{\delta L}{\delta A}\;\mathrm{d}A = \int
+(\dots) \abs*{Y_{lm}}^2 r^2 \;\mathrm{d}\cos\theta \mathrm{d}\phi = r_c^2 L$
+(note that it's not $4\pi r_c^2$, thanks to the $Y_{lm}$ normalization).
+Finally, the $\ell = 2$ potential is taken to be
+\begin{equation}
+    \Phi_{\mathrm{ext}} = -\sqrt{\frac{6\pi}{5}}\frac{GM_2R_c^2}{D^3}.
+\end{equation}
+I guess the angular dependency is just dropped. With all these things together,
+we obtain the final KZ result (I omit the derivation, this part is grungy and
+not very physically interesting)
+\begin{align}
+    \tau = \dot{J}_z &= \frac{GM_2^2R_c^5}{D^6} \sigma_c^{8/3}
+        \s*{\frac{r_c}{g_c}\p*{\rd{N^2}{\ln R}}_{r = r_c}}^{-1/3}
+            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
+            \s*{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
+                6^{4/3}} \frac{3}{4\pi}\alpha^2},\\
+        &= \frac{GM_2^2R_c^5}{D^6}2\hat{F}\p*{r_c, \sigma_c}.
+            \label{eq:tau_fhat}
+\end{align}
+Note that $\hat{F}$ follows the convention from Equation 42 of Fuller \& Lai's
+second paper (FL2) and Vick et.\ al's paper as well (VLF), while $\sigma_c =
+2\abs*{\Omega - \Omega_s} / \sqrt{GM_c / r_c^3}$ is the ratio of the forcing
+frequency to the breakup frequency \emph{of the core}. Finally, I've replaced
+$M_2$ the mass of the companion, $R_c$ the radius of the core, and $D$ the
+separation, while retaining $\Omega_s$ spin angular frequency and $\Omega$
+orbital angular frequency.
+
+\textbf{NB:} The exact definition of $\hat{F}$ for a given $m$ is given in
+VLF.23 as
+\begin{equation}
+    \dot{J} = G\frac{M_2R^5}{a^3}\frac{\abs*{m}}{2}\hat{F}(\omega)
+        = T_0 \frac{\abs*{m}}{2} \hat{F}(\omega).
+\end{equation}
+Since the total torque $\tau$ has already summed over $m = \pm 2$, we incur the
+extra factor of $2$ above in \autoref{eq:tau_fhat}. That $m$ has already been
+summed over is visible in the $\sqrt{6\pi/5}$ prefactor used in $\Phi_{ext}$,
+compared to $W_{2\pm 2} = \sqrt{3\pi/10}$ as seen below.
+
+\section{Vick et.\ al., 2016}
+
+We now consider eccentric forcing. We will remove subscript compared to VLF and
+just call $\vec{r}_i = \p*{r, \theta, \phi + \Omega_s t}$ the position
+coordinate in the inertial frame. Then the $\ell = 2$ tidal forcing potential is
+generally a sum over $m \in [-2, 2]$
+\begin{align}
+    U &= \sum\limits_m U_{2m} \p*{\vec{r}, t},\\
+    U_{2m}\p*{\vec{r}} &= -\frac{GM_2 W_{2m} r^2}{D(t)^3}
+        e^{-imf(t)} Y_{2m}(\theta, \phi).
+\end{align}
+Note that $f$ is the true anomaly here. Note that $W_{2m}$ is just a constant:
+$W_{20} = \sqrt{\pi/5}$, $W_{2 \pm 1} = 0$, and $W_{2 \pm 2} = \sqrt{3\pi /
+10}$.
+
+This is complicated since $f(t)$ does not evolve uniformly, ando also since
+$D(t)$ is time-varying! The easiest treatment is to decompose
+\begin{equation}
+    U_{2m} = -\frac{GM_2W_{2m}r^2}{a^3}Y_{2m}\p*{\theta, \phi}
+        \sum\limits_{N = -\infty}^\infty F_{Nm}e^{-iN\Omega t}.
+\end{equation}
+Note that the $F_{Nm}$ here are \emph{Hansen coefficients} given by
+\begin{equation}
+    F_{Nm} = \frac{1}{2\pi}\int\limits_{-\pi}^{\pi}
+        \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
+            {1 - e\cos E}\;\mathrm{d}E.
+\end{equation}
+Note $E$ is the eccentric anomaly. This differs from the VLF definition by a
+factor of $2$, such that $F_{Nm} = \delta_{Nm}$ for $e = 0$; I verified against
+Mardling\footnote{https://arxiv.org/pdf/1308.0607.pdf} that this normalization
+is correct for Hansen coefficients.
+
+Let's explicitly write out the $U_{2\pm 2}$, since they are the only ones that
+contribute to the tidal torque
+\begin{align}
+    U_{22} &= -\frac{GM_2 \sqrt{\frac{3\pi}{10}}r^2}{a^3}
+        \sum\limits_{N = 1}^\infty \s*{
+            F_{N2}Y_{22}\p*{\theta, \phi}e^{-i\p*{N\Omega - 2\Omega_s}t}
+            + F_{-N2}Y_{22}\p*{\theta, \phi}e^{i\p*{N\Omega + 2\Omega_s}t}},\\
+    U_{2-2} &= -\frac{GM_2 \sqrt{\frac{3\pi}{10}} r^2}{a^3}
+        \sum\limits_{N = 1}^\infty \s*{
+            F_{-N2}Y_{2-2}\p*{\theta, \phi}e^{-i\p*{N\Omega - 2\Omega_s}t}
+            + F_{N2}Y_{2-2}\p*{\theta, \phi}e^{i\p*{N\Omega + 2\Omega_s}t}},\\
+    U_{22} + U_{2-2} &= -\frac{GM_2 \sqrt{\frac{3\pi}{10}} r^2}{a^3}
+        \sum\limits_{N = 1}^\infty \s*{
+            F_{N2}Y_{22}\p*{\theta, \phi}e^{-i\p*{N\Omega - 2\Omega_s}t}
+            + c.c.}
+\end{align}
+We can verify that if the perturbing orbit is circular $e = 0$, then the Hansen
+coefficient $F_{Nm} = 2\delta_{Nm}$, and we obtain
+\begin{equation}
+    U_{22} + U_{2-2} = -\frac{GM_2r^2}{a^3}\sqrt{\frac{6\pi}{5}}
+        \Re \s*{Y_{22}\p*{\theta, \phi}e^{-2i\p*{\Omega - \Omega_s}t}}.
+\end{equation}
+This is the same torque used in KZ\@. Finally, this yields torque
+\begin{equation}
+    \dot{J} = \tau = T_0 \sum\limits_{N = -\infty}^\infty
+        F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s} \hat{F}
+            \p*{\omega = \abs*{N\Omega - 2\Omega_s}}.
+\end{equation}
+
+\section{Combined Results}
+
+We have been somewhat careful in checking the agreement between the VLF and KZ
+forms. Note now that \autoref{eq:tau_fhat} has $\hat{F}$ for a single $m$
+contribution, just as $\hat{F}$ is defined in VLF\@. Thus, we should be able to
+simply plug in
+\begin{align}
+    \tau &= T_0 \sum\limits_{N = -\infty}^\infty
+        F_{N2}^2 \frac{\mathrm{sgn}\p*{N\Omega - 2\Omega_s}}{2} \sigma_c^{8/3}
+        \s*{\frac{r_c}{g_c}\p*{\rd{N^2}{\ln R}}_{r = r_c}}^{-1/3}
+            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
+            \s*{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
+                6^{4/3}} \frac{3}{4\pi}\alpha^2},\\
+        &= T_0 C(r_c) \sum\limits_{N = -\infty}^\infty
+            F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
+                \sigma_c^{8/3}.\label{eq:tau_sum}
+\end{align}
+Note that now $\sigma_c = \abs*{N\Omega - 2\Omega_s} / \sqrt{GM_c / r_c^3}$, and
+I've defined $C(r_c)$ to be some constant defined at the RCB and does not change
+with $N$.
+
+Thus, the relative significance of each $N$ term is given by the summand of
+\autoref{eq:tau_sum}, or
+\begin{equation}
+    \tau_N \equiv F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s} \sigma_c^{8/3},
+\end{equation}
+where for convenience we reproduce the $F_{N2}$
+\begin{equation}
+    F_{Nm} = \frac{1}{2\pi}\int\limits_{-\pi}^{\pi}
+        \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
+            {1 - e\cos E}\;\mathrm{d}E.
+\end{equation}
+Note that $\tan \frac{f}{2} = \sqrt{\frac{1 + e}{1 - e}}\tan \frac{E}{2}$
+relates the true/eccentric anomalies.
+
+For moderate $e$, this seems to be easiest to evaluate with a direct integral,
+rather than tabulating using recursion coefficients and interpolating; I'll move
+to this if necessary.
+
+One guess is that the sum is dominated by the contribution of the frequency at
+pericenter. Since pericenter occurs at $a_p = a\p*{1 - e}$, using scaling $P^2
+\propto r^3 \propto \Omega^{-2}$ we find that $\frac{\Omega_p}{\Omega} =
+\p*{\frac{a}{a_p}}^{3/2} = \p*{1 - e}^{-3/2}$. Thus, we should expect the
+dominant term to come at $N \sim \p*{1 - e}^{-3/2}$. In reality, this appears to
+be the maximum $F_{Nm}$ but not the maximum $\tau_N$.
+
+\end{document}
+
