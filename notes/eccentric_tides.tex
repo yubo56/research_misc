@@ -312,9 +312,10 @@ Note that the $F_{Nm}$ here are \emph{Hansen coefficients} given by
 \end{equation}
 Note $E$ is the eccentric anomaly. This differs from the VLF definition in a few
 places but is in agreement with Natalia's paper w/ Dong (SD), such that $F_{Nm}
-= \delta_{Nm}$ for $e = 0$; I verified against
-Mardling\footnote{https://arxiv.org/pdf/1308.0607.pdf} that this normalization
-is correct for Hansen coefficients.
+= \delta_{Nm}$ for $e = 0$. It bears noting that VLF's formula normalizes to
+$F_{Nm} = 2\delta_{Nm}$, so we use the restricted domain of integration for
+numerical speed (the integrand is symmetric since the argument of the cosine is
+antisymmetric in $E$, so both the numerator/denominator are even in $E$).
 
 Let's explicitly write out the $U_{2\pm 2}$, since they are the only ones that
 contribute to the tidal torque
@@ -333,7 +334,7 @@ contribute to the tidal torque
             + c.c.}
 \end{align}
 We can verify that if the perturbing orbit is circular $e = 0$, then the Hansen
-coefficient $F_{Nm} = 2\delta_{Nm}$, and we obtain
+coefficient $F_{Nm} = \delta_{Nm}$, and we obtain
 \begin{equation}
     U_{22} + U_{2-2} = -\frac{GM_2r^2}{a^3}\sqrt{\frac{6\pi}{5}}
         \Re \s*{Y_{22}\p*{\theta, \phi}e^{-2i\p*{\Omega - \Omega_s}t}}.
@@ -343,6 +344,62 @@ This is the same torque used in KZ\@. Finally, this yields torque
     \dot{J} = \tau = T_0 \sum\limits_{N = -\infty}^\infty
         F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s} \hat{F}
             \p*{\omega = \abs*{N\Omega - 2\Omega_s}}.
+\end{equation}
+
+\subsection{Hansen Coefficients}
+
+Maybe someday follow \url{https://arxiv.org/pdf/1308.0607.pdf} and get the
+derivation of the Hansen coefficients? One fast way to calculate them is to take
+an FFT of the $F^{lm} = \p*{\frac{r}{a}}^l e^{imf}$, per
+\url{https://www.aanda.org/articles/aa/pdf/2014/11/aa24211-14.pdf}% chktex 8
+(CBLR). Basically, the Hansen coefficients are just the FT of the disturbing
+function. Consider that we want to make jump from
+\begin{equation}
+    U(r, t) = -GM_rr^2 \sum\limits_m \frac{W_{2m}}{D(t)^3}e^{-imf(t)}
+        Y_{2m}\p*{\theta, \phi},
+\end{equation}
+to
+\begin{equation}
+    U(r, t) = -\frac{GM_2r^2}{a^3}\sum\limits_{m, N} W_{2m}
+        F_{Nm}(e) Y_{2m}\p*{\theta, \phi} e^{-in\Omega t}.
+\end{equation}
+Thus, we seek coefficients such that
+\begin{equation}
+    \frac{a^3}{D(t)^3} e^{-imf} = \p*{\frac{1 + e\cos f}{1 - e^2}}^3
+            e^{-imf}
+        = \sum\limits_N F_{Nm} e^{-iN\Omega t}.
+\end{equation}
+Thus, it's clear the Hansen coefficients are defined by computing Fourier series
+coefficients
+\begin{align}
+    F_{Nm} &\equiv \frac{1}{T}\int\limits_{0}^T
+        \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{-iN\Omega t}
+            \;\mathrm{d}t,\\
+        &= \frac{1}{2\pi} \int\limits_{0}^{2\pi}
+            \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{-iN\Omega t}
+                \;\mathrm{d}M
+\end{align}
+We have notated $T$ the period, and $M$ the mean anomaly. Then one just
+evaluates using $\cos f = \frac{\cos E - e}{1 - e\cos E}$ and $M = E - e\sin E$
+or more usefully $\mathrm{d}M = \p*{1 - e\cos E}\mathrm{d}E$ and obtains
+\begin{align}
+    F_{Nm} &= \frac{1}{2\pi}\int\limits_0^{2\pi}
+            \p*{\frac{1 + e\cos f}{1 - e^2}}^3 e^{-imf + iN\Omega t}
+                \;\mathrm{d}M,\\
+        &= \frac{1}{2\pi}\int\limits_0^{2\pi}
+            \p*{\frac{1}{1 - e\cos E}}^3 e^{-imf + iN M} \p*{1 - e\cos E}
+                \;\mathrm{d}E,\\
+        &= \frac{1}{2\pi}\int\limits_0^{2\pi}
+            \frac{\exp\s*{i\p*{N\p*{E - e\sin E} - mf}}}{(1 - e \cos E)^2}
+                \;\mathrm{d}E.
+\end{align}
+Now, as we observed above, the integrand is symmetric with respect to $E$, but
+it had to be, since in an elliptical orbit the first half and second half are
+obviously symmetric. Thus, we arrive at final expression as promised
+\begin{equation}
+    F_{Nm} = \frac{1}{\pi}\int\limits_{0}^{\pi}
+        \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
+            {\p*{1 - e\cos E}^2}\;\mathrm{d}E.
 \end{equation}
 
 \section{Combined Results}
@@ -371,27 +428,42 @@ Thus, the relative significance of each $N$ term is given by the summand of
 \begin{equation}
     \tau_N \equiv F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s} \sigma_c^{8/3},
 \end{equation}
-where for convenience we reproduce the $F_{N2}$
-\begin{equation}
-    F_{Nm} = \frac{1}{2\pi}\int\limits_{-\pi}^{\pi}
-        \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
-            {1 - e\cos E}\;\mathrm{d}E.
-\end{equation}
-Note that $\tan \frac{f}{2} = \sqrt{\frac{1 + e}{1 - e}}\tan \frac{E}{2}$
-relates the true/eccentric anomalies. For moderate $e$, this seems to be easiest
-to evaluate with a direct integral.
+$F_{N2}$ is easiest to evaluate via an integral for now, but can probably be
+done via a sampling + FFT when speed is necessary (CBLR).
 
 One guess is that the sum is dominated by the contribution of the frequency at
 pericenter. Since pericenter occurs at $a_p = a\p*{1 - e}$, using scaling $P^2
 \propto r^3 \propto \Omega^{-2}$ we find that $\frac{\Omega_p}{\Omega} =
 \p*{\frac{a}{a_p}}^{3/2} = \p*{1 - e}^{-3/2}$. Thus, we should expect the
-dominant term to come at $N \sim \p*{1 - e}^{-3/2}$. In reality, this appears to
-be the maximum $F_{Nm}$ but not the maximum $\tau_N$.
+dominant term to come at $N \sim \p*{1 - e}^{-3/2}$. This indeed roughly
+maximizes $F_{N2}$ but probably won't maximize $\tau_N$.
 
-It appears that the maximum $N$ to sum to is (according to Michelle/Chris)
+\textbf{NB:} It appears that the maximum $N$ to sum to is (according to
+Michelle/Chris)
 \begin{equation}
     N_{\max} = 10 \p*{1 - e}^{-3/2}.
 \end{equation}
+
+To understand exactly to what $N$ we should sum, we should recall $\abs*{\tau_N}
+\propto \abs*{F_{N2}}^2 \abs*{N\Omega - 2\Omega_s}^{8/3}$. If $\Omega_s \gg
+\Omega_p$, then the latter term $\sigma_c^2$ is roughly independent of $N$ and
+indeed we get that $\tau_N$ turns over similarly to where $F_{N2}$ turns over.
+On the other hand, if $\Omega_s \lesssim \Omega_p$, then $\tau_N \propto
+\abs*{F_{N2}}^2 N^{8/3}$. Plots of these two are given in \autoref{fig:hansens}.
+\begin{figure}[t]
+    \centering
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansens.png}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansens_83.png}
+    \end{subfigure}
+    \caption{$F_{N2}$ and $F_{N2} N^{8/3}$ as we integrate straightforwardly.
+    Note the vertical blue line is $N = \p*{1 - e}^{-3/2}$ while the vertical
+    black line is the actual $\argmax_N F_{N2}$. }\label{fig:hansens}
+\end{figure}
 
 \end{document}
 
