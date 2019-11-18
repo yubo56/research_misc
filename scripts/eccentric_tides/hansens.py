@@ -25,8 +25,13 @@ if __name__ == '__main__':
     m = 2
     e = 0.9
     print('Ansatz N', (1 - e)**(-3/2))
-    for N in range(1, 100):
-        integrand = hansen_integrand(N, m, e)
-        y, abserr = quad(integrand, -np.pi, np.pi, limit=100)
-        print('%03d, %.8f, %.8e' % (N, y, abserr))
+    integrand = hansen_integrand(2, m, e)
+
+    E = np.linspace(-np.pi, np.pi, 1000)
+    plt.plot(E, integrand(E), 'r')
+    plt.savefig('hansens.png')
+    # for N in range(1, 100):
+    #     integrand = hansen_integrand(N, m, e)
+    #     y, abserr = quad(integrand, -np.pi, np.pi, limit=100)
+    #     print('%03d, %.8f, %.8e' % (N, y, abserr))
 

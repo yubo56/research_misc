@@ -306,12 +306,13 @@ $D(t)$ is time-varying! The easiest treatment is to decompose
 \end{equation}
 Note that the $F_{Nm}$ here are \emph{Hansen coefficients} given by
 \begin{equation}
-    F_{Nm} = \frac{1}{2\pi}\int\limits_{-\pi}^{\pi}
+    F_{Nm} = \frac{1}{\pi}\int\limits_{0}^{\pi}
         \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
-            {1 - e\cos E}\;\mathrm{d}E.
+            {\p*{1 - e\cos E}^2}\;\mathrm{d}E.
 \end{equation}
-Note $E$ is the eccentric anomaly. This differs from the VLF definition by a
-factor of $2$, such that $F_{Nm} = \delta_{Nm}$ for $e = 0$; I verified against
+Note $E$ is the eccentric anomaly. This differs from the VLF definition in a few
+places but is in agreement with Natalia's paper w/ Dong (SD), such that $F_{Nm}
+= \delta_{Nm}$ for $e = 0$; I verified against
 Mardling\footnote{https://arxiv.org/pdf/1308.0607.pdf} that this normalization
 is correct for Hansen coefficients.
 
@@ -377,11 +378,8 @@ where for convenience we reproduce the $F_{N2}$
             {1 - e\cos E}\;\mathrm{d}E.
 \end{equation}
 Note that $\tan \frac{f}{2} = \sqrt{\frac{1 + e}{1 - e}}\tan \frac{E}{2}$
-relates the true/eccentric anomalies.
-
-For moderate $e$, this seems to be easiest to evaluate with a direct integral,
-rather than tabulating using recursion coefficients and interpolating; I'll move
-to this if necessary.
+relates the true/eccentric anomalies. For moderate $e$, this seems to be easiest
+to evaluate with a direct integral.
 
 One guess is that the sum is dominated by the contribution of the frequency at
 pericenter. Since pericenter occurs at $a_p = a\p*{1 - e}$, using scaling $P^2
@@ -389,6 +387,11 @@ pericenter. Since pericenter occurs at $a_p = a\p*{1 - e}$, using scaling $P^2
 \p*{\frac{a}{a_p}}^{3/2} = \p*{1 - e}^{-3/2}$. Thus, we should expect the
 dominant term to come at $N \sim \p*{1 - e}^{-3/2}$. In reality, this appears to
 be the maximum $F_{Nm}$ but not the maximum $\tau_N$.
+
+It appears that the maximum $N$ to sum to is (according to Michelle/Chris)
+\begin{equation}
+    N_{\max} = 10 \p*{1 - e}^{-3/2}.
+\end{equation}
 
 \end{document}
 
