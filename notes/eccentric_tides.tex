@@ -370,13 +370,14 @@ Thus, we seek coefficients such that
         = \sum\limits_N F_{Nm} e^{-iN\Omega t}.
 \end{equation}
 Thus, it's clear the Hansen coefficients are defined by computing Fourier series
-coefficients
+coefficients (NB\@: In hindsight, using $r = a\p*{1 - e\cos E}$ probably would
+have been much faster/easier)
 \begin{align}
     F_{Nm} &\equiv \frac{1}{T}\int\limits_{0}^T
-        \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{-iN\Omega t}
+        \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{iN\Omega t}
             \;\mathrm{d}t,\\
         &= \frac{1}{2\pi} \int\limits_{0}^{2\pi}
-            \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{-iN\Omega t}
+            \frac{e^{-imf}}{\p*{1 - e^2}^3}\p*{1 + e\cos f}^3 e^{iN\Omega t}
                 \;\mathrm{d}M
 \end{align}
 We have notated $T$ the period, and $M$ the mean anomaly. Then one just
@@ -462,7 +463,18 @@ On the other hand, if $\Omega_s \lesssim \Omega_p$, then $\tau_N \propto
     \end{subfigure}
     \caption{$F_{N2}$ and $F_{N2} N^{8/3}$ as we integrate straightforwardly.
     Note the vertical blue line is $N = \p*{1 - e}^{-3/2}$ while the vertical
-    black line is the actual $\argmax_N F_{N2}$. }\label{fig:hansens}
+    black/green line are the actual $\argmax_N F_{N\pm 2}$ resrpectively.
+    }\label{fig:hansens}
+\end{figure}
+
+A plot of the actual maximum $F_{N \pm 2}$ is provided below in
+\autoref{fig:maxes}. Note that $F_{N2}$ seems to be a constant multiple of
+$\p*{1 - e}^{-3/2}$ our prediction, while $F_{N-2}$ seems to be impacted by the
+shallowness of the fit at smaller eccentricities.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansen_maxes.png}
+    \caption{Maxima of $F_{\pm 2}$ with fits.}\label{fig:maxes}
 \end{figure}
 
 \end{document}
