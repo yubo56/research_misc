@@ -433,16 +433,19 @@ $F_{N2}$ is easiest to evaluate via an integral for now, but can probably be
 done via a sampling + FFT when speed is necessary (CBLR).
 
 One guess is that the sum is dominated by the contribution of the frequency at
-pericenter. Since pericenter occurs at $a_p = a\p*{1 - e}$, using scaling $P^2
-\propto r^3 \propto \Omega^{-2}$ we find that $\frac{\Omega_p}{\Omega} =
-\p*{\frac{a}{a_p}}^{3/2} = \p*{1 - e}^{-3/2}$. Thus, we should expect the
-dominant term to come at $N \sim \p*{1 - e}^{-3/2}$. This indeed roughly
-maximizes $F_{N2}$ but probably won't maximize $\tau_N$.
+pericenter. We can compute pericenter frequency as follows:.
+\begin{align}
+    r_p^2 \Omega_p &= \sqrt{GMa\p*{1 - e^2}},\\
+    \Omega_p &= \sqrt{\frac{GMa\p*{1 + e}\p*{1 - e}}{a^4\p*{1 - e}^4}},\\
+        &= \Omega \frac{\sqrt{1 + e}}{\p*{1 - e}^{3/2}}.
+\end{align}
+Thus, we should expect the dominant term to come at $N \sim \Omega_p$. This
+indeed very nearly maximizes $F_{N2}$ but probably won't maximize $\tau_N$.
 
 \textbf{NB:} It appears that the maximum $N$ to sum to is (according to
 Michelle/Chris)
 \begin{equation}
-    N_{\max} = 10 \p*{1 - e}^{-3/2}.
+    N_{\max} = 10 \Omega_p.
 \end{equation}
 
 To understand exactly to what $N$ we should sum, we should recall $\abs*{\tau_N}
@@ -470,12 +473,35 @@ On the other hand, if $\Omega_s \lesssim \Omega_p$, then $\tau_N \propto
 A plot of the actual maximum $F_{N \pm 2}$ is provided below in
 \autoref{fig:maxes}. Note that $F_{N2}$ seems to be a constant multiple of
 $\p*{1 - e}^{-3/2}$ our prediction, while $F_{N-2}$ seems to be impacted by the
-shallowness of the fit at smaller eccentricities.
+shallowness of the fit at smaller eccentricities. That $F_{N2}$ has its maximum
+at a slight multiple of $\p*{1 - e}^{-3/2}$ should not be surprising, since the
+actual pericenter passage time can be computed by conservation of angular
+momentum
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansen_maxes.png}
-    \caption{Maxima of $F_{\pm 2}$ with fits.}\label{fig:maxes}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansen_maxes.png}
+    \end{subfigure}
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansen_maxes83.png}
+    \end{subfigure}
+    \caption{Maxima of $F_{N\pm 2}$ and $N^{8/3}F_{N\pm 2}$ with
+    fits.}\label{fig:maxes}
 \end{figure}
+
+To understand the behavior of how multiplying by $N^{8/3}$ changes the peak of
+$F_{N2}$, let's consider the simplest model for the scaling of $F_{N2}$. Upon
+examination, it decays as $F_{N2} \propto e^{-aN}$, where $a \approx
+-\frac{1}{75}$. If we allow a simple model for $F_{N2} \propto N^q e^{-aN}$
+(this conforms very coarsely with the plotted $F_{N2}$ and allows for a maximum
+and an exponential tail), then we can identify that its maximum is at $N_{\max}
+= q/a$. On the other hand, if we seek the maximum of $N^{p}F_{N2}$, we find its
+maximum is instead at $N_{\max}^{(p)} = (p + q) / a$. Comparing the two, we
+expect the maximum to be shifted by roughly factor $\frac{p + q}{q}$. Since the
+actual shift is $\gtrsim 2$ for $p = 8/3$, we can guess $q \approx 2$, which is
+plausible gauging from our loglog plot.
 
 \end{document}
 

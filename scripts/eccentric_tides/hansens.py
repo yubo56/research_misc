@@ -64,10 +64,10 @@ def get_coeffs_fft(nmax, m, e):
     return np.arange(nmax), FN2_ifft[ :nmax], FN2_ifft2[ :nmax]
 
 def plot_hansens(m, e, coeff_getter=get_coeffs):
-    N_peak = (1 - e)**(-3/2)
+    N_peak = (1 + e) * (1 - e)**(-3/2)
     print('Ansatz N', N_peak)
 
-    nmax = int(20 * N_peak)
+    nmax = int(10 * N_peak)
     # nmax = 1000
     n_vals, coeffs, coeffs2 = coeff_getter(nmax, m, e)
 
@@ -93,6 +93,7 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     plt.axvline(max_n2, c='g', linewidth=1)
     plt.axvline(N_peak, c='b')
     plt.title(r'$e = %.2f$' % e)
+    plt.ylim([10**(-3), 1])
     plt.legend()
     plt.tight_layout()
     plt.savefig('hansens', dpi=400)
@@ -127,18 +128,25 @@ def plot_maxes(m=2):
     scales N_max ~ (1-e)^(-3/2) as expected
     '''
     nmax = 1000
-    e_vals = np.arange(0.5, 0.975, 0.01)
+    e_vals = np.arange(0.51, 0.975, 0.02)
     maxes2 = []
-    maxesm2 = []
+    maxesn2 = []
+    maxes83_2 = []
+    maxes83_n2 = []
     for e in e_vals:
         print('running for e =', e)
-        N_vals, FN2, FNm2 = get_coeffs_fft(nmax, m, e)
+        N_vals, FN2, FNn2 = get_coeffs_fft(nmax, m, e)
         maxes2.append(N_vals[np.argmax(np.abs(FN2))])
-        maxesm2.append(N_vals[np.argmax(np.abs(FNm2))])
+        maxesn2.append(N_vals[np.argmax(np.abs(FNn2))])
+        maxes83_2.append(N_vals[np.argmax(N_vals**(8/3) * np.abs(FN2))])
+        maxes83_n2.append(N_vals[np.argmax(N_vals**(8/3) * np.abs(FNn2))])
     plt.loglog(1 - e_vals, maxes2, label=r'$m = 2$')
-    plt.loglog(1 - e_vals, maxesm2, label=r'$m = -2$')
+    maxesn2 = np.array(maxesn2)
+    plt.loglog(1 - e_vals, maxesn2, label=r'$m = -2$')
     m, b, _, _, _ = linregress(np.log(1 - e_vals), np.log(maxes2))
-    m2, b2, _, _, _ = linregress(np.log(1 - e_vals), np.log(maxesm2))
+    m2_idxs = np.where(1 - e_vals < 0.1)[0] # fit only good parts of data
+    m2, b2, _, _, _ = linregress(np.log(1 - e_vals)[m2_idxs],
+                                 np.log(maxesn2)[m2_idxs])
     plt.title(r'$%.2f (1 - e)^{%.2f}, %.2f (1 - e)^{%.2f}$'
               % (np.exp(b), m, np.exp(b2), m2))
     plt.loglog(1 - e_vals, np.exp(b) * (1 - e_vals)**(m), 'r:', label='Fit')
@@ -149,8 +157,22 @@ def plot_maxes(m=2):
     plt.savefig('hansen_maxes', dpi=400)
     plt.clf()
 
+    plt.loglog(1 - e_vals, maxes83_2, label=r'$m = 2$')
+    plt.loglog(1 - e_vals, maxes83_n2, label=r'$m = -2$')
+    m, b, _, _, _ = linregress(np.log(1 - e_vals), np.log(maxes83_2))
+    m2, b2, _, _, _ = linregress(np.log(1 - e_vals), np.log(maxes83_n2))
+    plt.title(r'$%.2f (1 - e)^{%.2f}, %.2f (1 - e)^{%.2f}$'
+              % (np.exp(b), m, np.exp(b2), m2))
+    plt.loglog(1 - e_vals, np.exp(b) * (1 - e_vals)**(m), 'r:', label='Fit')
+    plt.loglog(1 - e_vals, np.exp(b2) * (1 - e_vals)**(m2), 'r:', label='Fit2')
+    plt.xlabel(r'$1 - e$')
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig('hansen_maxes83', dpi=400)
+    plt.clf()
+
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    # plot_hansens(m, e, coeff_getter=get_coeffs_fft)
-    plot_maxes()
+    plot_hansens(m, e, coeff_getter=get_coeffs_fft)
+    # plot_maxes()
