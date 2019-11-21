@@ -67,23 +67,16 @@ def powerlaw(n, C, p, a):
     return C * n**p * np.exp(-n / a)
 
 def fit_powerlaw_hansens(N, coeffs):
-    # truncate starting from just after the last negative value
-    neg_idxs = np.where(coeffs < 0)[0]
-    if len(neg_idxs) == 0:
-        start_idx = 0
-    else:
-        start_idx = neg_idxs[-1] + 1
-    N_cut = N[start_idx: ] - N[start_idx] + 1
-    coeffs_cut = coeffs[start_idx: ]
-    params, _ = curve_fit(powerlaw, N_cut, coeffs_cut, p0=(1, 2, 40))
-    return params, start_idx
+    params, _ = curve_fit(powerlaw, N, coeffs, p0=(1, 2, 40),
+                          bounds=((0, 0, 1), (np.inf, 10, np.inf)))
+    return params
 
 def plot_hansens(m, e, coeff_getter=get_coeffs):
     N_peak = (1 + e) * (1 - e)**(-3/2)
     print('Ansatz N', N_peak)
 
-    # nmax = int(10 * N_peak)
-    nmax = 600
+    nmax = int(10 * N_peak)
+    # nmax = 600
     n_vals, coeffs, coeffs2 = coeff_getter(nmax, m, e)
 
     max_n = np.argmax(np.abs(coeffs))
@@ -94,12 +87,9 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
                'ko', ms=ms, label=r'$F_{N2} > 0$')
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]) / max_c,
                'ro', ms=ms, label=r'$F_{N2} < 0$')
-    params, start_idx = fit_powerlaw_hansens(n_vals, coeffs)
-    fit = powerlaw(n_vals[start_idx: ] - n_vals[start_idx] + 1,
-                        params[0], params[1], params[2])
-    plt.loglog(n_vals[start_idx: ],
-               fit / max_c,
-               'r:', label='+2 Fit')
+    params = fit_powerlaw_hansens(n_vals, coeffs)
+    fit = powerlaw(n_vals, params[0], params[1], params[2])
+    plt.loglog(n_vals, fit / max_c, 'r:', label='+2 Fit')
 
     max_n2 = np.argmax(np.abs(coeffs2))
     max_c2 = np.max(np.abs(coeffs2))
@@ -110,21 +100,27 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     plt.loglog(n_vals[neg_idx2], np.abs(coeffs2[neg_idx2]) / max_c2,
                'bo', ms=ms, label=r'$F_{N-2} < 0$')
     params2, start_idx2 = fit_powerlaw_hansens(n_vals, coeffs2)
-    fit2 = powerlaw(n_vals[start_idx2: ] - n_vals[start_idx2] + 1,
-                        params2[0], params2[1], params2[2])
-    plt.loglog(n_vals[start_idx2: ],
-               fit2 / max_c2,
-               'g:', label='-2 Fit')
+    fit2 = powerlaw(n_vals, params2[0], params2[1], params2[2])
+    plt.loglog(n_vals, fit2 / max_c2, 'g:', label='-2 Fit')
 
     plt.xlabel('N')
     plt.ylabel(r'$F_{N2} / F_{N2,\max}$')
     plt.axvline(max_n, c='k', linewidth=1)
     plt.axvline(max_n2, c='g', linewidth=1)
     plt.axvline(N_peak, c='b')
-    plt.title(
-        r'$e = %.2f, (F_{N2} = N^{%.2f}e^{-N/%.1f}, F_{N-2} = N^{%.2f}e^{-N/%.1f})$'
-        % (e, params[1], params[2], params2[1], params2[2]))
+    plt.title(r'$e = %.2f$' % e)
+
     plt.ylim([10**(-3), 1])
+    plt.text(
+        plt.xlim()[0] * 1.1, 0.6,
+        r'$(F_{N2} = %.3fN^{%.2f}e^{-N/%.1f})$' % tuple(params),
+        color='r',
+        size=12)
+    plt.text(
+        plt.xlim()[0] * 1.1, 0.35,
+        r'$(F_{N-2} = %.3fN^{%.2f}e^{-N/%.1f})$' % tuple(params2),
+        color='g',
+        size=12)
     plt.legend(fontsize=12, ncol=2)
     plt.tight_layout()
     plt.savefig('hansens', dpi=400)
@@ -144,16 +140,13 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     plt.loglog(n_vals[neg_idx2],
                np.abs(coeffs_832)[neg_idx2],
                'bo', ms=ms, label=r'$F_{N-2}N^{8/3} < 0$')
-    params, start_idx = fit_powerlaw_hansens(n_vals, coeffs_83)
-    fit_83 = powerlaw(n_vals[start_idx: ] - n_vals[start_idx] + 1,
-                        params[0], params[1], params[2])
-    plt.loglog(n_vals[start_idx: ],
-               fit_83,
-               'r:', label='+2 Fit')
+    params = fit_powerlaw_hansens(n_vals, coeffs_83)
+    fit_83 = powerlaw(n_vals, params[0], params[1], params[2])
+    plt.loglog(n_vals, fit_83, 'r:', label='+2 Fit')
     params2, start_idx2 = fit_powerlaw_hansens(n_vals, coeffs_832)
-    fit_832 = powerlaw(n_vals[start_idx2: ] - n_vals[start_idx2] + 1,
+    fit_832 = powerlaw(n_vals,
                         params2[0], params2[1], params2[2])
-    plt.loglog(n_vals[start_idx2: ],
+    plt.loglog(n_vals,
                fit_832,
                'g:', label='-2 Fit')
     plt.xlabel('N')
@@ -161,9 +154,19 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     plt.axvline(max_n, c='k', linewidth=1)
     plt.axvline(max_n2, c='g', linewidth=1)
     plt.axvline(N_peak, c='b')
-    plt.title(
-        r'$e = %.2f, (F_{N2} = N^{%.2f}e^{-N/%.1f}, F_{N-2} = N^{%.2f}e^{-N/%.1f})$'
-        % (e, params[1], params[2], params2[1], params2[2]))
+    plt.title(r'$e = %.2f$' % e)
+
+    plt.ylim([10**(-2), 10**6])
+    plt.text(
+        plt.xlim()[0] * 1.1, 3 * 10**5,
+        r'$(F_{N2} = %.4fN^{%.3f}e^{-N/%.1f})$' % tuple(params),
+        color='r',
+        size=12)
+    plt.text(
+        plt.xlim()[0] * 1.1, 0.75 * 10**5,
+        r'$(F_{N-2} = %.3fN^{%.3f}e^{-N/%.1f})$' % tuple(params2),
+        color='g',
+        size=12)
     plt.legend(fontsize=12, ncol=2)
     plt.tight_layout()
     plt.savefig('hansens_83', dpi=400)
@@ -218,8 +221,49 @@ def plot_maxes(m=2):
     plt.savefig('hansen_maxes83', dpi=400)
     plt.clf()
 
+def plot_fit_scalings(m=2):
+    '''
+    plot maximum of argmax_N F_{Nm} as function of e
+    scales N_max ~ (1-e)^(-3/2) as expected
+    '''
+    nmax = 1000
+    e_vals = np.concatenate((
+        np.arange(0.51, 0.91, 0.05),
+        np.arange(0.91, 0.975, 0.01)
+    ))
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(10, 6), sharex=True)
+    c1s = np.zeros_like(e_vals)
+    c2s = np.zeros_like(e_vals)
+    p1s = np.zeros_like(e_vals)
+    p2s = np.zeros_like(e_vals)
+    a1s = np.zeros_like(e_vals)
+    a2s = np.zeros_like(e_vals)
+    for idx, e in enumerate(e_vals):
+        print('fitting for e =', e)
+        N_vals, FN2, FNn2 = get_coeffs_fft(nmax, m, e)
+        c1s[idx], p1s[idx], a1s[idx] = fit_powerlaw_hansens(N_vals, FN2)
+        c2s[idx], p2s[idx], a2s[idx] = fit_powerlaw_hansens(N_vals, FNn2)
+    ax1.plot(1 - e_vals, c1s, 'b')
+    ax1.plot(1 - e_vals, c2s, 'r')
+    ax2.plot(1 - e_vals, p1s, 'b')
+    ax2.plot(1 - e_vals, p2s, 'r')
+    ax2.set_ylim(bottom=0)
+    ax2.set_yticks([0, 1, 2, 3])
+    ax3.plot(1 - e_vals, a1s, 'b', label=r'$m = +2$')
+    ax3.plot(1 - e_vals, a2s, 'r', label=r'$m = -2$')
+    ax1.set_ylabel(r'$C$')
+    ax2.set_ylabel(r'$p$')
+    ax3.set_ylabel(r'$a$')
+    ax3.set_xlabel(r'$1 - e$')
+    ax3.legend(fontsize=12, ncol=2)
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0)
+    plt.savefig('hansen_params', dpi=400)
+    plt.clf()
+
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    plot_hansens(m, e, coeff_getter=get_coeffs_fft)
+    # plot_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_maxes()
+    plot_fit_scalings()

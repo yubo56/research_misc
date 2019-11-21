@@ -491,6 +491,8 @@ momentum
     fits.}\label{fig:maxes}
 \end{figure}
 
+\subsection{Hansen Coefficient Fit}
+
 To understand the behavior of how multiplying by $N^{8/3}$ changes the peak of
 $F_{N2}$, let's consider the simplest model for the scaling of $F_{N2}$. Upon
 examination, it decays as $F_{N2} \propto e^{-aN}$, where $a \approx
@@ -502,6 +504,91 @@ maximum is instead at $N_{\max}^{(p)} = (p + q) / a$. Comparing the two, we
 expect the maximum to be shifted by roughly factor $\frac{p + q}{q}$. Since the
 actual shift is $\gtrsim 2$ for $p = 8/3$, we can guess $q \approx 2$, which is
 plausible gauging from our loglog plot.
+
+Empirically, we find that the $F_{N\pm 2} = CN^pe^{-N/a}$ is actually a
+surprisingly good fit. This is not surprising: the coefficients must be small
+for $N \ll N_{\max}$, but must fall off exponentially for $N \gg N_{\max}$. Note
+that simple calculus shows us that $\argmax_N F_{N \pm 2} = p/a$, and so $a =
+p / N_{\max} \simeq \frac{p\Omega_0}{\Omega_p}$.
+
+The next thing to check is how robust these parameters are, and whether they
+have analytical forms. We present such a comparison in \autoref{fig:params}.
+The good news is that $p$ is relatively independent of eccentricity! This gives
+obvious scaling for $a$ as above. The final difficulty is understanding how $C$
+scales.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/hansen_params.png}
+    \caption{Params of the $P_{N \pm 2} = CN^pe^{-N/a}$ fit as function of
+    eccentricity.}\label{fig:params}
+\end{figure}
+
+\subsection{Effective Torque}
+
+With this approximate closed form, it is very easy to sum over all $N$ by
+approximating as an integral:
+\begin{equation}
+    \sum\limits_{N = 1}^\infty N^q F_{N \pm 2}
+        \approx \int\limits_0^\infty CN^{p + q}e^{-N/a}\;\mathrm{d}N
+\end{equation}
+The RHS is almost a Gamma function though!! Thus
+\begin{align}
+    \sum\limits_{N = 1}^\infty N^q F_{N \pm 2} &\approx
+        Ca^{p + q + 1}
+        \int\limits_0^\infty (N / a)^{p + q}e^{-N/a}\;\mathrm{d}(N/a),\\
+        &\approx Ca^{p + q + 1} \Gamma\p*{p + q + 1}.
+\end{align}
+
+Thus, we return to our total torque. Call $F_{N \pm 2} = C_{\pm}N^{p_{\pm}}
+e^{-N/a_{\pm}}$, then
+\begin{align}
+    \tau &= T_0 C(r_c) \sum\limits_{N = -\infty}^\infty
+            F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
+                \sigma_c^{8/3},\\
+        &= T_0 C(r_c) \sum\limits_{N = 1}^\infty
+            \s*{F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
+                \sigma_c^{8/3} +
+                F_{-N2}^2 \mathrm{sgn}\p*{-N\Omega - 2\Omega_s}
+                    \sigma_c^{8/3}\p*{N \to -N}},\\
+        &\approx T_0 C(r_c)\s*{
+            \int\limits_0^\infty C_+^2N^{2p_{+}} e^{-2N / a_{+}}
+                \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
+                \sigma_c^{8/3}\;\mathrm{d}N +
+             \int\limits_0^\infty C_-^2N^{2p_{-}} e^{-2N / a_{-}}
+                \mathrm{sgn}\p*{-N\Omega - 2\Omega_s}
+                \sigma_c^{8/3}\p*{N \to -N}\;\mathrm{d}N}.
+\end{align}
+At this point, let's specialize to two regimes:
+\begin{itemize}
+    \item Let $2\Omega_s \ll N_{\max} \Omega$, then the sign term is just the
+        sign of $N$, and $\sigma_c = \p*{N\Omega}^{8/3}$. This gives
+        \begin{align}
+            \tau &\approx T_0 C(r_c) \s*{
+                C_+^2\int\limits_0^{\infty}
+                    N^{2p_+ + 8/3}e^{-2N/a_+}\;\mathrm{d}N
+                - C_-^2 \int\limits_0^{\infty}
+                    N^{2p_- + 8/3}e^{-2N/a_-}\;\mathrm{d}N},\\
+                &\approx T_0C(r_c)\s*{
+                    C_+^2 (a_+/2)^{2p_+ + 11/3} \Gamma\p*{2p_+ + 11/3}
+                    - C_-^2 (a_-/2)^{2p_- + 11/3}\Gamma\p*{2p_- + 11/3}}.
+        \end{align}
+
+    \item Alternatively, let $2\Omega_s \gg N_{\max}\Omega$, then the sign is
+        just always negative and $\sigma_c \approx 2\Omega_s$, and we find
+        \begin{align}
+            \tau &\approx T_0 C(r_c) \p*{2\Omega_s}^{8/3}\s*{
+                -C_+^2\int\limits_0^{\infty}
+                    N^{2p_+}e^{-2N/a_+}\;\mathrm{d}N
+                - C_-^2 \int\limits_0^{\infty}
+                    N^{2p_-}e^{-2N/a_-}\;\mathrm{d}N},\\
+                &\approx T_0C(r_c)\p*{2\Omega_s}^{8/3}\s*{
+                    -C_+^2 (a_+/2)^{2p_+ + 1} \Gamma\p*{2p_+ + 1}
+                    - C_-^2 (a_-/2)^{2p_- + 1}\Gamma\p*{2p_- + 1}}.
+        \end{align}
+\end{itemize}
+Indeed, for $2\Omega_s \ll N_{\max}\Omega$, we find $\tau > 0$, while for
+$2\Omega_s \gg N_{\max} \Omega$, we obtain $\tau < 0$, which obeys intuition and
+suggests some synchronization frequency around $2\Omega_s \simeq \Omega_p$.
 
 \end{document}
 
