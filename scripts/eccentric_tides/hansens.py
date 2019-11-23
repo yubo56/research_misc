@@ -48,6 +48,10 @@ def get_coeffs(nmax, m, e):
     return n_vals, coeffs, coeffs2
 
 def get_coeffs_fft(nmax, m, e):
+    '''
+    coeffs, coeffs2 share a DC bin, = F_{0 +-2}, which are the same
+    Recall F_{-N+m} = F_{+N-m}, so we have F_{N2} for all N in +- inf
+    '''
     n_used = 4 * nmax # nyquist not enough??
     def f(E):
         return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
@@ -106,7 +110,6 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     plt.xlabel('N')
     plt.ylabel(r'$F_{N2} / F_{N2,\max}$')
     plt.axvline(max_n, c='k', linewidth=1)
-    plt.axvline(max_n2, c='g', linewidth=1)
     plt.axvline(N_peak, c='b')
     plt.title(r'$e = %.2f$' % e)
 
@@ -266,4 +269,7 @@ if __name__ == '__main__':
     e = 0.9
     # plot_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_maxes()
-    plot_fit_scalings()
+    # plot_fit_scalings()
+
+    _, coeffs1, coeffs2 = get_coeffs_fft(1000, m, e)
+    print(coeffs1[0], coeffs2[0])

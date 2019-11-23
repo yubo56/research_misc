@@ -439,8 +439,9 @@ pericenter. We can compute pericenter frequency as follows:.
     \Omega_p &= \sqrt{\frac{GMa\p*{1 + e}\p*{1 - e}}{a^4\p*{1 - e}^4}},\\
         &= \Omega \frac{\sqrt{1 + e}}{\p*{1 - e}^{3/2}}.
 \end{align}
-Thus, we should expect the dominant term to come at $N \sim \Omega_p$. This
-indeed very nearly maximizes $F_{N2}$ but probably won't maximize $\tau_N$.
+Thus, we should expect the dominant term to come at $N \sim
+\frac{\Omega_p}{\Omega} = \frac{\sqrt{1 + e}}{\p*{1 - e}^{3/2}}$. This indeed
+very nearly maximizes $F_{N2}$ but probably won't maximize $\tau_N$.
 
 \textbf{NB:} It appears that the maximum $N$ to sum to is (according to
 Michelle/Chris)
@@ -509,7 +510,10 @@ Empirically, we find that the $F_{N\pm 2} = CN^pe^{-N/a}$ is actually a
 surprisingly good fit. This is not surprising: the coefficients must be small
 for $N \ll N_{\max}$, but must fall off exponentially for $N \gg N_{\max}$. Note
 that simple calculus shows us that $\argmax_N F_{N \pm 2} = p/a$, and so $a =
-p / N_{\max} \simeq \frac{p\Omega_0}{\Omega_p}$.
+p / N_{\max} \simeq \frac{p\Omega_0}{\Omega_p}$. Furthermore, between $\Omega,
+\Omega_p$, there is no preferred timescale, so a power law dependence between
+$\Omega, \Omega_p$ is expected (and $\Omega \ll \Omega_p \approx 0$ for large
+eccentricities).
 
 The next thing to check is how robust these parameters are, and whether they
 have analytical forms. We present such a comparison in \autoref{fig:params}.
@@ -540,55 +544,81 @@ The RHS is almost a Gamma function though!! Thus
 \end{align}
 
 Thus, we return to our total torque. Call $F_{N \pm 2} = C_{\pm}N^{p_{\pm}}
-e^{-N/a_{\pm}}$, then
+e^{-N/a_{\pm}} = F_{\pm N 2}$, then
 \begin{align}
     \tau &= T_0 C(r_c) \sum\limits_{N = -\infty}^\infty
             F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
                 \sigma_c^{8/3},\\
-        &= T_0 C(r_c) \sum\limits_{N = 1}^\infty
-            \s*{F_{N2}^2 \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
-                \sigma_c^{8/3} +
-                F_{-N2}^2 \mathrm{sgn}\p*{-N\Omega - 2\Omega_s}
-                    \sigma_c^{8/3}\p*{N \to -N}},\\
-        &\approx T_0 C(r_c)\s*{
+        &= T_0 C(r_c) \frac{\Omega^{8/3}}{\p*{GM_c/r_c^3}^{4/3}}
+            \sum\limits_{N = -\infty}^\infty
+                F_{N2}^2 \mathrm{sgn}\p*{N - 2\frac{\Omega_s}{\Omega}}
+                    \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3},\\
+        &= T_0 \hat{C}(r_c) \sum\limits_{N = 0}^\infty
+            \s*{F_{N2}^2 \mathrm{sgn}\p*{N - 2\frac{\Omega_s}{\Omega}}
+                \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3} -
+                F_{-N2}^2 \abs*{-N - 2\frac{\Omega_s}{\Omega}}^{8/3}},\\
+        &\approx T_0\hat{C}(r_c)\s*{
             \int\limits_0^\infty C_+^2N^{2p_{+}} e^{-2N / a_{+}}
-                \mathrm{sgn}\p*{N\Omega - 2\Omega_s}
-                \sigma_c^{8/3}\;\mathrm{d}N +
+                \mathrm{sgn}\p*{N - 2\frac{\Omega_s}{\Omega}}
+                \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}\;\mathrm{d}N -
              \int\limits_0^\infty C_-^2N^{2p_{-}} e^{-2N / a_{-}}
-                \mathrm{sgn}\p*{-N\Omega - 2\Omega_s}
-                \sigma_c^{8/3}\p*{N \to -N}\;\mathrm{d}N}.
+                    \abs*{-N - 2\frac{\Omega_s}{\Omega}}^{8/3}\;\mathrm{d}N}.
 \end{align}
+Note that the summation should not double count the $F_{02}$ term; this is
+resolved correctly in the integral, where the $N = 0$ contribution is not double
+counted. It's convenient to call
+\begin{equation}
+    \hat{\tau}_N \equiv F_{N2}^2 \mathrm{sgn}\p*{N - 2\frac{\Omega_s}{\Omega}}
+        \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
+\end{equation}
+
 At this point, let's specialize to two regimes:
 \begin{itemize}
     \item Let $2\Omega_s \ll N_{\max} \Omega$, then the sign term is just the
-        sign of $N$, and $\sigma_c = \p*{N\Omega}^{8/3}$. This gives
+        sign of $N$, and $\abs*{\pm N - \frac{2\Omega_s}{\Omega}} \approx
+        \abs*{N}$. This gives
         \begin{align}
-            \tau &\approx T_0 C(r_c) \s*{
+            \tau &\approx T_0 \hat{C}(r_c) \s*{
                 C_+^2\int\limits_0^{\infty}
                     N^{2p_+ + 8/3}e^{-2N/a_+}\;\mathrm{d}N
                 - C_-^2 \int\limits_0^{\infty}
                     N^{2p_- + 8/3}e^{-2N/a_-}\;\mathrm{d}N},\\
-                &\approx T_0C(r_c)\s*{
+                &\approx T_0\hat{C}(r_c)\s*{
                     C_+^2 (a_+/2)^{2p_+ + 11/3} \Gamma\p*{2p_+ + 11/3}
                     - C_-^2 (a_-/2)^{2p_- + 11/3}\Gamma\p*{2p_- + 11/3}}.
         \end{align}
 
     \item Alternatively, let $2\Omega_s \gg N_{\max}\Omega$, then the sign is
-        just always negative and $\sigma_c \approx 2\Omega_s$, and we find
+        just always negative and $\abs*{N - \frac{2\Omega_s}{\Omega}} =
+        \frac{2\Omega_s}{\Omega} - N_{\max}$, and we find
         \begin{align}
-            \tau &\approx T_0 C(r_c) \p*{2\Omega_s}^{8/3}\s*{
-                -C_+^2\int\limits_0^{\infty}
+            \tau &\approx T_0 \hat{C}(r_c) \p*{\frac{2\Omega_s}{\Omega} -
+                    N_{\max}}^{8/3}
+                \s*{-C_+^2\int\limits_0^{\infty}
                     N^{2p_+}e^{-2N/a_+}\;\mathrm{d}N
                 - C_-^2 \int\limits_0^{\infty}
                     N^{2p_-}e^{-2N/a_-}\;\mathrm{d}N},\\
-                &\approx T_0C(r_c)\p*{2\Omega_s}^{8/3}\s*{
-                    -C_+^2 (a_+/2)^{2p_+ + 1} \Gamma\p*{2p_+ + 1}
-                    - C_-^2 (a_-/2)^{2p_- + 1}\Gamma\p*{2p_- + 1}}.
+                &\approx T_0\hat{C}(r_c)
+                    \p*{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}\s*{
+                        -C_+^2 (a_+/2)^{2p_+ + 1} \Gamma\p*{2p_+ + 1}
+                        - C_-^2 (a_-/2)^{2p_- + 1}\Gamma\p*{2p_- + 1}}.
         \end{align}
 \end{itemize}
 Indeed, for $2\Omega_s \ll N_{\max}\Omega$, we find $\tau > 0$, while for
 $2\Omega_s \gg N_{\max} \Omega$, we obtain $\tau < 0$, which obeys intuition and
 suggests some synchronization frequency around $2\Omega_s \simeq \Omega_p$.
+
+We make some plots as in \autoref{fig:totals_s} and these agree. What remains is
+to identify the eccentricity scaling, which will require understanding how the
+fit coefficients depend on $e$, which we've also plotted but don't quite yet
+understand so don't include.
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/totals_s_0_9.png}
+    \caption{Plot of $\frac{\tau}{T_0 \hat{C}(r_c)}$. The predictions in the two
+    regimes are the black horizontal line $\Omega_s = 0$ and red dashed line
+    $2\Omega_s \gg N_{\max}\Omega$. Good agreement!}\label{fig:totals_s}
+\end{figure}
 
 \end{document}
 
