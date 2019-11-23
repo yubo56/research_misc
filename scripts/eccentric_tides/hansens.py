@@ -103,7 +103,7 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
                'go', ms=ms, label=r'$F_{N-2} > 0$')
     plt.loglog(n_vals[neg_idx2], np.abs(coeffs2[neg_idx2]) / max_c2,
                'bo', ms=ms, label=r'$F_{N-2} < 0$')
-    params2, start_idx2 = fit_powerlaw_hansens(n_vals, coeffs2)
+    params2 = fit_powerlaw_hansens(n_vals, coeffs2)
     fit2 = powerlaw(n_vals, params2[0], params2[1], params2[2])
     plt.loglog(n_vals, fit2 / max_c2, 'g:', label='-2 Fit')
 
@@ -146,7 +146,7 @@ def plot_hansens(m, e, coeff_getter=get_coeffs):
     params = fit_powerlaw_hansens(n_vals, coeffs_83)
     fit_83 = powerlaw(n_vals, params[0], params[1], params[2])
     plt.loglog(n_vals, fit_83, 'r:', label='+2 Fit')
-    params2, start_idx2 = fit_powerlaw_hansens(n_vals, coeffs_832)
+    params2 = fit_powerlaw_hansens(n_vals, coeffs_832)
     fit_832 = powerlaw(n_vals,
                         params2[0], params2[1], params2[2])
     plt.loglog(n_vals,
@@ -267,9 +267,6 @@ def plot_fit_scalings(m=2):
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    # plot_hansens(m, e, coeff_getter=get_coeffs_fft)
+    plot_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_maxes()
     # plot_fit_scalings()
-
-    _, coeffs1, coeffs2 = get_coeffs_fft(1000, m, e)
-    print(coeffs1[0], coeffs2[0])
