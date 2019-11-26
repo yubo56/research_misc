@@ -1,17 +1,27 @@
 '''
-debugging the FFT
+debugging the FFT and checking Parseval's theorem
 '''
 import numpy as np
 from scipy.fftpack import fft, ifft
 from scipy.optimize import bisect
+from scipy.integrate import quad
+from scipy.special import gamma
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=16)
 
-e = 0.9
+from total_torque import get_coeffs_fft
+import hansens
+
+ecc = 0.9
 N_modes = 998
+def f(E, e=ecc):
+     return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
+def E(M, e=ecc):
+     return bisect(lambda E_v: E_v - e * np.sin(E_v) - M, 0, 2 * np.pi)
+
 def get_mv_coeffs():
     # Michelle's authoritative source (agrees w/ my manual integration)
     lines = open('ecc09.txt').readlines()
@@ -35,21 +45,14 @@ def eval_func_fft(m_vals):
     return func
 
 def eval_func_explicit(m_vals):
-    def f(E):
-         return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
-    def E(M):
-         return bisect(lambda E_v: E_v - e * np.sin(E_v) - M, 0, 2 * np.pi)
     f_vals = f(np.array([E(M) for M in m_vals]))
-    func = ((1 + e * np.cos(f_vals)) / (1 - e**2))**3 * np.cos(-2 * f_vals)
+    func = ((1 + ecc * np.cos(f_vals)) / (1 - ecc**2))**3 * np.cos(-2 * f_vals)
     return func
 
 def eval_func_complex(m_vals):
-    def f(E):
-         return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
-    def E(M):
-         return bisect(lambda E_v: E_v - e * np.sin(E_v) - M, 0, 2 * np.pi)
     f_vals = f(np.array([E(M) for M in m_vals]))
-    func = ((1 + e * np.cos(f_vals)) / (1 - e**2))**3 * np.exp(-1j * 2 * f_vals)
+    func = ((1 + ecc * np.cos(f_vals)) / (1 - ecc**2))**3\
+        * np.exp(-1j * 2 * f_vals)
     return func
 
 def check_func_eval(m_vals):
@@ -92,7 +95,45 @@ def check_coeff_eval(m_vals):
     plt.savefig('check_fft', dpi=400)
     plt.clf()
 
+def check_parsevals_int(ecc_vals):
+    '''
+    check agreement of parseval's with time/coefficient sums, as well as
+    integral approximation to coefficient sum
+    '''
+    time_ints = []
+    coeff_sums = []
+    integ_approxs = []
+    for ecc in ecc_vals:
+        def f_sq(M): # f_squared to integrate
+            ta = f(E(M, e=ecc), e=ecc) # true anomaly
+            return ((1 + ecc * np.cos(ta)) / (1 - ecc**2))**6
+        integ = quad(f_sq, 0, 2 * np.pi, limit=100)[0] / (2 * np.pi)
+        time_int = (1 + 3 * ecc**2 + 3 * ecc**4 / 8) / (1 - ecc**2)**(9/2)
+
+        coeffs_fft = get_coeffs_fft(1000, 2, ecc)
+        coeffs_sum = np.sum(coeffs_fft**2)
+
+        n_vals, coeffs_half, _ = hansens.get_coeffs_fft(1000, 2, ecc)
+        c, p, a = hansens.fit_powerlaw_hansens(n_vals, coeffs_half)
+        integ_approx = c**2 * (a / 2)**(2 * p + 1) * gamma(2 * p + 1)
+
+        time_ints.append(time_int)
+        coeff_sums.append(coeffs_sum)
+        integ_approxs.append(integ_approx)
+        print('Ran for', ecc)
+    plt.semilogy(ecc_vals, time_ints, label='T-int')
+    plt.semilogy(ecc_vals, coeff_sums, label='W-sum')
+    plt.semilogy(ecc_vals, integ_approxs, label='I-approx')
+
+    plt.xlabel(r'$e$')
+    plt.legend(fontsize=12)
+    plt.tight_layout()
+    plt.savefig('check_ft_parsevals', dpi=400)
+
 if __name__ == '__main__':
-    m_vals = 2 * np.pi * np.arange(N_modes) / N_modes
-    check_func_eval(m_vals)
-    check_coeff_eval(m_vals)
+    # m_vals = 2 * np.pi * np.arange(N_modes) / N_modes
+    # check_func_eval(m_vals)
+    # check_coeff_eval(m_vals)
+
+    ecc_vals = np.arange(0.1, 0.96, 0.05)
+    check_parsevals_int(ecc_vals)
