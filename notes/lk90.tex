@@ -1,0 +1,188 @@
+    \documentclass[11pt,
+        usenames, % allows access to some tikz colors
+        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+    ]{article}
+    \usepackage{
+        amsmath,
+        amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        cancel % can cancel things out!
+    }
+    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+
+    \newtheorem{theorem}{Theorem}[section]
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \DeclarePairedDelimiter\bra{\langle}{\rvert}
+    \DeclarePairedDelimiter\ket{\lvert}{\rangle}
+    \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+    \DeclarePairedDelimiter\ev{\langle}{\rangle}
+    \DeclarePairedDelimiter\p{\lparen}{\rparen}
+    \DeclarePairedDelimiter\s{\lbrack}{\rbrack}
+    \DeclarePairedDelimiter\z{\lbrace}{\rbrace}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\def\Snospace~{\S{}} % hack to remove the space left after autorefs
+\renewcommand*{\sectionautorefname}{\Snospace}
+\renewcommand*{\appendixautorefname}{\Snospace}
+\renewcommand*{\figureautorefname}{Fig.}
+\renewcommand*{\equationautorefname}{Eq.}
+\renewcommand*{\tableautorefname}{Tab.}
+
+\onehalfspacing
+
+\pagestyle{fancy}
+\rfoot{Yubo Su}
+\rhead{}
+\cfoot{\thepage/\pageref{LastPage}}
+
+\title{Lidov-Kozai $90^\circ$ Attractor}
+\author{Yubo Su}
+\date{Date}
+
+\maketitle
+
+\section{Equations}
+
+\subsection{Bin's Papers}
+
+Our major references will be Bin's paper with Diego + Dong in 2015 (LML15) and
+Bin's later paper with Dong on spin-orbit misalignment (LL18). The target of
+study is \S4.3 of LL18, where a $90^\circ$ attractor in spin-orbit misalignment
+seems to appear when the octupole effect is negligible.
+
+When the octupole effect is negligible, we define vectors
+\begin{align}
+    \bm{j} &= \sqrt{1 - e^2}\hat{n},\\
+    \bm{e} &= e\hat{u}.
+\end{align}
+Here, $\bm{j}$ is the dimensionless angular momentum vector and $\bm{e}$ is the
+eccentricity vector; see LML15 for precise definitions. Note that $\bm{j} \cdot
+\bm{e} = 0$, $j^2 + e^2 = 1$. Then, the EOM for the inner and outer vectors
+satisfy to quadrupolar order
+\begin{align}
+    \rd{\bm{j}_1}{t} &= \frac{3}{4t_{LK}} \s*{
+        \p*{\bm{j}_1 \cdot \hat{n}_2} \p*{\bm{j}_1 \times \hat{n}_2}
+        - 5\p*{\bm{e}_1 \cdot \hat{n}_2}\p*{\bm{e}_1 \times \hat{n}_2}
+        },\\
+    \rd{\bm{e}_1}{t} &= \frac{3}{4t_{LK}} \s*{
+        \p*{\bm{j}_1 \cdot \hat{n}_2} \p*{\bm{e}_1 \times \hat{n}_2}
+        + 2\bm{j}_1 \times \bm{e}_1
+        - 5\p*{\bm{e}_1 \cdot \hat{n}_2}\p*{\bm{j}_1 \times \hat{n}_2}
+        }.
+\end{align}
+Let's assume for the time being that $L_1 \ll L_2$, so the system is
+sufficiently hierarchical that $\bm{j}_2$, $\bm{e}_2$ are constants. Note for
+reference that
+\begin{equation}
+    t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
+        = \frac{1}{n_1}\p*{\frac{m_0 + m_1}{m_2}}
+            \p*{\frac{a_2}{a_1}}^3
+            \p*{1 - e_2^2}^{3/2}.
+\end{equation}
+Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a_1^3}$. Finally, the GR effects
+(Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
+\begin{align}
+    \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
+        \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
+        \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}\hat{L},\\
+    \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
+        \frac{\mu m_{12}^2}{a^4\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+            e^2}\bm{e}.
+\end{align}
+Here, $m_{12} \equiv m_1 + m_2$.
+
+Given this system (from LML15), we can then add the spin-orbit coupling term,
+which is given in LL18 to be
+\begin{align}
+    \rd{\hat{S}_1}{t} &= \Omega_{SL}\hat{L}_1 \times \hat{S}_1,\\
+    \Omega_{SL} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
+\end{align}
+Note that $\mu$ is the reduced mass of the inner binary. We can drop the
+back-reaction term since $S_1 \ll L_1$. What is observed is that, as this system
+is evolved forward in time and GR coalesces the inner binary, $\theta_{sl}
+\equiv \arccos\p*{\hat{S} \cdot \hat{L}_1}$ goes to $90^\circ$ consistently. The
+relevant figure is Fig.~19 of LL18, which shows that for a close-in,
+low-eccentricity perturber ($\bar{a}_{\rm out, eff} \propto a_{out}$), the
+focusing is significantly stronger. Note that initially, $I \equiv
+\arccos\p*{\hat{L}_1 \cdot \hat{L}_2} \approx 90^\circ$ while $\theta_{sl}
+\approx 0$.
+
+In LL18, an adiabaticity parameter is defined:
+\begin{equation}
+    \mathcal{A} \equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}},
+\end{equation}
+where $\Omega_{L} \simeq \ev*{\rd{\hat{L}_1}{t}}_{LK}$ to quadrupolar order. As
+the inner binary coalesces, $\mathcal{A}$ transitions from $\ll 1$ to $\gg 1$
+(as $\Omega_{SL}$ is a GR effect so ramps up very quickly as orbital separation
+decreases).
+
+\subsection{Intuitive Picture}
+
+Looking at LL18, in praticular at Fig 4,
+
+\end{document}
+
