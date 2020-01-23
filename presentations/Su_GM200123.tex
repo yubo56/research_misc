@@ -1,0 +1,150 @@
+    \documentclass[dvipsnames]{beamer}
+    \usetheme{Madrid}
+    \usefonttheme{professionalfonts}
+    \usepackage{
+        amsmath,
+        amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        cancel % can cancel things out!
+    }
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \DeclarePairedDelimiter\bra{\langle}{\rvert}
+    \DeclarePairedDelimiter\ket{\lvert}{\rangle}
+    \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+    \DeclarePairedDelimiter\ev{\langle}{\rangle}
+    \DeclarePairedDelimiter\p{\lparen}{\rparen}
+    \DeclarePairedDelimiter\s{\lbrack}{\rbrack}
+    \DeclarePairedDelimiter\z{\lbrace}{\rbrace}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\title{Dynamical Tides in Eccentric Massive Stellar Binaries}
+\subtitle{Group Meeting}
+\author{Yubo Su}
+\date{Jan 23, 2020}
+
+\maketitle
+
+\begin{frame}
+    \frametitle{Setup}
+    \framesubtitle{Problem Description}
+
+    \begin{itemize}
+        \item Massive star with eccentric binary companion inducing dynamical
+            tides.
+
+        \item Primary difficulty: dynamical tides is typically messy, sum over
+            many modes, hard to gain analytical intuition.
+
+        \item Question: can we obtain a \emph{simple closed form for dynamical
+            tides} in this system?
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Setup}
+    \framesubtitle{Previous Work}
+    {\small
+    \begin{itemize}
+        \item Dynamical tides in massive stars due to \emph{circular
+            companion} (Kushnir et.\ al.\ 2017).
+            \begin{equation}
+                \tau(\omega; r_c) = \beta_2\frac{GM_2^2r_c^5}{a^6}
+                    \p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
+                        \frac{\rho_c}{\bar{\rho}_c} \p*{1 -
+                        \frac{\rho_c}{\bar{\rho}_c}}^2.
+            \end{equation}
+
+        \item Eccentric forcing is just sum of many circular forcings
+            (Fourier transform, e.g.\ Vick et.\ al.\ 2017)
+            \begin{equation}
+                \tau = T_0 \sum\limits_{N = -\infty}^\infty
+                    F_{N2}^2 \sgn\p*{N\Omega - 2\Omega_s} \tau
+                        \p*{\omega = \abs*{N\Omega - 2\Omega_s}},
+            \end{equation}
+            where $F_{Nm}$ are the \emph{Hansen coefficients}
+            \begin{equation}
+                F_{Nm} = \frac{1}{\pi}\int\limits_{0}^{\pi}
+                    \frac{\cos\s*{N\p*{E - e\sin E} - mf(E)}}
+                        {\p*{1 - e\cos E}^2}\;\mathrm{d}E.
+            \end{equation}
+    \end{itemize}
+    }
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution}
+    \framesubtitle{Key Insight}
+
+    \begin{itemize}
+        \item Key insight: $e \to 1$, the Hansen coefficients can be well
+            approximated in closed form, and their sum approximated as an
+            integral.
+    \end{itemize}
+\end{frame}
+
+\end{document}
+
