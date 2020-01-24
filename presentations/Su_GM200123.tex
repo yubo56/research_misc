@@ -1,0 +1,295 @@
+    \documentclass[dvipsnames,8pt]{beamer}
+    \usetheme{Madrid}
+    \usefonttheme{professionalfonts}
+    \usepackage{
+        amsmath,
+        amssymb,
+        % fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        cancel % can cancel things out!
+    }
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \DeclarePairedDelimiter\bra{\langle}{\rvert}
+    \DeclarePairedDelimiter\ket{\lvert}{\rangle}
+    \DeclarePairedDelimiter\abs{\lvert}{\rvert}
+    \DeclarePairedDelimiter\ev{\langle}{\rangle}
+    \DeclarePairedDelimiter\p{\lparen}{\rparen}
+    \DeclarePairedDelimiter\s{\lbrack}{\rbrack}
+    \DeclarePairedDelimiter\z{\lbrace}{\rbrace}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\title{Dynamical Tides in Eccentric Massive Stellar Binaries}
+\subtitle{Group Meeting}
+\author{Yubo Su \& Dong Lai}
+\date{Jan 23, 2020}
+
+\maketitle
+
+\begin{frame}
+    \frametitle{Setup}
+    \framesubtitle{Problem Description \& Previous Work}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Massive star with eccentric binary companion inducing dynamical
+                    tides.
+
+                \item Primary difficulty: dynamical tides is typically messy, sum over
+                    many modes, hard to gain analytical intuition.
+
+                \item Question: can we obtain a \emph{simple closed form for dynamical
+                    tides} in this system?
+
+                \item Dynamical tide in massive stars due to companion on \emph{circular
+                    orbit} (Kushnir et.\ al.\ 2017).
+                    \begin{align*}
+                        \tau(\omega; r_c) ={}& \beta_2\frac{GM_2^2r_c^5}{a^6}
+                                \frac{\rho_c}{\bar{\rho}_c} \p*{1 -
+                                \frac{\rho_c}{\bar{\rho}_c}}^2\times\\
+                            &\p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}.
+                    \end{align*}
+
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Eccentric forcing is just sum of many circular forcings
+                    (Fourier transform, e.g.\ Vick et.\ al.\ 2017)
+                    \begin{equation*}
+                        \tau_{\rm tot} = T_0 \sum\limits_{N = -\infty}^\infty
+                            F_{N2}^2 \sgn\p*{\sigma} \tau
+                                \p*{\omega = \abs*{\sigma}},
+                    \end{equation*}
+                    where $\sigma \equiv N\Omega - 2\Omega_s$ and $F_{Nm}$ are
+                    the \emph{Hansen coefficients}
+                    \begin{equation*}
+                        F_{Nm} = \frac{1}{\pi}\int\limits_{0}^{\pi}
+                            \frac{\cos\s*{N\mathcal{M}(E) - mf(E)}}
+                                {\p*{1 - e\cos E}^2}\;\mathrm{d}E,
+                    \end{equation*}
+                    where $f$, $\mathcal{M}$, and $E$ are the true, mean, and
+                    eccentric anomalies.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Setup}
+    \framesubtitle{Hansen Coefficients}
+
+    \begin{itemize}
+        \item Thus, want to evaluate something of form
+            \begin{equation*}
+                \tau_{\rm tot} = \hat{T}(r_c, \Omega)
+                    \sum\limits_{N = -\infty}^\infty F_{N2}^2(e)
+                        \sgn\p*{N - 2\frac{\Omega_s}{\Omega}}
+                        \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
+            \end{equation*}
+        \item The $F_{N2}$ look like (note: FT is fastest to compute
+            coefficients, $e = 0.99$ took $\sim 2\;\mathrm{s}$)
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.5\textwidth]{../scripts/eccentric_tides/hansens_plain.png}
+            \end{figure}
+        \item Key insight: only one important hump ($\sim N_{\rm peri}$), seek
+            inspired fit.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution}
+    \framesubtitle{Key Insight}
+    \begin{equation*}
+        \tau_{\rm tot} = \hat{T}(r_c, \Omega)
+            \sum\limits_{N = -\infty}^\infty F_{N2}^2(e)
+                \sgn\p*{N - 2\frac{\Omega_s}{\Omega}}
+                \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
+    \end{equation*}
+
+    \begin{itemize}
+        \item Criteria for approximate $F_{N2}(e)$:
+        \begin{itemize}
+            \item Should only have one scale, $N_{\rm peri}$
+            \item Should exponentially fall off for large $N$ (smoothness)
+            \item $F_{02}(e) \approx 0$.
+        \end{itemize}
+
+    \end{itemize}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Guess: maybe
+                    \begin{equation}
+                        F_{N2}(e) \simeq C(e) N^{p(e)} e^{-N / \eta(e)}.
+                    \end{equation}
+                    Turns out $p \approx 2$.
+
+                \item Furthermore, $\argmax\limits_N F_{N2}(e) =
+                    p\eta(e)$, so $\eta \simeq N_{\rm peri} / 2$.
+
+                \item $C$ is fixed by normalization (Parseval's).
+
+                \item Finally, $\int\limits_0^\infty x^pe^{-x}\;\mathrm{d}x
+                    \equiv \Gamma(p - 1)$.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.8\columnwidth]{../scripts/eccentric_tides/hansens99.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution}
+    \framesubtitle{Tidal Torque}
+
+    \begin{itemize}
+        \item Use resulting $\tau_{\rm tot}$ in closed form (piecewise for
+            $\Omega_s \gg N_{\rm peri}\Omega / 2$ or $\Omega_s \ll N_{\rm
+            peri}\Omega / 2$), some small fudge factors, compare with explicit
+            sum:
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.4\textwidth]{../scripts/eccentric_tides/totals_ecc_0.png}
+                \includegraphics[width=0.4\textwidth]{../scripts/eccentric_tides/totals_ecc_400.png}
+                \includegraphics[width=0.4\textwidth]{../scripts/eccentric_tides/totals_s_0_9.png}
+            \end{figure}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution}
+    \framesubtitle{Heating}
+
+    \begin{itemize}
+        \item For heating, same treatment for $F_{N2}$, need $m = 0$ Hansen
+            coefficients $F_{N0}$ too:
+        \begin{align}
+             \dot{E}_{\rm in} = \frac{1}{2}\hat{T}\p*{r_c, \Omega}
+                 \sum\limits_{N = -\infty}^\infty\s*{
+                    N\Omega F_{N2}^2 \sgn \p*{\sigma} \abs*{\sigma}^{8/3}
+                    + \p*{\frac{W_{20}}{W_{22}}}^2\Omega F_{N0}^2 \abs*{N}^{11/3}}.
+                    \label{eq:e_sum}
+        \end{align}
+        \begin{figure}[h]
+            \centering
+            \includegraphics[width=0.5\textwidth]{../scripts/eccentric_tides/hansens/hansens0_90.png}
+        \end{figure}
+
+        \item Only characteristic scale is still $N_{\rm peri}$.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Solution}
+    \framesubtitle{Heating}
+
+    \begin{itemize}
+        \item Guess $F_{N0} \simeq Ae^{-\frac{\abs{N}}{N_{\rm peri}}}$.
+            Empirically, find
+            \begin{equation}
+                F_{N0} \approx Ae^{-\frac{\abs{N}}{N_{\rm peri}/\sqrt{2}}},
+            \end{equation}
+
+        \begin{figure}[t]
+            \centering
+            \includegraphics[width=0.4\textwidth]{../scripts/eccentric_tides/totals_e_0.png}
+            \includegraphics[width=0.4\textwidth]{../scripts/eccentric_tides/totals_e_400.png}
+        \end{figure}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Upcoming Work}
+
+    \begin{itemize}
+        \item Application to J0045+7319?
+        \begin{itemize}
+            \item Since $e$ is known, $\tau_{\rm tot}$ is very easy to evaluate
+                without approximation.
+
+            \item Using earliest works (Lai 1996, Kumar \& Quaetert 1997), find
+                $\frac{\Omega_s}{\Omega} \approx -0.37$.
+
+            \item Since these works, stellar mass $\sim 10 \pm 1 M_{\odot}$.
+                Working on recalculating using MESA, numbers seem wrong (K\&Q
+                get $M_{c} = 3M_{\odot}$, $R_{\star} = 6R_{\odot}$, $R_c =
+                0.23R_{\star}$, while i get $M_c = 2.75M_{\odot}, R_\star =
+                3.5R_{\odot}, R_c = 0.2R_{\star}$). Debugging.
+        \end{itemize}
+
+        \item Tidal synchronization timescale as a function of $e$?
+    \end{itemize}
+\end{frame}
+
+\end{document}
+
