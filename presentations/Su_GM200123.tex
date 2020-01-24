@@ -83,7 +83,7 @@
 
 \title{Dynamical Tides in Eccentric Massive Stellar Binaries}
 \subtitle{Group Meeting}
-\author{Yubo Su}
+\author{Yubo Su \& Dong Lai}
 \date{Jan 23, 2020}
 
 \maketitle
@@ -151,7 +151,7 @@
                         \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
             \end{equation*}
         \item The $F_{N2}$ look like (note: FT is fastest to compute
-            coefficients, below took $\sim 2\;\mathrm{s}$)
+            coefficients, $e = 0.99$ took $\sim 2\;\mathrm{s}$)
             \begin{figure}[h]
                 \centering
                 \includegraphics[width=0.5\textwidth]{../scripts/eccentric_tides/hansens_plain.png}
@@ -179,18 +179,33 @@
             \item $F_{02}(e) \approx 0$.
         \end{itemize}
 
-        \item Guess: maybe
-            \begin{equation}
-                F_{N2}(e) \simeq C(e) N^{p(e)} e^{-N / \eta(e)}.
-            \end{equation}
-            Turns out $p \approx 2$. Furthermore, $\argmax\limits_N F_{N2}(e) =
-            p\eta(e)$, so $\eta \simeq N_{\rm peri} / 2$. $C$ is fixed by
-            normalization (Parseval's).
-        \begin{figure}[h]
-            \centering
-            \includegraphics[width=0.5\textwidth]{../scripts/eccentric_tides/hansens99.png}
-        \end{figure}
     \end{itemize}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Guess: maybe
+                    \begin{equation}
+                        F_{N2}(e) \simeq C(e) N^{p(e)} e^{-N / \eta(e)}.
+                    \end{equation}
+                    Turns out $p \approx 2$.
+
+                \item Furthermore, $\argmax\limits_N F_{N2}(e) =
+                    p\eta(e)$, so $\eta \simeq N_{\rm peri} / 2$.
+
+                \item $C$ is fixed by normalization (Parseval's).
+
+                \item Finally, $\int\limits_0^\infty x^pe^{-x}\;\mathrm{d}x
+                    \equiv \Gamma(p - 1)$.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{figure}[h]
+                \centering
+                \includegraphics[width=0.8\columnwidth]{../scripts/eccentric_tides/hansens99.png}
+            \end{figure}
+        \end{column}
+    \end{columns}
 \end{frame}
 
 \begin{frame}
@@ -261,6 +276,15 @@
         \begin{itemize}
             \item Since $e$ is known, $\tau_{\rm tot}$ is very easy to evaluate
                 without approximation.
+
+            \item Using earliest works (Lai 1996, Kumar \& Quaetert 1997), find
+                $\frac{\Omega_s}{\Omega} \approx -0.37$.
+
+            \item Since these works, stellar mass $\sim 10 \pm 1 M_{\odot}$.
+                Working on recalculating using MESA, numbers seem wrong (K\&Q
+                get $M_{c} = 3M_{\odot}$, $R_{\star} = 6R_{\odot}$, $R_c =
+                0.23R_{\star}$, while i get $M_c = 2.75M_{\odot}, R_\star =
+                3.5R_{\odot}, R_c = 0.2R_{\star}$). Debugging.
         \end{itemize}
 
         \item Tidal synchronization timescale as a function of $e$?

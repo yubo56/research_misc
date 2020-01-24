@@ -276,7 +276,7 @@ if __name__ == '__main__':
     m = 2
     e = 0.9
     # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
-    # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
+    plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
 
