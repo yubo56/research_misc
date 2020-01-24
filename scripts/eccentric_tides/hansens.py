@@ -102,13 +102,12 @@ def plot_hansens_0(e, m=0):
     plt.close()
 
 def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
-    # just plot +2, no 8/3's laws for now
-
     N_peak = (1 + e) * (1 - e)**(-3/2)
-
-    # nmax = int(10 * N_peak)
-    nmax = 600
-    n_vals, coeffs, coeffs2 = coeff_getter(nmax, m, e)
+    # just plot +2, no 8/3's laws for now
+    nmax = 4 * int(max(N_peak, 150))
+    n_vals, coeffs, _ = coeff_getter(nmax, m, e)
+    n_vals = n_vals[1: ] # drop the 0 bin, throws off loglog plotting
+    coeffs = coeffs[1: ]
 
     max_n = np.argmax(np.abs(coeffs))
     max_c = np.max(np.abs(coeffs))
@@ -118,23 +117,11 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
                'ko', ms=ms, label=r'$F_{N2} > 0$')
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
                'ro', ms=ms, label=r'$F_{N2} < 0$')
-    params = fit_powerlaw_hansens(n_vals, coeffs)
+    params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
     fit = powerlaw(n_vals, params[0], params[1], params[2])
     plt.loglog(n_vals, fit, 'r:', label='+2 Fit')
 
-    # max_n2 = np.argmax(np.abs(coeffs2))
-    # max_c2 = np.max(np.abs(coeffs2))
-    # pos_idx2 = np.where(coeffs2 > 0)[0]
-    # neg_idx2 = np.where(coeffs2 < 0)[0]
-    # plt.loglog(n_vals[pos_idx2], np.abs(coeffs2[pos_idx2]),
-    #            'go', ms=ms, label=r'$F_{N-2} > 0$')
-    # plt.loglog(n_vals[neg_idx2], np.abs(coeffs2[neg_idx2]),
-    #            'bo', ms=ms, label=r'$F_{N-2} < 0$')
-    # params2 = fit_powerlaw_hansens(n_vals, coeffs2)
-    # fit2 = powerlaw(n_vals, params2[0], params2[1], params2[2])
-    # plt.loglog(n_vals, fit2 / max_c2, 'g:', label='-2 Fit')
-
-    plt.xlabel('N')
+    plt.xlabel('$N$')
     plt.ylabel(r'$F_{N2}$')
     # plt.axvline(max_n, c='k', linewidth=1)
     plt.axvline(N_peak, c='b')
@@ -143,15 +130,10 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
 
     plt.ylim(bottom=abs(coeffs[0]) / 100)
     plt.text(
-        plt.xlim()[0] * 1.1, max(abs(coeffs)) * 0.6,
-        r'$(F_{N2} = %.3fN^{%.2f}e^{-N/%.1f})$' % tuple(params),
+        plt.xlim()[0] * 1.1, max(abs(coeffs)) * 0.06,
+        r'$(F_{N2} = %.3fN^{%.2f}e^{-N/%.3f})$' % tuple(params),
         color='r',
         size=12)
-    # plt.text(
-    #     plt.xlim()[0] * 1.1, max(abs(coeffs)) * 0.35,
-    #     r'$(F_{N-2} = %.3fN^{%.2f}e^{-N/%.1f})$' % tuple(params2),
-    #     color='g',
-    #     size=12)
     plt.legend(fontsize=12, ncol=2)
     plt.tight_layout()
     plt.savefig(fn, dpi=400)
@@ -254,13 +236,52 @@ def plot_fit_scalings(m=2):
     plt.savefig('hansen_params', dpi=400)
     plt.close()
 
+def plot_naked_hansens(m=2, e=0.9):
+    nmax = 4 * int(max((1 + e) * (1 - e)**(-3/2), 600))
+    n_vals, coeffs, coeffs2 = get_coeffs_fft(nmax, m, e)
+
+    pos_idx = np.where(coeffs > 0)[0]
+    neg_idx = np.where(coeffs < 0)[0]
+    plt.semilogy(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
+                'ko', ms=ms, label=r'$F_{N2} > 0$')
+    plt.semilogy(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
+                'ro', ms=ms, label=r'$F_{N2} < 0$')
+
+    pos_idx2 = np.where(coeffs2 > 0)[0]
+    neg_idx2 = np.where(coeffs2 < 0)[0]
+    plt.semilogy(-n_vals[pos_idx2], np.abs(coeffs2[pos_idx2]),
+                'ko', ms=ms)
+    plt.semilogy(-n_vals[neg_idx2], np.abs(coeffs2[neg_idx2]),
+                'ro', ms=ms)
+    plt.xlabel(r'$N$')
+    plt.title(r'$e = %.2f$' % e)
+    plt.legend()
+    plt.ylim(bottom=1e-4)
+    plt.xscale('symlog')
+    plt.savefig('hansens_plain', dpi=400)
+    plt.close()
+
+    plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
+                'ko', ms=ms, label=r'$F_{N2} > 0$')
+    plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
+                'ro', ms=ms, label=r'$F_{N2} < 0$')
+    plt.xlabel(r'$N$')
+    plt.title(r'$e = %.2f$' % e)
+    plt.legend()
+    plt.ylim(bottom=1e-4)
+    plt.savefig('hansens_plain_right', dpi=400)
+    plt.close()
+
 if __name__ == '__main__':
     m = 2
     e = 0.9
     # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
+    # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
 
     # energy terms
-    for e_val in np.arange(0.6, 0.96, 0.05):
-        plot_hansens_0(e_val)
+    # for e_val in np.arange(0.6, 0.96, 0.05):
+    #     plot_hansens_0(e_val)
+
+    plot_naked_hansens(e=0.99)
