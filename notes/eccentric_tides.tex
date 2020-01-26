@@ -925,25 +925,45 @@ compare the $F_{N2}^2N$ term, so
             \p*{\frac{\eta}{2}}^6 5!.
 \end{align}
 Recall that $\eta = \frac{N_{\max}}{2} = \frac{\sqrt{1 + e}}{2\p*{1 -
-e}^{3/2}}\sqrt{2}$ per the results of \autoref{ss:F_n2}, and so everything all
-together evaluates to
+e}^{3/2}}\alpha$ per the results of \autoref{ss:F_n2}, where we guessed $\alpha
+\approx \sqrt{2}$, and so everything all together evaluates to
 \begin{equation}
     \sum\limits_{N}F_{N2}^2N \approx \frac{f_5}{\p*{1 - e^2}^{6}}
-        \frac{5\sqrt{1 + e}}{2^{3/2}}.
+        \frac{5\sqrt{1 + e}}{4}\alpha.
 \end{equation}
-I lost a factor of $1/2$ in the normalization (TODO track down, on the LHS), but
-ignoring that we want to compare
+
+We thus want to compare (TODO there's a stray factor of 2, what to do?)
 \begin{equation}
-    f_2 \equiv 1 + \frac{15 e^2}{2} + \frac{45e^4}{8} + \frac{5e^6}{16}
-        \overset{?}{\approx} \frac{5}{2^{3/2}}\sqrt{1 + e}
+    2f_2 = 2\p*{1 + \frac{15 e^2}{2} + \frac{45e^4}{8} + \frac{5e^6}{16}}
+        \approx \alpha\frac{5}{4}\sqrt{1 + e}
             \p*{1 + 3e^2 + \frac{3e^4}{8}}.
 \end{equation}
 Our approximation is valid when $e \to 1$, so let's first set $e = 1$ and
-evaluate, giving $14.437$ on the LHS vs $10.9375$ on the RHS\@. This seems to
-suggest that our $N_{\max}$ correction of $\sqrt{2}$ is unwarranted, which is
-unsurprising since we've already uncovered a missing factor of $2$ somewhere.
-Otherwise, these are in pretty good agreement! I need to sort out the factors of
-$2$ though.
+evaluate. This fixes $\alpha$, and indeed when we do so we find $\frac{231}{8}
+\approx \frac{175\sqrt{2}}{32}\alpha$, so $\alpha = \frac{231\sqrt{2}}{175}
+\approx 1.86$.
+
+Now, what about when $\delta e \equiv 1 - e \ll 1$? Let's expand
+\begin{align}
+    1
+            + \frac{15\p*{1 - 2\delta e}}{2}
+            + \frac{45\p*{1 - 4\delta e}}{8}
+            + \frac{5\p*{1 - 6\delta e}}{16}
+        &\approx
+            \frac{5\alpha \sqrt{2}}{4} \p*{1 - \frac{\delta e}{4}} \p*{
+                    1 + 3\p*{1 - 2\delta e} + \frac{3}{8}
+                        \p*{1 - 4\delta e}
+                },\\
+    \frac{231}{16} - \frac{315}{8}\delta e
+        &\approx \frac{5\alpha\sqrt{2}}{4}\p*{
+            \frac{35}{8} - \p*{\frac{15}{2} + \frac{35}{32}} \delta e}.
+\end{align}
+The leading order correction on the RHS evaluates to be $\frac{275 \cdot 5 \cdot
+231 \cdot 2}{4 \cdot 32 \cdot 175} \approx 28.359$, while the LHS is $39.375$.
+Thus, a fair bit of a discrepancy, but $\sim 25\%$, not bad for an
+approximation!
+
+Next: what about in non-all-traveling-wave approximation?
 
 \end{document}
 
