@@ -130,10 +130,51 @@ def check_parsevals_int(ecc_vals):
     plt.tight_layout()
     plt.savefig('check_ft_parsevals', dpi=400)
 
+def check_against_exact_exprs(e=0.9, m=2):
+    ''' section 5 of the writeup '''
+    nmax = 4 * int(max((1 + e) * (1 - e)**(-3/2), 600))
+    coeffs_fft = get_coeffs_fft(nmax, m, e)
+    n_vals = np.arange(2 * nmax - 1) - nmax + 1
+
+    summed_0 = np.sum(coeffs_fft**2)
+    f5 = (1 + 3 * e**2 + 3 * e**4 / 8) / (1 - e**2)**(9 / 2)
+    print(r'N^0', summed_0, f5)
+    summed_1 = np.sum(coeffs_fft ** 2 * n_vals)
+    print(r'N^1',
+          summed_1,
+          2 * (1 + 15 * e**2 / 2 + 45 * e**4 / 8 + 5 * e**6 / 16)
+            / (1 - e**2)**6)
+
+    n_half, coeffs_half, _ = hansens.get_coeffs_fft(1000, 2, e)
+    c, p, eta = hansens.fit_powerlaw_hansens(n_half, coeffs_half, use_p2=True)
+    print(r'N^0 fitting',
+          c**2 * (eta / 2)**(2 * p + 1) * np.math.factorial(2 * p))
+    print(r'N^1 fitting',
+          c**2 * (eta / 2)**(2 * p + 2) * np.math.factorial(2 * p + 1))
+    print('alpha', eta / (np.sqrt(1 + e) / (2 * (1 - e**2)**(3/2))))
+
+def plot_alpha():
+    ''' plots alpha (the fudge factor) as a function of eccentricity) '''
+    ecc = np.linspace(0.5, 1, 100)
+    alpha = 8 * (1 + 15 * ecc**2 / 2 + 45 * ecc**4 / 8 + 5 * ecc**6 / 16) / (
+        5 * np.sqrt(1 + ecc) * (1 + 3 * ecc**2 + 3 * ecc**4 / 8))
+    plt.plot(ecc, alpha, 'k')
+    plt.xlabel(r'$e$')
+    plt.ylabel(r'$\alpha$')
+    # overplot the asymptotic value
+    alpha_est = 462 * np.sqrt(2) / 175
+    print(alpha[-1], ecc[-1], alpha_est)
+    plt.axhline(alpha_est, c='r')
+    plt.savefig('check_alpha', dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     # m_vals = 2 * np.pi * np.arange(N_modes) / N_modes
     # check_func_eval(m_vals)
     # check_coeff_eval(m_vals)
 
-    ecc_vals = np.arange(0.1, 0.96, 0.05)
-    check_parsevals_int(ecc_vals)
+    # ecc_vals = np.arange(0.1, 0.96, 0.05)
+    # check_parsevals_int(ecc_vals)
+
+    # check_against_exact_exprs(e=0.97)
+    plot_alpha()

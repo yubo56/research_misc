@@ -71,12 +71,19 @@ def get_coeffs_fft(nmax, m, e):
 def powerlaw(n, C, p, a):
     return C * n**p * np.exp(-n / a)
 
-def fit_powerlaw_hansens(N, coeffs, p_exact=2):
-    def fit_func(n, C, a):
-        return powerlaw(n, C, p_exact, a)
-    params, _ = curve_fit(fit_func, N, coeffs, p0=(1, 40),
-                          bounds=((0, 0.01), (np.inf, np.inf)))
-    return params[0], p_exact, params[1]
+def fit_powerlaw_hansens(N, coeffs, p_exact=2, use_p2=True):
+    ''' if use_p2, force p = 2 '''
+    if use_p2:
+        def fit_func(n, C, a):
+            return powerlaw(n, C, p_exact, a)
+        params, _ = curve_fit(fit_func, N, coeffs, p0=(1, 40),
+                              bounds=((0, 0.01), (np.inf, np.inf)))
+        return params[0], p_exact, params[1]
+
+    else:
+        params, _ = curve_fit(powerlaw, N, coeffs, p0=(1, 2, 40),
+                              bounds=((0, 1, 0.01), (np.inf, 4, np.inf)))
+        return params[0], params[1], params[2]
 
 def plot_hansens_0(e, m=0):
     N_peak = (1 + e) * (1 - e)**(-3/2)

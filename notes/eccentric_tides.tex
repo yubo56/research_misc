@@ -868,8 +868,8 @@ Recall that $a/D = \p*{1 + e\cos f} / \p*{1 - e^2}$, so
             \p*{1 + e\cos f}^6\p*{m + i\frac{3e\sin f}{1 + e\cos f}}
                 \;\mathrm{d}f.
 \end{align}
-Taking just the real part (?) and setting $m = 2$ cancels with the prefactor,
-and we can explicitly integrate (only even powers survive)
+The $\sin f$ term integrates to zero, and setting $m = 2$ cancels with the
+prefactor, and we can explicitly integrate (only even powers survive)
 \begin{align}
     \frac{1}{2}\sum\limits_N F_{N2}^2N
         &= \frac{1}{2\pi\p*{1 - e^2}^6}\int\limits_0^{2\pi}
@@ -925,14 +925,14 @@ compare the $F_{N2}^2N$ term, so
             \p*{\frac{\eta}{2}}^6 5!.
 \end{align}
 Recall that $\eta = \frac{N_{\max}}{2} = \frac{\sqrt{1 + e}}{2\p*{1 -
-e}^{3/2}}\alpha$ per the results of \autoref{ss:F_n2}, where we guessed $\alpha
+e^2}^{3/2}}\alpha$ per the results of \autoref{ss:F_n2}, where we guessed $\alpha
 \approx \sqrt{2}$, and so everything all together evaluates to
 \begin{equation}
     \sum\limits_{N}F_{N2}^2N \approx \frac{f_5}{\p*{1 - e^2}^{6}}
         \frac{5\sqrt{1 + e}}{4}\alpha.
 \end{equation}
 
-We thus want to compare (TODO there's a stray factor of 2, what to do?)
+We thus want to compare
 \begin{equation}
     2f_2 = 2\p*{1 + \frac{15 e^2}{2} + \frac{45e^4}{8} + \frac{5e^6}{16}}
         \approx \alpha\frac{5}{4}\sqrt{1 + e}
@@ -940,28 +940,163 @@ We thus want to compare (TODO there's a stray factor of 2, what to do?)
 \end{equation}
 Our approximation is valid when $e \to 1$, so let's first set $e = 1$ and
 evaluate. This fixes $\alpha$, and indeed when we do so we find $\frac{231}{8}
-\approx \frac{175\sqrt{2}}{32}\alpha$, so $\alpha = \frac{231\sqrt{2}}{175}
-\approx 1.86$.
+\approx \frac{175\sqrt{2}}{32}\alpha$, so $\alpha = \frac{462\sqrt{2}}{175}
+\approx 3.7335$. This is all verified numerically.
 
 Now, what about when $\delta e \equiv 1 - e \ll 1$? Let's expand
 \begin{align}
-    1
+    2 \p*{1
             + \frac{15\p*{1 - 2\delta e}}{2}
             + \frac{45\p*{1 - 4\delta e}}{8}
-            + \frac{5\p*{1 - 6\delta e}}{16}
+            + \frac{5\p*{1 - 6\delta e}}{16}}
         &\approx
             \frac{5\alpha \sqrt{2}}{4} \p*{1 - \frac{\delta e}{4}} \p*{
                     1 + 3\p*{1 - 2\delta e} + \frac{3}{8}
                         \p*{1 - 4\delta e}
                 },\\
-    \frac{231}{16} - \frac{315}{8}\delta e
+    \frac{231}{8} - \frac{315}{4}\delta e
         &\approx \frac{5\alpha\sqrt{2}}{4}\p*{
-            \frac{35}{8} - \p*{\frac{15}{2} + \frac{35}{32}} \delta e}.
+            \frac{35}{8} - \frac{275}{32} \delta e}
+            = \frac{231}{8} - \frac{1815}{32}\delta e
 \end{align}
-The leading order correction on the RHS evaluates to be $\frac{275 \cdot 5 \cdot
-231 \cdot 2}{4 \cdot 32 \cdot 175} \approx 28.359$, while the LHS is $39.375$.
-Thus, a fair bit of a discrepancy, but $\sim 25\%$, not bad for an
-approximation!
+The leading order correction on the LHS evaluates to be $78.75$, while the LHS
+is $56.71$. We could enforce exact agreement with this by relaxing $p = 2$, but
+then we wouldn't be able to match $\sum\limits F_{N2}N^2$ anyway, so this seems
+to be acceptable.
+
+Of note: we only set $\alpha$ by setting the expressions equal at $e \to 1$, but
+what about in general? Let's make a coarse plot, and of course it's linear and
+not constant\dots see \autoref{fig:alpha}. It's approximately linear between
+$\alpha(0) = 8/5$ and $\alpha(1) \approx 3.7335$.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_alpha.png}
+    \caption{Plot of $\alpha(e)$\dots}\label{fig:alpha}
+\end{figure}
+We should probably just generally use the exact value of $\alpha(e)$ then; it
+only changes $\eta$ and not $C$ or $p = 2$, so it's not too bad.
+
+\subsection{Retroactive: High-$e$ Expansions}
+
+Note that the power of our approximation comes in evaluating expressions as
+follows (recall $\alpha = \frac{462\sqrt{2}}{175} \approx 3.7335$)
+\begin{align}
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
+        &\approx \int\limits_0^\infty C^2 N^4 e^{-2 N / \eta}N^q
+            \;\mathrm{d}N,\\
+        &\approx C^2 \int\limits_{0}^\infty N^{4 + q}
+            e^{-2N / \eta}\;\mathrm{d}N,\\
+        &\approx C^2 \p*{\frac{\eta}{2}}^{5 + q}\Gamma\p*{5 + q},\\
+        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\eta}{2}}^q,\\
+        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\alpha\frac{\sqrt{1 + e}}{
+                4\p*{1 - e^2}^{3/2}}}^q,\\
+        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\alpha}{4}}^q
+            \p*{1 + e}^{q/2}.
+\end{align}
+It bears noting that $\alpha \approx 2\p*{1 + e}$, in which case we can simply
+approximate
+\begin{align}
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
+        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
+            \frac{\Gamma\p*{5 + q}}{4!}2^{-q}
+            \p*{1 + e}^{3q/2}.
+\end{align}
+
+\subsection{Being Brave and Useless: Expanding Non-integer Powers}
+
+Let's just drop $\alpha \approx 4$ for the time being, so
+\begin{equation}
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
+        \approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
+            \frac{\Gamma\p*{5 + q}}{4!} \p*{1 + e}^{q/2}.
+\end{equation}
+One fun question is: can we do better than the piecewise approximation that we
+proposed above for the $N = 8/3$ case, via the generalized binomial theorem? For
+reference, this is:
+\begin{equation}
+    \p*{a + b}^n = \sum\limits_{k = 0}^\infty \binom{n}{k}a^kb^{n - k},
+\end{equation}
+where $\binom{n}{k} \equiv \frac{n(n - 1)\dots (n - k + 1)}{k!}$ for integer $k$
+and not necessarily integer $n$ (and thus, not necessarily positive $n - k +
+1$).
+
+Let's drop all the signs and absolute value nonsense, in which case we are
+attempting to evaluate (where $m' \equiv m\Omega_s / \Omega$ for convenience)
+\begin{align}
+    \smiley
+        &\equiv \sum\limits_{N = -\infty}^\infty F_{N2}^2 \p*{N - m'}^{8/3}
+            ,\\
+        &= \sum\limits_{N = -\infty}^\infty
+            F_{N2}^2\p*{N^{8/3} + \frac{8}{3}N^{5/3}m'
+                + \frac{(8/3)(5/3)}{2}N^{2/3}(m')^2 + \dots},\\
+        &= \frac{f_5}{\p*{1 - e^2}^{9/2}4!}\s*{
+            \frac{\Gamma\p*{5 + 8/3}\p*{1 + e}^{(8/3) / 2}}{\p*{1 - e^2}^{8/2}}
+                + \frac{\frac{8}{3}\Gamma\p*{5 + 5/3}\p*{1 + e}^{(5/3) / 2}m'}{
+                    \p*{1 - e^2}^{5/2}}
+                + \frac{\frac{(8/3)(5/3)}{2}\Gamma\p*{5 + 2/3}\p*{1 + e}^{(2/3)
+                    / 2} (m')^2}{\p*{1 - e^2}^{2/2}}
+                + \dots}.
+\end{align}
+This distinction only makes sense obviously when $m' \approx N_{\max} \sim
+\frac{2\sqrt{1 + e}}{\p*{1 - e^2}^{3/2}}$, so let's go ahead and set $m' =
+N_{\max}\beta$; we want eventually to examine asymptotic behavior for $\beta
+\to^{\pm} 1$ or some similarly critical value. This gives
+\begin{align}
+    \smiley
+        &= \frac{f_5}{\p*{1 - e^2}^{9/2}4!}\sum\limits_{k = 0}^\infty
+            \binom{8/3}{k}\Gamma\p*{\frac{23}{3} - k}
+                \frac{\p*{1 + e}^{(8/3 - k) / 2}}{
+                    \p*{1 - e^2}^{(8 - 3k)/2}}
+                \p*{-2\beta}^k\frac{\p*{1 + e}^{k / 2}}{\p*{1 - e^2}^{3k / 2}},\\
+        &= \frac{f_5\p*{1 + e}^{8/3}}{\p*{1 - e^2}^{17/2}4!}
+            \sum\limits_{k = 0}^\infty
+            \binom{8/3}{k}\Gamma\p*{\frac{23}{3} - k}\p*{-2\beta}^k.
+\end{align}
+The trick to proceed here is to handle negative arguments to the Gamma function
+with the Euler reflection formula $\Gamma(z) \Gamma\p*{1 - z} = \pi/\sin\p*{\pi
+z}$. Dropping the first few terms that don't have this problem (they're finite,
+we can return to them), we then have
+\begin{align}
+    \smiley - \smiley_6
+        &= \frac{f_5\p*{1 + e}^{8/3}}{\p*{1 - e^2}^{17/2}4!}
+            \sum\limits_{k = 7}^\infty \binom{8/3}{k}
+            \frac{\pi}{\sin \p*{\pi\p*{23/3 - k}}
+                \Gamma\p*{k - 20/3}}\p*{-2\beta}^k,\\
+        &= \frac{f_5\p*{1 + e}^{8/3}}{\p*{1 - e^2}^{17/2}4!}
+            \sum\limits_{k = 7}^\infty \binom{8/3}{k}
+            \frac{\pi}{-\sqrt{3}/2\p*{-1}^k
+                \Gamma\p*{k - 20/3}}\p*{-2\beta}^k,\\
+        &= -\frac{f_5\p*{1 + e}^{8/3}}{\p*{1 - e^2}^{17/2}4!}
+            \sum\limits_{k = 7}^\infty \binom{8/3}{k}
+            \frac{2\pi/\sqrt{3}}{\Gamma\p*{k - 20/3}}\p*{2\beta}^k.
+\end{align}
+Asymptotically, $\binom{8/3}{k}$ flips signs for every $k$, but each successive
+term is being multiplied by a number that gets closer to unity. The convergence
+is dominated by the gamma function in the denominator, which scales like a
+factorial. The sum thus converges to something in the vicinity of
+\begin{align}
+    \sum\limits_{k = 7}^\infty \binom{8/3}{k}
+            \frac{2\pi/\sqrt{3}}{\Gamma\p*{k - 20/3}}\p*{2\beta}^k
+        &\lesssim 2\pi/\sqrt{3}(2\beta)^7 e^{-2\beta}.
+\end{align}
+Is this enlightening at all? Well, there is some critical $\beta_c \sim 1$
+(corresponding to some critical $\Omega_{s,c}$) for which $\smiley$ and thus the
+torque is zero, the pseudosynchronizated spin rate. For $\beta$ just below/above
+this $\beta_c$, I guess we can see that the torque grows exponentially, before
+the dominant power law behavior takes over, from the piecewise approximations.
+And this was thoroughly useless, albeit pretty fun. Note that the signs do work
+out, a pretty big surprise to me at least.
+
+The original hope would have been to determine how near pseudosynchronization
+our piecewise approximation breaks down, but this seems somewhat hard. We
+probably can guesstimate by looking at the values of $\beta$ for which the above
+is either half of its maximum value. We know it is maximized for $\beta \sim
+3.5$, and the half max apparently happens around $2.2$ or $5.2$, so our power
+law approximation should only be good to within about $70\%$ of the
+pseudosynchronization frequency.
 
 Next: what about in non-all-traveling-wave approximation?
 
