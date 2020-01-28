@@ -824,7 +824,10 @@ smaller, both in the total stellar radius and the core radius.
 
 \section{Comparison with Existing Work, Moving Past Massive Stars}
 
-Key results are Eq.~\eqref{eq:traveling_torque}.
+Key results are Eq.~\eqref{eq:traveling_torque}. Note that the technique used to
+constrain the prefactor on the $\Omega_s \ll N_{\max}\Omega$ is general and
+necessary for any of these results where we need to expand $\abs*{N\Omega -
+m\Omega_s}^p$ in two regimes.
 
 \subsection{Weak Tides w/ Hut, Storch and Vick: Updating $F_{N2}$}
 
@@ -1247,7 +1250,56 @@ is either half of its maximum value. We know it is maximized for $\beta \sim
 law approximation should only be good to within about $70\%$ of the
 pseudosynchronization frequency.
 
-Next: what about in non-all-traveling-wave approximation?
+\subsection{Discrete Modes}
+
+This is very tenuous, let's give it a shot. When we have discrete modes (cf.
+Michelle's paper 2019, VL19), we generally have torques of form
+\begin{equation}
+    \tau \propto \sum\limits_{\alpha N}
+        \frac{\gamma F_{Nm}^2 \omega_{Nm}^2}{
+            \p*{\omega_\alpha - \omega_{Nm}}^2 + \Gamma_\alpha^2}.
+\end{equation}
+
+Consider just the torque on a single mode for now, so take the sum only over $N$
+not $\alpha$. Let's furthermore assume that the eccentricity is sufficiently
+large such that $\Omega$ is much slower than all other scales of interest, and
+we have a continuum $N$ of driving frequencies. Then ($\hat{\tau}_\alpha$ drops
+all proportionality factors)
+\begin{equation}
+    \tau_\alpha \approx \int\limits_{-\infty}^\infty
+        \frac{\gamma F_{Nm}^2 \omega_{Nm}^2}{
+            \p*{\omega_\alpha - \omega_{Nm}}^2 + \Gamma_\alpha^2}\;\mathrm{d}N.
+\end{equation}
+Note that $\omega_{Nm} \equiv N\Omega - m\Omega_s$.
+
+If we further assume that $\Gamma_{\alpha}$ is small, the Lorentzion in the
+denominator might be approximated by a delta function. Its height is fixed by
+normalization
+\begin{align}
+    \int\limits_{-\infty}^\infty \frac{1}{\p*{\omega_\alpha - \omega_{Nm}}^2
+            + \Gamma_\alpha^2}\;\mathrm{d}\omega_{Nm}
+        &= \int\limits_{-\infty}^\infty \frac{1}{\Gamma}
+            \frac{1}{(x/\Gamma)^2 + 1}\;\mathrm{d}(x/\Gamma),\\
+        &= \frac{\pi}{\Gamma},\\
+    \frac{1}{\p*{\omega_\alpha - \omega_{Nm}}^2 + \Gamma_\alpha^2}
+        &\approx \frac{\pi}{\Gamma_\alpha}\delta\p*{\omega_\alpha - \omega_{Nm}}
+            ,\\
+        &= \frac{\delta\p*{N - N_\alpha}\pi}{\Gamma_\alpha\Omega},
+\end{align}
+where $\omega_\alpha - (N_\alpha \Omega - m\Omega_s) = 0$. Thus, we are able to
+turn the Lorentzion into a delta function in terms of $N$, which allows us to
+write
+\begin{equation}
+    \tau_\alpha \approx \s*{\gamma F_{Nm}^2 \omega_{Nm}^2}_{N = N_\alpha}
+        \frac{\pi}{\Gamma_\alpha \Omega}.
+\end{equation}
+With our approximation for $F_{Nm}^2$, we can easily evaluate for any arbitrary
+$N$, so maybe given a particular spectrum of modes $\omega_\alpha$ it would be
+possible to sum $\tau$ in closed form? Seems somewhat unlikely.
+
+In an alternative world, when $\Gamma$ is much \emph{larger} than
+$\Omega_{peri}$, the Lorentzian is fat and we can probably just set it equal to
+its peak value $1/\Gamma^2$ and perform the integration as usual?
 
 \end{document}
 
