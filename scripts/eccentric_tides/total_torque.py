@@ -1,5 +1,7 @@
 '''
 investigate total torque and approximations
+
+units of Omega = 1
 '''
 from scipy.optimize import bisect
 from scipy.fftpack import ifft
@@ -24,23 +26,14 @@ def get_coeffs_fft(nmax, m, e):
     m_vals = 2 * np.pi * np.arange(n_used) / n_used
     f_vals = f(np.array([E(M) for M in m_vals]))
     func_vals = ((1 + e * np.cos(f_vals)) / (1 - e**2))**3\
-        * np.exp(-1j * 2 * f_vals)
+        * np.exp(-1j * m * f_vals)
     func_vals2 = ((1 + e * np.cos(f_vals)) / (1 - e**2))**3\
-        * np.exp(1j * 2 * f_vals)
+        * np.exp(1j * m * f_vals)
     FN2_ifft = np.real(ifft(func_vals))
     FN2_ifft2 = np.real(ifft(func_vals2))
     # these two share a DC bin
     ret = np.concatenate((FN2_ifft2[ :nmax][::-1], FN2_ifft[1:nmax]))
     return ret
-
-def get_cpa(e):
-    p0 = 2 # always p0
-    a0 = np.sqrt(2 * (1 + e)) / (p0 * (1 - e)**(3/2))
-    c0 = np.sqrt(
-        (1 + 3 * e**2 + 3 * e**4 / 8)
-        / (1 - e**2)**(9/2)
-        / ((a0 / 2)**(2 * p0 + 1) * gamma(2 * p0 + 1)))
-    return c0, p0, a0
 
 def get_torques(nmax, w_s):
     ''' really just gets hat{tau}_n (no hansen coeff)'''
@@ -59,20 +52,20 @@ def plot_ecc(w_s=0, m=2, nmax=1000):
         print('Ran for e =', e)
     totals = np.array(totals)
 
-    cp, pp, ap = get_cpa(e_vals)
+    nmax = 2 * ((1 + e_vals) / (1 - e_vals**2))**(3/2)
+    f5 = 1 + 3 * e_vals**2 + 3 * e_vals**4 / 8
     if w_s < N_peri_max:
         torque_low_spin = (
-            cp**2 * (ap / 2)**(2 * pp + 11/3) * gamma(2 * pp + 11/3)
-        )
+            # TODO
+            np.abs(1 - 6 / 7 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
+                * gamma(23 / 3) / gamma(5) / 2**(8/3) * (1 + e_vals)**4)
         plt.semilogy(e_vals, torque_low_spin, 'b:')
         plt.semilogy(e_vals, totals, 'bo', ms=3)
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
     else:
-        N_peri = np.sqrt(1 + e_vals) / (1 - e_vals)**(3/2)
-        Nmax = np.sqrt(2) * N_peri
-        torque_high_spin = -(2 * w_s - Nmax)**(8/3) * (
-            cp**2 * (ap / 2)**(2 * pp + 1) * gamma(2 * pp + 1)
-        )
+        torque_high_spin = -(
+            np.abs(1 - 2 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
+                * 2**(8/3) * (1 + e_vals)**4)
         plt.semilogy(e_vals, -torque_high_spin, 'b:')
         plt.semilogy(e_vals, -totals, 'bo', ms=3)
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
@@ -86,11 +79,11 @@ def plot_spin(e=0.9, m=2, nmax=1000):
     ''' plots behavior of total torque with varying omega_spin '''
     N_peri = np.sqrt(1 + e) / (1 - e)**(3/2)
     Nmax = np.sqrt(2) * N_peri
-    w_vals = np.linspace(0, 2 * Nmax, 70)
+    w_vals = np.linspace(-2 * Nmax, 3 * Nmax, 100)
     totals = []
     for w_s in w_vals:
         coeffs = get_coeffs_fft(nmax, m, e)
-        torques = get_torques(nmax, m, e, w_s)
+        torques = get_torques(nmax, w_s)
         totals.append(np.sum(coeffs**2 * torques))
         print('Ran for w_s =', w_s)
     totals = np.array(totals)
@@ -109,15 +102,19 @@ def plot_spin(e=0.9, m=2, nmax=1000):
     plt.axvline(N_peri, c='k')
 
     # predictions
-    cp, pp, ap = get_cpa(e)
+    nmax = 2 * ((1 + e) / (1 - e**2))**(3/2)
+    f5 = 1 + 3 * e**2 + 3 * e**4 / 8
+
     w_ls = w_vals[np.where(w_vals < N_peri)[0]] # low spin case only
     torque_low_spin = (
-        cp**2 * (ap / 2)**(2 * pp + 11/3) * gamma(2 * pp + 11/3)
-    ) * (1 - w_ls / N_peri)**(8/3)
+        np.abs(1 - 1.3818 * w_ls / nmax)**(8/3) * f5 / (1 - e**2)**(17/2)
+            * gamma(23 / 3) / gamma(5) / 2**(8/3) * (1 + e)**4)
+
     w_hs = w_vals[np.where(2 * w_vals > Nmax)[0]] # high spin case only
-    torque_high_spin = -(2 * w_hs - Nmax)**(8/3) * (
-        cp**2 * (ap / 2)**(2 * pp + 1) * gamma(2 * pp + 1)
-    )
+    torque_high_spin = -(
+        np.abs(1 - 2 * w_hs / nmax)**(8/3) * f5 / (1 - e**2)**(17/2)
+            * 2**(8/3) * (1 + e)**4)
+
     plt.semilogy(w_ls, torque_low_spin, 'k:')
     plt.semilogy(w_hs, -torque_high_spin, 'r:')
     plt.ylim(ylims)
@@ -182,6 +179,6 @@ def plot_energy(w_s=0, m=2, nmax=1000):
 if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
-    # plot_spin()
+    plot_spin()
     # plot_energy()
-    plot_energy(400)
+    # plot_energy(400)

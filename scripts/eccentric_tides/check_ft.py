@@ -153,6 +153,22 @@ def check_against_exact_exprs(e=0.9, m=2):
           c**2 * (eta / 2)**(2 * p + 2) * np.math.factorial(2 * p + 1))
     print('alpha', eta / (np.sqrt(1 + e) / (2 * (1 - e**2)**(3/2))))
 
+def check_exact_m0(e=0.9):
+    ''' m=0 part of the above '''
+    nmax = 4 * int(max((1 + e) * (1 - e)**(-3/2), 600))
+    coeffs_fft = get_coeffs_fft(nmax, 0, e)
+    n_vals = np.arange(2 * nmax - 1) - nmax + 1
+
+    summed_0 = np.sum(coeffs_fft**2)
+    f5 = (1 + 3 * e**2 + 3 * e**4 / 8) / (1 - e**2)**(9 / 2)
+    print(r'N^0', summed_0, f5)
+
+    summed_2 = np.sum(coeffs_fft ** 2 * n_vals**2)
+    print(r'N^2',
+          '%.5e' % summed_2,
+          '%.5e' % (9 * e**2 / (1 - e**2)**(15/2) * (
+              1/2 + 15 * e**2 / 8 + 15 * e**4 / 16 + 5 * e**6 / 128)))
+
 def plot_alpha():
     ''' plots alpha (the fudge factor) as a function of eccentricity) '''
     ecc = np.linspace(0.5, 1, 100)
@@ -177,4 +193,5 @@ if __name__ == '__main__':
     # check_parsevals_int(ecc_vals)
 
     # check_against_exact_exprs(e=0.97)
-    plot_alpha()
+    check_exact_m0(e=0.97)
+    # plot_alpha()
