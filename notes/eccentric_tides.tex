@@ -1064,7 +1064,7 @@ very nearly $\beta(e) \approx (2 + e) / 5$, which is much easier to remember
 
 Thus, we may revise
 \begin{equation}
-    C^2 = \frac{2f_5}{\beta \sqrt{1 + 3}\p*{1 - e^2}^3}.
+    C^2 = \frac{2f_5}{\beta \sqrt{1 + e}\p*{1 - e^2}^3}.
 \end{equation}
 
 \subsection{New Closed Forms for Torque}
@@ -1164,6 +1164,9 @@ Thus, we arrive at final answer
             & \Omega_s > N_{\max}\Omega / 2.
     \end{cases}\label{eq:traveling_torque}
 \end{equation}
+Note that in our plots, we have just used $\alpha \approx 2(1 + e)$ for
+convenience (which also has implications for $N_{\max} = \alpha N_{peri}$), and
+it performs admirably.
 
 \subsection{And Heating}
 
@@ -1184,9 +1187,50 @@ Let's handle the second term first, since it's on our minds; subscript
             F_{N0}^2\abs*{N}^{11/3},\\
         &= \frac{2}{3}\int\limits_0^\infty C^2e^{-2N/\eta}N^{11/3}\;\mathrm{d}N,\\
         &= \frac{2C^2}{3}\p*{\frac{\eta}{2}}^{14/3}\Gamma(14/3),\\
-        &= \frac{2q}{}
+        &= \frac{2}{3}\frac{2f_5}{\beta\sqrt{1 + e}\p*{1 - e^2}^3}
+            \p*{\frac{\beta}{2}}^{14/3}\p*{\frac{1 + e}{\p*{1 -
+                e^2}^{3/2}}}^{14/3} \Gamma(14/3),\\
+        &= \frac{4f_5 \beta^{11/3}\p*{1 + e}^{25/6}}{3\p*{1 - e^2}^{10}}
+            \Gamma\p*{14/3}.
 \end{align}
-Again, the form
+
+The first term is the same procedure as for the torque, where we must expand and
+match consistency. The basic form is
+\begin{equation}
+    \frac{\dot{E}_1}{\hat{T}\Omega} = \frac{1}{2}
+        \sum\limits_{N = -\infty}^\infty NF_{N2}^2 \mathrm{sgn}(\sigma)
+            \abs*{\sigma}^{8/3}.
+\end{equation}
+Recall $\sigma \equiv N - \frac{2\Omega_s}{\Omega}$. Thus, we calculate:
+\begin{itemize}
+    \item In the limit where $\Omega_s \gg N_{\max}\Omega$, then the sign is
+        always negative and $\abs*{N - 2\Omega_s / \Omega} \approx
+        \abs*{2\Omega_s / \Omega - N_{\max}}$ and we have straightforwardly
+        \begin{align}
+            \frac{\dot{E}_1}{\hat{T}\Omega}
+                &= -\frac{1}{2}
+                    \abs*{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty NF_{N2}^2,\\
+                &= -\frac{1}{2}
+                    \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    N_{\max}^{8/3}
+                    \frac{f_5}{\p*{1 - e^2}^6}\frac{5\sqrt{1 + e}}{4}\alpha,\\
+                &= -\frac{1}{2}
+                    \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \alpha^{11/3}
+                    \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{8/3}}{4}.
+        \end{align}
+    \item Again, in the other limit where $2\Omega_s \ll N_{\max}\Omega$, we
+        seek some factorization + summation $\abs*{N - \frac{2\Omega_s}{\Omega}}
+        \approx \abs*{N}\abs*{1 - \frac{2\Omega_s}{\beta N_{\max}\Omega}}$ such
+        that the asymptotics are correct:
+        \begin{equation}
+            \abs*{2\Omega_s}^{8/3} \sum\limits_N F_{N2}^2 N
+                = \abs*{\frac{2\Omega_s}{\beta N_{\max}\Omega}}^{8/3}
+                    \sum\limits_N F_{N2}N^{11/3}.
+        \end{equation}
+        This requires a bit more work but should be finishable TODO
+\end{itemize}
 
 \subsection{Being Brave and Useless: Expanding Non-integer Powers}
 
