@@ -179,6 +179,6 @@ def plot_energy(w_s=0, m=2, nmax=1000):
 if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
-    plot_spin()
-    # plot_energy()
+    # plot_spin()
+    plot_energy()
     # plot_energy(400)

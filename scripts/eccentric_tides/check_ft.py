@@ -170,7 +170,7 @@ def check_exact_m0(e=0.9):
               1/2 + 15 * e**2 / 8 + 15 * e**4 / 16 + 5 * e**6 / 128)))
 
 def plot_alpha():
-    ''' plots alpha (the fudge factor) as a function of eccentricity) '''
+    ''' plots alpha = nmax / nperi (for F_N2) as a function of eccentricity '''
     ecc = np.linspace(0.5, 1, 100)
     alpha = 8 * (1 + 15 * ecc**2 / 2 + 45 * ecc**4 / 8 + 5 * ecc**6 / 16) / (
         5 * np.sqrt(1 + ecc) * (1 + 3 * ecc**2 + 3 * ecc**4 / 8))
@@ -178,10 +178,22 @@ def plot_alpha():
     plt.xlabel(r'$e$')
     plt.ylabel(r'$\alpha$')
     # overplot the asymptotic value
-    alpha_est = 462 * np.sqrt(2) / 175
-    print(alpha[-1], ecc[-1], alpha_est)
-    plt.axhline(alpha_est, c='r')
+    alpha_fin = 462 * np.sqrt(2) / 175
+    # plt.plot(ecc, alpha_fin / 2 * (1 + ecc), c='r:')
+    plt.plot(ecc, 2 * (1 + ecc), 'r:')
     plt.savefig('check_alpha', dpi=300)
+    plt.close()
+
+def plot_beta():
+    ''' plots beta = eta / nperi (for F_N0) as a function of e '''
+    ecc = np.linspace(0.5, 1, 100)
+    beta = 3 * ecc * (
+        np.sqrt(1 + 15 * ecc**2 / 4 + 15 * ecc**4 / 8 + 5 * ecc**6 / 64) / (
+            2 * np.sqrt(1 + ecc) * (1 + 3 * ecc**2 + 3 * ecc**4 / 8)))
+    beta_est = 3 * np.sqrt(1 + 45 / 8 + 5/64) / (35 / 4 * np.sqrt(2))
+    plt.plot(ecc, beta, 'k')
+    plt.plot(ecc, (2 + ecc) / 5, 'r:')
+    plt.savefig('check_beta', dpi=300)
     plt.close()
 
 if __name__ == '__main__':
@@ -193,5 +205,6 @@ if __name__ == '__main__':
     # check_parsevals_int(ecc_vals)
 
     # check_against_exact_exprs(e=0.97)
-    check_exact_m0(e=0.97)
-    # plot_alpha()
+    # check_exact_m0(e=0.97)
+    plot_alpha()
+    plot_beta()

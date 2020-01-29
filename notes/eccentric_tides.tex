@@ -1043,13 +1043,31 @@ variables $C, \eta$, and therefore we find that
     C^2\p*{\frac{\eta}{2}} &= f_5 / \p*{1 - e^2}^{9/2},\\
     C^2 \frac{\eta^3}{2} &= \frac{9e^2}{2\p*{1 - e^2}^{15/2}}f_3,\\
     \eta^2 &= \frac{9e^2f_3}{2\p*{1 - e^2}^{3}f_5},\\
-    C^2 &= \frac{2f_5}{\eta\p*{1 - e^2}^{9/2}}
-        = \frac{(2f_5)^{3/2}}{3e\p*{1 - e^2}^3\sqrt{f_3}}.
+    C^2 &= \frac{2f_5}{\eta\p*{1 - e^2}^{9/2}}.
 \end{align}
 We can verify that as $e \to 1$, we have the scaling $\eta \propto \p*{1 -
 e^2}^{3/2}$, which probably is what told us $\eta \sim N_{peri}$.
 
-\subsection{New Closed Forms for Torque and Energy}
+In fact, in line with what we did above, let's assume $\eta \equiv \beta
+N_{peri}$, then
+\begin{equation}
+    \beta = \frac{3e\sqrt{f_3/2f_5}}{\sqrt{1 + e}}.
+\end{equation}
+The plot of $\beta$ is shown in \autoref{fig:check_beta}. It comes out to be
+very nearly $\beta(e) \approx (2 + e) / 5$, which is much easier to remember
++ use.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_beta.png}
+    \caption{Plot of $\beta(e)$.}\label{fig:check_beta}
+\end{figure}
+
+Thus, we may revise
+\begin{equation}
+    C^2 = \frac{2f_5}{\beta \sqrt{1 + 3}\p*{1 - e^2}^3}.
+\end{equation}
+
+\subsection{New Closed Forms for Torque}
 
 Note that the power of our approximation comes in evaluating expressions as
 follows (recall $\alpha = \frac{462\sqrt{2}}{175} \approx 3.7335$)
@@ -1068,14 +1086,6 @@ follows (recall $\alpha = \frac{462\sqrt{2}}{175} \approx 3.7335$)
         &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
             \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\alpha}{4}}^q
             \p*{1 + e}^{q/2}.
-\end{align}
-It bears noting that $\alpha \approx 2\p*{1 + e}$, in which case we can simply
-approximate
-\begin{align}
-    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
-        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
-            \frac{\Gamma\p*{5 + q}}{4!}2^{-q}
-            \p*{1 + e}^{3q/2}.
 \end{align}
 
 This lets us update our torque formula. Recall we want to sum
@@ -1103,8 +1113,7 @@ Let's just consider the summation, which we can call $\hat{\tau}$
             \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
 \end{equation}
 Again, let's consider the two limits (recall $N_{\max} = \alpha \frac{\sqrt{1 +
-e}}{\p*{1 - e}^{3/2}}$ for $\alpha \approx 2(1 + e)$, while $f_5 = 1 + 3e^2 +
-3e^4/8$):
+e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
 \begin{itemize}
     \item Consider $2\Omega_s \gg N_{\max}\Omega$, then the sign is always
         negative and $\abs*{N - 2\Omega_s/\Omega} \approx
@@ -1114,10 +1123,10 @@ e}}{\p*{1 - e}^{3/2}}$ for $\alpha \approx 2(1 + e)$, while $f_5 = 1 + 3e^2 +
                 &\approx -\abs*{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2,\\
                 &\approx -\abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p*{1 - e^2}^{9/2}}\p*{2\p*{\frac{1 + e}{1 -
-                    e}}^{3/2}}^{8/3},\\
+                    \frac{f_5}{\p*{1 - e^2}^{9/2}}\p*{\alpha\p*{\frac{1 + e}{\p*{1 -
+                    e^2}^3}}^{1/2}}^{8/3},\\
                 &\approx -\abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_52^{8/3}\p*{1 + e}^{4}}{\p*{1 - e^2}^{17/2}}.
+                    \frac{f_5\alpha^{8/3}\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}}.
         \end{align}
 
     \item Consider $2\Omega_s \ll N_{\max} \Omega$, then the sign is the
@@ -1140,22 +1149,44 @@ e}}{\p*{1 - e}^{3/2}}$ for $\alpha \approx 2(1 + e)$, while $f_5 = 1 + 3e^2 +
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2 \abs*{N}^{8/3},\\
                 &\approx \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
                     \frac{f_5}{\p*{1 - e^2}^{17/2}}
-                    \frac{\Gamma(23/3)}{4!}2^{-8/3}\p*{1 + e}^{4}.
+                    \frac{\Gamma(23/3)}{4!}\p*{\frac{\alpha}{4}}^{8/3}
+                        \p*{1 + e}^{4/3}.
         \end{align}
 \end{itemize}
 Thus, we arrive at final answer
 \begin{equation}
-    \hat{\tau} \approx \frac{f_5\p*{1 + e}^4}{\p*{1 - e^2}^{17/2}} \times
+    \hat{\tau} \approx \frac{f_5\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}} \times
     \begin{cases}
         \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-            \frac{\Gamma(23/3)}{4!}2^{-8/3},
+            \frac{\Gamma(23/3)}{4!}\p*{\frac{\alpha}{4}}^{8/3},
             & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
-        -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3} 2^{8/3},
+        -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3} \alpha^{8/3},
             & \Omega_s > N_{\max}\Omega / 2.
     \end{cases}\label{eq:traveling_torque}
 \end{equation}
 
-TODO we also update the energy expression as well.
+\subsection{And Heating}
+
+In the case of the heating, we recall
+\begin{align}
+     \dot{E}_{in} = \frac{1}{2}\hat{T}\p*{r_c, \Omega}\s*{
+         \sum\limits_{N = -\infty}^\infty
+            N\Omega F_{N2}^2 \sgn \p*{\sigma} \abs*{\sigma}^{8/3}
+            + \p*{\frac{W_{20}}{W_{22}}}^2\Omega F_{N0}^2 \abs*{N}^{11/3}},
+\end{align}
+where we write $\sigma = N - \frac{2\Omega_s}{\Omega}$ and know $\p*{W_{20} /
+W_{22}}^2 = 2/3$.
+
+Let's handle the second term first, since it's on our minds; subscript
+\begin{align}
+    \frac{\dot{E}_2}{\hat{T}\Omega}
+        &= \frac{1}{3} \sum\limits_{N = -\infty}^\infty
+            F_{N0}^2\abs*{N}^{11/3},\\
+        &= \frac{2}{3}\int\limits_0^\infty C^2e^{-2N/\eta}N^{11/3}\;\mathrm{d}N,\\
+        &= \frac{2C^2}{3}\p*{\frac{\eta}{2}}^{14/3}\Gamma(14/3),\\
+        &= \frac{2q}{}
+\end{align}
+Again, the form
 
 \subsection{Being Brave and Useless: Expanding Non-integer Powers}
 
