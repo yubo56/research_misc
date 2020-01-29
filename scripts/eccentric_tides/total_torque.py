@@ -56,8 +56,7 @@ def plot_ecc(w_s=0, m=2, nmax=1000):
     f5 = 1 + 3 * e_vals**2 + 3 * e_vals**4 / 8
     if w_s < N_peri_max:
         torque_low_spin = (
-            # TODO
-            np.abs(1 - 6 / 7 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
+            np.abs(1 - 1.3818 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
                 * gamma(23 / 3) / gamma(5) / 2**(8/3) * (1 + e_vals)**4)
         plt.semilogy(e_vals, torque_low_spin, 'b:')
         plt.semilogy(e_vals, totals, 'bo', ms=3)
@@ -149,29 +148,31 @@ def plot_energy(w_s=0, m=2, nmax=1000):
     plt.xlabel(r'$\frac{\Omega_s}{\Omega}$')
 
     # anal fits
-    cp, pp, ap = get_cpa(e_vals)
-    N_peri = np.sqrt(1 + e_vals) / (1 - e_vals)**(3/2)
-    c0 = np.sqrt(
-        (1 + 3 * e_vals**2 + 3 * e_vals**4 / 8)
-        / (1 - e_vals**2)**(9/2)
-        / (2 * N_peri * np.sqrt(2)))
-    disp_2 = 2/3 * c0**2 * (N_peri / (2 * np.sqrt(2)))**(14/3) * gamma(14 / 3)
+    nmax = 2 * ((1 + e_vals) / (1 - e_vals**2))**(3/2)
+    beta = (2 + e_vals) / 5
+    alpha = 2 * (1 + e_vals)
+    f5 = 1 + 3 * e_vals**2 + 3 * e_vals**4 / 8
+    disp_0 = 4 * f5 * beta**(11/3) * (1 + e_vals)**(25/6) * gamma(14/3) / (
+        3 * (1 - e_vals**2)**10)
 
     if w_s < N_peri_max:
-        disp_1 = 0.5 * cp**2 * (ap / 2)**(26 / 3) * gamma(26 / 3)
+        disp_2 = (
+            alpha**(11/3) / 2 * np.abs(1 - 2 * w_s / nmax)**(8/3)
+                * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
+                    np.abs(1 - 1.772 * w_s / nmax)**(8/3) * gamma(26/3) /
+                    (gamma(6) * 4**(8/3)))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, totals, 'bo', ms=3)
         plt.ylabel(r'$\dot{E}_{in} / \hat{T}\Omega$')
     else:
-        N_peri = np.sqrt(1 + e) / (1 - e)**(3/2)
-        Nmax = np.sqrt(2) * N_peri
-        disp_1 = 0.5 * (2 * w_s - Nmax)**(8/3) * (
-            cp**2 * (ap / 2)**(2 * pp + 2) * gamma(2 * pp + 2)
-        )
+        disp_2 = - (
+            alpha**(11/3) / 2 * np.abs(1 - 2 * w_s / nmax)**(8/3)
+                * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
+                    np.abs(1 - 2 * w_s / nmax)**(8/3))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, -totals, 'bo', ms=3)
         plt.ylabel(r'$-\dot{E}_{in} / \hat{T}\Omega$')
-    plt.semilogy(e_vals, disp_1 + disp_2, 'r:')
+    plt.semilogy(e_vals, disp_0 + disp_2, 'r:')
 
     plt.savefig('totals_e_%d' % w_s, dpi=400)
     plt.clf()
@@ -181,4 +182,4 @@ if __name__ == '__main__':
     # plot_ecc(400)
     # plot_spin()
     plot_energy()
-    # plot_energy(400)
+    plot_energy(400)

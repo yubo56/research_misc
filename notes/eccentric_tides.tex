@@ -824,10 +824,11 @@ smaller, both in the total stellar radius and the core radius.
 
 \section{Comparison with Existing Work, Moving Past Massive Stars}
 
-Key results are Eq.~\eqref{eq:traveling_torque}. Note that the technique used to
-constrain the prefactor on the $\Omega_s \ll N_{\max}\Omega$ is general and
-necessary for any of these results where we need to expand $\abs*{N\Omega -
-m\Omega_s}^p$ in two regimes.
+Key results are Eqs.~\eqref{eq:eq:fn2_swiss_army_knife}
+and~\eqref{eq:traveling_torque}. Note that the technique used to constrain the
+prefactor on the $\Omega_s \ll N_{\max}\Omega$ is general and necessary for any
+of these results where we need to expand $\abs*{N\Omega - m\Omega_s}^p$ in two
+regimes.
 
 \subsection{Weak Tides w/ Hut, Storch and Vick: Updating $F_{N2}$}
 
@@ -979,6 +980,25 @@ $\alpha(0) = 8/5$ and $\alpha(1) \approx 3.7335$.
 We should probably just generally use the exact value of $\alpha(e)$ then; it
 only changes $\eta$ and not $C$ or $p = 2$, so it's not too bad.
 
+Note that the power of our approximation comes in evaluating expressions as
+follows (recall $\alpha \approx 2 (1 + e)$)
+\begin{align}
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
+        &\approx \int\limits_0^\infty C^2 N^4 e^{-2 N / \eta}N^q
+            \;\mathrm{d}N,\\
+        &\approx C^2 \int\limits_{0}^\infty N^{4 + q}
+            e^{-2N / \eta}\;\mathrm{d}N,\\
+        &\approx C^2 \p*{\frac{\eta}{2}}^{5 + q}\Gamma\p*{5 + q},\\
+        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\eta}{2}}^q,\\
+        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\alpha\frac{\sqrt{1 + e}}{
+                4\p*{1 - e^2}^{3/2}}}^q,\\
+        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\alpha}{4}}^q
+            \p*{1 + e}^{q/2}.\label{eq:fn2_swiss_army_knife}
+\end{align}
+
 \subsection{Also Updating $F_{N0}$}
 
 Before, we postulated that $F_{N0} \propto e^{-\sqrt{2}\abs*{N} / N_{peri}}$,
@@ -1069,26 +1089,7 @@ Thus, we may revise
 
 \subsection{New Closed Forms for Torque}
 
-Note that the power of our approximation comes in evaluating expressions as
-follows (recall $\alpha = \frac{462\sqrt{2}}{175} \approx 3.7335$)
-\begin{align}
-    \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
-        &\approx \int\limits_0^\infty C^2 N^4 e^{-2 N / \eta}N^q
-            \;\mathrm{d}N,\\
-        &\approx C^2 \int\limits_{0}^\infty N^{4 + q}
-            e^{-2N / \eta}\;\mathrm{d}N,\\
-        &\approx C^2 \p*{\frac{\eta}{2}}^{5 + q}\Gamma\p*{5 + q},\\
-        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\eta}{2}}^q,\\
-        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\alpha\frac{\sqrt{1 + e}}{
-                4\p*{1 - e^2}^{3/2}}}^q,\\
-        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\alpha}{4}}^q
-            \p*{1 + e}^{q/2}.
-\end{align}
-
-This lets us update our torque formula. Recall we want to sum
+We can now update our torque formula. Recall we want to sum
 \begin{equation}
     \tau = T_0 \hat{C}(r_c)
             \sum\limits_{N = -\infty}^\infty
@@ -1141,8 +1142,10 @@ e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
                     \sum\limits_{N}F_{N2}^2 N^{8/3}.
         \end{equation}
 
-        This can be solved to find that $\beta =
-        \p*{\frac{\Gamma\p*{23/3}}{4!}}^{3/8}/4 \approx 1.38$. Thus,
+        This can be solved to find (I did this on scratch paper, see the
+        calculation in heating for a solved example) that $\beta =
+        \p*{\frac{\Gamma\p*{23/3}}{4!}}^{3/8}/4 \approx 1.447$, and so $2/\beta
+        \approx 1.38$. Thus,
         \begin{align}
             \hat{\tau}
                 &\approx \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
@@ -1152,6 +1155,9 @@ e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
                     \frac{\Gamma(23/3)}{4!}\p*{\frac{\alpha}{4}}^{8/3}
                         \p*{1 + e}^{4/3}.
         \end{align}
+
+        This asymptotics technique seems to be general; we speculate on it in
+        the section under \autoref{eq:fn2_swiss_army_knife}.
 \end{itemize}
 Thus, we arrive at final answer
 \begin{equation}
@@ -1167,6 +1173,13 @@ Thus, we arrive at final answer
 Note that in our plots, we have just used $\alpha \approx 2(1 + e)$ for
 convenience (which also has implications for $N_{\max} = \alpha N_{peri}$), and
 it performs admirably.
+
+Note that the reason we have these two different forms is basically because I
+didn't want three components to the piecewise function. But it should be obvious
+that the two regimes $\abs*{\Omega_s} \gg \abs*{N_{\max}\Omega}$ should be
+symmetric, and this is what fixes the prefactor on the $\Omega_s /
+N_{\max}\Omega$ term inside the absolute value\dots no need to actually compute
+the asymptotic behavior lol, idk what I was thinking.
 
 \subsection{And Heating}
 
@@ -1225,12 +1238,61 @@ Recall $\sigma \equiv N - \frac{2\Omega_s}{\Omega}$. Thus, we calculate:
         \approx \abs*{N}\abs*{1 - \frac{2\Omega_s}{\beta N_{\max}\Omega}}$ such
         that the asymptotics are correct:
         \begin{equation}
-            \abs*{2\Omega_s}^{8/3} \sum\limits_N F_{N2}^2 N
+            \abs*{\frac{2\Omega_s}{\Omega}}^{8/3} \sum\limits_N F_{N2}^2 N
                 = \abs*{\frac{2\Omega_s}{\beta N_{\max}\Omega}}^{8/3}
                     \sum\limits_N F_{N2}N^{11/3}.
         \end{equation}
-        This requires a bit more work but should be finishable TODO
+        Using \autoref{eq:fn2_swiss_army_knife} and keeping only the $q$
+        dependent parts, we obtain (recall $N_{\max} = \alpha \frac{\sqrt{1 +
+        e}}{\p*{1 - e}^{3/2}}$)
+        \begin{align}
+            \abs*{\frac{2\Omega_s}{\Omega}}^{8/3} \frac{\Gamma(6)}{\p*{1 - e^2}^{3/2}}
+                    \p*{\frac{\alpha}{4}}\p*{1 + e}^{1/2}
+                &= \abs*{\frac{2\Omega_s}{\beta N_{\max}\Omega}}^{8/3}
+                    \frac{\Gamma(26/3)}{\p*{1 - e^2}^{11/2}}
+                    \p*{\frac{\alpha}{4}}^{11/3}\p*{1 + e}^{11/6},\\
+            \beta^{8/3}
+                &= \frac{1}{N_{\max}}^{8/3}
+                    \frac{\Gamma(26/3)}{5! \p*{1 - e^2}^{4}}
+                    \p*{\frac{\alpha}{4}}^{8/3}\p*{1 + e}^{4/3},\\
+            \beta
+                &= \p*{\frac{\Gamma(26/3)}{5!}}^{3/8} \p*{\frac{1}{4}}
+                    \approx 1.699.
+        \end{align}
+        Again, as was noted above, this number had to be obvious, but I'm
+        stupid.
+
+        Thus, we can now approximate the sum
+        \begin{align}
+            \frac{\dot{E}_1}{\hat{T}\Omega}
+                &= \frac{1}{2}
+                    \abs*{1 - 1.1772\frac{\Omega_s}{\Omega N_{\max}}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty \abs*{N}^{11/3}F_{N2}^2,\\
+                &= \frac{1}{2}
+                    \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{8/3}}{4}
+                    \p*{\frac{\alpha}{4}}^{11/3}
+                    \frac{\Gamma(26/3)}{5!}.
+        \end{align}
 \end{itemize}
+Thus, we have total heating rate (in the inertial frame, this indeed can be
+signed)
+\begin{align}
+    \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
+            \frac{4f_5 \beta^{11/3}\p*{1 + e}^{25/6}}{3\p*{1 - e^2}^{10}}
+                \Gamma\p*{14/3}\nonumber\\
+        & + \frac{\alpha^{11/3}}{2}
+                \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{8/3}}{4}
+                \times\nonumber\\
+        &\begin{cases}
+            \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
+                & \Omega_s < N_{\max}\Omega/2,\\[5pt]
+            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
+                & \Omega_s > N_{\max}\Omega/2.
+        \end{cases}
+\end{align}
 
 \subsection{Being Brave and Useless: Expanding Non-integer Powers}
 
