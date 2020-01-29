@@ -157,29 +157,30 @@ def plot_energy(w_s=0, m=2, nmax=1000):
 
     if w_s < N_peri_max:
         disp_2 = (
-            alpha**(11/3) / 2 * np.abs(1 - 2 * w_s / nmax)**(8/3)
+            alpha**(11/3) / 2
                 * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
                     np.abs(1 - 1.772 * w_s / nmax)**(8/3) * gamma(26/3) /
                     (gamma(6) * 4**(8/3)))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, totals, 'bo', ms=3)
+        plt.semilogy(e_vals, disp_0 + disp_2, 'r:')
         plt.ylabel(r'$\dot{E}_{in} / \hat{T}\Omega$')
     else:
         disp_2 = - (
-            alpha**(11/3) / 2 * np.abs(1 - 2 * w_s / nmax)**(8/3)
+            alpha**(11/3) / 2
                 * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
                     np.abs(1 - 2 * w_s / nmax)**(8/3))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, -totals, 'bo', ms=3)
+        plt.semilogy(e_vals, -disp_0 - disp_2, 'r:')
         plt.ylabel(r'$-\dot{E}_{in} / \hat{T}\Omega$')
-    plt.semilogy(e_vals, disp_0 + disp_2, 'r:')
 
     plt.savefig('totals_e_%d' % w_s, dpi=400)
     plt.clf()
 
 if __name__ == '__main__':
-    # plot_ecc()
-    # plot_ecc(400)
-    # plot_spin()
+    plot_ecc()
+    plot_ecc(400)
+    plot_spin()
     plot_energy()
     plot_energy(400)
