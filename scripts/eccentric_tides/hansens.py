@@ -86,7 +86,7 @@ def fit_powerlaw_hansens(N, coeffs, p_exact=2, use_p2=True):
         return params[0], params[1], params[2]
 
 def plot_hansens_0(e, m=0):
-    N_peak = (1 + e) * (1 - e)**(-3/2)
+    N_peak = np.sqrt(1 + e) * (1 - e**2)**(-3/2)
     nmax = int(10 * N_peak)
     n_vals, coeffs, coeffs2 = get_coeffs_fft(nmax, m, e)
 
@@ -98,18 +98,22 @@ def plot_hansens_0(e, m=0):
     amp = coeffs[0]
     def f(n, a):
         return amp * np.exp(-np.abs(n) / (a * N_peak))
-    [a_fit], _ = curve_fit(f, n_tot, coeffs_tot, p0=(2))
-    plt.semilogy(n_tot, amp * np.exp(-np.abs(n_tot) / (a_fit * N_peak)), 'r:')
-    print(e, a_fit)
+    [beta], _ = curve_fit(f, n_tot, coeffs_tot, p0=(2))
+    plt.semilogy(n_tot, amp * np.exp(-np.abs(n_tot) / (beta * N_peak)), 'r:')
+
+    eta = np.sqrt(8) * e * N_peak
+    C = np.sqrt((1 + 3 * e**2 + 3 * e**4 / 8) / (
+        eta * (1 - e**2)**(9/2)))
+    plt.semilogy(n_tot, C * np.exp(-np.abs(n_tot) / eta), 'k:')
 
     plt.xlabel(r'$N$')
-    plt.xlim([-2 * N_peak, 2 * N_peak])
-    plt.ylim([coeffs[2 * int(N_peak)], 1.4 * coeffs[0]])
+    plt.xlim([-6 * N_peak, 6 * N_peak])
+    # plt.ylim([coeffs[6 * int(N_peak)], 1.4 * coeffs[0]])
     plt.savefig('hansens/hansens%s' % ('%.2f' % e).replace('.', '_'), dpi=400)
     plt.close()
 
 def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
-    N_peak = (1 + e) * (1 - e)**(-3/2)
+    N_peak = np.sqrt(1 + e) * (1 - e**2)**(-3/2)
     # just plot +2, no 8/3's laws for now
     nmax = 4 * int(max(N_peak, 150))
     n_vals, coeffs, _ = coeff_getter(nmax, m, e)
@@ -283,12 +287,12 @@ if __name__ == '__main__':
     m = 2
     e = 0.9
     # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
-    plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
+    # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
 
     # energy terms
-    # for e_val in np.arange(0.6, 0.96, 0.05):
+    # for e_val in np.arange(0.5, 0.96, 0.05):
     #     plot_hansens_0(e_val)
 
     plot_naked_hansens(e=0.99)

@@ -14,11 +14,11 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=16)
 
 ms = 2
-def get_coeffs_fft(nmax, m, e):
+def get_coeffs_fft(num_pts, m, e):
     '''
-    returns coeffs for N \in [-nmax + 1, nmax - 1]
+    returns coeffs for N \in [-num_pts + 1, num_pts - 1]
     '''
-    n_used = 4 * nmax # nyquist not enough?? oh well, still fast
+    n_used = 4 * num_pts # nyquist not enough?? oh well, still fast
     def f(E):
         return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
     def E(M):
@@ -32,39 +32,47 @@ def get_coeffs_fft(nmax, m, e):
     FN2_ifft = np.real(ifft(func_vals))
     FN2_ifft2 = np.real(ifft(func_vals2))
     # these two share a DC bin
-    ret = np.concatenate((FN2_ifft2[ :nmax][::-1], FN2_ifft[1:nmax]))
+    ret = np.concatenate((FN2_ifft2[ :num_pts][::-1], FN2_ifft[1:num_pts]))
     return ret
 
-def get_torques(nmax, w_s):
+def get_torques(num_pts, w_s):
     ''' really just gets hat{tau}_n (no hansen coeff)'''
-    n_vals = np.arange(-nmax + 1, nmax)
+    n_vals = np.arange(-num_pts + 1, num_pts)
     return np.sign(n_vals - 2 * w_s) * np.abs(n_vals - 2 * w_s)**(8/3)
 
-def plot_ecc(w_s=0, m=2, nmax=1000):
+def get_numericals(e):
+    ''' gets the exact numerical values of alpha/beta/nmax/f5 '''
+    f5 = 1 + 3 * e**2 + 3 * e**4 / 8
+    alpha = 2 * (1 + 15 * e**2 / 2 + 45 * e**4 / 8 + 5 * e**6 / 16) / (
+        5 * np.sqrt(1 + e) / 4 * f5)
+    nmax = alpha * np.sqrt(1 + e) / (1 - e**2)**(3/2)
+    beta = 3 * e * np.sqrt(1 + 15 * e**2 / 4 + 15 * e**4 / 8 + 5 * e**6 / 64)\
+        / np.sqrt(f5 * (1 + e))
+    return alpha, beta, f5, nmax
+
+def plot_ecc(w_s=0, m=2, num_pts=1000):
     ''' plots behavior of total torque with varying eccentricity '''
     e_vals = np.arange(0.5, 0.96, 0.01)
     N_peri_max = np.sqrt(1 + max(e_vals)) / (1 - max(e_vals))**(3/2)
     totals = []
     for e in e_vals:
-        coeffs = get_coeffs_fft(nmax, m, e)
-        torques = get_torques(nmax, w_s)
+        coeffs = get_coeffs_fft(num_pts, m, e)
+        torques = get_torques(num_pts, w_s)
         totals.append(np.sum(coeffs**2 * torques))
         print('Ran for e =', e)
     totals = np.array(totals)
 
-    nmax = 2 * ((1 + e_vals) / (1 - e_vals**2))**(3/2)
-    f5 = 1 + 3 * e_vals**2 + 3 * e_vals**4 / 8
+    alpha, _, f5, nmax = get_numericals(e_vals)
     if w_s < N_peri_max:
-        torque_low_spin = (
-            np.abs(1 - 1.3818 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
-                * gamma(23 / 3) / gamma(5) / 2**(8/3) * (1 + e_vals)**4)
+        torque_low_spin = f5 * (1 + e_vals)**(4/3) / (1 - e_vals**2)**(17/2) * (
+            np.abs(1 - 1.3818 * w_s / nmax)**(8/3) * gamma(23 / 3) / gamma(5)
+                * (alpha / 4)**(8/3))
         plt.semilogy(e_vals, torque_low_spin, 'b:')
         plt.semilogy(e_vals, totals, 'bo', ms=3)
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
     else:
-        torque_high_spin = -(
-            np.abs(1 - 2 * w_s / nmax)**(8/3) * f5 / (1 - e_vals**2)**(17/2)
-                * 2**(8/3) * (1 + e_vals)**4)
+        torque_high_spin = -f5 * (1 + e_vals)**(4/3) / (1 - e_vals**2)**(17/2) * (
+            np.abs(1 - 2 * w_s / nmax)**(8/3) * alpha**(8/3))
         plt.semilogy(e_vals, -torque_high_spin, 'b:')
         plt.semilogy(e_vals, -totals, 'bo', ms=3)
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
@@ -74,15 +82,15 @@ def plot_ecc(w_s=0, m=2, nmax=1000):
     plt.savefig('totals_ecc_%d' % w_s, dpi=400)
     plt.clf()
 
-def plot_spin(e=0.9, m=2, nmax=1000):
+def plot_spin(e=0.9, m=2, num_pts=1000):
     ''' plots behavior of total torque with varying omega_spin '''
     N_peri = np.sqrt(1 + e) / (1 - e)**(3/2)
     Nmax = np.sqrt(2) * N_peri
     w_vals = np.linspace(-2 * Nmax, 3 * Nmax, 100)
     totals = []
     for w_s in w_vals:
-        coeffs = get_coeffs_fft(nmax, m, e)
-        torques = get_torques(nmax, w_s)
+        coeffs = get_coeffs_fft(num_pts, m, e)
+        torques = get_torques(num_pts, w_s)
         totals.append(np.sum(coeffs**2 * torques))
         print('Ran for w_s =', w_s)
     totals = np.array(totals)
@@ -123,57 +131,54 @@ def plot_spin(e=0.9, m=2, nmax=1000):
     plt.savefig('totals_s_%s' % ('%.1f' % e).replace('.', '_'), dpi=400)
     plt.clf()
 
-def get_energies(nmax, m, e, w_s):
+def get_energies(num_pts, m, e, w_s):
     ''' gets E/hat{T}W '''
-    coeffs0 = get_coeffs_fft(nmax, 0, e)
-    coeffs2 = get_coeffs_fft(nmax, 2, e)
-    n_vals = np.arange(-nmax + 1, nmax)
+    coeffs0 = get_coeffs_fft(num_pts, 0, e)
+    coeffs2 = get_coeffs_fft(num_pts, 2, e)
+    n_vals = np.arange(-num_pts + 1, num_pts)
     return 0.5 * (
         n_vals * coeffs2**2 * np.sign(n_vals - 2 * w_s)
             * np.abs(n_vals - 2 * w_s)**(8/3)
         + 2/3 * coeffs0**2 * np.abs(n_vals)**(11/3)
     )
 
-def plot_energy(w_s=0, m=2, nmax=1000):
+def plot_energy(w_s=0, m=2, num_pts=1000):
     ''' plots behavior of heating with varying eccentricity '''
     e_vals = np.arange(0.5, 0.96, 0.01)
     N_peri_max = np.sqrt(1 + max(e_vals)) / (1 - max(e_vals))**(3/2)
     totals = []
     for e in e_vals:
-        coeffs = get_coeffs_fft(nmax, m, e)
-        energies = get_energies(nmax, m, e, w_s)
+        energies = get_energies(num_pts, m, e, w_s)
         totals.append(np.sum(energies))
         print('Ran for e =', e)
     totals = np.array(totals)
-    plt.xlabel(r'$\frac{\Omega_s}{\Omega}$')
+    plt.xlabel(r'$e$')
 
     # anal fits
-    nmax = 2 * ((1 + e_vals) / (1 - e_vals**2))**(3/2)
-    beta = (2 + e_vals) / 5
-    alpha = 2 * (1 + e_vals)
-    f5 = 1 + 3 * e_vals**2 + 3 * e_vals**4 / 8
-    disp_0 = 4 * f5 * beta**(11/3) * (1 + e_vals)**(25/6) * gamma(14/3) / (
-        3 * (1 - e_vals**2)**10)
+    alpha, beta, f5, nmax = get_numericals(e_vals)
+
+    disp_0 = f5 * beta**(11/3) * (1 + e_vals)**(11/6) * gamma(14/3) / (
+        3 * (1 - e_vals**2)**10 * 2**(11/3))
 
     if w_s < N_peri_max:
         disp_2 = (
             alpha**(11/3) / 2
-                * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
+                * f5 * 5 * (1 + e_vals)**(11/6) / (4 * (1 - e_vals**2)**10)) * (
                     np.abs(1 - 1.772 * w_s / nmax)**(8/3) * gamma(26/3) /
                     (gamma(6) * 4**(8/3)))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, totals, 'bo', ms=3)
-        plt.semilogy(e_vals, disp_0 + disp_2, 'r:')
         plt.ylabel(r'$\dot{E}_{in} / \hat{T}\Omega$')
+        plt.semilogy(e_vals, +(disp_0 + disp_2), 'r:')
     else:
         disp_2 = - (
             alpha**(11/3) / 2
-                * f5 * 5 * (1 + e)**(8/3) / (4 * (1 - e_vals**2)**10)) * (
+                * f5 * 5 * (1 + e_vals)**(11/6) / (4 * (1 - e_vals**2)**10)) * (
                     np.abs(1 - 2 * w_s / nmax)**(8/3))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, -totals, 'bo', ms=3)
-        plt.semilogy(e_vals, -disp_0 - disp_2, 'r:')
         plt.ylabel(r'$-\dot{E}_{in} / \hat{T}\Omega$')
+        plt.semilogy(e_vals, -(disp_0 + disp_2), 'r:')
 
     plt.savefig('totals_e_%d' % w_s, dpi=400)
     plt.clf()
