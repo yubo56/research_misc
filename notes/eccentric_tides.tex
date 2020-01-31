@@ -1160,12 +1160,13 @@ e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
 \end{itemize}
 Thus, we arrive at final answer
 \begin{equation}
-    \hat{\tau} \approx \frac{f_5\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}} \times
+    \hat{\tau} \approx \alpha^{8/3}
+        \frac{f_5\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}} \times
     \begin{cases}
         \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-            \frac{\Gamma(23/3)}{4!}\p*{\frac{\alpha}{4}}^{8/3},
+            \frac{\Gamma(23/3)}{4!}\p*{\frac{1}{4}}^{8/3},
             & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
-        -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3} \alpha^{8/3},
+        -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
             & \Omega_s > N_{\max}\Omega / 2.
     \end{cases}\label{eq:traveling_torque}
 \end{equation}
@@ -1281,14 +1282,13 @@ signed)
             \frac{f_5 \beta^{11/3}\p*{1 + e}^{11/6}}{3\p*{1 - e^2}^{10}}
             \Gamma\p*{14/3}\nonumber\\
         & + \frac{\alpha^{11/3}}{2}
-                \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{11/6}}{4}
+                \frac{f_5\p*{1 + e}^{11/6}}{\p*{1 - e^2}^{10}}
                 \times\nonumber\\
         &\begin{cases}
             \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
                 \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
                 & \Omega_s < N_{\max}\Omega/2,\\[5pt]
-            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
+            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
                 & \Omega_s > N_{\max}\Omega/2.
         \end{cases}\label{eq:total_heating}
 \end{align}
