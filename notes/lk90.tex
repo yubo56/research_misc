@@ -124,14 +124,14 @@ eccentricity vector; see LML15 for precise definitions. Note that $\bm{j} \cdot
 \bm{e} = 0$, $j^2 + e^2 = 1$. Then, the EOM for the inner and outer vectors
 satisfy to quadrupolar order
 \begin{align}
-    \rd{\bm{j}_1}{t} &= \frac{3}{4t_{LK}} \s*{
-        \p*{\bm{j}_1 \cdot \hat{n}_2} \p*{\bm{j}_1 \times \hat{n}_2}
-        - 5\p*{\bm{e}_1 \cdot \hat{n}_2}\p*{\bm{e}_1 \times \hat{n}_2}
+    \rd{\bm{j}}{t} &= \frac{3}{4t_{LK}} \s*{
+        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
+        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
         },\\
-    \rd{\bm{e}_1}{t} &= \frac{3}{4t_{LK}} \s*{
-        \p*{\bm{j}_1 \cdot \hat{n}_2} \p*{\bm{e}_1 \times \hat{n}_2}
-        + 2\bm{j}_1 \times \bm{e}_1
-        - 5\p*{\bm{e}_1 \cdot \hat{n}_2}\p*{\bm{j}_1 \times \hat{n}_2}
+    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s*{
+        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+        + 2\bm{j} \times \bm{e}
+        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
         }.
 \end{align}
 Let's assume for the time being that $L_1 \ll L_2$, so the system is
@@ -140,10 +140,10 @@ reference that
 \begin{equation}
     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
         = \frac{1}{n_1}\p*{\frac{m_0 + m_1}{m_2}}
-            \p*{\frac{a_2}{a_1}}^3
+            \p*{\frac{a_2}{a}}^3
             \p*{1 - e_2^2}^{3/2}.
 \end{equation}
-Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a_1^3}$. Finally, the GR effects
+Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a^3}$. Finally, the GR effects
 (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
 \begin{align}
     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
@@ -151,38 +151,94 @@ Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a_1^3}$. Finally, the GR effects
         \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}\hat{L},\\
     \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
         \frac{\mu m_{12}^2}{a^4\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
-            e^2}\bm{e}.
+            e^2}\bm{e},\\
+    \at{\frac{\dot{a}}{a}}_{GW} &= -\frac{64}{5} \frac{G^3 \mu m_{12}^2}{c^5a^4}
+        \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
+            + \frac{37}{96}e^4}.
 \end{align}
 Here, $m_{12} \equiv m_1 + m_2$.
 
 Given this system (from LML15), we can then add the spin-orbit coupling term,
 which is given in LL18 to be
 \begin{align}
-    \rd{\hat{S}_1}{t} &= \Omega_{SL}\hat{L}_1 \times \hat{S}_1,\\
+    \rd{\hat{S}}{t} &= \Omega_{SL}\hat{L} \times \hat{S},\\
     \Omega_{SL} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
 \end{align}
 Note that $\mu$ is the reduced mass of the inner binary. We can drop the
-back-reaction term since $S_1 \ll L_1$. What is observed is that, as this system
+back-reaction term since $S \ll L$. What is observed is that, as this system
 is evolved forward in time and GR coalesces the inner binary, $\theta_{sl}
-\equiv \arccos\p*{\hat{S} \cdot \hat{L}_1}$ goes to $90^\circ$ consistently. The
+\equiv \arccos\p*{\hat{S} \cdot \hat{L}}$ goes to $90^\circ$ consistently. The
 relevant figure is Fig.~19 of LL18, which shows that for a close-in,
 low-eccentricity perturber ($\bar{a}_{\rm out, eff} \propto a_{out}$), the
 focusing is significantly stronger. Note that initially, $I \equiv
-\arccos\p*{\hat{L}_1 \cdot \hat{L}_2} \approx 90^\circ$ while $\theta_{sl}
+\arccos\p*{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while $\theta_{sl}
 \approx 0$.
 
 In LL18, an adiabaticity parameter is defined:
 \begin{equation}
     \mathcal{A} \equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}},
 \end{equation}
-where $\Omega_{L} \simeq \ev*{\rd{\hat{L}_1}{t}}_{LK}$ to quadrupolar order. As
+where $\Omega_{L} \simeq \ev*{\rd{\hat{L}}{t}}_{LK}$ to quadrupolar order. As
 the inner binary coalesces, $\mathcal{A}$ transitions from $\ll 1$ to $\gg 1$
 (as $\Omega_{SL}$ is a GR effect so ramps up very quickly as orbital separation
 decreases).
 
-\subsection{Intuitive Picture}
+\subsection{Simulations}
 
-Looking at LL18, in praticular at Fig 4,
+First, we run GR-less simulations, so let's take $t_{LK} = 1$ (no semimajor axis
+evolution), and we reproduce LK oscillations.
+
+Next, when accounting for GR, we should let $a$ evolve as above. Note that since
+$\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
+\sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p*{1 -
+e^2}}}$ and rewrite
+\begin{equation}
+    \at{\rd{\bm{j}}{t}}_{GW} = \frac{1}{\mu\sqrt{GMa}}\at{\rd{\bm{L}}{t}}_{GW}
+        - \frac{\hat{L}}{2a}\at{\rd{a}{t}}_{GW}.
+\end{equation}
+
+For convenience, let's just define $t_{LK} = t_{LK,0} \frac{a_0^3}{a^3}$
+and set $t_{LK, 0} = 1$. Furthermore, the timescale of relevance for the GW
+terms is $t_{GW}^{-1} \sim \frac{G^3 \mu m_{12}^2}{c^5a^4}$. Let's express this
+as some ratio $t_{GW} = \epsilon t_{LK, 0}\frac{a_0^4}{a^4}$. Thus, everything
+should be nondimensionalized this way.
+
+We lastly add de-Sitter precession of the spin of one of the inner binary
+components, call this $\hat{S}$. Similarly, let's just define a proportionality
+constant $t_{SL} = \delta t_{LK, 0}\frac{a_0}{a}$, then
+\begin{equation}
+    \rd{\hat{S}}{(t / t_{LK, 0})} = \delta \frac{a_0}{a} \hat{L} \times \hat{S}.
+\end{equation}
+
+Our final simulation equations are thus ($\tau = t / t_{LK, 0}$)
+\begin{align}
+    \rd{\bm{j}}{\tau} ={}& \frac{3}{4}\p*{\frac{a_0^3}{a^3}} \s*{
+        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
+        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+        }\nonumber\\
+        &- \p*{\epsilon \frac{a_0^4}{a^4}}\p*{
+            \frac{32}{5}
+                \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}
+            - \frac{32}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
+                    + \frac{37}{96}e^4}
+            }\frac{\bm{j}}{\sqrt{1 - e^{2}}},\\
+    \rd{\bm{e}}{\tau} ={}&
+        \frac{3}{4}\p*{\frac{a_0^3}{a^3}} \s*{
+            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+            + 2\bm{j} \times \bm{e}
+            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+            }
+        -
+            \p*{\epsilon\frac{a_0^4}{a^4}}
+            \frac{304}{15}
+            \frac{1}{\p*{1 - e^2}^{5/2}}
+            \p*{1 + \frac{121}{304} e^2}\bm{e},\\
+    \rd{\hat{S}}{\tau} ={}& \delta \frac{a_0}{a}
+        \frac{\bm{j}}{\sqrt{1 - e^2}} \times \hat{S},\\
+    \rd{a}{\tau} ={}& -a\p*{\epsilon\frac{a_0^4}{a^4}}
+        \frac{64}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
+            + \frac{37}{96}e^4}.
+\end{align}
 
 \end{document}
 
