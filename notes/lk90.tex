@@ -194,8 +194,31 @@ $\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
 e^2}}}$ and rewrite
 \begin{equation}
     \at{\rd{\bm{j}}{t}}_{GW} = \frac{1}{\mu\sqrt{GMa}}\at{\rd{\bm{L}}{t}}_{GW}
-        - \frac{\hat{L}}{2a}\at{\rd{a}{t}}_{GW}.
+        - \frac{\bm{j}}{2a}\at{\rd{a}{t}}_{GW}.
 \end{equation}
+To double check, we should verify that $\at{\rd{(j^2 + e^2)}{t}}_{GW} = 0$,
+which can be verified as (Let's set $G = M = \mu = a = c = 1$ for convenience)
+\begin{align}
+    \frac{1}{2}\rd{(j^2 + e^2)}{t}
+        &= \bm{j} \cdot \rd{\bm{j}}{t} + \bm{e} \cdot \rd{\bm{e}}{t},\\
+        &= \bm{j} \cdot \s*{
+            \p*{-\frac{32}{5}\frac{1 + 7e^2/8}{\p*{1 - e^2}^2}}\hat{L}
+                - \frac{\bm{j}}{2}\p*{-\frac{64}{5}
+                    \frac{1 + 73e^2/24 + 37e^4/96}{\p*{1 - e^2}^{7/2}}}}
+            + \bm{e} \cdot
+                \p*{-\frac{304}{15}\frac{1 + 121e^2/304}{\p*{1 - e^2}^{5/2}}}
+                \bm{e},\\
+        &= \p*{-\frac{32}{5}\frac{1 + 7e^2/8}{\p*{1 - e^2}^{3/2}}}
+                + \p*{\frac{32}{5}
+                    \frac{1 + 73e^2/24 + 37e^4/96}{\p*{1 - e^2}^{5/2}}}
+            + e^2 \p*{-\frac{304}{15}\frac{1 + 121e^2/304}{\p*{1 - e^2}^{5/2}}}
+                ,\\
+        &= \frac{1}{15\p*{1 - e^2}^{5/2}}\s*{
+            -96\p*{1 - e^2}\p*{1 + \frac{7e^2}{8}}
+                + 96\p*{1 + \frac{73e^2}{24} + \frac{37e^4}{96}}
+                - 304e^2\p*{1 + \frac{121e^2}{304}}}.
+\end{align}
+This can be verified to vanish upon term-by-term examination indeed.
 
 For convenience, let's just define $t_{LK} = t_{LK,0} \frac{a_0^3}{a^3}$
 and set $t_{LK, 0} = 1$. Furthermore, the timescale of relevance for the GW
@@ -218,10 +241,10 @@ Our final simulation equations are thus ($\tau = t / t_{LK, 0}$)
         }\nonumber\\
         &- \p*{\epsilon \frac{a_0^4}{a^4}}\p*{
             \frac{32}{5}
-                \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}
+                \frac{1 + 7e^2/8}{\p*{1 - e^2}^{5/2}}
             - \frac{32}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
                     + \frac{37}{96}e^4}
-            }\frac{\bm{j}}{\sqrt{1 - e^{2}}},\\
+            }\bm{j},\\
     \rd{\bm{e}}{\tau} ={}&
         \frac{3}{4}\p*{\frac{a_0^3}{a^3}} \s*{
             \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
