@@ -18,14 +18,15 @@ def ts_dot(x, y):
         z += x1 * y1
     return z
 
-def plot_traj(ret, fn, num_pts=1000):
+def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
+              use_stride=True, use_start=True):
     j, e, s, a = to_vars(ret.y)
     fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3,
                                                  figsize=(14, 8),
                                                  sharex=True)
 
-    start_idx = len(ret.t) // 2
-    stride = len(ret.t) // num_pts + 1
+    start_idx = len(ret.t) // 2 if use_start else 0
+    stride = len(ret.t) // num_pts + 1 if use_stride else 1
     e_tot = np.sqrt(np.sum(e[:, start_idx::stride]**2, axis=0))
     j_tot = np.sqrt(np.sum(j[:, start_idx::stride]**2, axis=0))
     l = j[:, start_idx::stride] / j_tot
@@ -50,9 +51,15 @@ def plot_traj(ret, fn, num_pts=1000):
     ax4.set_ylabel(r'$\theta_{\rm sl}$')
 
     # e . j
-    edotj = ts_dot(e[:, start_idx::stride], j[:, start_idx::stride])
-    ax5.plot(ret.t[start_idx::stride], edotj, 'r')
-    ax5.set_ylabel(r'$\vec{e} \cdot \vec{j}$')
+    # edotj = ts_dot(e[:, start_idx::stride], j[:, start_idx::stride])
+    # ax5.plot(ret.t[start_idx::stride], edotj, 'r')
+    # ax5.set_ylabel(r'$\vec{e} \cdot \vec{j}$')
+
+    # Adiabaticity param
+    A = 8 * getter_kwargs.get('eps_sl', 0.1) * np.sqrt(1 - e_tot**2) / (
+        3 * (1 + 4 * e_tot**2)) / a[start_idx::stride]**4
+    ax5.semilogy(ret.t[start_idx::stride], A, 'r')
+    ax5.set_ylabel(r'$\mathcal{A}$')
 
     # e^2 + j^2
     ax6.plot(ret.t[start_idx::stride], e_tot**2 + j_tot**2, 'g')
@@ -84,21 +91,21 @@ def dedt_lk(j, e, n2):
 def dedt_gw(e, e_sq):
     return -(304 / 15) * (1 + 121 / 304 * e_sq) / (1 - e_sq)**(5/2) * e
 
-def get_dydt_gr(n2, eps=0.1, delta=0.1):
+def get_dydt_gr(n2, eps_gr=0.1, eps_sl=0.1, kozai=1):
     def dydt(t, x):
         j, e, s, a = to_vars(x)
         e_sq = np.sum(e**2)
         j_sq = np.sum(j**2)
         lhat = j / np.sqrt(j_sq)
         djdt = (
-            djdt_lk(j, e, n2) / a**3
-            + eps / a**4 * (
+            (kozai / a**3) * djdt_lk(j, e, n2)
+            + (eps_gr / a**4) * (
                 dldt_gw(e_sq, lhat) - j / 2 * dadt_gw(e_sq)))
         dedt = (
-            dedt_lk(j, e, n2) / a**3
-            + (eps / a**4) * dedt_gw(e, e_sq))
-        dsdt = delta / a * np.cross(j, s) / np.sqrt(j_sq)
-        dadt = eps / a**3 * dadt_gw(e_sq)
+            (kozai / a**3) * dedt_lk(j, e, n2)
+            + (eps_gr / a**4) * dedt_gw(e, e_sq))
+        dsdt = eps_sl / a * np.cross(lhat, s)
+        dadt = eps_gr / a**3 * dadt_gw(e_sq)
         return np.concatenate((djdt, dedt, dsdt, [dadt]))
     return dydt
 
