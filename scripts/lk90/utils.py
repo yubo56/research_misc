@@ -8,6 +8,9 @@ from scipy.integrate import solve_ivp
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
+def_eps_sl = 0.1
+def_eps_gr = 0.1
+
 def to_vars(x):
     return x[ :3], x[3:6], x[6:9], x[9]
 
@@ -55,20 +58,21 @@ def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
     # ax5.plot(ret.t[start_idx::stride], edotj, 'r')
     # ax5.set_ylabel(r'$\vec{e} \cdot \vec{j}$')
 
-    # Adiabaticity param
-    A = 8 * getter_kwargs.get('eps_sl', 0.1) * np.sqrt(1 - e_tot**2) / (
-        3 * (1 + 4 * e_tot**2)) / a[start_idx::stride]**4
+    # $A$ Adiabaticity param
+    A = 8 * getter_kwargs.get('eps_sl', def_eps_sl) * np.sqrt(1 - e_tot**2) / (
+        3 * (1 + 4 * e_tot**2) * np.abs(np.sin(2 * I))
+    ) / a[start_idx::stride]**4
     ax5.semilogy(ret.t[start_idx::stride], A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 
-    # e^2 + j^2
-    ax6.plot(ret.t[start_idx::stride], e_tot**2 + j_tot**2, 'g')
-    ax6.set_ylabel(r'$j^2 + e^2$')
+    # e^2 + j^2 - 1
+    ax6.plot(ret.t[start_idx::stride], e_tot**2 + j_tot**2 - 1, 'g')
+    ax6.set_ylabel(r'$j^2 + e^2 - 1$')
     ax6.yaxis.set_label_position('right')
 
-    ax4.set_xlabel(r'$t / t_{LK}$')
-    ax5.set_xlabel(r'$t / t_{LK}$')
-    ax6.set_xlabel(r'$t / t_{LK}$')
+    for ax in [ax4, ax5, ax6]:
+        ax.set_xlabel(r'$t / t_{LK}$')
+        plt.setp(ax.get_xticklabels(), rotation=45)
     plt.savefig(fn, dpi=300)
     plt.close()
 
@@ -91,7 +95,7 @@ def dedt_lk(j, e, n2):
 def dedt_gw(e, e_sq):
     return -(304 / 15) * (1 + 121 / 304 * e_sq) / (1 - e_sq)**(5/2) * e
 
-def get_dydt_gr(n2, eps_gr=0.1, eps_sl=0.1, kozai=1):
+def get_dydt_gr(n2, eps_gr=def_eps_gr, eps_sl=def_eps_sl, kozai=1):
     def dydt(t, x):
         j, e, s, a = to_vars(x)
         e_sq = np.sum(e**2)
@@ -109,15 +113,16 @@ def get_dydt_gr(n2, eps_gr=0.1, eps_sl=0.1, kozai=1):
         return np.concatenate((djdt, dedt, dsdt, [dadt]))
     return dydt
 
-def get_dydt_nogr(n2):
+def get_dydt_nogr(n2, eps_sl=def_eps_sl):
     ''' n2 = normal axis of perturber, see eq 3/4 in notes '''
     def dydt(_, x):
         ''' no gr effects, try to see lk oscillations '''
-        j, e, _, _ = to_vars(x)
+        j, e, s, a = to_vars(x)
+        lhat = j / np.sqrt(np.sum(j**2))
         return np.concatenate((
             djdt_lk(j, e, n2),
             dedt_lk(j, e, n2),
-            [0, 0, 0],
+            eps_sl / a * np.cross(lhat, s),
             [0]))
     return dydt
 
