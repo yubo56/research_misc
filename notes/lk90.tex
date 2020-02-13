@@ -4,6 +4,7 @@
     ]{article}
     \usepackage{
         amsmath,
+        % multicol,
         amssymb,
         fouriernc, % fourier font w/ new century book
         fancyhdr, % page styling
@@ -92,7 +93,7 @@
 \renewcommand*{\equationautorefname}{Eq.}
 \renewcommand*{\tableautorefname}{Tab.}
 
-\onehalfspacing
+% \singlespacing
 
 \pagestyle{fancy}
 \rfoot{Yubo Su}
@@ -105,6 +106,8 @@
 
 \maketitle
 
+% \begin{multicols}{2}
+
 \section{Equations}
 
 \subsection{Bin's Papers}
@@ -114,7 +117,140 @@ Bin's later paper with Dong on spin-orbit misalignment (LL18). The target of
 study is \S4.3 of LL18, where a $90^\circ$ attractor in spin-orbit misalignment
 seems to appear when the octupole effect is negligible.
 
-When the octupole effect is negligible, we define vectors
+The easiest formulation is just to express everything in terms of $\bm{L}$ and
+$\bm{e}$, following LL18. We drop octupole terms and hold the third perturber
+constant. These equations come out to be (Eqs.~4--5 w/ substitutions)
+\begin{align}
+    \rd{\bm{L}}{t} &= \frac{3}{4t_{LK}} \mu \sqrt{Gm_{12}a} \s*{
+        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
+        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+        },\\
+    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s*{
+        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+        + 2\bm{j} \times \bm{e}
+        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+        }.
+\end{align}
+Note that $\bm{j} \equiv \sqrt{1 - e^2}\hat{\bm{L}} = \frac{\bm{L}}{\mu
+\sqrt{Gm_{12}a}}$. $m_{12} = m_1 + m_2$ and $\mu = m_1m_2/m_{12}$. We've defined
+\begin{equation}
+    t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
+        = \frac{1}{n_1}\p*{\frac{m_{12}}{m_3}}
+            \p*{\frac{a_2}{a}}^3
+            \p*{1 - e_2^2}^{3/2}.
+\end{equation}
+Here, $n_1 \equiv \sqrt{Gm_{12}/a^3}$. Thus, $1 / t_{LK} \propto a^{3/2}$.
+
+GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
+\begin{align}
+    \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
+        \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
+        \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}\hat{L},\\
+    \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
+        \frac{\mu m_{12}^2}{a^4\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+            e^2}\bm{e}.
+\end{align}
+Here, $m_{12} \equiv m_1 + m_2$, and $a$ is implicitly defined by $\bm{L}$ and
+$e$. The last GR effect is precession of $\vec{e}$, which acts as
+\begin{align}
+    \at{\rd{\bm{e}}{t}}_{GR} &= \frac{1}{t_{GR}}\hat{\bm{L}} \times \bm{e},\\
+    \frac{1}{t_{GR}} &\equiv \frac{3Gnm_{12}}{c^2a\p*{1 - e^2}}.
+\end{align}
+Note that $t_{GR}^{-1} \propto a^{-5/2}$.
+
+Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
+term (from de Sitter precession), which is given in LL18 to be
+\begin{align}
+    \rd{\hat{\bm{S}}}{t} &= \frac{1}{t_{SL}}\hat{\bm{L}} \times \hat{\bm{S}},\\
+    \frac{1}{t_{SL}} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
+\end{align}
+Note that $\mu$ is the reduced mass of the inner binary. We can drop the
+back-reaction term since $S \ll L$. Thus, $t_{SL}^{-1} \propto a^{-5/2}$ as
+well.
+
+Finally, an adiabaticity parameter can be defined:
+\begin{align}
+    \mathcal{A} &\equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}}.
+\end{align}
+Here, $\Omega_L \simeq\frac{3\p*{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs*{\sin
+2I}$ is an approximate rate of change of $L$ during an LK cycle
+
+It's natural to redimensionalize to the initial LK time such that
+\begin{equation}
+    \frac{1}{t_{LK, 0}} \equiv \p*{\frac{a}{a_0}}^{3/2}\frac{1}{t_{LK}},
+\end{equation}
+since nothing else in $t_{LK}$ is changing. The next natural timescale for
+gravitational waves is
+\begin{equation}
+    \frac{1}{t_{GW}} \equiv \frac{G^3 \mu m_{12}^2}{c^5a^4}
+        \equiv \frac{1}{t_{GW, 0}} \p*{\frac{a_0}{a}}^4
+        \equiv \epsilon_{GW} \frac{1}{t_{LK, 0}} \p*{\frac{a_0}{a}}^4.
+\end{equation}
+We can repeat the procedure for the GR precession term and the spin-orbit
+coupling terms:
+\begin{align}
+    \frac{1}{t_{GR}} &= \epsilon_{GR}\frac{1}{t_{LK, 0}}
+        \p*{\frac{a_0}{a}}^{5/2},\\
+    \frac{1}{t_{SL}} &= \epsilon_{SL}\frac{1}{t_{LK, 0}}
+        \p*{\frac{a_0}{a}}^{5/2}.
+\end{align}
+Thus, finally, if we let $\tau = t / t_{LK, 0}$, then we obtain full equations
+of motion (note that $a_0 = 1$ below)
+\begin{align}
+    \rd{\bm{L}}{\tau} ={}& \p*{\frac{a}{a_0}}^{3/2} \frac{3}{4}\sqrt{a}\s*{
+            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
+            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+            }\nonumber\\
+        &- \epsilon_{GW}\p*{\frac{a_0}{a}}^4
+            \frac{32}{5} \frac{1 + 7e^2/8}{\p*{1 - e^2}^{5/2}}\bm{L},\\
+    \rd{\bm{e}}{\tau} ={}& \p*{\frac{a}{a_0}}^{3/2} \frac{3}{4}\s*{
+            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+            + 2\bm{j} \times \bm{e}
+            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+            }\nonumber\\
+        &-\epsilon_{GW}\p*{\frac{a_0}{a}}^4
+            \frac{304}{15} \frac{1}{\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+                e^2}\bm{e}\nonumber\\
+        &+ \epsilon_{GR}\p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+            \hat{\bm{L}} \times \bm{e},\\
+    \rd{\hat{\bm{S}}}{t} ={}&
+        \epsilon_{SL}\p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+        \hat{\bm{L}} \times \hat{\bm{S}}.
+\end{align}
+For reference, we note that $a = \abs*{\bm{L}}^2 / \p*{\mu^2 Gm_{12}\p*{1 -
+e^2}}$, while $\bm{j} = \bm{L} / \p*{\mu\sqrt{Gm_{12}a}}$. To invert $a(\bm{L})$
+and $\bm{J}\p*{\bm{L}}$ in this coordinate system where $a_0 = 1$, it is easiest
+to choose the angular momentum dimensions such that $\mu \sqrt{Gm_{12}} = 1$,
+such that now
+\begin{align}
+    \abs*{\bm{L}\p*{t = 0}} \equiv \mu \sqrt{Gm_{12}a_0\p*{1 - e_0^2}}
+        &= \sqrt{\p*{1 - e_0^2}},\\
+    a &= \frac{\abs*{\bm{L}}^2}{1 - e^2},\\
+    \bm{j} &= \frac{\bm{L}}{\sqrt{a}} = \frac{\hat{\bm{L}}}{\sqrt{1 - e^2}}.
+\end{align}
+
+Finally, the timescales are
+\begin{align}
+    t_{LK, 0} &= \frac{1}{n}
+        \frac{m_{12}}{m_3}\p*{\frac{a_2}{a(t = 0)}}^3 \p*{1 - e_2^2}^{3/2},\\
+    \epsilon_{GW} \equiv \frac{t_{LK, 0}}{t_{GW, 0}}
+        &= \frac{1}{n}
+            \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^7} \p*{1 - e_2^2}^{3/2}
+            \frac{G^3 \mu m_{12}^2}{c^5},\\
+    \epsilon_{GR} \equiv \frac{t_{LK, 0}}{t_{GR, 0}}
+        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^4} \p*{1 - e_2^2}^{3/2}
+            \frac{3Gm_{12}}{c^2},\\
+    \epsilon_{SL} \equiv \frac{t_{SL, 0}}{t_{GR, 0}}
+        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^4} \p*{1 - e_2^2}^{3/2}
+            \frac{3G\p*{m_2 + \mu/3}}{2c^2}.
+\end{align}
+
+% \end{multicols}
+\appendix
+
+\section{$\bm{j}$ Equations}
+
+We define vectors
 \begin{align}
     \bm{j} &= \sqrt{1 - e^2}\hat{n},\\
     \bm{e} &= e\hat{u}.
@@ -139,12 +275,14 @@ sufficiently hierarchical that $\bm{j}_2$, $\bm{e}_2$ are constants. Note for
 reference that
 \begin{equation}
     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
-        = \frac{1}{n_1}\p*{\frac{m_0 + m_1}{m_2}}
+        = \frac{1}{n_1}\p*{\frac{m_1 + m_2}{m_3}}
             \p*{\frac{a_2}{a}}^3
             \p*{1 - e_2^2}^{3/2}.
 \end{equation}
-Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a^3}$. Finally, the GR effects
-(Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
+Here, $n_1 \equiv \sqrt{G\p*{m_1 + m_2}/a^3}$. Thus, $1 / t_{LK} \propto
+a^{3/2}$.
+
+GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
 \begin{align}
     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
         \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
@@ -156,23 +294,28 @@ Here, $n_1 \equiv \sqrt{G\p*{m_0 + m_1}/a^3}$. Finally, the GR effects
         \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
             + \frac{37}{96}e^4}.
 \end{align}
-Here, $m_{12} \equiv m_1 + m_2$.
+Here, $m_{12} \equiv m_1 + m_2$. The last GR effect is precession of $\vec{e}$,
+which acts as
+\begin{equation}
+    \at{\rd{\bm{e}}{t}}_{GR} = \frac{3Gnm_{12}}{c^2a\p*{1 - e^2}}.
+\end{equation}
 
-Given this system (from LML15), we can then add the spin-orbit coupling term,
-which is given in LL18 to be
+Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
+term (from de Sitter precession), which is given in LL18 to be
 \begin{align}
     \rd{\hat{S}}{t} &= \Omega_{SL}\hat{L} \times \hat{S},\\
     \Omega_{SL} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
 \end{align}
 Note that $\mu$ is the reduced mass of the inner binary. We can drop the
-back-reaction term since $S \ll L$. What is observed is that, as this system
-is evolved forward in time and GR coalesces the inner binary, $\theta_{sl}
-\equiv \arccos\p*{\hat{S} \cdot \hat{L}}$ goes to $90^\circ$ consistently. The
-relevant figure is Fig.~19 of LL18, which shows that for a close-in,
-low-eccentricity perturber ($\bar{a}_{\rm out, eff} \propto a_{out}$), the
-focusing is significantly stronger. Note that initially, $I \equiv
-\arccos\p*{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while $\theta_{sl}
-\approx 0$.
+back-reaction term since $S \ll L$. Thus, $\Omega_{SL} \propto a^{-5/2}$.
+
+What is observed is that, as this system is evolved forward in time and GR
+coalesces the inner binary, $\theta_{sl} \equiv \arccos\p*{\hat{S} \cdot
+\hat{L}}$ goes to $90^\circ$ consistently. The relevant figure is Fig.~19 of
+LL18, which shows that for a close-in, low-eccentricity perturber ($\bar{a}_{\rm
+out, eff} \propto a_{out}$), the focusing is significantly stronger. Note that
+initially, $I \equiv \arccos\p*{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
+$\theta_{sl} \approx 0$.
 
 In LL18, an adiabaticity parameter is defined:
 \begin{equation}
@@ -182,6 +325,15 @@ where $\Omega_{L} \simeq \ev*{\rd{\hat{L}}{t}}_{LK}$ to quadrupolar order. As
 the inner binary coalesces, $\mathcal{A}$ transitions from $\ll 1$ to $\gg 1$
 (as $\Omega_{SL}$ is a GR effect so ramps up very quickly as orbital separation
 decreases).
+
+The adiabaticity parameter $\mathcal{A}$ can be plotted upon rescaling in our
+coordinates. Note that $\Omega_{\rm SL} = \frac{\delta a_0}{at_{LK, 0}}$, while
+$\Omega_L \simeq \frac{3\p*{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs*{\sin 2I}$ can
+also be expressed in units of $t_{LK, 0}$. This gives us
+\begin{equation}
+    \mathcal{A} = \frac{8\delta \sqrt{1 - e^2}}{3\p*{1 +
+        4e^2}}\p*{\frac{a_0}{a}}^4.
+\end{equation}
 
 \subsection{Simulations}
 
@@ -262,15 +414,6 @@ Our final simulation equations are thus ($\tau = t / t_{LK, 0}$)
         \frac{64}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
             + \frac{37}{96}e^4}.
 \end{align}
-
-The adiabaticity parameter $\mathcal{A}$ can be plotted upon rescaling in our
-coordinates. Note that $\Omega_{\rm SL} = \frac{\delta a_0}{at_{LK, 0}}$, while
-$\Omega_L \simeq \frac{3\p*{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs*{\sin 2I}$ can
-also be expressed in units of $t_{LK, 0}$. This gives us
-\begin{equation}
-    \mathcal{A} = \frac{8\delta \sqrt{1 - e^2}}{3\p*{1 +
-        4e^2}}\p*{\frac{a_0}{a}}^4.
-\end{equation}
 
 \end{document}
 
