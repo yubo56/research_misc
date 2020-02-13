@@ -23,7 +23,7 @@ def ts_dot(x, y):
     return z
 
 def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
-              use_stride=True, use_start=True):
+              use_stride=True, use_start=True, t_lk=None):
     L, e, s = to_vars(ret.y)
     fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3,
                                                  figsize=(14, 8),
@@ -71,14 +71,15 @@ def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
     ax6.yaxis.set_label_position('right')
 
     for ax in [ax4, ax5, ax6]:
-        ax.set_xlabel(r'$t / t_{LK}$')
+        ax.set_xlabel(r'$t / t_{LK,0}$')
         plt.setp(ax.get_xticklabels(), rotation=45)
+    if t_lk is not None:
+        plt.suptitle(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
     plt.savefig(fn, dpi=300)
     plt.close()
 
 # CONVENTION: all a and epsilon dependencis are handled in the getter
-def dldt_lk(Lhat, e, e_sq, n2, a):
-    j = Lhat / np.sqrt(1 - e_sq)
+def dldt_lk(j, e, e_sq, n2, a):
     return 3 / 4 * np.sqrt(a) * (
         np.dot(j, n2) * np.cross(j, n2)
             - 5 * np.dot(e, n2) * np.cross(e, n2))
@@ -86,8 +87,7 @@ def dldt_gw(L, e_sq):
     return -32 / 5 * (
         (1 + 7 * e_sq / 8) / (1 - e_sq)**2
     ) * L
-def dedt_lk(Lhat, e, e_sq, n2):
-    j = Lhat / np.sqrt(1 - e_sq)
+def dedt_lk(j, e, e_sq, n2):
     return 3 / 4 * (
         np.dot(j, n2) * np.cross(e, n2)
             - 5 * np.dot(e, n2) * np.cross(j, n2) # TODO sign error?
@@ -106,26 +106,27 @@ def get_dydt_gr(n2,
                 kozai=1, # not really physical but useful for debug?
             ):
     def dydt(t, x):
-        print(t)
         L, e, s = to_vars(x)
         Lnorm_sq = np.sum(L**2)
         Lhat = L / np.sqrt(Lnorm_sq)
         e_sq = np.sum(e**2)
+        j = Lhat * np.sqrt(1 - e_sq)
         a = Lnorm_sq / (1 - e_sq)
         dldt = (
-            (kozai * a**(3/2)) * dldt_lk(Lhat, e, e_sq, n2, a)
+            (kozai * a**(3/2)) * dldt_lk(j, e, e_sq, n2, a)
             + (eps_gw / a**4) * dldt_gw(L, e_sq)
         )
         dedt = (
-            (kozai * a**(3/2)) * dedt_lk(Lhat, e, e_sq, n2)
+            (kozai * a**(3/2)) * dedt_lk(j, e, e_sq, n2)
             + (eps_gw / a**4) * dedt_gw(e, e_sq)
             + (eps_gr / a**(5/2)) * dedt_gr(Lhat, e, e_sq)
         )
         dsdt = (eps_sl / a**(5/2)) * dsdt_sl(Lhat, s, e_sq)
+
         return np.concatenate((dldt, dedt, dsdt))
     return dydt
 
-def solver(I, e, tf=50, atol=1e-12, rtol=1e-12,
+def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
            a_f=3e-1,
            getter_kwargs={},
            **kwargs):
@@ -140,10 +141,15 @@ def solver(I, e, tf=50, atol=1e-12, rtol=1e-12,
     y0 = np.array([lx, 0, lz, ex, 0, ez, sx, 0, sz])
     dydt = get_dydt_gr(np.array([0, 0, 1]), **getter_kwargs)
 
-    # term_event = lambda _, x: x[-1] - a_f
-    # term_event.terminal = True
-    # events = [term_event]
-    events = []
+    def term_event(t, x):
+        L, e, _ = to_vars(x)
+        Lnorm_sq = np.sum(L**2)
+        e_sq = np.sum(e**2)
+        a = Lnorm_sq / (1 - e_sq)
+        print("%d" % t, a)
+        return a - a_f
+    term_event.terminal = True
+    events = [term_event]
     ret = solve_ivp(dydt, (0, tf), y0,
                     atol=atol, rtol=rtol, events=events,
                     **kwargs)
