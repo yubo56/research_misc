@@ -1,7 +1,7 @@
 from utils import *
 
 def run():
-    I = np.radians(89)
+    I = np.radians(92)
     e = 0.001
 
     # param check w/ wolframalpha, right eps_gw
@@ -17,8 +17,8 @@ def run():
 
     # note that a_f is in units of a0, not in AU!
     ret = solver(I, e,
-                 atol=1e-8, rtol=1e-8,
-                 # atol=1e-12, rtol=1e-12,
+                 # atol=1e-8, rtol=1e-8,
+                 atol=1e-12, rtol=1e-12,
                  getter_kwargs=getter_kwargs,
                  a_f=0.1,
                  tf=3000)

@@ -84,9 +84,7 @@ def dldt_lk(j, e, e_sq, n2, a):
         np.dot(j, n2) * np.cross(j, n2)
             - 5 * np.dot(e, n2) * np.cross(e, n2))
 def dldt_gw(L, e_sq):
-    return -32 / 5 * (
-        (1 + 7 * e_sq / 8) / (1 - e_sq)**2
-    ) * L
+    return -32 / 5 * ((1 + 7 * e_sq / 8) / (1 - e_sq)**(5/2)) * L
 def dedt_lk(j, e, e_sq, n2):
     return 3 / 4 * (
         np.dot(j, n2) * np.cross(e, n2)
