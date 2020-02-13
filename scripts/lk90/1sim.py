@@ -1,7 +1,7 @@
 from utils import *
 
 def run():
-    I = np.radians(92)
+    I = np.radians(92.33)
     e = 0.001
 
     # param check w/ wolframalpha, right eps_gw
@@ -9,7 +9,7 @@ def run():
     # param check w/ wolframalpha, right eps_gr
     # m1, m2, m3, a0, a2, e2 = 20, 20, 30, 30, 4500, 0
 
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 10, 4500, 0
     t_lk, getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     print(t_lk, getter_kwargs)
     getter_kwargs['eps_gr'] /= 1e6
@@ -18,11 +18,11 @@ def run():
     # note that a_f is in units of a0, not in AU!
     ret = solver(I, e,
                  # atol=1e-8, rtol=1e-8,
-                 atol=1e-12, rtol=1e-12,
+                 atol=1e-10, rtol=1e-10,
                  getter_kwargs=getter_kwargs,
-                 a_f=0.1,
-                 tf=3000)
-    plot_traj(ret, '1sim',
+                 a_f=0.05,
+                 tf=np.inf)
+    plot_traj(ret, '1sim_45',
               use_start=False,
               use_stride=False,
               getter_kwargs=getter_kwargs,

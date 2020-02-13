@@ -133,9 +133,12 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
     lz = np.cos(I) * np.sqrt(1 - e**2)
     ex = np.cos(I) * e
     ez = np.sin(I) * e
-    # s parallel to j
-    sx = -np.sin(I)
-    sz = np.cos(I)
+    # s parallel to L
+    # sx = -np.sin(I)
+    # sz = np.cos(I)
+    # s perp to L
+    sx = np.cos(I + np.pi / 4)
+    sz = np.sin(I + np.pi / 4)
     y0 = np.array([lx, 0, lz, ex, 0, ez, sx, 0, sz])
     dydt = get_dydt_gr(np.array([0, 0, 1]), **getter_kwargs)
 
