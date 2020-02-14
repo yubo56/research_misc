@@ -1,16 +1,80 @@
 '''
+test mass approx
 Notes:
 * x = (vec{j}, vec{e}, vec{s})
 * t_{lk, 0} = a0 = 1
 '''
 import numpy as np
+import time
 from scipy.integrate import solve_ivp
+from scipy.optimize import brenth
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
-def_eps_sl = 0.1
-def_eps_gr = 0.1
-def_eps_gw = 0.1
+DEF_EPS_SL = 0.1
+DEF_EPS_GR = 0.1
+DEF_EPS_GW = 0.1
+
+# by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
+# NB: slight confusion here: to compute epsilon + timescales, we use AU as the
+# unit of length, but during the calculation, a0 is the unit of length
+G = 9.87e-9
+S_PER_UNIT = 499 # 1AU / c, in seconds
+S_PER_YR = 3.154e7 # seconds per year
+def get_eps(m1, m2, m3, a0, a2, e2):
+    m12 = m1 + m2
+    mu = m1 * m2 / m12
+    n = np.sqrt(G * m12 / a0**3)
+    eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
+    eps_gr = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * 3 * G * m12
+    eps_sl = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * (
+        3 * G * (m2 + mu / 3) / 2)
+    return {'eps_gw': eps_gw, 'eps_gr': eps_gr, 'eps_sl': eps_sl}
+
+def get_vals(m1, m2, m3, a0, a2, e2, I):
+    ''' calculates a bunch of physically relevant values '''
+    m12 = m1 + m2
+    m123 = m12 + m3
+    mu = m1 * m2 / m12
+    mu123 = m12 * m3 / m123
+
+    # calculate lk time
+    n = np.sqrt(G * m12 / a0**3)
+    t_lk0 = (1 / n) * (m12 / m3) * (a2 / a0)**3 * (1 - e2**2)**(3/2)
+
+    # calculate jmin
+    eta = mu / mu123 * np.sqrt(m12 * a0 / (m123 * a2 * (1 - e2**2)))
+    eps_gr = 3 * G * m12**2 * a2**3 * (1 - e2**2)**(3/2) / (a0**4 * m3)
+    def jmin_criterion(j): # eq 42, satisfied when j = jmin
+        return (
+            3/8 * (j**2 - 1) / j**2 * (
+                5 * (np.cos(I) + eta / 2)**2
+                - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
+                + eta**2 * j**4)
+            + eps_gr * (1 - 1 / j))
+    def jmin_eta0(j): # set eta to zero, corresponds to test mass approx
+        return (
+            3/8 * (j**2 - 1) / j**2 * (
+                5 * np.cos(I)**2
+                - 3 * j**2)
+            + eps_gr * (1 - 1 / j))
+    jmin = brenth(jmin_criterion, 1e-15, 1 - 1e-15)
+    jmin_eta0 = brenth(jmin_eta0, 1e-15, 1 - 1e-15)
+    jmin_naive = np.sqrt(5 * np.cos(I)**2 / 3)
+    emax = np.sqrt(1 - jmin**2)
+    emax_eta0 = np.sqrt(1 - jmin_eta0**2)
+    emax_naive = np.sqrt(1 - jmin_naive**2)
+
+    return (t_lk0 * S_PER_UNIT) / S_PER_YR, emax, emax_eta0, emax_naive
+
+def get_tmerge(m1, m2, m3, a0, a2, e2, I):
+    ''' returns in units of LK0 as well as physical units (years) '''
+    m12 = m1 + m2
+    mu = m1 * m2 / m12
+    emax = get_vals(m1, m2, m3, a0, a2, e2, I)[2]
+    tm0 = 5 / (256 * G**3 * m12**2 * mu)
+    tm = tm0 * (1 - emax**2)**3
+    return tm, (tm * S_PER_UNIT) / S_PER_YR
 
 def to_vars(x):
     return x[ :3], x[3:6], x[6:9]
@@ -22,24 +86,30 @@ def ts_dot(x, y):
         z += x1 * y1
     return z
 
-def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
-              use_stride=True, use_start=True, t_lk=None):
+def plot_traj(ret, fn,
+              m1, m2, m3, a0, a2, e2, I0,
+              num_pts=1000, getter_kwargs={},
+              use_stride=True, use_start=True):
     L, e, s = to_vars(ret.y)
     fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3,
                                                  figsize=(14, 8),
                                                  sharex=True)
+    t_lk, elim, elim_eta0, elim_naive = get_vals(m1, m2, m3, a0, a2, e2, I0)
 
     start_idx = len(ret.t) // 2 if use_start else 0
     stride = len(ret.t) // num_pts + 1 if use_stride else 1
+    t_vals = ret.t[start_idx::stride]
     e_tot = np.sqrt(np.sum(e[:, start_idx::stride]**2, axis=0))
     Lnorm = np.sqrt(np.sum(L[:, start_idx::stride]**2, axis=0))
     Lhat = L[:, start_idx::stride] / Lnorm
     a = Lnorm**2 / (1 - e_tot**2)
-    t_vals = ret.t[start_idx::stride]
+    dot_sl = ts_dot(Lhat, s[:, start_idx::stride])
 
     # 1 - e(t)
     ax1.semilogy(t_vals, 1 - e_tot, 'r')
     ax1.set_ylabel(r'$1 - e$')
+    ax1.axhline(1 - elim_eta0, c='k', ls=':', lw=0.2)
+    ax1.axhline(1 - elim_naive, c='b', ls=':', lw=0.2)
 
     # I(t)
     I = np.arccos(Lhat[2])
@@ -49,32 +119,29 @@ def plot_traj(ret, fn, num_pts=1000, getter_kwargs={},
     # a(t)
     ax3.semilogy(t_vals, a, 'r')
     ax3.set_ylabel(r'$a / a_0$')
-    ax3.yaxis.set_label_position('right')
+    ax3.yaxis.tick_right()
 
     # q_sl
-    q_sl = np.arccos(ts_dot(Lhat, s[:, start_idx::stride]))
+    q_sl = np.arccos(dot_sl)
     ax4.plot(t_vals, np.degrees(q_sl), 'r')
     ax4.set_ylabel(r'$\theta_{\rm sl}$')
 
-    # TODO actually code the below
     # $A$ Adiabaticity param
-    # A = 8 * getter_kwargs.get('eps_sl', def_eps_sl) * np.sqrt(1 - e_tot**2) / (
-    #     3 * (1 + 4 * e_tot**2) * np.abs(np.sin(2 * I))
-    # ) / a[start_idx::stride]**4
-    ax5.semilogy(t_vals, t_vals, 'r')
+    A = 8 * getter_kwargs.get('eps_sl', DEF_EPS_SL) / (
+        a * np.sqrt(1 - e_tot**2) * 3 * (1 + 4 * e_tot**2) * np.sin(2 * I))
+    ax5.plot(t_vals, A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 
-    # TODO decide on this?
-    # e^2 + j^2 - 1
-    ax6.plot(t_vals, t_vals, 'g')
-    ax6.set_ylabel(r'$t$')
+    # spin-orbit coupling Hamiltonian
+    h_sl = getter_kwargs['eps_sl'] / a**(5/2) * dot_sl / (1 - e_tot**2)
+    ax6.plot(t_vals, h_sl, 'g')
+    ax6.set_ylabel(r'$H_{SL}$')
     ax6.yaxis.set_label_position('right')
 
     for ax in [ax4, ax5, ax6]:
         ax.set_xlabel(r'$t / t_{LK,0}$')
         plt.setp(ax.get_xticklabels(), rotation=45)
-    if t_lk is not None:
-        plt.suptitle(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
+    plt.suptitle(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
     plt.savefig(fn, dpi=300)
     plt.close()
 
@@ -88,7 +155,7 @@ def dldt_gw(L, e_sq):
 def dedt_lk(j, e, e_sq, n2):
     return 3 / 4 * (
         np.dot(j, n2) * np.cross(e, n2)
-            - 5 * np.dot(e, n2) * np.cross(j, n2) # TODO sign error?
+            - 5 * np.dot(e, n2) * np.cross(j, n2)
             + 2 * np.cross(j, e))
 def dedt_gw(e, e_sq):
     return -(304 / 15) * (1 + 121 / 304 * e_sq) / (1 - e_sq)**(5/2) * e
@@ -98,9 +165,9 @@ def dsdt_sl(Lhat, s, e_sq):
     return np.cross(Lhat, s) / (1 - e_sq)
 
 def get_dydt_gr(n2,
-                eps_gw=def_eps_gw,
-                eps_gr=def_eps_gr,
-                eps_sl=def_eps_sl,
+                eps_gw=DEF_EPS_GW,
+                eps_gr=DEF_EPS_GR,
+                eps_sl=DEF_EPS_SL,
                 kozai=1, # not really physical but useful for debug?
             ):
     def dydt(t, x):
@@ -127,15 +194,15 @@ def get_dydt_gr(n2,
 def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
            a_f=3e-1,
            getter_kwargs={},
+           q_sl0=0,
            **kwargs):
     ''' n2 = (0, 0, 1) by convention, choose jy(t=0) = ey(t=0) = 0 '''
     lx = -np.sin(I) * np.sqrt(1 - e**2)
     lz = np.cos(I) * np.sqrt(1 - e**2)
     ex = np.cos(I) * e
     ez = np.sin(I) * e
-    # s parallel to j
-    sx = -np.sin(I)
-    sz = np.cos(I)
+    sx = -np.sin(I + q_sl0)
+    sz = np.cos(I + q_sl0)
     y0 = np.array([lx, 0, lz, ex, 0, ez, sx, 0, sz])
     dydt = get_dydt_gr(np.array([0, 0, 1]), **getter_kwargs)
 
@@ -144,32 +211,13 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
         Lnorm_sq = np.sum(L**2)
         e_sq = np.sum(e**2)
         a = Lnorm_sq / (1 - e_sq)
-        print("%d" % t, a)
         return a - a_f
     term_event.terminal = True
     events = [term_event]
+    start = time.time()
     ret = solve_ivp(dydt, (0, tf), y0,
                     atol=atol, rtol=rtol, events=events,
                     **kwargs)
-    print('Done for %f %f, t_f = %f' % (I, e, ret.t[-1]))
+    print('Done for I0=%f, e0=%f. t_f=%f (took %.2fs)' %
+          (np.degrees(I), e, ret.t[-1], time.time() - start))
     return ret
-
-# by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
-# NB: slight confusion here: to compute epsilon + timescales, we use AU as the
-# unit of length, but during the calculation, a0 is the unit of length
-G = 9.87e-9
-def get_eps(m1, m2, m3, a0, a2, e2):
-    m12 = m1 + m2
-    mu = m1 * m2 / m12
-    n = np.sqrt(G * m12 / a0**3)
-    t_lk0 = (1 / n) * (m12 / m3) * (a2 / a0)**3 * (1 - e2**2)**(3/2)
-    eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
-    eps_gr = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * 3 * G * m12
-    eps_sl = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * (
-        3 * G * (m2 + mu / 3) / 2)
-
-    s_per_unit = 499 # 1AU / c, in seconds
-    s_per_yr = 3.154e7 # seconds per year
-    # print((1 / n) * s_per_unit / s_per_yr) # orbital timescale
-    return (t_lk0 * s_per_unit) / s_per_yr,\
-        {"eps_gw": eps_gw, "eps_gr": eps_gr, "eps_sl": eps_sl}

@@ -245,6 +245,49 @@ Finally, the timescales are
             \frac{3G\p*{m_2 + \mu/3}}{2c^2}.
 \end{align}
 
+The adiabacitity parameter
+\begin{equation}
+    \mathcal{A} \equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}}
+        = \frac{\epsilon_{SL}}{t_{LK, 0}}
+            \p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+            \s*{\frac{3(1 + 4e^2)}{8t_{LK, 0}\sqrt{1 - e^2}}
+                \p*{\frac{a_0}{a}}^{3/2}\abs*{\sin 2I}}^{-1},
+\end{equation}
+(note that $\Omega_L$ is a somewhat averaged sense, see LL18) can be evaluated
+in these units as
+\begin{equation}
+    \mathcal{A} = \epsilon_{SL}\frac{a_0}{a}\frac{1}{\sqrt{1 - e^2}}
+        \frac{8}{3\p*{1 + 4e^2}\abs*{\sin 2I}}.
+\end{equation}
+
+Note also that the Hamiltonian is just
+\begin{equation}
+    H = \Omega_{SL} \hat{\bm{L}} \cdot \hat{\bm{S}},
+        = \epsilon_{SL}\p*{\frac{a_0}{a}}^{5/2} \frac{1}{1 - e^2}
+            \hat{\bm{L}} \cdot \hat{\bm{S}}.
+\end{equation}
+
+\subsection{Maximum Eccentricity and Merger Time}
+
+Note that, since we are only evolving $\bm{L}$ and $\bm{e}$, and not $\bm{L}_2$
+and $\bm{e}_2$, we are in the test mass approximation, under which we set $\eta
+= 0$ in Bin's equations. As such, the maximum eccentricity satisfies (Eq 42 of
+LL18 with $\eta \to 0$)
+\begin{equation}
+    \frac{3}{8}\frac{j_{\min}^2 - 1}{j_{\min}^2}\s*{
+        5\cos I_0^2 - 3j_{\min}^2} + \epsilon_{GR}\p*{1 - \frac{1}{j_{\min}}} =
+        0.
+\end{equation}
+Note that $\epsilon_{GR}$ is exactly as we defined above, incidentally, and that
+when GR is negligible, this reduces to the classic $j_{\min} \equiv \sqrt{1 -
+e_{\max}^2} = \sqrt{\frac{5}{3}\cos^2 I_0}$. Since $\epsilon_{GR}$ is generally
+very small for most of the evolution, this generally reduces to the well known
+\begin{equation}
+    e_{\max} = \sqrt{1 - \frac{5}{3}\cos^2I_0}.
+\end{equation}
+This only fails to saturate for extremely high eccentricies, so $I_0 \to
+90^\circ$.
+
 % \end{multicols}
 \appendix
 
