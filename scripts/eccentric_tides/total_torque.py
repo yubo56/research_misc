@@ -50,13 +50,13 @@ def get_numericals(e):
         / np.sqrt(f5 * (1 + e))
     return alpha, beta, f5, nmax
 
-def plot_ecc(w_s=0, m=2, num_pts=1000):
+def plot_ecc(w_s=0, num_pts=1000):
     ''' plots behavior of total torque with varying eccentricity '''
     e_vals = np.arange(0.5, 0.96, 0.01)
     N_peri_max = np.sqrt(1 + max(e_vals)) / (1 - max(e_vals))**(3/2)
     totals = []
     for e in e_vals:
-        coeffs = get_coeffs_fft(num_pts, m, e)
+        coeffs = get_coeffs_fft(num_pts, 2, e)
         torques = get_torques(num_pts, w_s)
         totals.append(np.sum(coeffs**2 * torques))
         print('Ran for e =', e)
@@ -82,14 +82,14 @@ def plot_ecc(w_s=0, m=2, num_pts=1000):
     plt.savefig('totals_ecc_%d' % w_s, dpi=400)
     plt.clf()
 
-def plot_spin(e=0.9, m=2, num_pts=1000):
+def plot_spin(e=0.9, num_pts=1000):
     ''' plots behavior of total torque with varying omega_spin '''
     N_peri = np.sqrt(1 + e) / (1 - e)**(3/2)
     Nmax = np.sqrt(2) * N_peri
     w_vals = np.linspace(-2 * Nmax, 3 * Nmax, 100)
     totals = []
     for w_s in w_vals:
-        coeffs = get_coeffs_fft(num_pts, m, e)
+        coeffs = get_coeffs_fft(num_pts, 2, e)
         torques = get_torques(num_pts, w_s)
         totals.append(np.sum(coeffs**2 * torques))
         print('Ran for w_s =', w_s)
@@ -131,7 +131,7 @@ def plot_spin(e=0.9, m=2, num_pts=1000):
     plt.savefig('totals_s_%s' % ('%.1f' % e).replace('.', '_'), dpi=400)
     plt.clf()
 
-def get_energies(num_pts, m, e, w_s):
+def get_energies(num_pts, e, w_s):
     ''' gets E/hat{T}W '''
     coeffs0 = get_coeffs_fft(num_pts, 0, e)
     coeffs2 = get_coeffs_fft(num_pts, 2, e)
@@ -142,13 +142,13 @@ def get_energies(num_pts, m, e, w_s):
         + 2/3 * coeffs0**2 * np.abs(n_vals)**(11/3)
     )
 
-def plot_energy(w_s=0, m=2, num_pts=1000):
+def plot_energy(w_s=0, num_pts=1000):
     ''' plots behavior of heating with varying eccentricity '''
     e_vals = np.arange(0.5, 0.96, 0.01)
     N_peri_max = np.sqrt(1 + max(e_vals)) / (1 - max(e_vals))**(3/2)
     totals = []
     for e in e_vals:
-        energies = get_energies(num_pts, m, e, w_s)
+        energies = get_energies(num_pts, e, w_s)
         totals.append(np.sum(energies))
         print('Ran for e =', e)
     totals = np.array(totals)
@@ -183,9 +183,45 @@ def plot_energy(w_s=0, m=2, num_pts=1000):
     plt.savefig('totals_e_%d' % w_s, dpi=400)
     plt.clf()
 
+def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
+    num_pts = max(4 * int(np.sqrt(1 + e) * (1 - e**2)**(-3/2)), 150)
+    def get_disp_spin(w_s):
+        return np.sum(get_energies(num_pts, e, w_s))
+    def get_torque(w_s):
+        coeffs = get_coeffs_fft(num_pts, 2, e)
+        torques = get_torques(num_pts, w_s)
+        return np.sum(coeffs**2 * torques)
+    spins = np.linspace(-breakup, breakup, 50)
+    disp_spins = np.array([get_disp_spin(w_s) for w_s in spins])
+    torque_spins = np.array([get_torque(w_s) for w_s in spins])
+
+    plt.plot(spins, disp_spins)
+    plt.axhline(-obs_disp, c='r', ls='dashed', lw=1.5)
+    plt.axhline(obs_disp, c='r', ls='dashed', lw=1.5)
+    plt.xlabel(r'$\Omega_s / \Omega_o$')
+    plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{T} \Omega)$')
+    plt.savefig('%s_disps' % prefix)
+    plt.clf()
+
+    retrospin_idx = np.argmin(np.abs(disp_spins - obs_disp))
+    prospin_idx = np.argmin(np.abs(disp_spins + obs_disp))
+    print('Naive, retro spin', spins[retrospin_idx])
+    print('Naive, pro spin', spins[prospin_idx])
+
+    edot_rot = disp_spins - spins * torque_spins
+    print('edot_rot, retro', '%.3e' % edot_rot[retrospin_idx])
+    print('edot_rot, pro', '%.3e' % edot_rot[prospin_idx])
+    plt.plot(spins, edot_rot)
+    plt.xlabel(r'$\Omega_s / \Omega_o$')
+    plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{T} \Omega)$')
+    plt.savefig('%s_heating' % prefix)
+    plt.clf()
+
 if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
     # plot_spin()
-    plot_energy()
-    plot_energy(400)
+    # plot_energy()
+    # plot_energy(400)
+    # plot_7319()
+    plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')

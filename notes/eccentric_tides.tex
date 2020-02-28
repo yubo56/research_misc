@@ -734,94 +734,6 @@ $N \geq 0$:
             \Gamma\p*{14/3}.
 \end{align}
 
-\section{J0045--7319}
-
-Let's try to plug in some realistic numbers. Consider J0045+7319, which has
-parameters $e = 0.808$, $M_t = 10.2M_{\odot}$, $a = 126R_{\odot}$, $\Omega_o =
-\scinot{1.42}{-6}\;\mathrm{rad/s}$, $\Omega_p/2\pi = 3.61\upmu\mathrm{Hz}$. We
-can assume the mass of one star is $1.4M_{\odot}$, the NS, so the other is
-$8.8M_{\odot}$.
-
-Some fiducial numbers from KQ include that the B star has RCB at $0.23R_*$,
-where the star is taken to be roughly $6.4R_{\odot}$, and the mass of the
-convective core is $3M_{\odot}$, the density and BV frequency outside the core
-ar $2\;\mathrm{g/cm^3}$ and $100\upmu\mathrm{Hz}$ respectively. Finally, the
-star is observed to have $\frac{\dot{a}}{a} \sim \scinot{5}{5}\;\mathrm{/yr}$.
-
-Let's first evaluate $\hat{T}$, the circular orbit limit:
-\begin{equation}
-    \hat{T}(r_c, \omega) \equiv \frac{GM_2^2r_c^5}{a^6}
-        \p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
-        \s*{\frac{r_c}{g_c}\p*{\rd{N^2}{\ln r}}_{r = r_c}}^{-1/3}
-            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
-            \s*{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
-                6^{4/3}} \frac{3}{4\pi}\alpha^2}.
-\end{equation}
-Let's take Kushnir's prescription and set $\beta_2 = 1$, so $\hat{T}$ is now
-\begin{equation}
-    \hat{T}(r_c, \omega) \approx \beta_2\frac{GM_2^2r_c^5}{a^6}
-        \p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
-            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2.
-\end{equation}
-We evaluate in pieces:
-\begin{itemize}
-%G * (1.4 solar mass)^2 * (5.35e10 cm)^5 / (126 * solar radius)^6
-    \item Note that $\frac{GM_2^2 r_c^5}{a^6} = \scinot{9.3}{29}\;\mathrm{N
-        \cdot m}$ for the given parameters.
-
-% (1.42 * 10^{-6} (Hz) / sqrt(G * (2.2 * solar mass / (5.35e10 cm)^3)))^(8/3)
-    \item Then evaluating $\hat{T}$ at the orbital frequency, we can evaluate
-        the $\omega$ term, which is $\scinot{1.56}{-7}$.
-
-% (5.35e10cm / (1.02e5cm/s^2) * 1.83e-6 Hz^2)^(-1/3)
-%     \item To just get an idea of values, let's use $r_c/g_c =
-%         \frac{r_c^3}{GM_c}$, while $\rd{N^2}{\ln r} \sim N^2$, so we find that
-%         $\s*{\frac{r_c}{g_c}\rd{N^2}{\ln r}}^{-1/3} \approx 3.5$.
-
-%0.76 * (1 - 0.76)^2 * (1.5 * (3^(2/3) * (Gamma(1/3))^2 * 3) / (5 * 6^(4/3) * 4 * pi))
-    \item Let's just take $\rho_c / \bar{\rho}_c \sim 0.3$, then we can evaluate
-        the final piece $0.147$.
-\end{itemize}
-This tells us that $\hat{T} \approx \scinot{2.13}{22}\;\mathrm{N \cdot m}$.
-Since we know $\dot{E} = \frac{\hat{T}\Omega}{2}$ in a circular orbit, then we
-have
-%G * (8.8 solar masses) * (1.4 solar masses) / (2 * 126 * solar radius)
-\begin{align}
-    \frac{\hat{T}\Omega}{2} &\approx \scinot{3.1}{16}\;\mathrm{W},\\
-    E &\approx \scinot{1.85}{40}\;\mathrm{J},\\
-    \at{\frac{\dot{E}}{E}}_{circ} &= -\frac{\dot{a}}{a}
-        \sim \scinot{0.56}{24}\;\mathrm{/s}
-        \sim \scinot{1.7}{16}\;\mathrm{/yr}.
-\end{align}
-What about the eccentricity enhancement? It turns out that
-$\frac{\dot{E}}{\hat{T}\Omega} \sim \scinot{1.1}{8}$ when directly summed
-(according to \lstinline{get_energies} in my routine, if I take the spin to be
-zero), which is still a bit slow. But of course, we should expect the spin to be
-substantially larger than $\Omega$, and retrograde. We need an enhancement
-closer to $\scinot{3}{10}$, which is satisfied by $\frac{\Omega_s}{\Omega} \sim
--160$. The breakup frequency for the core using the above parameters is
-$\scinot{6.089}{-4}\;\mathrm{rad/s} \approx 428\Omega_o$, so our calculation
-proposes we need $\frac{\Omega_s}{\Omega_c} = -0.37$, which seems quite fast
-(and is in fact faster than the breakup rotation rate of the star!).
-
-Let's try running this via MESA\@. It looks like the metallicity should be
-somewhere around $0.1\times$ or $0.2\times$
-solar\footnote{https://academic.oup.com/mnras/article/422/2/1109/1032973\#18429474}.
-Hilariously, the old mass estimate comes from forcing a $1.4M_{\odot}$ NS, which
-is not accurate; Thorsett \& Chakrabatty 1999 give a new estimate $\sim 10
-M_{\odot}$. We want a star of the correct metallicity to reproduce the only
-observational constraints, $L \sim \scinot{1.2}{4}L_{\odot}$ and $T \sim
-24000\;\mathrm{K}$. This seems to be hard to satisfy, my original MESA
-simulations have higher temperatures and lower luminosities, at least on the
-MS down to a central hydrogen abundance $\sim 0.5$. Taking $M = 10.3M_{\odot}$,
-we can plug in some values and obtain $\hat{T} \approx \scinot{2.51}{19}$. For a
-new breakup frequency $\Omega_* = 0.001609 \approx 1133 \Omega_o$, even at
-critical rotation we only have an enhancement $\scinot{4.37}{12}$, not enough to
-explain the tidal decay.
-
-The principal difficulty seems to come in that the MESA star is always much
-smaller, both in the total stellar radius and the core radius.
-
 \section{Comparison with Existing Work, Moving Past Massive Stars}
 
 Key results are Eq.~\eqref{eq:fn2_swiss_army_knife},
@@ -1436,6 +1348,101 @@ possible to sum $\tau$ in closed form? Seems somewhat unlikely.
 In an alternative world, when $\Gamma$ is much \emph{larger} than
 $\Omega_{peri}$, the Lorentzian is fat and we can probably just set it equal to
 its peak value $1/\Gamma^2$ and perform the integration as usual?
+
+\section{J0045--7319}
+
+Let's try to plug in some realistic numbers. Consider J0045+7319, which has
+parameters $e = 0.808$, $M_t = 10.2M_{\odot}$, $a = 126R_{\odot}$, $\Omega_o =
+\scinot{1.42}{-6}\;\mathrm{rad/s}$, $\Omega_p/2\pi = 3.61\upmu\mathrm{Hz}$. We
+can assume the mass of one star is $1.4M_{\odot}$, the NS, so the other is
+$8.8M_{\odot}$.
+
+Some fiducial numbers from KQ include that the B star has RCB at $0.23R_*$,
+where the star is taken to be roughly $6.4R_{\odot}$, and the mass of the
+convective core is $3M_{\odot}$, the density and BV frequency outside the core
+ar $2\;\mathrm{g/cm^3}$ and $100\upmu\mathrm{Hz}$ respectively. Finally, the
+star is observed to have $\frac{\dot{a}}{a} \sim \scinot{2}{-6}\;\mathrm{/yr}$.
+
+Let's first evaluate $\hat{T}$, the circular orbit limit:
+\begin{equation}
+    \hat{T}(r_c, \omega) \equiv \frac{GM_2^2r_c^5}{a^6}
+        \p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
+        \s*{\frac{r_c}{g_c}\p*{\rd{N^2}{\ln r}}_{r = r_c}}^{-1/3}
+            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
+            \s*{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
+                6^{4/3}} \frac{3}{4\pi}\alpha^2}.
+\end{equation}
+Let's take Kushnir's prescription and set $\beta_2 = 1$, so $\hat{T}$ is now
+\begin{equation}
+    \hat{T}(r_c, \omega) \approx \beta_2\frac{GM_2^2r_c^5}{a^6}
+        \p*{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
+            \frac{\rho_c}{\bar{\rho}_c} \p*{1 - \frac{\rho_c}{\bar{\rho}_c}}^2.
+\end{equation}
+We evaluate in pieces:
+\begin{itemize}
+% 0.23 * 6.4 * solar radius = 1.024e11 cm
+% G * (1.4 solar mass)^2 * (1.024e11 cm)^5 / (126 * solar radius)^6
+    \item Note that $\frac{GM_2^2 r_c^5}{a^6} = \scinot{1.284}{30}\;\mathrm{N
+        \cdot m}$ for the given parameters.
+
+% (1.42 * 10^{-6} (Hz) / sqrt(G * 3 * solar mass / (1.024e11 cm)^3))^(8/3)
+    \item Then evaluating $\hat{T}$ at the orbital frequency, we can evaluate
+        the $\omega$ term, which is $\scinot{9.563}{-8}$.
+
+% 0.76 * (1 - 0.76)^2
+    \item Let's just take $\rho_c / \bar{\rho}_c \sim 0.76$, then we can evaluate
+        the final piece $0.0438$.
+\end{itemize}
+This tells us that $\hat{T} \approx \scinot{5.38}{21}\;\mathrm{N \cdot m}$, and
+so
+% G * (8.8 solar masses) * (1.4 solar masses) / (2 * 126 * solar radius)
+\begin{align}
+    % (9.563e-8 * 0.0438 * 1.284e30) * (Newton * m) (1.42e-6 Hz)
+    \hat{T}\Omega &\approx \scinot{7.636}{15}\;\mathrm{W},\\
+    E &\approx \scinot{1.85}{40}\;\mathrm{J},\\
+    \dot{E}_{obs} = -\frac{\dot{a}}{a}E &= \scinot{1.173}{27}\;\mathrm{W}.
+\end{align}
+% sqrt(G * 3 * solar mass / (1.024e11 cm)^3) / (1.42e-6 Hz)
+Thus, we need an enhancement $\dot{E}_{obs} / \p*{\hat{T}\Omega} =
+\scinot{1.536}{11}$. The breakup frequency in units of the orbital frequency is
+$428.822 \Omega_o$, and it turns out the two values for the spin of the core
+evaluate to be $-306 \Omega_o$ or $341 \Omega_o$ depending on whether retrograde
+or prograde rotation is used. This is quite a large fraction of breakup!
+
+For reference, the heating in the inertial frame for these two values (given
+$\dot{E}_{\rm rot} = \dot{E}_{\rm in} - \Omega_s \tau$) is $\sim \scinot{4}{12}
+\hat{T}\Omega = \scinot{3}{28}\;\mathrm{W} = 80L_{\odot}$. This is still
+somewhat negligible compared to the luminosity of the host star\dots
+
+Let's try running this via MESA\@. It looks like the metallicity should be
+somewhere around $0.1\times$ or $0.2\times$
+solar\footnote{https://academic.oup.com/mnras/article/422/2/1109/1032973\#18429474}.
+Hilariously, the old mass estimate comes from requiring a $1.4M_{\odot}$ NS,
+which is not accurate; Thorsett \& Chakrabatty 1999 give a new estimate $\sim 10
+M_{\odot}$. We want a star of the correct metallicity to reproduce the only
+observational constraints, $L \sim \scinot{1.2}{4}L_{\odot}$ and $T \sim 24000
+\pm 100\;\mathrm{K}$. This seems to be hard to satisfy, my original MESA
+simulations have higher temperatures and lower luminosities, at least on the MS
+down to a central hydrogen abundance $\sim 0.5$. This seems to suggest possible
+signatures of tidal heating, which could puff up the star (lowering the Teff and
+raising the luminosity), but this seems somewhat unlikely from the $\dot{E}_{\rm
+rot}$ calculation using the OG values above. See plots for comparison of MESA
+data. % TODO
+
+Taking $M = 10.8M_{\odot}$, we can plug in some values
+% G * (1.714 solar mass)^2 * (5.42e10 cm)^5 / (126 solar radii)^6
+$GM_2^2 r_c^5 / a^6 = \scinot{7.992}{28}\;\mathrm{N \cdot m}$,
+% (1.42 * 10^{-6} (Hz) / sqrt(G * 2.81 * solar mass / (5.42e10 cm)^3))^(8/3)
+$\omega^{8/3} \approx \scinot{8.190}{-9}$, and
+$\rho_c / \bar{\rho}_c \sim 0.753$ so the final piece comes out $0.0459$. This
+again gives substantially lower
+\begin{equation}
+    % 7.992e28 (Newton * meter) * 8.190e-9 * 0.0459 * (1.42e-6 Hz)
+    \hat{T}\Omega \approx \scinot{4.171}{13}\;\mathrm{W}.
+\end{equation}
+The new breakup frequency is $\Omega_* / \Omega_o = 1077.76$. The new required
+enhancement $\dot{E}_{\rm obs} / \hat{T}\Omega = \scinot{2.81}{13}$. The core
+must rotate faster than breakup for this to be the case though!
 
 \end{document}
 

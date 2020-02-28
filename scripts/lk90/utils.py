@@ -134,7 +134,7 @@ def plot_traj(ret, fn,
 
     # spin-orbit coupling Hamiltonian
     h_sl = getter_kwargs['eps_sl'] / a**(5/2) * dot_sl / (1 - e_tot**2)
-    ax6.plot(t_vals, h_sl, 'g')
+    ax6.semilogy(t_vals, h_sl, 'g')
     ax6.set_ylabel(r'$H_{SL}$')
     ax6.yaxis.set_label_position('right')
 
