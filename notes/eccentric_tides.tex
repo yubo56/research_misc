@@ -1429,19 +1429,21 @@ raising the luminosity), but this seems somewhat unlikely from the $\dot{E}_{\rm
 rot}$ calculation using the OG values above. See plots for comparison of MESA
 data. % TODO
 
-Taking $M = 10.8M_{\odot}$, we can plug in some values
-% G * (1.714 solar mass)^2 * (5.42e10 cm)^5 / (126 solar radii)^6
-$GM_2^2 r_c^5 / a^6 = \scinot{7.992}{28}\;\mathrm{N \cdot m}$,
-% (1.42 * 10^{-6} (Hz) / sqrt(G * 2.81 * solar mass / (5.42e10 cm)^3))^(8/3)
-$\omega^{8/3} \approx \scinot{8.190}{-9}$, and
-$\rho_c / \bar{\rho}_c \sim 0.753$ so the final piece comes out $0.0459$. This
+Taking $M = 11.4M_{\odot}$ (which matches at least the luminosity) and companion
+mass $1.81 M_{\odot}$, we can plug in some values
+% G * (1.81 solar mass)^2 * (5.69e10 cm)^5 / (126 solar radii)^6
+$GM_2^2 r_c^5 / a^6 = \scinot{1.137}{29}\;\mathrm{N \cdot m}$,
+% (1.42 * 10^{-6} (Hz) / sqrt(G * 3.05 * solar mass / (5.69e10 cm)^3))^(8/3)
+$\omega^{8/3} \approx \scinot{8.9181}{-9}$, and
+$\rho_c / \bar{\rho}_c \sim 0.742$ so the final piece comes out $0.0494$. This
 again gives substantially lower
 \begin{equation}
     % 7.992e28 (Newton * meter) * 8.190e-9 * 0.0459 * (1.42e-6 Hz)
-    \hat{T}\Omega \approx \scinot{4.171}{13}\;\mathrm{W}.
+    \hat{T}\Omega \approx \scinot{7.113}{13}\;\mathrm{W}.
 \end{equation}
-The new breakup frequency is $\Omega_* / \Omega_o = 1077.76$. The new required
-enhancement $\dot{E}_{\rm obs} / \hat{T}\Omega = \scinot{2.81}{13}$. The core
+% sqrt(G * 3.05 * solar mass / (5.69e10 cm)^3) / (1.42 * 10^{-6} (Hz))
+The new breakup frequency is $\Omega_* / \Omega_o = 1043.87$. The new required
+enhancement $\dot{E}_{\rm obs} / \hat{T}\Omega = \scinot{1.649}{13}$. The core
 must rotate faster than breakup for this to be the case though!
 
 \end{document}
