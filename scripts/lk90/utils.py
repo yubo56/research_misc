@@ -86,24 +86,49 @@ def ts_dot(x, y):
         z += x1 * y1
     return z
 
+def plot_traj_vecs(ret, fn, *args,
+                   num_pts=1000, getter_kwargs={},
+                   plot_slice=np.s_[::]):
+    t = ret.t[plot_slice]
+    L, e, s = to_vars(ret.y)
+    Lhat = L[:, plot_slice] / np.sqrt(np.sum(L[:, plot_slice]**2, axis=0))
+    ehat = e[:, plot_slice] / np.sqrt(np.sum(e[:, plot_slice]**2, axis=0))
+    fig, ((ax1, ax2, ax3),
+          (ax4, ax5, ax6),
+          (ax7, ax8, ax9)) = plt.subplots(3, 3, figsize=(10, 8), sharex=True)
+
+    ax1.plot(t, Lhat[0])
+    ax2.plot(t, Lhat[1])
+    ax3.plot(t, Lhat[2])
+    ax4.plot(t, ehat[0])
+    ax5.plot(t, ehat[1])
+    ax6.plot(t, ehat[2])
+    ax7.plot(t, s[0, plot_slice])
+    ax8.plot(t, s[1, plot_slice])
+    ax9.plot(t, s[2, plot_slice])
+    ax1.set_ylabel(r'$\hat{L}$')
+    ax4.set_ylabel(r'$\hat{e}$')
+    ax7.set_ylabel(r'$\hat{s}$')
+    ax8.set_xlabel(r'$t / t_{\rm LK}$')
+    plt.savefig(fn + '_vecs', dpi=300)
+    plt.close()
+
 def plot_traj(ret, fn,
               m1, m2, m3, a0, a2, e2, I0,
               num_pts=1000, getter_kwargs={},
-              use_stride=True, use_start=True):
+              plot_slice=np.s_[::]):
     L, e, s = to_vars(ret.y)
     fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3,
                                                  figsize=(14, 8),
                                                  sharex=True)
     t_lk, elim, elim_eta0, elim_naive = get_vals(m1, m2, m3, a0, a2, e2, I0)
 
-    start_idx = len(ret.t) // 2 if use_start else 0
-    stride = len(ret.t) // num_pts + 1 if use_stride else 1
-    t_vals = ret.t[start_idx::stride]
-    e_tot = np.sqrt(np.sum(e[:, start_idx::stride]**2, axis=0))
-    Lnorm = np.sqrt(np.sum(L[:, start_idx::stride]**2, axis=0))
-    Lhat = L[:, start_idx::stride] / Lnorm
+    t_vals = ret.t[plot_slice]
+    e_tot = np.sqrt(np.sum(e[:, plot_slice]**2, axis=0))
+    Lnorm = np.sqrt(np.sum(L[:, plot_slice]**2, axis=0))
+    Lhat = L[:, plot_slice] / Lnorm
     a = Lnorm**2 / (1 - e_tot**2)
-    dot_sl = ts_dot(Lhat, s[:, start_idx::stride])
+    dot_sl = ts_dot(Lhat, s[:, plot_slice])
 
     # 1 - e(t)
     ax1.semilogy(t_vals, 1 - e_tot, 'r')
@@ -128,7 +153,8 @@ def plot_traj(ret, fn,
 
     # $A$ Adiabaticity param
     A = 8 * getter_kwargs.get('eps_sl', DEF_EPS_SL) / (
-        a * np.sqrt(1 - e_tot**2) * 3 * (1 + 4 * e_tot**2) * np.sin(2 * I))
+        a * np.sqrt(1 - e_tot**2) * 3 * (1 + 4 * e_tot**2) *
+            np.abs(np.sin(2 * I)))
     ax5.plot(t_vals, A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 

@@ -15,8 +15,6 @@ def run(I=np.radians(90.3), e=0.001):
                  )
     plot_traj(ret, '1sim',
               m1, m2, m3, a0, a2, e2, I,
-              use_start=False,
-              use_stride=False,
               getter_kwargs=getter_kwargs,
               )
 
@@ -27,7 +25,8 @@ def plot_many(e=0.001):
 
     q_slfs = []
     tfs = []
-    I_degs = np.linspace(90.05, 90.355, 6)
+    # I_degs = np.linspace(90.05, 90.355, 6)
+    I_degs = [90.355]
     for I_deg in I_degs:
         I = np.radians(I_deg)
         fn = '1sim_%s' % ('%.2f' % I_deg).replace('.', '_')
@@ -45,10 +44,11 @@ def plot_many(e=0.001):
             print('Loading %s' % fn)
             with open('%s.pkl' % fn, 'rb') as f:
                 ret = pickle.load(f)
-        plot_traj(ret, fn,
+        plot_slice = np.where(np.logical_and(
+            ret.t > 25, ret.t < 27))[0]
+        plot_traj_vecs(ret, fn,
                   m1, m2, m3, a0, a2, e2, I,
-                  use_start=False,
-                  use_stride=False,
+                  plot_slice=plot_slice,
                   getter_kwargs=getter_kwargs,
                   )
         L, _, s = to_vars(ret.y)
