@@ -40,16 +40,39 @@ def plot_time(ret, idx, filename='dir/analysis'):
     plot_vec(ax, s[:, idx], 'g', r'$\vec{s}$')
     ax.set_xlabel(r'$x$')
     ax.set_ylabel(r'$z$')
-    ax.text(-0.9, 0.9, r'$e = %.4f, t = %.3f$' %
-            (np.sqrt(np.sum(e_idx**2)), ret.t[idx]))
+    mu_sl = np.dot(Lhat, s[:, idx])
+    ax.text(-0.9, 0.9, r'$e = %.4f, t = %.3f, \cos \theta_{SL} = %.3f$' %
+            (np.sqrt(np.sum(e_idx**2)), ret.t[idx], mu_sl))
     plt.savefig(filename + '_%09d' % idx)
     plt.clf()
 
 if __name__ == '__main__':
     with open(FN, 'rb') as f:
         ret = pickle.load(f)
+
+        # plot particular idxs of the simulation
         # idxs = np.where(np.logical_and(ret.t < 24, ret.t > 26))[0][::200]
         # idxs = np.arange(len(ret.t))[::00]
-        idxs = np.where(ret.t < 25.5)[0][::2]
-        for idx in idxs:
-            plot_time(ret, idx)
+        # idxs = np.where(ret.t < 25.5)[0][::2]
+        # for idx in idxs:
+        #     plot_time(ret, idx)
+
+        # try plotting L at [non-]peak-e moments of oscillation
+        # min_e = 0.9
+        # max_e = 0.998
+
+        # e = np.sqrt(np.sum(ret.y[3:6]**2, axis=0))
+        # left_idx = 0
+        # guess_idx = np.where(e > max_e)[0][0]
+        # while ret.t[guess_idx] < 27:
+        #     right_idx = np.where(e[guess_idx : ] < min_e)[0][0] + guess_idx
+        #     plot_idx = np.argmax(e[guess_idx: right_idx]) + guess_idx
+        #     plot_time(ret, plot_idx)
+        #     print(plot_idx, ret.t[plot_idx])
+
+        #     plot_idx = np.argmin(e[left_idx: guess_idx]) + left_idx
+        #     plot_time(ret, plot_idx)
+        #     print(plot_idx, ret.t[plot_idx])
+
+        #     left_idx = right_idx
+        #     guess_idx = np.where(e[left_idx : ] > max_e)[0][0] + left_idx

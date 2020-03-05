@@ -251,12 +251,12 @@ The adiabacitity parameter
         = \frac{\epsilon_{SL}}{t_{LK, 0}}
             \p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
             \s*{\frac{3(1 + 4e^2)}{8t_{LK, 0}\sqrt{1 - e^2}}
-                \p*{\frac{a_0}{a}}^{3/2}\abs*{\sin 2I}}^{-1},
+                \p*{\frac{a}{a_0}}^{3/2}\abs*{\sin 2I}}^{-1},
 \end{equation}
 (note that $\Omega_L$ is a somewhat averaged sense, see LL18) can be evaluated
 in these units as
 \begin{equation}
-    \mathcal{A} = \epsilon_{SL}\frac{a_0}{a}\frac{1}{\sqrt{1 - e^2}}
+    \mathcal{A} = \epsilon_{SL}\p*{\frac{a_0}{a}}^4\frac{1}{\sqrt{1 - e^2}}
         \frac{8}{3\p*{1 + 4e^2}\abs*{\sin 2I}}.
 \end{equation}
 
@@ -287,6 +287,54 @@ very small for most of the evolution, this generally reduces to the well known
 \end{equation}
 This only fails to saturate for extremely high eccentricies, so $I_0 \to
 90^\circ$.
+
+\subsection{Attractor Behavior}
+
+Proposal: The reason the $90^\circ$ attractor appears is that the initial
+$\theta_{sb}$ is roughly stationary for $\mathcal{A} \ll 1$ (only small kicks
+during each LK cycle, as long as the maximum eccentricity isn't too large), then
+as we enter the transadiabatic regime, the L-K cycles die down and we simply
+have conservation of adiabatic invariant.
+
+The latter half of this follows the LL18 claim, where the requirement that
+$\epsilon_{GR} \lesssim 9/4$ (GR precession of pericenter is slow enough that
+L-K survives) equates to $\mathcal{A} \lesssim 3$. The former half of this is
+somewhat tricky, but we can understand what is happening if we consider what is
+happening in the frame corotating with $\Omega_{SL, e = 0}$ about $\hat{z}$:
+every time that a LK cycle appears, $\Omega_{SL}$ becomes much larger, and the
+axis of precession changes from $\hat{z}$ to the location of $\hat{L}$ very
+briefly. We can imagine this as a kick in this corotating frame (which is the
+right frame to consider for $\mathcal{A} \ll 1$). In the limit that $I$ does not
+change very much between L-K cycles, and the azimuthal angle of $\hat{L}$ is
+roughly symmetric, the impulses roughly cancel out in the $\theta_{sb}$
+direction. In other words, after two LK cycles, $\theta_{sb}$ does not change
+much in the corotating frame. This is indeed the picture that we obtain when we
+observe the plot.
+
+As such, the hypothesis is that if $\mathcal{A} \gtrsim 1$ is satisfied while
+the kicks are still \emph{small}, then deviations about $90^\circ$ cannot be
+very large, and adiabatic invariance tilts us right over. On the other hand, if
+the kicks have become \emph{large}, then $\theta_{sb}$ after any particular LK
+cycle is far from $90^\circ$, and this is frozen in during the adiabatic
+invariance phase. This explains a few key observations:
+\begin{itemize}
+    \item If the initial $\theta_{sb} \approx 90^\circ$, e.g.\ if it is
+        $70^\circ$, then the frozen in $\theta_{SL}$ at the end is also $\sim
+        70^\circ$. Thus, it cannot be a dynamical attraction towards
+        $\theta_{SL} = 90^\circ$, it's just conservation. This is a sensible
+        condition to require though, since one might naively expect $\theta_{SL}
+        \approx 0$ initially, and we know $I_0 \approx 90^\circ$ in order for
+        this mechanism to be active at all.
+
+    \item Two ways we can test this: if we intentionally weaken $\Omega_{SL}$,
+        we should expect the width near $I_{0, \max}$ where the attractor breaks
+        down to \emph{narrow}, i.e.\ e should be able to get closer to $I_{0,
+        \max}$ while still seeing the attractor. The converse obviously holds.
+        Secondly, we can do integrations farther away from $I_{0, \max}$ (so we
+        can actually get some substantial $\hat{S}$ evolution) and plot the
+        trajectory of $\hat{S}$ in the corotating frame. Some number tweaking
+        may be necessary\dots
+\end{itemize}
 
 % \end{multicols}
 \appendix

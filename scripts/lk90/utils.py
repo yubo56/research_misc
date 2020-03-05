@@ -11,9 +11,9 @@ from scipy.optimize import brenth
 import matplotlib.pyplot as plt
 plt.style.use('ggplot')
 
-DEF_EPS_SL = 0.1
-DEF_EPS_GR = 0.1
-DEF_EPS_GW = 0.1
+DEF_EPS_SL = 0
+DEF_EPS_GR = 0
+DEF_EPS_GW = 0
 
 # by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
 # NB: slight confusion here: to compute epsilon + timescales, we use AU as the
@@ -89,27 +89,32 @@ def ts_dot(x, y):
 def plot_traj_vecs(ret, fn, *args,
                    num_pts=1000, getter_kwargs={},
                    plot_slice=np.s_[::]):
+    def to_ang(vec):
+        x, y, z = vec[0], vec[1], vec[2]
+        r = np.sqrt(x**2 + y**2 + z**2)
+        q = np.degrees(np.arccos(z / r))
+        pi2 = 2 * np.pi
+        phi = (np.arctan2(y / np.sin(q), x / np.sin(q)) + pi2) % pi2
+        return q, phi
+
     t = ret.t[plot_slice]
     L, e, s = to_vars(ret.y)
-    Lhat = L[:, plot_slice] / np.sqrt(np.sum(L[:, plot_slice]**2, axis=0))
-    ehat = e[:, plot_slice] / np.sqrt(np.sum(e[:, plot_slice]**2, axis=0))
-    fig, ((ax1, ax2, ax3),
-          (ax4, ax5, ax6),
-          (ax7, ax8, ax9)) = plt.subplots(3, 3, figsize=(10, 8), sharex=True)
+    fig, ((ax1, ax2),
+          (ax5, ax6)) = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
 
-    ax1.plot(t, Lhat[0])
-    ax2.plot(t, Lhat[1])
-    ax3.plot(t, Lhat[2])
-    ax4.plot(t, ehat[0])
-    ax5.plot(t, ehat[1])
-    ax6.plot(t, ehat[2])
-    ax7.plot(t, s[0, plot_slice])
-    ax8.plot(t, s[1, plot_slice])
-    ax9.plot(t, s[2, plot_slice])
-    ax1.set_ylabel(r'$\hat{L}$')
-    ax4.set_ylabel(r'$\hat{e}$')
-    ax7.set_ylabel(r'$\hat{s}$')
-    ax8.set_xlabel(r'$t / t_{\rm LK}$')
+    Lq, Lphi = to_ang(L[:, plot_slice])
+    # eq, ephi = to_ang(e[:, plot_slice])
+    sq, sphi = to_ang(s[:, plot_slice])
+
+    ax1.plot(t, Lq)
+    ax2.plot(t, Lphi)
+    ax5.plot(t, sq)
+    ax6.plot(t, sphi)
+    ax1.set_ylabel(r'$I$')
+    ax2.set_ylabel(r'$\phi_L$')
+    ax5.set_ylabel(r'$\theta_{s3}$')
+    ax6.set_ylabel(r'$\phi_s$')
+    ax6.set_xlabel(r'$t / t_{\rm LK}$')
     plt.savefig(fn + '_vecs', dpi=300)
     plt.close()
 
@@ -153,16 +158,21 @@ def plot_traj(ret, fn,
 
     # $A$ Adiabaticity param
     A = 8 * getter_kwargs.get('eps_sl', DEF_EPS_SL) / (
-        a * np.sqrt(1 - e_tot**2) * 3 * (1 + 4 * e_tot**2) *
-            np.abs(np.sin(2 * I)))
-    ax5.plot(t_vals, A, 'r')
+        3 * a**4 * np.sqrt(1 - e_tot**2) * (1 + 4 * e_tot**2) *
+        np.abs(np.sin(2 * I)))
+    ax5.semilogy(t_vals, A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 
     # spin-orbit coupling Hamiltonian
-    h_sl = getter_kwargs['eps_sl'] / a**(5/2) * dot_sl / (1 - e_tot**2)
-    ax6.semilogy(t_vals, h_sl, 'g')
-    ax6.set_ylabel(r'$H_{SL}$')
-    ax6.yaxis.set_label_position('right')
+    # h_sl = getter_kwargs['eps_sl'] / a**(5/2) * dot_sl / (1 - e_tot**2)
+    # ax6.semilogy(t_vals, h_sl, 'g')
+    # ax6.semilogy(t_vals, -h_sl, 'g:')
+    # ax6.set_ylabel(r'$H_{SL}$')
+    # ax6.yaxis.set_label_position('right')
+
+    # theta_s3
+    ax6.plot(t_vals, np.degrees(np.arccos(s[2, plot_slice])))
+    ax6.set_ylabel(r'$\theta_{S3}$')
 
     for ax in [ax4, ax5, ax6]:
         ax.set_xlabel(r'$t / t_{LK,0}$')
@@ -221,6 +231,7 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
            a_f=3e-1,
            getter_kwargs={},
            q_sl0=0,
+           w0_0=False, # try allowing initial omega = 0
            **kwargs):
     ''' n2 = (0, 0, 1) by convention, choose jy(t=0) = ey(t=0) = 0 '''
     lx = -np.sin(I) * np.sqrt(1 - e**2)
@@ -229,7 +240,10 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
     ez = np.sin(I) * e
     sx = -np.sin(I + q_sl0)
     sz = np.cos(I + q_sl0)
-    y0 = np.array([lx, 0, lz, ex, 0, ez, sx, 0, sz])
+    if w0_0 == True:
+        y0 = np.array([lx, 0, lz, 0, e, 0, sx, 0, sz])
+    else:
+        y0 = np.array([lx, 0, lz, ex, 0, ez, sx, 0, sz])
     dydt = get_dydt_gr(np.array([0, 0, 1]), **getter_kwargs)
 
     def term_event(t, x):

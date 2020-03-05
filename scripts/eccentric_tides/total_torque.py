@@ -224,4 +224,4 @@ if __name__ == '__main__':
     # plot_energy()
     # plot_energy(400)
     # plot_7319()
-    plot_7319(obs_disp = 1.649e13, breakup=1043.87, prefix='7319_mesa_11_4')
+    plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
