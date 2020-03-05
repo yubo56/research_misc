@@ -67,6 +67,11 @@ def get_vals(m1, m2, m3, a0, a2, e2, I):
 
     return (t_lk0 * S_PER_UNIT) / S_PER_YR, emax, emax_eta0, emax_naive
 
+def get_adiab(getter_kwargs, a, e, I):
+    return 8 * getter_kwargs.get('eps_sl', DEF_EPS_SL) / (
+           3 * a**4 * np.sqrt(1 - e**2) * (1 + 4 * e**2) *
+           np.abs(np.sin(2 * I)))
+
 def get_tmerge(m1, m2, m3, a0, a2, e2, I):
     ''' returns in units of LK0 as well as physical units (years) '''
     m12 = m1 + m2
@@ -157,9 +162,7 @@ def plot_traj(ret, fn,
     ax4.set_ylabel(r'$\theta_{\rm sl}$')
 
     # $A$ Adiabaticity param
-    A = 8 * getter_kwargs.get('eps_sl', DEF_EPS_SL) / (
-        3 * a**4 * np.sqrt(1 - e_tot**2) * (1 + 4 * e_tot**2) *
-        np.abs(np.sin(2 * I)))
+    A = get_adiab(getter_kwargs, a, e_tot, I)
     ax5.semilogy(t_vals, A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 
