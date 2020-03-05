@@ -163,6 +163,7 @@ def plot_traj(ret, fn,
 
     # $A$ Adiabaticity param
     A = get_adiab(getter_kwargs, a, e_tot, I)
+    print('Adiab, a', A[-1], a[-1])
     ax5.semilogy(t_vals, A, 'r')
     ax5.set_ylabel(r'$\mathcal{A}$')
 
