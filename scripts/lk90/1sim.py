@@ -31,7 +31,7 @@ def run_one(I_deg=90.355, e=0.001, fn_template='1sim_%s',
         plot_func(ret, fn,
                   m1, m2, m3, a0, a2, e2, I,
                   getter_kwargs=getter_kwargs,
-                  plot_slice=np.where(ret.t > ret.t[-1] - 3)[0],
+                  # plot_slice=np.where(ret.t > ret.t[-1] - 3)[0],
                   )
     L, _, s = to_vars(ret.y)
     Lhat = L / np.sqrt(np.sum(L**2, axis=0))
@@ -47,7 +47,6 @@ def plot_many(ens_fn='1ensemble', plot=True,
         q_slf, ret = run_one(I_deg=I_deg, plot=True, **kwargs)
         q_slfs.append(q_slf)
         tfs.append(ret.t[-1] * S_PER_UNIT / S_PER_YR)
-    # run_one(I_deg=I_degs[-1], plot=True, **kwargs)
     if plot:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
         ax1.plot(I_degs, q_slfs)
@@ -67,25 +66,29 @@ def mkdirp(path):
         os.mkdir(path)
 
 if __name__ == '__main__':
-    # run_one(I_deg=90.355, q_sl0=np.radians(20),
-    #         fn_template='1sim_qsl020_%s',
-    #         # plot_func=plot_traj_vecs,
-    #         )
-    # run_one(I_deg=90.30,
-    #         a_f=0.3, fn_template='wsl_0/1sim_%s',
-    #         # plot_func=plot_traj_vecs,
-    #         )
+    for I_deg in [90.2, 90.4, 90.6]:
+        run_one(I_deg=I_deg,
+                a_f=0.1,
+                # plot_func=plot_traj_vecs,
+                )
 
-    colors=['y', 'r', 'k', 'g', 'b']
-    I_degs = np.arange(90.05, 90.3, 0.002)
-    for idx, wsl_mult in enumerate([0.1, 1/3, 1, 3, 10]):
-        mkdirp('wsl_%d' % idx)
-        a_f = 0.2 * min(wsl_mult, 1)
-        q_slfs = plot_many(a_f=a_f, fn_template='wsl_' + str(idx) + '/1sim_%s',
-                           I_degs=I_degs, wsl_mult=wsl_mult, plot=False)
-        plt.plot(I_degs, q_slfs, colors[idx],
-                 label=r'$%.1f \times \Omega_{rm SL}$' % wsl_mult)
-    plt.xlabel(r'$I$ (Deg)')
-    plt.ylabel(r'$\theta_{sl,f}$ (Deg)')
-    plt.legend(loc='best', fontsize=14)
-    plt.savefig('1ensembles', dpi=400)
+    # mkdirp('1sims')
+    # I_degs = np.arange(90.05, 90.31, 0.01)
+    # q_slfs = plot_many(a_f=0.1, fn_template='1sims' + '/1sim_%s',
+    #                    I_degs=I_degs, plot=False)
+
+    # colors=['y', 'r', 'k', 'g', 'b']
+    # I_degs = np.arange(90.05, 90.3, 0.002)
+    # idx = 2 # back compat
+    # wsl_mult = 1
+    # for idx, wsl_mult in enumerate([0.1, 1/3, 1, 3, 10]):
+    #     mkdirp('wsl_%d' % idx)
+    #     a_f = 0.2 * min(wsl_mult, 1)
+    #     q_slfs = plot_many(a_f=a_f, fn_template='wsl_' + str(idx) + '/1sim_%s',
+    #                        I_degs=I_degs, wsl_mult=wsl_mult, plot=False)
+    #     plt.plot(I_degs, q_slfs, colors[idx],
+    #              label=r'$%.1f \times \Omega_{rm SL}$' % wsl_mult)
+    # plt.xlabel(r'$I$ (Deg)')
+    # plt.ylabel(r'$\theta_{sl,f}$ (Deg)')
+    # plt.legend(loc='best', fontsize=14)
+    # plt.savefig('1ensembles', dpi=400)

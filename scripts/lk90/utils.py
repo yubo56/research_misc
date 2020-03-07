@@ -128,15 +128,17 @@ def plot_traj(ret, fn,
               num_pts=1000, getter_kwargs={},
               plot_slice=np.s_[::]):
     L, e, s = to_vars(ret.y)
-    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(2, 3,
-                                                 figsize=(14, 8),
-                                                 sharex=True)
+    fig, ((ax3, ax1), (ax4, ax2), (ax7, ax5)) = plt.subplots(
+        3, 2, figsize=(12, 8),
+        # sharex=True,
+    )
     t_lk, elim, elim_eta0, elim_naive = get_vals(m1, m2, m3, a0, a2, e2, I0)
 
     t_vals = ret.t[plot_slice]
     e_tot = np.sqrt(np.sum(e[:, plot_slice]**2, axis=0))
     Lnorm = np.sqrt(np.sum(L[:, plot_slice]**2, axis=0))
     Lhat = L[:, plot_slice] / Lnorm
+    I = np.arccos(Lhat[2])
     a = Lnorm**2 / (1 - e_tot**2)
     dot_sl = ts_dot(Lhat, s[:, plot_slice])
 
@@ -146,26 +148,25 @@ def plot_traj(ret, fn,
     ax1.axhline(1 - elim_eta0, c='k', ls=':', lw=0.2)
     ax1.axhline(1 - elim_naive, c='b', ls=':', lw=0.2)
 
-    # I(t)
-    I = np.arccos(Lhat[2])
-    ax2.plot(t_vals, np.degrees(I), 'r')
-    ax2.set_ylabel(r'$I$ (deg)')
-
     # a(t)
-    ax3.semilogy(t_vals, a, 'r')
-    ax3.set_ylabel(r'$a / a_0$')
-    ax3.yaxis.tick_right()
+    ax2.semilogy(t_vals, a, 'r')
+    ax2.set_ylabel(r'$a / a_0$')
 
-    # q_sl
-    q_sl = np.arccos(dot_sl)
-    ax4.plot(t_vals, np.degrees(q_sl), 'r')
-    ax4.set_ylabel(r'$\theta_{\rm sl}$')
+    # a(1 - e)
+    ax3.loglog(1 - e_tot, a, 'r')
+    ax3.set_xlim(right=0.1)
+    # ax3.yaxis.tick_right()
 
     # $A$ Adiabaticity param
     A = get_adiab(getter_kwargs, a, e_tot, I)
     print('Adiab, a', A[-1], a[-1])
-    ax5.semilogy(t_vals, A, 'r')
-    ax5.set_ylabel(r'$\mathcal{A}$')
+    ax4.semilogy(t_vals, A, 'r')
+    ax4.set_ylabel(r'$\mathcal{A}$')
+
+    # q_sl
+    q_sl = np.arccos(dot_sl)
+    ax5.plot(t_vals, np.degrees(q_sl), 'r')
+    ax5.set_ylabel(r'$\theta_{\rm sl}$')
 
     # spin-orbit coupling Hamiltonian
     # h_sl = getter_kwargs['eps_sl'] / a**(5/2) * dot_sl / (1 - e_tot**2)
@@ -174,14 +175,46 @@ def plot_traj(ret, fn,
     # ax6.set_ylabel(r'$H_{SL}$')
     # ax6.yaxis.set_label_position('right')
 
-    # theta_s3
-    ax6.plot(t_vals, np.degrees(np.arccos(s[2, plot_slice])))
-    ax6.set_ylabel(r'$\theta_{S3}$')
+    # theta_sb
+    # ax6.plot(t_vals, np.degrees(np.arccos(s[2, plot_slice])))
+    # ax6.set_ylabel(r'$\theta_{SB}$')
 
-    for ax in [ax4, ax5, ax6]:
-        ax.set_xlabel(r'$t / t_{LK,0}$')
-        plt.setp(ax.get_xticklabels(), rotation=45)
-    plt.suptitle(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
+    # for ax in [ax4, ax5, ax6]:
+    #     ax.set_xlabel(r'$t / t_{LK,0}$')
+    #     plt.setp(ax.get_xticklabels(), rotation=45)
+    # plt.suptitle(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
+
+    # q_eff, L
+    reshape_w = lambda w: np.array([w, w, w])
+    w_sl = (getter_kwargs.get('eps_sl', DEF_EPS_SL) / a**(5/2)) / (1 - e_tot**2)
+    w_pl = 3 * Lhat[2] * a**(3/2) / (4 * np.sqrt(1 - e_tot**2)) * (
+        1 + 4 * e_tot**2)
+    w_eff = reshape_w(w_sl) * Lhat +\
+        reshape_w(w_pl) * np.transpose([[0, 0, 1]] * len(w_pl))
+    w_eff_norm = np.sqrt(np.sum(w_eff**2, axis=0))
+    dot_eff = ts_dot(s[:, plot_slice], w_eff) / w_eff_norm
+    q_eff = np.arccos(dot_eff)
+    ax7.plot(t_vals, np.degrees(q_eff), 'r')
+    ax7.set_ylabel(r'$\theta_{\rm eff, L}$')
+    ax3.set_title(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
+
+    # overplot adiabaticity boundaries in a(1 - e) space
+    e_vals = 1 - np.linspace(*ax3.get_xlim(), 30)
+    # I don't think the Kozai constant is well conserved since GW radiation has
+    # already begun to be important, so just take a characteristic value
+    I_e = np.radians(120) # np.arccos(np.cos(I0) / np.sqrt(1 - e**2))
+    def get_a_adiabatic(e):
+        def opt_func(a):
+            return get_adiab(getter_kwargs, a, e, I_e) - 1
+        return brenth(opt_func, 0.05, 1)
+    a_vals = [get_a_adiabatic(e) for e in e_vals]
+    # for a, e in zip(a_vals, e_vals):
+    #     print(a, e)
+    ax3.loglog(1 - e_vals, a_vals, 'k:', lw=1)
+    a_vals_kick = getter_kwargs.get('eps_sl', DEF_EPS_SL) * 4 * np.pi / (
+        np.sqrt(2 * (1 - e_vals)) * 15) * 15
+    ax3.loglog(1 - e_vals, a_vals_kick, 'b:', lw=1)
+
     plt.savefig(fn, dpi=300)
     plt.close()
 

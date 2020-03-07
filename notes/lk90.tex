@@ -316,25 +316,66 @@ the kicks are still \emph{small}, then deviations about $90^\circ$ cannot be
 very large, and adiabatic invariance tilts us right over. On the other hand, if
 the kicks have become \emph{large}, then $\theta_{sb}$ after any particular LK
 cycle is far from $90^\circ$, and this is frozen in during the adiabatic
-invariance phase. This explains a few key observations:
-\begin{itemize}
-    \item If the initial $\theta_{sb} \approx 90^\circ$, e.g.\ if it is
-        $70^\circ$, then the frozen in $\theta_{SL}$ at the end is also $\sim
-        70^\circ$. Thus, it cannot be a dynamical attraction towards
-        $\theta_{SL} = 90^\circ$, it's just conservation. This is a sensible
-        condition to require though, since one might naively expect $\theta_{SL}
-        \approx 0$ initially, and we know $I_0 \approx 90^\circ$ in order for
-        this mechanism to be active at all.
+invariance phase. This explains the key observation that the initial
+$\theta_{sb}$ eventually becomes the final $\theta_{sl}$, regardless of whether
+it is $90^\circ$. Furthermore, it explains why the kicks to $\theta_{eff}$
+become larger over time, but peak smaller for larger $I_0$.
 
-    \item Two ways we can test this: if we intentionally weaken $\Omega_{SL}$,
-        we should expect the width near $I_{0, \max}$ where the attractor breaks
-        down to \emph{narrow}, i.e.\ e should be able to get closer to $I_{0,
-        \max}$ while still seeing the attractor. The converse obviously holds.
-        Secondly, we can do integrations farther away from $I_{0, \max}$ (so we
-        can actually get some substantial $\hat{S}$ evolution) and plot the
-        trajectory of $\hat{S}$ in the corotating frame. Some number tweaking
-        may be necessary\dots
-\end{itemize}
+The natural way to think about this is to consider the evolution of the
+trajectory in $(a, e)$ space. There are two curves that can be drawn on here,
+$\mathcal{A} \sim 1$ and $\abs*{\Delta \theta_{sb}} \sim 1$ (the kick size), and
+then we can see which one gets crossed first. The hypothesis is that the first
+always gets crossed first, but if $e_{\max}$ is too large, then the second gets
+crossed in the same LK cycle, and we get kicked far away from the starting
+$\theta$, and have this frozen into $\theta_{sl}$. We need to find out how to
+draw these boundaries in $(a, e)$ space. Drawing $\mathcal{A}$ is very easy,
+since we have the explicit formulla for it.
+
+To get the kick size, we have to integrate one of the LK peaks. This is easiest
+done by considering the evolution of the $\delta e \equiv 1 - e$ variable by
+dotting $\vec{e}$ into $\rd{\vec{e}}{t}$, such that
+\begin{align}
+    2e\rd{e}{t} &= \rd{\p*{\vec{e} \cdot \vec{e}}}{t}
+        = 2\vec{e} \cdot \rd{\vec{e}}{t},\\
+        &= -\frac{15}{2t_{LK}}\p*{\bm{e} \cdot \hat{n}_2}
+            \p*{\hat{n}_2 \cdot \p*{\bm{e} \times \bm{j}}},\\
+        &\lesssim \pm\frac{15}{2t_{LK}}e^2\sqrt{1 - e^2},\\
+    \rd{e}{t} &\sim -\frac{15}{4t_{LK}}e\sqrt{1 - e^2},\\
+    \rd{(\delta e)}{t} &\sim \frac{15}{4t_{LK}}\sqrt{2\delta e},\\
+    \delta e(t) &\sim \p*{\frac{15 t}{4\sqrt{2}t_{LK}}}^2.
+\end{align}
+The finding of a power law/quadratic seems in accordance w/ my simulations,
+though I have to plot $\delta e - \delta e_{\min}$. Then, we can simply
+integrate
+\begin{align}
+    \Delta \theta_{sb} &\sim \oint\limits_{LK}
+            \Omega_{SL}\;\mathrm{d}t,\\
+        &\sim \frac{\epsilon_{SL}}{2}\p*{\frac{a_0}{a}}^{5/2}
+            \oint\limits_{LK} \frac{1}{\delta e}\;\mathrm{d}t,\\
+        &\sim \frac{\epsilon_{SL}}{2}\p*{\frac{a_0}{a}}^{5/2}
+            \oint\limits_{LK}
+            \frac{1}{\delta e_{\min} + \p*{\frac{15}{4\sqrt{2}t_{LK}}}^2
+                t^2}\;\mathrm{d}t,\\
+        &\sim \frac{\epsilon_{SL}}{2 \delta e_{\min}}\p*{\frac{a_0}{a}}^{5/2}
+            \pi \frac{4t_{LK} \sqrt{2 \delta e_{\min}}}{15},\\
+        &\sim \frac{\epsilon_{SL}}{\sqrt{2\delta e_{\min}}}\frac{a_0}{a}
+            \pi \frac{4}{15}.
+\end{align}
+In the last few steps, we've just taken the bounds of integration to be $t \in
+[-\infty, \infty]$ for simplicity (they contribute negligibly), and used $t_{LK}
+= (a / a_0)^{3/2}$ since $t_{LK, 0} = 0$.
+
+If we now explicitly write down the criteria where $\mathcal{A} \sim 1$ and
+$\Delta \theta_{sb} \sim 1$ in the $(a, e)$ plane, then we obtain
+\begin{align}
+    a_{c,\theta} &\sim \frac{\epsilon_{SL}}{\sqrt{2\delta e_{\min}}}
+        \frac{4\pi}{15},\\
+    a_{c, \mathcal{A}} &\sim
+        \s*{\epsilon_{SL}\frac{8/3}{\sqrt{1 - e_{\min}^2}
+            \p*{1 + 4e_{\min}^2}\abs*{\sin 2I}}}^{1/4}.
+\end{align}
+The key difference between the two is that kicks occur at $e_{\max}$ or $\delta
+e_{\min}$, while the adiabaticity parameter is moreso evaluated at $e_{\min}$.
 
 % \end{multicols}
 \appendix
