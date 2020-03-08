@@ -377,6 +377,95 @@ $\Delta \theta_{sb} \sim 1$ in the $(a, e)$ plane, then we obtain
 The key difference between the two is that kicks occur at $e_{\max}$ or $\delta
 e_{\min}$, while the adiabaticity parameter is moreso evaluated at $e_{\min}$.
 
+\textbf{Update:} This cannot be the correct mechanism since it would generate
+symmetric scatter of $\theta_{sl}$ about $\theta_{sb, 0}$, which is not the case
+(see Fig 19 of LL18). Instead, it must really be how quickly the axis of
+precession of $\rd{\hat{\bm{S}}}{t}$ moves compared to the precession
+frequency, or indeed $\abs*{\Omega_{eff}}$ as compared to
+$\rd{\hat{\bm{\Omega}}_{eff}}{t}$.
+
+\subsection{More analysis on LL18's proposal}
+
+Note that, since $\theta_{sb}$ during the LK oscillations will receive a
+sequence of kicks, it randomizes the ordering a bit, so exact conservation of
+$\theta_{sb, i}$ to $\theta_{sl, f}$ is not maintained (i.e.\ the ordering can
+change somewhat).
+
+But ultimately, it must boil down indeed to comparison of the change in
+precession axis vs the precession frequency. One of the key difficulties in this
+conclusion in LL18 is neglect of nutation in Equations~64 and~65. However, in
+the transadiabatic regime, the LK cycles are of small amplitude ($1 - e$
+typically at least $\lesssim 0.1$, often $\lesssim 0.01$ throughout the cycles)
+and are fast, and as a result $I$ is to good approximation constant and nutation
+can likely be neglected; at worst an average value of $\bm{L}$ can be used. The
+final spread in $\theta_{sl, f}$ probably comes from the spread in $\theta_{sb,
+i}$ upon exiting the nonadiabatic regime, due to the kicks during the LK cycles.
+\textbf{NB:} Another way to argue that the fast nutation can be ignored is if
+$\Delta I \ll \theta_{\rm eff, S}$, since then the spin vector just precesses
+around a fuzzy vector, which isn't a huge deal. If the precession frequencies
+are equal, it's possible to hit an SHO-like resonance, which should probably be
+dealt with TODO\@.
+
+Let's suppose this is the case for the time being, where $e$, $I$, and $a$ are
+all approximately slowly varying going into the transadiabatic regime. Then
+let's go to the co-rotating frame with $\bm{L}$ (fix this in the $\hat{x},
+\hat{z}$ plane) and look at the evolution of the components of $\bm{\Omega}_{\rm
+eff}$:
+\begin{align}
+    \bm{\Omega}_{\rm eff} &= \Omega_{SL}\p*{\sin I \hat{x} + \cos I \hat{z}}
+            + \Omega_{pl} \hat{z},\\
+    \hat{\bm{\Omega}}_{\rm eff} \cdot \hat{z}
+        &= \frac{\Omega_{SL} \cos I + \Omega_{pl}}{
+            \sqrt{\Omega_{SL}^2\sin^2 I + \p*{\Omega_{SL}\cos I
+                + \Omega_{pl}}^2}}.
+\end{align}
+Then, we just have to compare $\rd{\arccos\hat{\Omega}_{\rm eff, z}}{t}$ to
+$\Omega_{\rm eff}$ the magnitude, and this tells us whether $\hat{S}$ can track
+$\bm{\Omega}_{\rm eff}$ as it moves. This tracks the polar angle, and the $z$
+component doesn't have a singularity during the evolution and is preferable
+(compared to the $x$ component). If all quantities are slowly varying (at
+roughly constant speeds), the characteristic speed at which the polar angle
+varies occurs when it is $\sim 90^\circ$, or when $\Omega_{\rm eff, z} \approx
+0$, so we can simply the expression a bit
+\begin{equation}
+    \rd{\arccos\hat{\Omega}_{\rm eff, z}}{t}
+        \lesssim \rd{}{t}\p*{\frac{\Omega_{SL} \cos I + \Omega_{pl}}{
+            \Omega_{SL}\sin I}} \sim \frac{1}{\sin I}
+                \rd{(\mathcal{A}^{-1})}{t}
+\end{equation}
+
+In summary, the picture is as follows:
+\begin{itemize}
+    \item Starting from some initial $\theta_{sb, 0}$, there are some random
+        kicks (which cancel slightly better than a random walk, i.e.\ the
+        variance does not seem to grow), we exit the nonadiabatic regime with
+        some random value $\in \theta_{sb, 0} \pm \Delta \theta_{sb}$.
+
+    \item Under the influences of $\epsilon_{GW}$ on $e_{\max}$ and
+        $\epsilon_{GR}$ on $e_{\min}$, the trajectory flows towards a single
+        point in $(a, e)$ space. Note that $I$ should be fixed by approximate
+        conservation of the Kozai constant, since the GW effect is much weaker
+        than the GR effect, and the GR effect preserves the Kozai constant.
+
+    \item If the system hasn't exited the Kozai regime or merged at this point,
+        it will evolve with small LK oscillations about GR decay of $e$ and $a$,
+        coupled to convergence in $I$. As GR acts, this fuzz gets smaller and
+        smaller amplitude until GR breaks the LK resonance.
+
+        During this fuzzy phase, so long as $\Omega_{\rm eff} \gtrsim
+        \rd{(\mathcal{A})^{-1}}{t}/\sin I$, then $\theta_{sb}$ gets sent to
+        $\theta_{sl, f}$. The fuzz timescale is so short that it can be averaged
+        over (the spin can't see it), so we should just have to consider the GR
+        decay timescale when making this comparison.
+
+    \item Regardless of whether the transadiabatic phase conserves the adiabatic
+        invariant $\theta_{\rm eff}$, the final value is conserved once LK
+        entirely disappears and it's just slow GR decay (which will evolve
+        $\Omega_{\rm eff}$ slightly, but more obviously slowly).
+\end{itemize}
+
+We now make some comments on the dynamics in each of these regimes:
+
 % \end{multicols}
 \appendix
 
@@ -449,29 +538,6 @@ out, eff} \propto a_{out}$), the focusing is significantly stronger. Note that
 initially, $I \equiv \arccos\p*{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
 $\theta_{sl} \approx 0$.
 
-In LL18, an adiabaticity parameter is defined:
-\begin{equation}
-    \mathcal{A} \equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}},
-\end{equation}
-where $\Omega_{L} \simeq \ev*{\rd{\hat{L}}{t}}_{LK}$ to quadrupolar order. As
-the inner binary coalesces, $\mathcal{A}$ transitions from $\ll 1$ to $\gg 1$
-(as $\Omega_{SL}$ is a GR effect so ramps up very quickly as orbital separation
-decreases).
-
-The adiabaticity parameter $\mathcal{A}$ can be plotted upon rescaling in our
-coordinates. Note that $\Omega_{\rm SL} = \frac{\delta a_0}{at_{LK, 0}}$, while
-$\Omega_L \simeq \frac{3\p*{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs*{\sin 2I}$ can
-also be expressed in units of $t_{LK, 0}$. This gives us
-\begin{equation}
-    \mathcal{A} = \frac{8\delta \sqrt{1 - e^2}}{3\p*{1 +
-        4e^2}}\p*{\frac{a_0}{a}}^4.
-\end{equation}
-
-\subsection{Simulations}
-
-First, we run GR-less simulations, so let's take $t_{LK} = 1$ (no semimajor axis
-evolution), and we reproduce LK oscillations.
-
 Next, when accounting for GR, we should let $a$ evolve as above. Note that since
 $\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
 \sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p*{1 -
@@ -503,49 +569,6 @@ which can be verified as (Let's set $G = M = \mu = a = c = 1$ for convenience)
                 - 304e^2\p*{1 + \frac{121e^2}{304}}}.
 \end{align}
 This can be verified to vanish upon term-by-term examination indeed.
-
-For convenience, let's just define $t_{LK} = t_{LK,0} \frac{a_0^3}{a^3}$
-and set $t_{LK, 0} = 1$. Furthermore, the timescale of relevance for the GW
-terms is $t_{GW}^{-1} \sim \frac{G^3 \mu m_{12}^2}{c^5a^4}$. Let's express this
-as some ratio $t_{GW} = \epsilon t_{LK, 0}\frac{a_0^4}{a^4}$. Thus, everything
-should be nondimensionalized this way.
-
-We lastly add de-Sitter precession of the spin of one of the inner binary
-components, call this $\hat{S}$. Similarly, let's just define a proportionality
-constant $t_{SL} = \delta t_{LK, 0}\frac{a_0}{a}$, then
-\begin{equation}
-    \rd{\hat{S}}{(t / t_{LK, 0})} = \delta \frac{a_0}{a} \hat{L} \times \hat{S}.
-\end{equation}
-
-Our final simulation equations are thus ($\tau = t / t_{LK, 0}$)
-\begin{align}
-    \rd{\bm{j}}{\tau} ={}& \frac{3}{4}\p*{\frac{a_0^3}{a^3}} \s*{
-        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
-        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
-        }\nonumber\\
-        &- \p*{\epsilon \frac{a_0^4}{a^4}}\p*{
-            \frac{32}{5}
-                \frac{1 + 7e^2/8}{\p*{1 - e^2}^{5/2}}
-            - \frac{32}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
-                    + \frac{37}{96}e^4}
-            }\bm{j},\\
-    \rd{\bm{e}}{\tau} ={}&
-        \frac{3}{4}\p*{\frac{a_0^3}{a^3}} \s*{
-            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
-            + 2\bm{j} \times \bm{e}
-            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
-            }
-        -
-            \p*{\epsilon\frac{a_0^4}{a^4}}
-            \frac{304}{15}
-            \frac{1}{\p*{1 - e^2}^{5/2}}
-            \p*{1 + \frac{121}{304} e^2}\bm{e},\\
-    \rd{\hat{S}}{\tau} ={}& \delta \frac{a_0}{a}
-        \frac{\bm{j}}{\sqrt{1 - e^2}} \times \hat{S},\\
-    \rd{a}{\tau} ={}& -a\p*{\epsilon\frac{a_0^4}{a^4}}
-        \frac{64}{5} \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
-            + \frac{37}{96}e^4}.
-\end{align}
 
 \end{document}
 
