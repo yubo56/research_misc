@@ -66,11 +66,10 @@ def mkdirp(path):
         os.mkdir(path)
 
 if __name__ == '__main__':
-    # for I_deg in [90.2, 90.4, 90.6]:
-    #     run_one(I_deg=I_deg,
-    #             a_f=0.1,
-    #             # plot_func=plot_traj_vecs,
-    #             )
+    # run_one(I_deg=90.4,
+    #         a_f=0.1,
+    #         # plot_func=plot_traj_vecs,
+    #         )
 
     mkdirp('1sims')
     I_degs = np.arange(90.05, 90.31, 0.01)

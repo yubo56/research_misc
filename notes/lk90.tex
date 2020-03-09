@@ -464,7 +464,87 @@ In summary, the picture is as follows:
         $\Omega_{\rm eff}$ slightly, but more obviously slowly).
 \end{itemize}
 
+\subsection{Timescales for My Picture}
+
+\textbf{NB:} we are in the circulating regime of the L-K mechanism!
+
 We now make some comments on the dynamics in each of these regimes:
+\begin{itemize}
+    \item During the initial pure-LK phase, there are small perturbations to
+        $\theta_{sb}$ as we derived above.
+
+        But furthermore, we can estimate the characteristic number of LK cycles
+        by observing that the decay in the range of $\omega$ oscillation is what
+        drives $e_{\min}$ to increase over time. We can integrate one Kozai
+        cycle
+        \begin{align}
+            \Delta \omega &= \oint_{LK} \frac{3Gnm_{12}e}{c^2a\p*{1 - e^2}}
+                \;\mathrm{d}t,\\
+            &\approx \frac{Gnm_{12}e}{2c^2a}
+                \int\limits_{-\infty}^\infty \frac{1}{\delta e_{\min}
+                    + \p*{\frac{15 t}{4\sqrt{2}t_{LK}}^2}}\;\mathrm{d}t,\\
+            &\approx \frac{3Gnm_{12} 4\pi t_{LK}}{c^2a\sqrt{2\delta e_{\min}}}.
+        \end{align}
+        It's likely we can replace $\sqrt{2 \delta e_{\min}} \to \sqrt{1 -
+        e_{\max}^2}$.
+
+        We should be able to determine the number of Kozai cycles before
+        coalescence by computing $\pd{H}{\omega}$ at $e_{\max}$, which I haven't
+        done.
+
+        If we ignore GW effects, the final state for this phase is where $e
+        \approx e_{\max}, I \approx I_{\min}$. There are small corrections due
+        to (i) GW decay near the high-e phases; we can estimate the former,
+        since we also know the number of high-e cycles, but it may not be very
+        important.
+
+    \item During the fuzz phase, let's assert that $\omega, I$ make small
+        amplitude oscillations about mean values that evolve slowly under GW
+        emission (which also affects $a$): note that $I$ is affected because
+        GW emission is approximately adiabatic compared to the LK timescale.
+        What sets the frequency and amplitude of these oscillations?
+
+        \textbf{Gave up:} some online references seem to suggest that
+        oscillations get to order $\sim t_{LK} / 6$ as we have defined
+        it\footnote{\url{https://arxiv.org/pdf/1504.05957.pdf}}, while in our
+        simulations, each LK cycle actually is much longer than this initially,
+        so that gives us a decent idea of the timescale of the ``fuzz.''
+        \textbf{Edit:} It's probably even faster, since this is the librating
+        timescale, so let's just assume the fuzz is very short scale.
+
+        Looking at the phase portrait, it's more clear that the GR precession
+        will eventually just send entire trajectory to be roughly constant at
+        $e_{\max} \to 1$. This is truncated when $\rd{H}{t} = \pd{H}{e}\rd{e}{t}
+        + \pd{H}{\omega}\rd{\omega}{t} = 0$, such that GR and GW cancel and the
+        Hamiltonian does not change much over time. This probably sets the fuzz
+        amplitude?
+
+        I'm not very certain on this, I will need to do more numerical checks,
+        because I'm not sure how the averaged trajectory through the fuzz
+        evolves; what is being conserved? Maybe there's a higher phase space
+        area than just $(x, e)$ where $x \equiv 1 - e^2$ (are they even
+        canonical?). Also, bears noting that once $e_{\min}$ grows appreciably,
+        $\dot{\omega}_{GR}$ is no longer spurty (acting only at $e_{\max}$), so
+        it's likely that it no longer acts to increase either $e_{\min}$ or
+        $e_{\max}$, it acts roughly symmetrically and just decreases the $e$
+        fluctuation compared to the pure LK case.
+
+        In any case, the fuzz decreases in amplitude over time and oscillates
+        faster and faster, probably $\ll t_{LK}$ (indeed so, according to my
+        plots).
+
+    \item As we evolve through the fuzz, we want to understand whether
+        $\theta_{\rm eff, S}$ evolves adiabatically. We need to evaluate the
+        precession frequency and the rate of change of the precession axis, but
+        for this we need expressions for $\dot{e}, \dot{I}, \dot{a}$ through the
+        fuzz. Based on the final observation that $\dot{\omega}_{GR}$ doesn't
+        affect the mean eccentricity, we can assert that $\dot{e} =
+        \dot{e}_{GW}$, $\dot{a} = \dot{a}_{GW}$, while $I$ is constrained
+        implicitly by conservation of the Kozai constant (so long as Kozai still
+        is active).
+
+        Using this, we can evaluate where this fuzz phase is adiabatic.
+\end{itemize}
 
 % \end{multicols}
 \appendix

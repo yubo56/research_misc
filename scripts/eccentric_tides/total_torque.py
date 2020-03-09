@@ -164,7 +164,7 @@ def plot_energy(w_s=0, num_pts=1000):
         disp_2 = (
             alpha**(11/3) / 2
                 * f5 * 5 * (1 + e_vals)**(11/6) / (4 * (1 - e_vals**2)**10)) * (
-                    np.abs(1 - 1.772 * w_s / nmax)**(8/3) * gamma(26/3) /
+                    np.abs(1 - 1.1772 * w_s / nmax)**(8/3) * gamma(26/3) /
                     (gamma(6) * 4**(8/3)))
         plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.semilogy(e_vals, totals, 'bo', ms=3)

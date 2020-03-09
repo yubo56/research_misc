@@ -200,20 +200,15 @@ def plot_traj(ret, fn,
 
     # overplot adiabaticity boundaries in a(1 - e) space
     e_vals = 1 - np.linspace(*ax3.get_xlim(), 30)
-    # I don't think the Kozai constant is well conserved since GW radiation has
-    # already begun to be important, so just take a characteristic value
-    I_e = np.radians(120) # np.arccos(np.cos(I0) / np.sqrt(1 - e**2))
     def get_a_adiabatic(e):
+        I_e = np.arccos(np.cos(I0) / np.sqrt(1 - e**2))
         def opt_func(a):
             return get_adiab(getter_kwargs, a, e, I_e) - 1
         return brenth(opt_func, 0.05, 1)
     a_vals = [get_a_adiabatic(e) for e in e_vals]
     # for a, e in zip(a_vals, e_vals):
     #     print(a, e)
-    ax3.loglog(1 - e_vals, a_vals, 'k:', lw=1)
-    a_vals_kick = getter_kwargs.get('eps_sl', DEF_EPS_SL) * 4 * np.pi / (
-        np.sqrt(2 * (1 - e_vals)) * 15) * 15
-    ax3.loglog(1 - e_vals, a_vals_kick, 'b:', lw=1)
+    ax3.loglog(1 - e_vals, a_vals, 'k:')
 
     plt.savefig(fn, dpi=300)
     plt.close()

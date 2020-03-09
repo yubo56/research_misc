@@ -48,8 +48,6 @@ Astronomy, Cornell University, Ithaca, NY 14853, USA
 
 \begin{document}\label{firstpage}
 \pagerange{\pageref{firstpage}--\pageref{lastpage}}
-\renewcommand*{\sectionautorefname}{Section}
-% \renewcommand*{\subsectionautorefname}{Subsection}
 \maketitle
 
 \begin{abstract}
@@ -62,28 +60,29 @@ keywords % chktex 8
 
 \section{Introduction}
 
-This problem is important.
+This problem is important as it will be important for self-driving cars, curing
+cancer, and the search for extraterrestrial intelligence.
 
 \section{Theory}
 
-The primary goal of the paper is to evaluate \autoref{eq:tau_sum}, the total
-torque on a star due to dynamical tides excited by an eccentric perturber. We
+The primary goal of the paper is to evaluate Eq.~\eqref{eq:tau_sum}, the total
+torque on a star due to dynamical tides excited by an eccentric companion. We
 assume all frequencies excite outgoing waves (no standing modes) to simplify,
 and our results are generally most applicable for larger eccentricities $e
 \gtrsim 0.5$.
 
-The primary results of the paper are \autoref{eq:tau_approx_1} and
-\autoref{eq:tau_approx_2}, which are shown in \autoref{fig:totals_ecc0},
-\autoref{fig:totals_ecc400}, and \autoref{fig:totals_s} to be reasonably
-accurate across a range of spins and eccentricities. The energy dissipation rate
-is also computed using similar techniques and show good agreement (see
-\autoref{fig:e0} and \autoref{fig:e400}).
+The primary results of the paper are Eq.~\eqref{eq:tau_approx}, shown in
+Figs.~\ref{fig:totals_ecc0},~\ref{fig:totals_ecc400},
+and~\ref{fig:totals_s} to be reasonably accurate across a range of spins
+and eccentricities. The energy dissipation rate is also computed using similar
+techniques and show good agreement (see Figs.~\ref{fig:e0}
+and~\ref{fig:e400}).
 
 \subsection{Summary of Existing Work}
 
 \subsubsection{Decomposition of Perturbation from an Eccentric Companion}
 
-Consider a star subject to the perturbing potential of a perturbing star with
+Consider a star subject to the perturbing potential of a companion star with
 mass $M_2$, For a general eccentric orbit, the potential to quadrupolar order
 can be decomposed into a sum over circular orbits \citep{sl,vlf}:
 \begin{align}
@@ -98,21 +97,37 @@ can be decomposed into a sum over circular orbits \citep{sl,vlf}:
 \end{align}
 We denote $W_{2 \pm 2} = \sqrt{3\pi/10}$, $W_{2 \pm 1} = 0$, $W_{20} =
 -\sqrt{\pi / 5}$, $D(t)$ the instantaneous distance between the star and
-perturber, $f(t)$ the true anomaly, $Y_{lm}$ the spherical harmonics, and
+companion, $f(t)$ the true anomaly, $Y_{lm}$ the spherical harmonics, and
 $\Omega$ the mean motion of the companion. Note that $F_{Nm}$ are the
-\emph{Hansen coefficients} for $l = 2$. The total torque on the star is known
+\emph{Hansen coefficients} for $l = 2$. The total torque on the star, energy
+transfer in the inertial frame, and heating in the star's corotating frame are
+given respectively
 \citep{vlf}:
-\begin{equation}
-    \tau = \sum\limits_{N = -\infty}^\infty F_{N2}^2 \tau_N,\label{eq:tau_each}
-\end{equation}
-where $\tau_N$ is the torque exerted by any particular $N$ mode on the star.
+\begin{align}
+    \tau &= \sum\limits_{N = -\infty}^\infty F_{N2}^2
+        \hat{\tau}\p{\omega =
+        N\Omega - 2\Omega_s},\label{eq:tau_each}
+        \\
+    \dot{E}_{\rm in} &=
+        \frac{1}{2}\sum\limits_{N = -\infty}^\infty\s{
+            \p{\frac{W_{20}}{W_{22}}}^2 N\Omega F_{N0}^2
+            \hat{\tau}\p{\omega = N\Omega}
+            + N\Omega F_{N2}^2 \hat{\tau}\p{\omega =
+            N\Omega - 2\Omega_s}},\label{eq:edot_in}\\
+    \dot{E}_{\rm rot} &= \dot{E}_{\rm in} - \Omega_s \tau \label{eq:edot_rot},
+\end{align}
+where $\hat{\tau}(\omega)$ is the torque exerted by a perturber on a circular
+trajectory with orbital frequency $\omega$. Compared to \citet{vlf}, we use
+$\tau_N(\omega) = T_0 \sgn(\omega) \hat{F}(\abs{\omega})$, for better
+integration with the next section.
 
 \subsubsection{Tidal Torque in Massive Stars}
 
-For a circular orbit at fixed semimajor axis $a$, the tidal torque exerted on
-the star by the companion is given by \citealt{kushnir}:
+For a circular orbit with orbital frequency $\omega$ and fixed semimajor axis
+$a$, the tidal torque exerted on the star by the companion is given by
+\citealt{kushnir}:
 \begin{align}
-    \tau &= \hat{T}(r_c, \omega) \sgn\p{1 - \frac{2\Omega_s}{\omega}}
+    \hat{\tau}(\omega) &= \hat{T}(r_c, \omega) \sgn\p{1 - \frac{2\Omega_s}{\omega}}
         \abs{1 - \frac{2\Omega_s}{\omega}}^{8/3}
             \label{eq:kushnir_torque},\\
     \hat{T}(r_c, \omega) &= \frac{GM_2^2r_c^5}{a^6}
@@ -123,16 +138,16 @@ the star by the companion is given by \citealt{kushnir}:
                 6^{4/3}} \frac{3}{4\pi}\alpha^2},\nonumber\\
         &\equiv \beta_2\frac{GM_2^2r_c^5}{a^6}
             \p{\frac{\omega}{\sqrt{GM_c/r_c^3}}}^{8/3}
-            \frac{\rho_c}{\bar{\rho}_c} \p{1 - \frac{\rho_c}{\bar{\rho}_c}}^2,
+            \frac{\rho_c}{\bar{\rho}_c} \p{1 - \frac{\rho_c}{\bar{\rho}_c}}^2.
 \end{align}
-where $1 - \frac{2\Omega_s}{\omega}$ is the dimensionless pattern frequency of a
-companion with orbital frequency $\omega$, $\alpha \simeq 1$ is defined in
-Equation A32 of \citealt{kushnir}, $r_c$ is the radius
-of the core, $M_c$ the mass of the core, $g_c$ is the gravitational acceleration at
-the radiative-convective boundary (RCB), $N^2$ is the Brunt-Vaisala frequency, $r$
-is the radial coordinate within the star, $\rho_c$ is the density at the RCB,
-$\bar{\rho}_c$ is the average density of the convective core, and $\beta_2
-\approx 1$ as implicitly defined above.
+Here, $1 - \frac{2\Omega_s}{\omega}$ is the dimensionless pattern frequency,
+$\alpha$ is defined in Equation A32 of \citealt{kushnir}, $r_c$ is the radius of
+the core, $M_c$ the mass of the core, $g_c$ is the gravitational acceleration at
+the radiative-convective boundary (RCB), $N^2$ is the Brunt-Vaisala frequency,
+$r$ is the radial coordinate within the star, $\rho_c$ is the density at the
+RCB, $\bar{\rho}_c$ is the average density of the convective core, and $\beta_2
+\approx 1$ is a good approximation for a large range of stellar models
+\citep{kushnir}.
 
 \subsection{Tidal Torque}
 
@@ -147,61 +162,69 @@ Eq.~\eqref{eq:tau_each}. This gives
 \end{equation}
 Note that strictly speaking, this is an upper bound on the tidal torque, as it
 assumes all excited IGWs damp effectively, but there is evidence this bound may
-be saturated (see Section~\ref{s:disp}).
+be saturated (see Section~\ref{s:disc}).
 
 To understand the scalings of this tidal torque, we aim to express
-\autoref{eq:tau_sum} in simple closed form. Using the results of
+Eq.~\eqref{eq:tau_sum} in simple closed form. Using the results of
 Section~\ref{app:hansens} to sum over the $F_{N2}$, we obtain final form
 \begin{equation}
-    \frac{\tau}{\hat{T}\p{r_c, \Omega}} \approx \alpha^{8/3}
-        \frac{f_5\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}} \times
+    \frac{\tau}{\hat{T}\p{r_c, \Omega}} \approx \alpha_{2}^{8/3}
+        \frac{f_5\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}} \times
     \begin{cases}
-        \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-            \frac{\Gamma(23/3)}{4!}\p*{\frac{1}{4}}^{8/3},
+        \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+            \frac{\Gamma(23/3)}{4!}\p{\frac{1}{4}}^{8/3},
             & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
-        -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
+        -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
             & \Omega_s > N_{\max}\Omega / 2.
     \end{cases}\label{eq:tau_approx}
 \end{equation}
-
-The existence of a pseudo-synchronized state at $\Omega_s \sim N_{\rm peri}
-\Omega$ is already evident, as the sign of the torque changes in the two
-regimes. We showcase three plots showing the accuracy of this piecewise
-description of $\tau\p{e, \Omega_s / \Omega}$, \autoref{fig:totals_ecc0},
-\autoref{fig:totals_ecc400}, \autoref{fig:totals_s}.:
+Here, we have defined
+\begin{align}
+    f_5 &= 1 + 3e^2 + 3e^4/8,\label{eq:f5}\\
+    \alpha_{2} &\equiv N_{\max} / N_{\rm p} \approx 2(1 + e),\\
+    N_{\rm p} &\equiv \left\lfloor \frac{\Omega_{\rm p}}{\Omega} \right\rfloor
+        = \left\lfloor \frac{\sqrt{1 + e}}{\p{1 - e^2}^{3/2}} \right\rfloor.
+\end{align}
+The exact expression for $\alpha_{2}$ is given in Section~\ref{app:hansens},
+and $N_{\rm p}$ is the pericenter harmonic. Note that pseudosynchronized spin
+occurs for $\frac{\Omega_s}{\Omega} \sim N_{\rm p}$ as is consistent with
+literature. We showcase three plots showing the accuracy of this piecewise
+description of $\tau\p{e, \Omega_s / \Omega}$:
+Figs.~\ref{fig:totals_ecc0},~\ref{fig:totals_ecc400},
+and~\ref{fig:totals_s}:
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/totals_ecc_0.png}
     \caption{Tidal torque on a slowly spinning star with a companion having
     orbital eccentricity $e$. Blue dots represent explicit summation of
-    \autoref{eq:tau_sum}, while the blue dashed line is
-    \autoref{eq:tau_approx_1}.}\label{fig:totals_ecc0}
+    Eq.~\eqref{eq:tau_sum}, while the blue dashed line is
+    Eq.~\eqref{eq:tau_approx}.}\label{fig:totals_ecc0}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/totals_ecc_400.png}
     \caption{Tidal torque on a rapidly spinning star with a companion having
     orbital eccentricity $e$. Blue dots represent explicit summation of
-    \autoref{eq:tau_sum}, while the blue dashed line is
-    \autoref{eq:tau_approx_2}.}\label{fig:totals_ecc400}
+    Eq.~\eqref{eq:tau_sum}, while the blue dashed line is
+    Eq.~\eqref{eq:tau_approx}.}\label{fig:totals_ecc400}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/totals_s_0_9.png}
     \caption{Tidal torque as a function of spin for a highly eccentric $e = 0.9$
-    companion. Blue dots represent explicit summation of \autoref{eq:tau_sum},
+    companion. Blue dots represent explicit summation of Eq.~\eqref{eq:tau_sum},
     while the blue dashed line is the piecewise prediction of
-    \autoref{eq:tau_approx_1} and \autoref{eq:tau_approx_2} together. The
-    vertical black line is the analytical $N_{\rm peri} = 43$. While the
-    pseudo-synchronization frequency differs somewhat from $N_{\rm peri}$ and
-    the prediction of the piecewise torque, the qualitative behavior is very
-    well captured.}\label{fig:totals_s}
+    Eq.~\eqref{eq:tau_approx}. The vertical black line is the analytical $N_{\rm
+    p} = 43$. While the pseudo-synchronization frequency differs somewhat
+    from $N_{\rm p}$ and the prediction of the piecewise torque, the
+    qualitative behavior is very well captured.}\label{fig:totals_s}
 \end{figure}
 
-\subsection{Closed Form for Heating}
+\subsection{Closed Form for Energy Transfer}
 
-Energy transfer into the star due to this torque (including the $m = 0$
-component) in the inertial frame is given by \citealt{vlf}:
+We obtain the energy transfer into the star due to this torque (including the $m
+= 0$ component) by substituting Eq.~\eqref{eq:kushnir_torque} into
+Eq.~\eqref{eq:edot_in}:
 \begin{align}
      \dot{E}_{\rm in} = \frac{1}{2}\hat{T}\p{r_c, \Omega}
          \sum\limits_{N = -\infty}^\infty\s{
@@ -210,41 +233,51 @@ component) in the inertial frame is given by \citealt{vlf}:
             \label{eq:e_sum}
 \end{align}
 Using similar techniques to the previous section for the $m=2$ terms and further
-approximations given in Section~\ref{app:hansens}, we obtain approximation
+approximations for the $m = 0$ terms given in Section~\ref{app:hansens}, we
+obtain expression
 \begin{align}
-    \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
+    \frac{\dot{E}_{in}}{\hat{T}\Omega} \approx{}&
             \frac{1}{2^{11/3}}
-            \frac{f_5 \beta^{11/3}\p*{1 + e}^{11/6}}{3\p*{1 - e^2}^{10}}
-            \Gamma\p*{14/3}\nonumber\\
-        & + \frac{\alpha^{11/3}}{2}
-                \frac{f_5\p*{1 + e}^{11/6}}{\p*{1 - e^2}^{10}}
+            \frac{f_5 \alpha_{0}^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
+            \Gamma\p{14/3}\nonumber\\
+        & + \frac{\alpha_{2}^{11/3}}{2}
+                \frac{f_5\p{1 + e}^{11/6}}{\p{1 - e^2}^{10}}
                 \times\nonumber\\
         &\begin{cases}
-            \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+            \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
                 \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
                 & \Omega_s < N_{\max}\Omega/2,\\[5pt]
-            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
+            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
                 & \Omega_s > N_{\max}\Omega/2.
         \end{cases}\label{eq:total_heating}
 \end{align}
+Here, $\alpha_0 \approx 2.5e$ is another order-unity constant defined in
+Section~\ref{app:hansens} (Eq.~\eqref{eq:a0def})
 
 We make plots in the two $\Omega_s$ regimes as a function of eccentricity in
-\autoref{fig:e0} and \autoref{fig:e400}. Agreement is good again.
+Figs.~\ref{fig:e0} and~\ref{fig:e400}. Agreement is good again.
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/totals_e_0.png}
     \caption{Plot of $\dot{E}_{\rm in}$ for a slowly spinning star. Blue points
-    denote explicit summation of \autoref{eq:e_sum} and the red dotted line
-    represents the closed form \autoref{eq:e_dot_tot}.}\label{fig:e0}
+    denote explicit summation of Eq.~\eqref{eq:e_sum} and the red dotted line
+    represents the closed form Eq.~\eqref{eq:total_heating}.}\label{fig:e0}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/totals_e_400.png}
-    \caption{Same as \autoref{fig:e0} but for a rapidly spinning
+    \caption{Same as Fig.~\ref{fig:e0} but for a rapidly spinning
     star.}\label{fig:e400}
 \end{figure}
 
 \section{Conclusion and Discussion}\label{s:disc}
+
+\begin{itemize}
+    \item Thanks to some references (Barker \& Ogilvie, my work), there seems to
+        be some evidence that hydrodynamic wave breaking could cause all IGW to
+        break and not reflect, once the pericenter wave reaches nonlinear
+        amplitudes.
+\end{itemize}
 
 \appendix
 
@@ -253,8 +286,8 @@ We make plots in the two $\Omega_s$ regimes as a function of eccentricity in
 We seek closed form approximations to sums of form
 \begin{equation}
     S_{mp} = \sum\limits_{N = -\infty}^\infty
-        F_{Nm}^2 \sgn\p*{N - 2\frac{\Omega_s}{\Omega}}
-            \abs*{N - 2\frac{\Omega_s}{\Omega}}^p.\label{eq:gen_sum}
+        F_{Nm}^2 \sgn\p{N - 2\frac{\Omega_s}{\Omega}}
+            \abs{N - 2\frac{\Omega_s}{\Omega}}^p.\label{eq:gen_sum}
 \end{equation}
 In this paper, we only consider sums where the summand contains $F_{Nm}^2$, but
 our approximation holds for arbitrary powers of $F_{Nm}$.
@@ -271,72 +304,254 @@ Observe that $F_{(-N)m} = F_{N(-m)}$. We further observe the following facts abo
 the Hansen coefficients $F_{N2}$:
 \begin{itemize}
     \item For substantial eccentricies, $F_{N2}$ has only one substantial peak.
-        Defining
-        \begin{equation}
-            N_{\rm peri} \equiv \frac{\Omega_p}{\Omega}.
-        \end{equation}
-        where $\frac{\Omega_p}{\Omega} \equiv \frac{\sqrt{1 + e}}{\p{1 -
-        e}^{3/2}}$, is the orbital frequency at pericenter, we find the peak of
-        $F_{N2}$ occurs at $\simeq \sqrt{2}N_{\rm peri}$ (see
-        \autoref{fig:hansens}). In fact, for $N < 0$, $F_{N2} \approx 0$ to good
-        accuracy.
+        The only characteristic scale for $N$ is $N_{\rm p}$ the pericenter
+        harmonic, so indeed we find the peak of $F_{N2}$ occurs at $\sim N_{\rm
+        p}$ (see Fig.~\ref{fig:hansens}). Furthermore, for $N < 0$, $F_{N2}
+        \approx 0$ to good accuracy.
 
-    \item We seek an analytically tractable formula for the Hansen coefficients.
-        We guess form
-        \begin{equation}
-            F_{N2} \approx cN^{p}e^{-N/\eta}.\label{eq:hansen_fit}
-        \end{equation}
-        Two primary considerations enter into this fitting law: (i) since the
-        left hand side of \autoref{eq:hansen_series} is smooth in time, the
+    \item We expect two more general properties about $F_{N2}$: (i) since the
+        left hand side of Eq.~\eqref{eq:hansen_series} is smooth in time, the
         Fourier coefficients must have an exponential tail; (ii) since there are
-        no characteristic timescales between $\Omega$ and $\Omega_p$, we
+        no characteristic timescales between $\Omega$ and $\Omega_{\rm p}$, we
         anticipate the Hansen coefficients must be scale free between $N = 1$
-        and $N \sim \Omega_p / \Omega$, i.e.\ a power law. Empirically, we find
-        that $p = 2$ to good approximation.
-
-        Eq.~\eqref{eq:hansen_fit} has the advantage that the peak has simple
-        form $\argmax\limits_N F_{N2} = p\eta \sim N_{\rm peri}$. We define
+        and $N_{\rm p}$, i.e.\ a power law. As such, we make ansatz for the
+        scalings of the Hansen coefficients for $N \geq 0$:
         \begin{equation}
-            \alpha^{(2)} \equiv \frac{p\eta}{N_{\rm peri}}.\label{eq:alpha2_def}
+            F_{N2} \approx C_2 N^{p}e^{-N/\eta_2},\label{eq:hansen_fit}
         \end{equation}
+        Eq.~\eqref{eq:hansen_fit} has the advantage that the peak has simple
+        form $\argmax\limits_N F_{N2} = p\eta_2$ which we expect $\sim N_{\rm p}$.
+        To quantify this, we define
+        \begin{equation}
+            \alpha_{2} \equiv \frac{p\eta_2}{N_{\rm p}}.\label{eq:alpha2_def}
+        \end{equation}
+        We expect $\alpha_{{2}}$ must be of order unity.
 
-    \item Finally, we can lastly constrain $c$ as well: the sum in
-        Eq.~\eqref{eq:gen_sum} has been evaluated for $m = 0$ and $m = 2$ for
-        $p = 0, 1, 2$ \citep{hut,sl,vlf} by an application of Parseval's
-        theorem. The relevant sums are
-        \begin{align}
-            \sum\limits_N F_{N2}^2N
-                &= \frac{2}{\p*{1 - e^2}^6}\p*{1 + \frac{15e^2}{2}
-                    + \frac{45 e^4}{8} + \frac{5e^6}{16}}
-                \equiv \frac{}{}
-        \end{align}
+        Note that at moderate eccentricities $e \lesssim 0.7$, $p$ is very
+        poorly constrained, since it is is only constrained by $N \lesssim
+        N_{\max}$, a small range for smaller eccentricies. Thus, we fixed $p =
+        2$ by fitting $F_{N2}$ for large eccentricities ($e \gtrsim 0.9$) and
+        assumed it is universal. We found indeed this proves robust to smaller
+        eccentricities.
 \end{itemize}
-The agreement of this fit of the Hansen coefficients as well as the accuracy
-$\p{C, p, \eta}$ parameterization as a function of $e$ can be seen in
-\autoref{fig:hansens} and \autoref{fig:hansen_params} respectively. Note that at
-moderate eccentricities $e \lesssim 0.7$, $p$ is very poorly constrained, since
-it is dominant only in the regime $N \lesssim N_{\max}$, which has fewer values
-for smaller eccentricies. Thus, we fixed $p = 2$ from our high-eccentricity fits
-($e \gtrsim 0.9$) and assumed it is universal. We found indeed this does not
-significantly worsen fits at moderate eccentricities.
+To constrain the remaining two free parameters $\alpha_{2}$ and $C_2$ the
+normalization, we use the well known sums of $S_{2p}$ for $p = 0$ and $p = 1$,
+which can be explicitly calculated \citep{hut,sl,vlf}:
+\begin{align}
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2
+        &= \frac{1 + 3e^2 + 3e^4/8}{\p{1 - e^2}^{9/2}}
+            \equiv \frac{f_5}{\p{1 - e^2}^{9/2}},\\
+    \sum\limits_{N = -\infty}^\infty F_{N2}^2N
+        &= \frac{2}{\p{1 - e^2}^6}\p{1 + \frac{15e^2}{2}
+            + \frac{45 e^4}{8} + \frac{5e^6}{16}}
+        \equiv \frac{2f_2}{\p{1 - e^2}^6}.\label{eq:f2}
+\end{align}
+This fixes
+\begin{align}
+    \alpha_{2} &= \frac{8f_2}{5f_5\sqrt{1 + e}},\\
+    C_2 &= \sqrt{\frac{f_5}{\p{\eta/2}^5 4! \p{1 - e^2}^{9/2}}}.
+\end{align}
+
+The agreement of this fit of the Hansen coefficients can be seen in
+Fig.~\ref{fig:hansens}.
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/hansens.png}
     \caption{Plot of Hansen coefficients $F_{N2}$ for $N > 0$, where red dots
     denote negative values. The red dashed line is the fitted function of form
-    \autoref{eq:hansen_fit} with the fit values overlaid in red text. Also shown
+    Eq.~\eqref{eq:hansen_fit} with the fit values overlaid in red text. Also shown
     in the blue vertical line is the location of $N_{\rm
-    peri}$.}\label{fig:hansens}
+    p}$.}\label{fig:hansens}
 \end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/hansen_params.png}
-    \caption{Plot of $C$, $\eta$ as a function of $e$. Blue dots indicate the
-    numerical fit to $F_{N2}$ for $N > 0$ while red dashed lines reflect the
-    predictions of \autoref{eq:a_approx} and \autoref{eq:c_approx} respectively.
-    Note that $p = 2$ is taken to be fixed in the numerical
-    fit.}\label{fig:hansen_params}
-\end{figure}
+
+\subsection{$m = 0$ Hansen Coefficient Behavior at High Eccentricity}
+
+These coefficients have only one characteristic scale in harmonic space, namely
+$N_{\rm p}$, but must be symmetric, therefore, the natural ansatz is of form
+\begin{equation}
+    F_{N0} = C_0 e^{-\abs{N} / \eta_0}.
+\end{equation}
+Here, again, we expect $\eta_0 \sim N_{\rm p}$, and so we define
+\begin{equation}
+    \alpha_0 \equiv \eta_0 / N_{\rm p},\label{eq:a0def}
+\end{equation}
+The two free parameters $C_0$ and $\alpha_0$ are constrained using well known
+analytical sums \citep{hut,sl,vlf}:
+\begin{align}
+    \sum\limits_{N = -\infty}^\infty F_{N0}^2 &= \frac{f_5}{\p{1 - e^2}^{9/2}}
+        ,\\
+    \sum\limits_{N = -\infty}^\infty F_{N0}^2 N^2
+        &= \frac{9e^2}{2\p{1 - e^2}^{15/2}}
+            \frac{1}{2}\p{1 + \frac{15}{4}e^2 + \frac{15}{8}e^4
+            + \frac{5}{64}e^6}
+        = \frac{9e^2}{2\p{1 - e^2}^{15/2}}f_3.
+\end{align}
+These fix the two free parameters
+\begin{align}
+    \alpha_0 &= \frac{3e\sqrt{f_3/f_5}}{\sqrt{1 + e}},\\
+    C_0 &= \sqrt{\frac{2f_5}{\alpha_0\sqrt{1 + e}\p{1 - e^2}^3}}.
+\end{align}
+
+\subsection{Evaluating Torque}
+
+This section and the next are copy pasted from my notes for the time being, need
+to revise:
+
+To evaluate the torque, we need to compute $S_{2(8/3)}$, which has form
+\begin{equation}
+    \frac{\tau}{\hat{T}} = \sum\limits_{N = -\infty}^\infty
+        F_{N2}^2 \sgn\p{N - 2\frac{\Omega_s}{\Omega}}
+            \abs{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
+\end{equation}
+Recall that $F_{N2}$ falls off for either $N \ll N_{\max}, N \gg N_{\max}$, so
+we have two regimes for the sum:
+\begin{itemize}
+    \item Consider $2\Omega_s \gg N_{\max}\Omega$, then the sign is always
+        negative and $\abs{N - 2\Omega_s/\Omega} \approx
+        \abs{\frac{2\Omega_s}{\Omega} - N_{\max}}$. We can then use the results
+        of the preceeding sections and obtain
+        \begin{align}
+            \hat{\tau}
+                &\approx -\abs{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty F_{N2}^2,\\
+                &\approx -\abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{9/2}}\p{\alpha\p{\frac{1 + e}{\p{1 -
+                    e^2}^3}}^{1/2}}^{8/3},\\
+                &\approx -\abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5\alpha^{8/3}\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}}.
+        \end{align}
+
+    \item Consider $2\Omega_s \ll N_{\max} \Omega$, then the sign is the
+        sign of $N_{\max}$ ($>0$). To apply the results of the previous
+        sections, we seek to factorize the $\abs{N - 2\Omega_s/\Omega}^{8/3}$
+        term to pull out the factor of $N^{8/3}$, of form
+        \begin{equation}
+            \abs{N - \frac{2\Omega_s}{\Omega}} \approx \abs{N}\abs{1 -
+                \frac{2\Omega_s}{\beta_T N_{\max}\Omega}}.
+        \end{equation}
+        Such a factorization must have the correct asymptotics as $\Omega_s \to
+        -\infty$, that is:
+        \begin{equation}
+            \sum\limits_{N} F_{N2}^2 \abs{\frac{-2\Omega_s}{\Omega}}^{8/3}
+                = \abs{\frac{2\Omega_s}{\beta_T N_{\max}\Omega}}^{8/3}
+                    \sum\limits_{N}F_{N2}^2 N^{8/3}.
+        \end{equation}
+
+        This equates to requiring that the two regimes $\Omega_s \gg
+        N_{\max}\Omega$ and $-\Omega_s \ll -N_{\max}\Omega$ be symmetric. We
+        find $\beta_T = \p{\frac{\Gamma\p{23/3}}{4!}}^{3/8}/4 \approx 1.447$,
+        and so $2/\beta_T \approx 1.3818$. Thus,
+        \begin{align}
+            \hat{\tau}
+                &\approx \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty F_{N2}^2 \abs{N}^{8/3},\\
+                &\approx \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{17/2}}
+                    \frac{\Gamma(23/3)}{4!}\p{\frac{\alpha}{4}}^{8/3}
+                        \p{1 + e}^{4/3}.
+        \end{align}
+\end{itemize}
+Thus, we arrive at final answer
+\begin{equation}
+    \hat{\tau} \approx \alpha^{8/3}
+        \frac{f_5\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}} \times
+    \begin{cases}
+        \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+            \frac{\Gamma(23/3)}{4!}\p{\frac{1}{4}}^{8/3},
+            & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
+        -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
+            & \Omega_s > N_{\max}\Omega / 2.
+    \end{cases}\label{eq:traveling_torque}
+\end{equation}
+
+\subsection{Evaluating Energy Transfer}
+
+In the case of the energy transfer in the inertial frame, we recall
+\begin{align}
+     \dot{E}_{in} = \frac{1}{2}\hat{T}\p{r_c, \Omega}\s{
+         \sum\limits_{N = -\infty}^\infty
+            N\Omega F_{N2}^2 \sgn \p{N - \frac{2\Omega_s}{\Omega}} \abs{N -
+            \frac{2\Omega_s}{\Omega}}^{8/3}
+            + \p{\frac{W_{20}}{W_{22}}}^2\Omega F_{N0}^2 \abs{N}^{11/3}},
+\end{align}
+Recall $\p{W_{20} / W_{22}}^2 = 2/3$.
+
+The second term has no casework and is very clean:
+\begin{align}
+    \frac{\dot{E}_{m=0}}{\hat{T}\Omega}
+        &= \frac{1}{3} \sum\limits_{N = -\infty}^\infty
+            F_{N0}^2\abs{N}^{11/3},\\
+        &\approx \frac{1}{2^{11/3}}
+            \frac{f_5 \alpha_0^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
+            \Gamma\p{14/3}.
+\end{align}
+
+The first term is the same procedure as for the torque, where we must expand and
+match consistency. The basic form is
+\begin{equation}
+    \frac{\dot{E}_{m=2}}{\hat{T}\Omega} = \frac{1}{2}
+        \sum\limits_{N = -\infty}^\infty NF_{N2}^2 \mathrm{sgn}\p{N -
+            \frac{2\Omega_s}{\Omega}} \abs{N - \frac{2\Omega_s}{\Omega}}^{8/3}.
+\end{equation}
+The two regimes again are:
+\begin{itemize}
+    \item In the limit where $\Omega_s \gg N_{\max}\Omega$, then the sign is
+        always negative and $\abs{N - 2\Omega_s / \Omega} \approx
+        \abs{2\Omega_s / \Omega - N_{\max}}$ and we have straightforwardly
+        \begin{align}
+            \frac{\dot{E}_{m=2}}{\hat{T}\Omega}
+                &= -\frac{1}{2}
+                    \abs{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty NF_{N2}^2,\\
+                &\approx -\frac{1}{2}
+                    \abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \alpha_2^{11/3}
+                    \frac{f_5}{\p{1 - e^2}^{10}}\frac{5\p{1 + e}^{11/6}}{4}.
+        \end{align}
+    \item Again, in the other limit where $2\Omega_s \ll N_{\max}\Omega$, we
+        seek some factorization + summation $\abs{N - \frac{2\Omega_s}{\Omega}}
+        \approx \abs{N}\abs{1 - \frac{2\Omega_s}{\beta_E N_{\max}\Omega}}$ such
+        that the asymptotics are correct:
+        \begin{align}
+            \abs{\frac{2\Omega_s}{\Omega}}^{8/3} \sum\limits_N F_{N2}^2 N
+                &= \abs{\frac{2\Omega_s}{\beta_E N_{\max}\Omega}}^{8/3}
+                    \sum\limits_N F_{N2}N^{11/3},\\
+            \beta_E
+                &= \p{\frac{\Gamma(26/3)}{5!}}^{3/8} \p{\frac{1}{4}}
+                    \approx 1.699.
+        \end{align}
+
+        Thus, we can now approximate the sum
+        \begin{align}
+            \frac{\dot{E}_{m=2}}{\hat{T}\Omega}
+                &= \frac{1}{2}
+                    \abs{1 - 1.1772\frac{\Omega_s}{\Omega N_{\max}}}^{8/3}
+                    \sum\limits_{N = -\infty}^\infty \abs{N}^{11/3}F_{N2}^2,\\
+                &= \frac{1}{2}
+                    \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{10}}\frac{5\p{1 + e}^{11/6}}{4}
+                    \p{\frac{\alpha_2}{4}}^{11/3}
+                    \frac{\Gamma(26/3)}{5!}.
+        \end{align}
+\end{itemize}
+Thus, we have total energy transfer rate
+\begin{align}
+    \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
+            \frac{1}{2^{11/3}}
+            \frac{f_5 \alpha_0^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
+            \Gamma\p{14/3}\nonumber\\
+        & + \frac{\alpha^{11/3}}{2}
+                \frac{f_5\p{1 + e}^{11/6}}{\p{1 - e^2}^{10}}
+                \times\nonumber\\
+        &\begin{cases}
+            \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
+                & \Omega_s < N_{\max}\Omega/2,\\[5pt]
+            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
+                & \Omega_s > N_{\max}\Omega/2.
+        \end{cases}\label{eq:edot_in}
+\end{align}
+
 
 \bibliographystyle{mnras}
 \bibliography{Su_eccentric_tides}

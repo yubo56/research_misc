@@ -46,26 +46,9 @@ def plot_time(ret, idx, filename='dir/analysis'):
     plt.savefig(filename + '_%09d' % idx)
     plt.clf()
 
-def plot_peak():
-    pkl_file = '1sim_90_600.pkl'
-    ret = pickle.load(open('1sim_90_600.pkl', 'rb'))
-    e = np.sqrt(np.sum(ret.y[3:6]**2, axis=0))
-
-    # locate an LK peak
-    left_idx = np.where(e > 0.999)[0][0]
-    right_idx = np.where(e[left_idx: ] < 0.8)[0][0] + left_idx
-    peak_idx = np.argmax(e[left_idx: right_idx]) + left_idx
-
-    end_idx = peak_idx + 30
-    plt.loglog(ret.t[peak_idx:end_idx] - ret.t[peak_idx],
-               e[peak_idx] - e[peak_idx:end_idx])
-    plt.savefig('analysis_nearpeak')
-    plt.clf()
-
 if __name__ == '__main__':
-    plot_peak()
-    # with open(FN, 'rb') as f:
-    #     ret = pickle.load(f)
+    with open(FN, 'rb') as f:
+        ret = pickle.load(f)
 
         # plot particular idxs of the simulation
         # idxs = np.where(np.logical_and(ret.t < 24, ret.t > 26))[0][::200]
