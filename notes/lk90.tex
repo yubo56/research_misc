@@ -511,23 +511,30 @@ We now make some comments on the dynamics in each of these regimes:
         so that gives us a decent idea of the timescale of the ``fuzz.''
         \textbf{Edit:} It's probably even faster, since this is the librating
         timescale, so let's just assume the fuzz is very short scale.
+        \textbf{Edit 2:} It is bound from below by $\Omega_{GR}$, since that's
+        one component of $\dot{\omega}$, and it must be at least as fast.
 
         Looking at the phase portrait, it's more clear that the GR precession
         will eventually just send entire trajectory to be roughly constant at
-        $e_{\max} \to 1$. This is truncated when $\rd{H}{t} = \pd{H}{e}\rd{e}{t}
-        + \pd{H}{\omega}\rd{\omega}{t} = 0$, such that GR and GW cancel and the
-        Hamiltonian does not change much over time. This probably sets the fuzz
-        amplitude?
-
-        I'm not very certain on this, I will need to do more numerical checks,
-        because I'm not sure how the averaged trajectory through the fuzz
-        evolves; what is being conserved? Maybe there's a higher phase space
-        area than just $(x, e)$ where $x \equiv 1 - e^2$ (are they even
-        canonical?). Also, bears noting that once $e_{\min}$ grows appreciably,
-        $\dot{\omega}_{GR}$ is no longer spurty (acting only at $e_{\max}$), so
-        it's likely that it no longer acts to increase either $e_{\min}$ or
-        $e_{\max}$, it acts roughly symmetrically and just decreases the $e$
-        fluctuation compared to the pure LK case.
+        $e_{\max} \to 1$. It's not clear that the amplitude of these
+        oscillations ever saturates, but it's obvious that they are small and
+        continue to decrease. One way to see that this is the case is to
+        consider the $H(\omega, x)$ surface, where we drop constant of
+        proportionality
+        \begin{equation}
+            H \propto \p*{2 + 3e^2}\p*{3\cos^2 I - 1}
+                + 15e^2\sin^2I \cos 2\omega,
+        \end{equation}
+        and $I$ is implicitly defined by conservation of the Kozai constant $K =
+        \sqrt{1 - e^2}\cos I$. We can see that along the separatrix, $H = -2$,
+        if we give a kick at the location of maximum eccentricity ($\sin^2 I =
+        2/5, e = 1, \omega = \pi/2$), the change in $H$ is quadratic like
+        \begin{equation}
+            \delta H = \frac{1}{2}\ptd{H}{\omega}\p*{\delta \omega}^2,
+        \end{equation}
+        where $\delta \omega \sim \p*{1 - e_{\max}^2}^{-1/2}$ was an earlier
+        result we showed. The sign of this term is negative, so $H$ is being
+        driven towards oscillating at large $e$ with small amplitude.
 
         In any case, the fuzz decreases in amplitude over time and oscillates
         faster and faster, probably $\ll t_{LK}$ (indeed so, according to my
@@ -541,9 +548,53 @@ We now make some comments on the dynamics in each of these regimes:
         affect the mean eccentricity, we can assert that $\dot{e} =
         \dot{e}_{GW}$, $\dot{a} = \dot{a}_{GW}$, while $I$ is constrained
         implicitly by conservation of the Kozai constant (so long as Kozai still
-        is active).
+        is active). Thus, to order of magnitude, $\dot{\hat{\Omega_{\rm eff}}} \sim
+        \Omega_{GW}$ while $\Omega_{\rm eff} \sim \Omega_{GR}$, and since
+        $\Omega_{GW} \propto 1/\p*{a^4 x^{7/2}}$ while $\Omega_{GR} \propto
+        1/\p*{a^{5/2}x}$, it's clear that for sufficiently large eccentricities
+        exiting the fuzz regime that $\hat{S}$ will not keep up with
+        $\hat{\Omega}_{\rm eff, S}$.
 
-        Using this, we can evaluate where this fuzz phase is adiabatic.
+        If so, what is the predicted $\theta_{\rm sl, f}$? Well, suppose that
+        $\hat{L}$ ends up on the ring with uniform $I$ (probably\dots), and take
+        the limit where $\hat{S}$ is not able to respond at all, then
+        $\theta_{\rm sl, f} \in \s*{I - \theta_{\rm sb, i}, 2\pi - I -
+        \theta_{\rm sb, i}}$ and is roughly centered on $\pi - \theta_{\rm sb,
+        i}$.
+
+        \textbf{NB:} Above, we said $\Omega_{\rm eff} \sim \Omega_{GR}$ based on
+        saying that $\hat{L}$ precesses around $\hat{L}_{\rm out}$ with
+        $\dot{\omega}_{GR}$, but of course, if evolution is sufficiently abrupt,
+        we should really use $\Omega_{\rm eff} \sim \Omega_{\rm pl}$, and if
+        evolution is abrupt this is $\ll \Omega_{GR}$, further contributing to
+        making the nonadiabatic criterion easy to satisfy.
+
+    \item Note that there is one more way that this picture can break down, as
+        we saw examples of in Bin's paper: we can get trapped in the LK
+        resonance such that $\omega$ librates instead of circulating. This is
+        not in general easy to do, since we start with $e \neq 0, \omega = 0$.
+        Furthermore, to linear order, $\oint
+        \pd{H}{\omega}\rd{\omega}{t}\;\mathrm{d}t = 0$ along the separatrix (it
+        cancels during the increasing $e$ and decreasing $e$ phases).
+        But we can imagine that if $\omega_{GR}$ is so strong, then
+        $\dot{\omega}$ will drive the Kozai cycle inside the resonance during
+        just the increasing $e$ phase alone, and takes a very different route
+        back to low $e$ such that it is captured.
+
+        The advantage of invoking this mechanism is twofold: (i) if we look at
+        Fig.~19 of LL18, it's clear that the distribution of $\theta_{sl, f}$ is
+        roughly symmetric for a stronger companion (faster LK cycles), but
+        becomes markedly asymmetric for a weaker companion (LK is weak). The
+        violation of adiabiticity proposed above is generally expected to
+        generate a $\theta_{sl, f}$ distribution symmetric about its mean. But
+        capturing $\hat{L}$ into the $\omega = \pi/2$ resonance means $\hat{S}$
+        precesses \emph{towards} it as it becomes dominant, meaning that
+        $\theta_{sl, f} \lesssim 90^\circ$ is enforced. (ii), the above
+        mechanism does not depend on the properties of the perturber or of the
+        Kozai timescale, so there should be no change in distribution of
+        $\theta_{sl, f}$ as a function of $a_{\rm out}$. This resonance capture
+        mechanism provides a way for the outcome to be sensitive to the
+        perturber properties.
 \end{itemize}
 
 % \end{multicols}
