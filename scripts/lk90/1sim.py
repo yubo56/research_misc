@@ -3,7 +3,7 @@ import os
 import pickle
 
 def run_one(I_deg=90.355, e=0.001, fn_template='1sim_%s',
-            a_f=1e-4, wsl_mult=1,
+            a_f=1e-4, tf=np.inf, wsl_mult=1, wgw_mult=1, atol=1e-6, rtol=1e-6,
             plot=True,
             plot_func=plot_traj, **kwargs):
     m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
@@ -11,14 +11,14 @@ def run_one(I_deg=90.355, e=0.001, fn_template='1sim_%s',
     fn = fn_template % ('%.3f' % I_deg).replace('.', '_')
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     getter_kwargs['eps_sl'] *= wsl_mult
+    getter_kwargs['eps_gw'] *= wgw_mult
 
     if not os.path.exists('%s.pkl' % fn):
         print('Running %s' % fn)
         ret = solver(I, e,
-                     atol=1e-6, rtol=1e-6,
+                     atol=atol, rtol=rtol,
                      getter_kwargs=getter_kwargs,
-                     a_f=a_f,
-                     tf=np.inf,
+                     a_f=a_f, tf=tf,
                      **kwargs,
                      )
         with open('%s.pkl' % fn, 'wb') as f:
@@ -71,10 +71,10 @@ if __name__ == '__main__':
     #         # plot_func=plot_traj_vecs,
     #         )
 
-    mkdirp('1sims')
-    I_degs = np.arange(90.05, 90.31, 0.01)
-    q_slfs = plot_many(a_f=0.1, fn_template='1sims' + '/1sim_%s',
-                       I_degs=I_degs, plot=False)
+    # mkdirp('1sims')
+    # I_degs = np.arange(90.05, 90.31, 0.01)
+    # q_slfs = plot_many(a_f=0.1, fn_template='1sims' + '/1sim_%s',
+    #                    I_degs=I_degs, plot=False)
 
     # colors=['y', 'r', 'k', 'g', 'b']
     # I_degs = np.arange(90.05, 90.3, 0.002)
@@ -91,3 +91,10 @@ if __name__ == '__main__':
     # plt.ylabel(r'$\theta_{sl,f}$ (Deg)')
     # plt.legend(loc='best', fontsize=14)
     # plt.savefig('1ensembles', dpi=400)
+
+    run_one(I_deg=90.2,
+            tf=13,
+            # wgw_mult=0,
+            fn_template='1_nogw_%s',
+            atol=1e-10, rtol=1e-10,
+            )

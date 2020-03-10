@@ -168,29 +168,33 @@ To understand the scalings of this tidal torque, we aim to express
 Eq.~\eqref{eq:tau_sum} in simple closed form. Using the results of
 Section~\ref{app:hansens} to sum over the $F_{N2}$, we obtain final form
 \begin{equation}
-    \frac{\tau}{\hat{T}\p{r_c, \Omega}} \approx \alpha_{2}^{8/3}
-        \frac{f_5\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}} \times
+    \hat{\tau} \approx
+        \frac{f_5}{\p{1 - e^2}^{9/2}}\p{N_{\max}}^{8/3} \times
     \begin{cases}
-        \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+        \abs{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
             \frac{\Gamma(23/3)}{4!}\p{\frac{1}{4}}^{8/3},
             & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
         -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
             & \Omega_s > N_{\max}\Omega / 2.
     \end{cases}\label{eq:tau_approx}
 \end{equation}
-Here, we have defined
+Here, $N_{\max}$ is the $N$ for which $F_{N2}$ is maximized, and is given by
 \begin{align}
-    f_5 &= 1 + 3e^2 + 3e^4/8,\label{eq:f5}\\
-    \alpha_{2} &\equiv N_{\max} / N_{\rm p} \approx 2(1 + e),\\
-    N_{\rm p} &\equiv \left\lfloor \frac{\Omega_{\rm p}}{\Omega} \right\rfloor
-        = \left\lfloor \frac{\sqrt{1 + e}}{\p{1 - e^2}^{3/2}} \right\rfloor.
+    N_{\max} &\equiv \argmax\limits_N F_{N2},\nonumber\\
+        &= \frac{8f_2}{5f_5\p{1 - e^2}^{3/2}},\\
+    f_2 &= 1 + \frac{15e^2}{2} + \frac{45 e^4}{8} + \frac{5e^6}{16},
+        \label{eq:f2}\\
+    f_5 &= 1 + 3e^2 + 3e^4/8.\label{eq:f5}
 \end{align}
-The exact expression for $\alpha_{2}$ is given in Section~\ref{app:hansens},
-and $N_{\rm p}$ is the pericenter harmonic. Note that pseudosynchronized spin
-occurs for $\frac{\Omega_s}{\Omega} \sim N_{\rm p}$ as is consistent with
-literature. We showcase three plots showing the accuracy of this piecewise
-description of $\tau\p{e, \Omega_s / \Omega}$:
-Figs.~\ref{fig:totals_ecc0},~\ref{fig:totals_ecc400},
+Note that the pseudosynchronized spin rate ($\Omega_s$ where $\tau = 0$) is
+$\Omega_s = N_{\max} \Omega / 2$. This has the same scaling as the pericenter
+frequency
+\begin{equation}
+    \Omega_{\rm p} \equiv \frac{\sqrt{1 + e}}{\p{1 - e}^{3/2}}\Omega,
+\end{equation}
+as both grow with $\p{1 - e}^{-3/2}$ as $e \to 1$. We showcase three plots
+showing the accuracy of this piecewise description of $\tau\p{e, \Omega_s /
+\Omega}$: Figs.~\ref{fig:totals_ecc0},~\ref{fig:totals_ecc400},
 and~\ref{fig:totals_s}:
 \begin{figure}
     \centering
@@ -236,23 +240,25 @@ Using similar techniques to the previous section for the $m=2$ terms and further
 approximations for the $m = 0$ terms given in Section~\ref{app:hansens}, we
 obtain expression
 \begin{align}
-    \frac{\dot{E}_{in}}{\hat{T}\Omega} \approx{}&
-            \frac{1}{2^{11/3}}
-            \frac{f_5 \alpha_{0}^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
-            \Gamma\p{14/3}\nonumber\\
-        & + \frac{\alpha_{2}^{11/3}}{2}
-                \frac{f_5\p{1 + e}^{11/6}}{\p{1 - e^2}^{10}}
-                \times\nonumber\\
+    \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
+            \frac{f_5 \Gamma(14/3)}{3\p{1 - e^2}^{10}}
+                \p{\frac{9e^2f_3}{2f_5}}^{11/6}\nonumber\\
+        &+
+            \frac{N_{\max}^{11/3}}{8}
+            \frac{f_5}{\p{1 - e^2}^{9/2}}
+            \Gamma\p{14/3} \times\nonumber\\
         &\begin{cases}
             \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
+                \frac{\Gamma\p{26/3}}{4!}\p{\frac{1}{4}}^{8/3}
                 & \Omega_s < N_{\max}\Omega/2,\\[5pt]
-            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
+            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}5.
                 & \Omega_s > N_{\max}\Omega/2.
         \end{cases}\label{eq:total_heating}
 \end{align}
-Here, $\alpha_0 \approx 2.5e$ is another order-unity constant defined in
-Section~\ref{app:hansens} (Eq.~\eqref{eq:a0def})
+Here,
+\begin{equation}
+    f_3 = 1 + \frac{15}{4}e^2 + \frac{15}{8}e^4 + \frac{5}{64}e^6.
+\end{equation}
 
 We make plots in the two $\Omega_s$ regimes as a function of eccentricity in
 Figs.~\ref{fig:e0} and~\ref{fig:e400}. Agreement is good again.
@@ -319,19 +325,18 @@ the Hansen coefficients $F_{N2}$:
         \begin{equation}
             F_{N2} \approx C_2 N^{p}e^{-N/\eta_2},\label{eq:hansen_fit}
         \end{equation}
-        Eq.~\eqref{eq:hansen_fit} has the advantage that the peak has simple
-        form $\argmax\limits_N F_{N2} = p\eta_2$ which we expect $\sim N_{\rm p}$.
-        To quantify this, we define
-        \begin{equation}
-            \alpha_{2} \equiv \frac{p\eta_2}{N_{\rm p}}.\label{eq:alpha2_def}
-        \end{equation}
-        We expect $\alpha_{{2}}$ must be of order unity.
+        Eq.~\eqref{eq:hansen_fit} has the advantage that $N_{\max} = p\eta_2$.
+
+        If the pseudosynchronized spin frequency $\Omega_s = N_{\max}\Omega/2$
+        is expected to be near the pericenter orbital frequency $\Omega_{\rm p}
+        \simeq \p{1 - e}^{-3/2}$, we expect $\eta_2 \simeq \p{1 - e}^{-3/2}$
+        as well.
 
         Note that at moderate eccentricities $e \lesssim 0.7$, $p$ is very
         poorly constrained, since it is is only constrained by $N \lesssim
-        N_{\max}$, a small range for smaller eccentricies. Thus, we fixed $p =
+        N_{\max}$, a small range for smaller eccentricies. Thus, we fix $p =
         2$ by fitting $F_{N2}$ for large eccentricities ($e \gtrsim 0.9$) and
-        assumed it is universal. We found indeed this proves robust to smaller
+        assume it is universal. We found indeed this proves robust to smaller
         eccentricities.
 \end{itemize}
 To constrain the remaining two free parameters $\alpha_{2}$ and $C_2$ the
@@ -343,17 +348,16 @@ which can be explicitly calculated \citep{hut,sl,vlf}:
             \equiv \frac{f_5}{\p{1 - e^2}^{9/2}},\\
     \sum\limits_{N = -\infty}^\infty F_{N2}^2N
         &= \frac{2}{\p{1 - e^2}^6}\p{1 + \frac{15e^2}{2}
-            + \frac{45 e^4}{8} + \frac{5e^6}{16}}
-        \equiv \frac{2f_2}{\p{1 - e^2}^6}.\label{eq:f2}
+            + \frac{45 e^4}{8} + \frac{5e^6}{16}},\\
+        &= \frac{2f_2}{\p{1 - e^2}^6}.
 \end{align}
 This fixes
 \begin{align}
-    \alpha_{2} &= \frac{8f_2}{5f_5\sqrt{1 + e}},\\
+    \eta &= \frac{4f_2}{5f_5\p{1 - e^2}^{3/2}},\\
     C_2 &= \sqrt{\frac{f_5}{\p{\eta/2}^5 4! \p{1 - e^2}^{9/2}}}.
 \end{align}
-
-The agreement of this fit of the Hansen coefficients can be seen in
-Fig.~\ref{fig:hansens}.
+Note that indeed $\eta \simeq \p{1 - e}^{-3/2}$. The agreement of this fit of
+the Hansen coefficients can be seen in Fig.~\ref{fig:hansens}.
 \begin{figure}
     \centering
     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/hansens.png}
@@ -367,14 +371,13 @@ Fig.~\ref{fig:hansens}.
 \subsection{$m = 0$ Hansen Coefficient Behavior at High Eccentricity}
 
 These coefficients have only one characteristic scale in harmonic space, namely
-$N_{\rm p}$, but must be symmetric, therefore, the natural ansatz is of form
+$\Omega / \Omega_{\rm p}$, but must be symmetric, therefore, the natural
+ansatz is of form
 \begin{equation}
     F_{N0} = C_0 e^{-\abs{N} / \eta_0}.
 \end{equation}
-Here, again, we expect $\eta_0 \sim N_{\rm p}$, and so we define
-\begin{equation}
-    \alpha_0 \equiv \eta_0 / N_{\rm p},\label{eq:a0def}
-\end{equation}
+Here, again, we expect $\eta_0 \simeq \Omega / \Omega_{\rm p}$.
+
 The two free parameters $C_0$ and $\alpha_0$ are constrained using well known
 analytical sums \citep{hut,sl,vlf}:
 \begin{align}
@@ -382,14 +385,12 @@ analytical sums \citep{hut,sl,vlf}:
         ,\\
     \sum\limits_{N = -\infty}^\infty F_{N0}^2 N^2
         &= \frac{9e^2}{2\p{1 - e^2}^{15/2}}
-            \frac{1}{2}\p{1 + \frac{15}{4}e^2 + \frac{15}{8}e^4
-            + \frac{5}{64}e^6}
-        = \frac{9e^2}{2\p{1 - e^2}^{15/2}}f_3.
+            \frac{f_3}{2}.
 \end{align}
-These fix the two free parameters
+Integration of the ansatz fixes the two free parameters
 \begin{align}
-    \alpha_0 &= \frac{3e\sqrt{f_3/f_5}}{\sqrt{1 + e}},\\
-    C_0 &= \sqrt{\frac{2f_5}{\alpha_0\sqrt{1 + e}\p{1 - e^2}^3}}.
+    \eta_0 &= \sqrt{\frac{9e^2f_3}{\p{1 - e^2}^{3}f_5}},\\
+    C_0 &= \sqrt{\frac{f_5}{\eta_0\p{1 - e^2}^{9/2}}}.
 \end{align}
 
 \subsection{Evaluating Torque}
@@ -414,11 +415,9 @@ we have two regimes for the sum:
             \hat{\tau}
                 &\approx -\abs{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2,\\
-                &\approx -\abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p{1 - e^2}^{9/2}}\p{\alpha\p{\frac{1 + e}{\p{1 -
-                    e^2}^3}}^{1/2}}^{8/3},\\
-                &\approx -\abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5\alpha^{8/3}\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}}.
+                &\approx -\p{N_{\max}}^{8/3}
+                    \abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{9/2}}.
         \end{align}
 
     \item Consider $2\Omega_s \ll N_{\max} \Omega$, then the sign is the
@@ -427,41 +426,41 @@ we have two regimes for the sum:
         term to pull out the factor of $N^{8/3}$, of form
         \begin{equation}
             \abs{N - \frac{2\Omega_s}{\Omega}} \approx \abs{N}\abs{1 -
-                \frac{2\Omega_s}{\beta_T N_{\max}\Omega}}.
+                \frac{\beta_\tau \Omega_s}{N_{\max}\Omega}}.
         \end{equation}
-        Such a factorization must have the correct asymptotics as $\Omega_s \to
-        -\infty$, that is:
+        This factorization is constrained by requiring the torque have the same
+        magnitude as $\abs{\Omega_s} \to \infty$, or
         \begin{equation}
-            \sum\limits_{N} F_{N2}^2 \abs{\frac{-2\Omega_s}{\Omega}}^{8/3}
-                = \abs{\frac{2\Omega_s}{\beta_T N_{\max}\Omega}}^{8/3}
-                    \sum\limits_{N}F_{N2}^2 N^{8/3}.
+            \lim_{\Omega_s \to \infty}
+                    \sum\limits_{N} F_{N2}^2
+                        \abs{N - \frac{2\Omega_s}{\Omega}}^{8/3}
+                = \lim_{-\Omega_s \to \infty}
+                    \abs{1 - \frac{\beta_\tau \Omega_s}{N_{\max}\Omega}}^{8/3}
+                        \sum\limits_{N}F_{N2}^2 N^{8/3}.
         \end{equation}
-
-        This equates to requiring that the two regimes $\Omega_s \gg
-        N_{\max}\Omega$ and $-\Omega_s \ll -N_{\max}\Omega$ be symmetric. We
-        find $\beta_T = \p{\frac{\Gamma\p{23/3}}{4!}}^{3/8}/4 \approx 1.447$,
-        and so $2/\beta_T \approx 1.3818$. Thus,
+        This gives $\beta_\tau = 8 / \p{\Gamma\p{23/3} / 4!}^{3/8} \approx
+        1.3818$. Thus,
         \begin{align}
             \hat{\tau}
-                &\approx \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                &\approx \abs{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2 \abs{N}^{8/3},\\
-                &\approx \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p{1 - e^2}^{17/2}}
-                    \frac{\Gamma(23/3)}{4!}\p{\frac{\alpha}{4}}^{8/3}
-                        \p{1 + e}^{4/3}.
+                &\approx \abs{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{9/2}}
+                    \frac{\Gamma(23/3)}{4!}
+                    \p{\frac{N_{\max}}{4}}^{8/3}.
         \end{align}
 \end{itemize}
-Thus, we arrive at final answer
+Thus, we arrive at final answer [Eq.~\eqref{eq:tau_approx}]
 \begin{equation}
-    \hat{\tau} \approx \alpha^{8/3}
-        \frac{f_5\p{1 + e}^{4/3}}{\p{1 - e^2}^{17/2}} \times
+    \hat{\tau} \approx
+        \frac{f_5}{\p{1 - e^2}^{9/2}}\p{N_{\max}}^{8/3} \times
     \begin{cases}
-        \abs{1 - 1.3818\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
+        \abs{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
             \frac{\Gamma(23/3)}{4!}\p{\frac{1}{4}}^{8/3},
             & \Omega_s < N_{\max}\Omega / 2,\\[5pt]
         -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3},
             & \Omega_s > N_{\max}\Omega / 2.
-    \end{cases}\label{eq:traveling_torque}
+    \end{cases}
 \end{equation}
 
 \subsection{Evaluating Energy Transfer}
@@ -481,9 +480,11 @@ The second term has no casework and is very clean:
     \frac{\dot{E}_{m=0}}{\hat{T}\Omega}
         &= \frac{1}{3} \sum\limits_{N = -\infty}^\infty
             F_{N0}^2\abs{N}^{11/3},\\
-        &\approx \frac{1}{2^{11/3}}
-            \frac{f_5 \alpha_0^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
-            \Gamma\p{14/3}.
+        &= \frac{2}{3}\int\limits_0^\infty C^2e^{-2N/\eta}N^{11/3}
+            \;\mathrm{d}N,\\
+        &= \frac{2C^2}{3}\p{\frac{\eta}{2}}^{14/3}\Gamma(14/3),\\
+        &= \frac{f_5\Gamma(14/3)}{3\p{1 - e^2}^{9/2}}
+            \p{\frac{9e^2f_3}{2\p{1 - e^2}^3 f_5}}^{11/6}.
 \end{align}
 
 The first term is the same procedure as for the torque, where we must expand and
@@ -499,29 +500,22 @@ The two regimes again are:
         always negative and $\abs{N - 2\Omega_s / \Omega} \approx
         \abs{2\Omega_s / \Omega - N_{\max}}$ and we have straightforwardly
         \begin{align}
-            \frac{\dot{E}_{m=2}}{\hat{T}\Omega}
+            \frac{\dot{E}_1}{\hat{T}\Omega}
                 &= -\frac{1}{2}
                     \abs{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty NF_{N2}^2,\\
-                &\approx -\frac{1}{2}
+                &= -\frac{1}{2}
                     \abs{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \alpha_2^{11/3}
-                    \frac{f_5}{\p{1 - e^2}^{10}}\frac{5\p{1 + e}^{11/6}}{4}.
+                    N_{\max}^{8/3}
+                    \frac{f_5}{\p{1 - e^2}^{9/2}}5\p{\frac{N_{\max}}{4}}.
         \end{align}
     \item Again, in the other limit where $2\Omega_s \ll N_{\max}\Omega$, we
         seek some factorization + summation $\abs{N - \frac{2\Omega_s}{\Omega}}
-        \approx \abs{N}\abs{1 - \frac{2\Omega_s}{\beta_E N_{\max}\Omega}}$ such
-        that the asymptotics are correct:
-        \begin{align}
-            \abs{\frac{2\Omega_s}{\Omega}}^{8/3} \sum\limits_N F_{N2}^2 N
-                &= \abs{\frac{2\Omega_s}{\beta_E N_{\max}\Omega}}^{8/3}
-                    \sum\limits_N F_{N2}N^{11/3},\\
-            \beta_E
-                &= \p{\frac{\Gamma(26/3)}{5!}}^{3/8} \p{\frac{1}{4}}
-                    \approx 1.699.
-        \end{align}
-
-        Thus, we can now approximate the sum
+        \approx \abs{N}\abs{1 - \frac{\beta_E\Omega_s}{N_{\max}\Omega}}$ such
+        that the energy transfer rate has the same magnitude for $\abs{\Omega_s}
+        \to \infty$. This gives $\beta_E = 8 / \p{\Gamma(26/3) / 5!}^{3/8}
+        \approx 1.1772$. Thus, we can now
+        approximate the sum
         \begin{align}
             \frac{\dot{E}_{m=2}}{\hat{T}\Omega}
                 &= \frac{1}{2}
@@ -529,27 +523,26 @@ The two regimes again are:
                     \sum\limits_{N = -\infty}^\infty \abs{N}^{11/3}F_{N2}^2,\\
                 &= \frac{1}{2}
                     \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p{1 - e^2}^{10}}\frac{5\p{1 + e}^{11/6}}{4}
-                    \p{\frac{\alpha_2}{4}}^{11/3}
-                    \frac{\Gamma(26/3)}{5!}.
+                    \frac{f_5}{\p{1 - e^2}^{9/2}}
+                    \frac{\Gamma(26/3)}{4!}\p{\frac{N_{\max}}{4}}^{11/3}.
         \end{align}
 \end{itemize}
-Thus, we have total energy transfer rate
+Thus, we have total energy transfer rate [Eq.~\eqref{eq:total_heating}]
 \begin{align}
     \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
-            \frac{1}{2^{11/3}}
-            \frac{f_5 \alpha_0^{11/3}\p{1 + e}^{11/6}}{3\p{1 - e^2}^{10}}
-            \Gamma\p{14/3}\nonumber\\
-        & + \frac{\alpha^{11/3}}{2}
-                \frac{f_5\p{1 + e}^{11/6}}{\p{1 - e^2}^{10}}
-                \times\nonumber\\
+            \frac{f_5 \Gamma(14/3)}{3\p{1 - e^2}^{10}}
+                \p{\frac{9e^2f_3}{2f_5}}^{11/6}\nonumber\\
+        &+
+            \frac{N_{\max}^{11/3}}{8}
+            \frac{f_5}{\p{1 - e^2}^{9/2}}
+            \Gamma\p{14/3} \times\nonumber\\
         &\begin{cases}
             \abs{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
+                \frac{\Gamma\p{26/3}}{4!}\p{\frac{1}{4}}^{8/3}
                 & \Omega_s < N_{\max}\Omega/2,\\[5pt]
-            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
+            -\abs{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}5.
                 & \Omega_s > N_{\max}\Omega/2.
-        \end{cases}\label{eq:edot_in}
+        \end{cases}
 \end{align}
 
 

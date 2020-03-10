@@ -758,6 +758,11 @@ Parseval's result is simply reproduced exactly and is in agreement with above:
         &= \p*{-\frac{\Omega_s}{\Omega}}\p*{\frac{1 + 3e^2 + 3e^4/8}{
             \p*{1 - e^2}^{9/2}}}.
 \end{align}
+Recall that this means that
+\begin{equation}
+    C^2 = \frac{f_5}{\p*{1 - e^2}^{9/2}}\frac{1}{4!\p*{\eta/2}^5}
+\end{equation}
+
 The more interesting case is the linear term. An extended application of
 Parseval's Theorem is in play, where the two functions are not the same. We then
 must use
@@ -838,59 +843,51 @@ compare the $F_{N2}^2N$ term, so
                 e^{-2N/\eta}\;\mathrm{d}\frac{2N}{\eta},\\
         &= \frac{f_5}{\p*{1 - e^2}^{9/2}}
                 \frac{1}{\p*{\eta / 2}^5 4!}
-            \p*{\frac{\eta}{2}}^6 5!.
+            \p*{\frac{\eta}{2}}^6 5!,\\
+        &= \frac{5f_5 \eta}{2\p*{1 - e^2}^{9/2}}.
 \end{align}
-Recall that $\eta = \frac{N_{\max}}{2} = \frac{\sqrt{1 + e}}{2\p*{1 -
-e^2}^{3/2}}\alpha$ per the results of \autoref{ss:F_n2}, where we guessed $\alpha
-\approx \sqrt{2}$, and so everything all together evaluates to
+So we match forms for this first moment we find
 \begin{equation}
-    \sum\limits_{N}F_{N2}^2N \approx \frac{f_5}{\p*{1 - e^2}^{6}}
-        \frac{5\sqrt{1 + e}}{4}\alpha.
+    \eta = \frac{4f_2}{5f_5\p*{1 - e^2}^{3/2}}
 \end{equation}
+Recall that we guessed $\eta = \frac{N_{\max}}{2} = \frac{\sqrt{1 + e}}{2\p*{1 -
+e}^{3/2}}\alpha$ in \autoref{ss:F_n2}, where we guessed $\alpha \approx
+\sqrt{2}$. Note that $\eta$ indeed diverges as $(1 - e)^{-3/2}$, and the
+prefactor is of order unity ($e$ is bound).
 
-We thus want to compare
-\begin{equation}
-    2f_2 = 2\p*{1 + \frac{15 e^2}{2} + \frac{45e^4}{8} + \frac{5e^6}{16}}
-        \approx \alpha\frac{5}{4}\sqrt{1 + e}
-            \p*{1 + 3e^2 + \frac{3e^4}{8}}.
-\end{equation}
-Our approximation is valid when $e \to 1$, so let's first set $e = 1$ and
-evaluate. This fixes $\alpha$, and indeed when we do so we find $\frac{231}{8}
-\approx \frac{175\sqrt{2}}{32}\alpha$, so $\alpha = \frac{462\sqrt{2}}{175}
-\approx 3.7335$. This is all verified numerically.
+% \textbf{Note: the below uses the wrong form for $N_{peri}$, we should fix it
+% eventually.} Now, what about when $\delta e \equiv 1 - e \ll 1$? Let's expand
+% \begin{align}
+%     2 \p*{1
+%             + \frac{15\p*{1 - 2\delta e}}{2}
+%             + \frac{45\p*{1 - 4\delta e}}{8}
+%             + \frac{5\p*{1 - 6\delta e}}{16}}
+%         &\approx
+%             \frac{5\alpha \sqrt{2}}{4} \p*{1 - \frac{\delta e}{4}} \p*{
+%                     1 + 3\p*{1 - 2\delta e} + \frac{3}{8}
+%                         \p*{1 - 4\delta e}
+%                 },\\
+%     \frac{231}{8} - \frac{315}{4}\delta e
+%         &\approx \frac{5\alpha\sqrt{2}}{4}\p*{
+%             \frac{35}{8} - \frac{275}{32} \delta e}
+%             = \frac{231}{8} - \frac{1815}{32}\delta e
+% \end{align}
+% The leading order correction on the LHS evaluates to be $78.75$, while the LHS
+% is $56.71$. We could enforce exact agreement with this by relaxing $p = 2$, but
+% then we wouldn't be able to match $\sum\limits F_{N2}N^2$ anyway, so this seems
+% to be acceptable.
 
-Now, what about when $\delta e \equiv 1 - e \ll 1$? Let's expand
-\begin{align}
-    2 \p*{1
-            + \frac{15\p*{1 - 2\delta e}}{2}
-            + \frac{45\p*{1 - 4\delta e}}{8}
-            + \frac{5\p*{1 - 6\delta e}}{16}}
-        &\approx
-            \frac{5\alpha \sqrt{2}}{4} \p*{1 - \frac{\delta e}{4}} \p*{
-                    1 + 3\p*{1 - 2\delta e} + \frac{3}{8}
-                        \p*{1 - 4\delta e}
-                },\\
-    \frac{231}{8} - \frac{315}{4}\delta e
-        &\approx \frac{5\alpha\sqrt{2}}{4}\p*{
-            \frac{35}{8} - \frac{275}{32} \delta e}
-            = \frac{231}{8} - \frac{1815}{32}\delta e
-\end{align}
-The leading order correction on the LHS evaluates to be $78.75$, while the LHS
-is $56.71$. We could enforce exact agreement with this by relaxing $p = 2$, but
-then we wouldn't be able to match $\sum\limits F_{N2}N^2$ anyway, so this seems
-to be acceptable.
-
-Of note: we only set $\alpha$ by setting the expressions equal at $e \to 1$, but
-what about in general? Let's make a coarse plot, and of course it's linear and
-not constant\dots see \autoref{fig:alpha}. It's approximately linear between
-$\alpha(0) = 8/5$ and $\alpha(1) \approx 3.7335$.
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_alpha.png}
-    \caption{Plot of $\alpha(e)$, red dots is approximation}\label{fig:alpha}
-\end{figure}
-We should probably just generally use the exact value of $\alpha(e)$ then; it
-only changes $\eta$ and not $C$ or $p = 2$, so it's not too bad.
+% Of note: we only set $\alpha$ by setting the expressions equal at $e \to 1$, but
+% what about in general? Let's make a coarse plot, and of course it's linear and
+% not constant\dots see \autoref{fig:alpha}. It's approximately linear between
+% $\alpha(0) = 8/5$ and $\alpha(1) \approx 3.7335$.
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_alpha.png}
+%     \caption{Plot of $\alpha(e)$, red dots is approximation}\label{fig:alpha}
+% \end{figure}
+% We should probably just generally use the exact value of $\alpha(e)$ then; it
+% only changes $\eta$ and not $C$ or $p = 2$, so it's not too bad.
 
 Note that the power of our approximation comes in evaluating expressions as
 follows (recall $\alpha \approx 2 (1 + e)$)
@@ -898,17 +895,10 @@ follows (recall $\alpha \approx 2 (1 + e)$)
     \sum\limits_{N = -\infty}^\infty F_{N2}^2 N^q
         &\approx \int\limits_0^\infty C^2 N^4 e^{-2 N / \eta}N^q
             \;\mathrm{d}N,\\
-        &\approx C^2 \int\limits_{0}^\infty N^{4 + q}
-            e^{-2N / \eta}\;\mathrm{d}N,\\
-        &\approx C^2 \p*{\frac{\eta}{2}}^{5 + q}\Gamma\p*{5 + q},\\
-        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\eta}{2}}^q,\\
-        &\approx \frac{1 + 3e^2 + 3e^4/8}{\p*{1 - e^2}^{9/2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\alpha\frac{\sqrt{1 + e}}{
-                4\p*{1 - e^2}^{3/2}}}^q,\\
-        &\approx \frac{f_5}{\p*{1 - e^2}^{(9 + 3q) / 2}}
-            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{\alpha}{4}}^q
-            \p*{1 + e}^{q/2}.\label{eq:fn2_swiss_army_knife}
+        &= C^2 \p*{\frac{\eta}{2}}^{5 + q}\Gamma\p*{5 + q},\\
+        &= \frac{f_5}{\p*{1 - e^2}^{9/2}}
+            \frac{\Gamma\p*{5 + q}}{4!}\p*{\frac{N_{\max}}{4}}^q,
+            \label{eq:fn2_swiss_army_knife}
 \end{align}
 
 \subsection{Also Updating $F_{N0}$}
@@ -977,27 +967,27 @@ variables $C, \eta$, and therefore we find that
     C^2 &= \frac{f_5}{\eta\p*{1 - e^2}^{9/2}}.
 \end{align}
 We can verify that as $e \to 1$, we have the scaling $\eta \propto \p*{1 -
-e^2}^{3/2}$, which probably is what told us $\eta \sim N_{peri}$.
+e}^{3/2}$, which probably is what told us $\eta \sim N_{peri}$.
 
-In fact, in line with what we did above, let's assume $\eta \equiv \beta
-N_{peri}$, then
-\begin{equation}
-    \beta = \frac{3e\sqrt{f_3/f_5}}{\sqrt{1 + e}}.
-\end{equation}
-The plot of $\beta$ is shown in \autoref{fig:check_beta}. It comes out to be
-very nearly $\beta(e) \approx \sqrt{8}e$, which is much easier to remember +
-use.
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_beta.png}
-    \caption{Plot of $\beta(e)$. Red dots is approximation.
-    }\label{fig:check_beta}
-\end{figure}
+% In fact, in line with what we did above, let's assume $\eta \equiv \beta
+% N_{peri}$, then
+% \begin{equation}
+%     \beta = \frac{3e\sqrt{f_3/f_5}}{\sqrt{1 + e}}.
+% \end{equation}
+% The plot of $\beta$ is shown in \autoref{fig:check_beta}. It comes out to be
+% very nearly $\beta(e) \approx \sqrt{8}e$, which is much easier to remember +
+% use.
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[width=0.6\textwidth]{../scripts/eccentric_tides/check_beta.png}
+%     \caption{Plot of $\beta(e)$. Red dots is approximation.
+%     }\label{fig:check_beta}
+% \end{figure}
 
-Thus, we may revise
-\begin{equation}
-    C^2 = \frac{2f_5}{\beta \sqrt{1 + e}\p*{1 - e^2}^3}.
-\end{equation}
+% Thus, we may revise
+% \begin{equation}
+%     C^2 = \frac{2f_5}{\beta \sqrt{1 + e}\p*{1 - e^2}^3}.
+% \end{equation}
 
 \subsection{New Closed Forms for Torque}
 
@@ -1025,8 +1015,7 @@ Let's just consider the summation, which we can call $\hat{\tau}$
         F_{N2}^2 \sgn\p*{N - 2\frac{\Omega_s}{\Omega}}
             \abs*{N - 2\frac{\Omega_s}{\Omega}}^{8/3}.
 \end{equation}
-Again, let's consider the two limits (recall $N_{\max} = \alpha \frac{\sqrt{1 +
-e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
+Again, let's consider the two limits (recall $\eta = N_{\max} / 2$):
 \begin{itemize}
     \item Consider $2\Omega_s \gg N_{\max}\Omega$, then the sign is always
         negative and $\abs*{N - 2\Omega_s/\Omega} \approx
@@ -1035,45 +1024,40 @@ e}}{\p*{1 - e}^{3/2}}$, while $f_5 = 1 + 3e^2 + 3e^4/8$):
             \hat{\tau}
                 &\approx -\abs*{\frac{2\Omega_s}{\Omega} - N_{\max}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2,\\
-                &\approx -\abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p*{1 - e^2}^{9/2}}\p*{\alpha\p*{\frac{1 + e}{\p*{1 -
-                    e^2}^3}}^{1/2}}^{8/3},\\
-                &\approx -\abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5\alpha^{8/3}\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}}.
+                &\approx -\p*{N_{\max}}^{8/3}
+                    \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \frac{f_5}{\p*{1 - e^2}^{9/2}}.
         \end{align}
 
     \item Consider $2\Omega_s \ll N_{\max} \Omega$, then the sign is the
         sign of $N_{\max}$ ($>0$). We choose a factorization for $\abs*{N -
         \frac{2\Omega_s}{\Omega}} \approx \abs*{N}\abs*{1 -
-        \frac{2\Omega_s}{\beta N_{\max}\Omega}}$ such that we can express as a
+        \frac{\beta\Omega_s}{N_{\max}\Omega}}$ such that we can express as a
         prefactor and a summation. We must choose it such that in the limit
         $\Omega_s \to -\infty$, the asymptotics are correct, that is:
         \begin{equation}
             \sum\limits_{N} F_{N2}^2 \abs*{2\Omega_s}^{8/3}
-                = \abs*{\frac{2\Omega_s}{\beta N_{\max}\Omega}}^{8/3}
-                    \sum\limits_{N}F_{N2}^2 N^{8/3}.
+                = \abs*{\frac{\beta\Omega_s}{N_{\max}\Omega}}^{8/3}
+                    \sum\limits_{N}F_{N2}^2 \p*{\frac{N_{\max}}{4}}^{8/3}.
         \end{equation}
 
         This can be solved to find (I did this on scratch paper, see the
         calculation in heating for a solved example) that $\beta =
-        \p*{\frac{\Gamma\p*{23/3}}{4!}}^{3/8}/4 \approx 1.447$, and so $2/\beta
-        \approx 1.38$. Thus,
+        2^3 / \p*{\Gamma(23/3) / 4!}^{3/8} \approx 1.38$. Thus,
         \begin{align}
             \hat{\tau}
                 &\approx \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
                     \sum\limits_{N = -\infty}^\infty F_{N2}^2 \abs*{N}^{8/3},\\
                 &\approx \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p*{1 - e^2}^{17/2}}
-                    \frac{\Gamma(23/3)}{4!}\p*{\frac{\alpha}{4}}^{8/3}
-                        \p*{1 + e}^{4/3}.
+                    \frac{f_5}{\p*{1 - e^2}^{9/2}}
+                    \frac{\Gamma(23/3)}{4!}
+                    \p*{\frac{N_{\max}}{4}}^{8/3}.
         \end{align}
-
-        This approach is actually literally the same thing,
 \end{itemize}
 Thus, we arrive at final answer
 \begin{equation}
-    \hat{\tau} \approx \alpha^{8/3}
-        \frac{f_5\p*{1 + e}^{4/3}}{\p*{1 - e^2}^{17/2}} \times
+    \hat{\tau} \approx
+        \frac{f_5}{\p*{1 - e^2}^{9/2}}\p*{N_{\max}}^{8/3} \times
     \begin{cases}
         \abs*{1 - 1.38\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
             \frac{\Gamma(23/3)}{4!}\p*{\frac{1}{4}}^{8/3},
@@ -1107,14 +1091,11 @@ Let's handle the second term first, since it's on our minds; subscript
     \frac{\dot{E}_2}{\hat{T}\Omega}
         &= \frac{1}{3} \sum\limits_{N = -\infty}^\infty
             F_{N0}^2\abs*{N}^{11/3},\\
-        &= \frac{2}{3}\int\limits_0^\infty C^2e^{-2N/\eta}N^{11/3}\;\mathrm{d}N,\\
+        &= \frac{2}{3}\int\limits_0^\infty C^2e^{-2N/\eta}N^{11/3}
+            \;\mathrm{d}N,\\
         &= \frac{2C^2}{3}\p*{\frac{\eta}{2}}^{14/3}\Gamma(14/3),\\
-        &= \frac{2}{3}\frac{f_5}{\beta\sqrt{1 + e}\p*{1 - e^2}^3}
-            \p*{\frac{\beta}{2}}^{14/3}\p*{\frac{\sqrt{1 + e}}{\p*{1 -
-                e^2}^{3/2}}}^{14/3} \Gamma(14/3),\\
-        &= \frac{1}{2^{11/3}}
-            \frac{f_5 \beta^{11/3}\p*{1 + e}^{11/6}}{3\p*{1 - e^2}^{10}}
-            \Gamma\p*{14/3}.
+        &= \frac{f_5\Gamma(14/3)}{3\p*{1 - e^2}^{9/2}}
+            \p*{\frac{9e^2f_3}{2\p*{1 - e^2}^3 f_5}}^{11/6}.
 \end{align}
 
 The first term is the same procedure as for the torque, where we must expand and
@@ -1137,15 +1118,11 @@ Recall $\sigma \equiv N - \frac{2\Omega_s}{\Omega}$. Thus, we calculate:
                 &= -\frac{1}{2}
                     \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
                     N_{\max}^{8/3}
-                    \frac{f_5}{\p*{1 - e^2}^6}\frac{5\sqrt{1 + e}}{4}\alpha,\\
-                &= -\frac{1}{2}
-                    \abs*{1 - \frac{2\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \alpha^{11/3}
-                    \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{11/6}}{4}.
+                    \frac{f_5}{\p*{1 - e^2}^{9/2}}5\p*{\frac{N_{\max}}{4}}.
         \end{align}
     \item Again, in the other limit where $2\Omega_s \ll N_{\max}\Omega$, we
         seek some factorization + summation $\abs*{N - \frac{2\Omega_s}{\Omega}}
-        \approx \abs*{N}\abs*{1 - \frac{2\Omega_s}{\beta N_{\max}\Omega}}$ such
+        \approx \abs*{N}\abs*{1 - \frac{\beta \Omega_s}{N_{\max}\Omega}}$ such
         that the asymptotics are correct:
         \begin{equation}
             \abs*{\frac{2\Omega_s}{\Omega}}^{8/3} \sum\limits_N F_{N2}^2 N
@@ -1156,22 +1133,8 @@ Recall $\sigma \equiv N - \frac{2\Omega_s}{\Omega}$. Thus, we calculate:
         dependent parts, we obtain (recall $N_{\max} = \alpha \frac{\sqrt{1 +
         e}}{\p*{1 - e}^{3/2}}$)
         \begin{align}
-            \abs*{\frac{2\Omega_s}{\Omega}}^{8/3} \frac{\Gamma(6)}{\p*{1 -
-                    e^2}^{3/2}}
-                    \p*{\frac{\alpha}{4}}\p*{1 + e}^{1/2}
-                &= \abs*{\frac{2\Omega_s}{\beta N_{\max}\Omega}}^{8/3}
-                    \frac{\Gamma(26/3)}{\p*{1 - e^2}^{11/2}}
-                    \p*{\frac{\alpha}{4}}^{11/3}\p*{1 + e}^{11/6},\\
-            \beta^{8/3}
-                &= \frac{1}{N_{\max}}^{8/3}
-                    \frac{\Gamma(26/3)}{5! \p*{1 - e^2}^{4}}
-                    \p*{\frac{\alpha}{4}}^{8/3}\p*{1 + e}^{4/3},\\
-            \beta
-                &= \p*{\frac{\Gamma(26/3)}{5!}}^{3/8} \p*{\frac{1}{4}}
-                    \approx 1.699.
+            \beta &= 8 / \p*{\frac{\Gamma(26/3)}{5!}}^{3/8} \approx 1.1772
         \end{align}
-        Again, as was noted above, this number had to be obvious, but I'm
-        stupid.
 
         Thus, we can now approximate the sum
         \begin{align}
@@ -1181,26 +1144,25 @@ Recall $\sigma \equiv N - \frac{2\Omega_s}{\Omega}$. Thus, we calculate:
                     \sum\limits_{N = -\infty}^\infty \abs*{N}^{11/3}F_{N2}^2,\\
                 &= \frac{1}{2}
                     \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                    \frac{f_5}{\p*{1 - e^2}^{10}}\frac{5\p*{1 + e}^{11/6}}{4}
-                    \p*{\frac{\alpha}{4}}^{11/3}
-                    \frac{\Gamma(26/3)}{5!}.
+                    \frac{f_5}{\p*{1 - e^2}^{9/2}}
+                    \frac{\Gamma(26/3)}{4!}\p*{\frac{N_{\max}}{4}}^{11/3}.
         \end{align}
 \end{itemize}
 Thus, we have total heating rate (in the inertial frame, this indeed can be
 signed)
 \begin{align}
     \frac{\dot{E}_{in}}{\hat{T}\Omega} ={}&
-            \frac{1}{2^{11/3}}
-            \frac{f_5 \beta^{11/3}\p*{1 + e}^{11/6}}{3\p*{1 - e^2}^{10}}
-            \Gamma\p*{14/3}\nonumber\\
-        & + \frac{\alpha^{11/3}}{2}
-                \frac{f_5\p*{1 + e}^{11/6}}{\p*{1 - e^2}^{10}}
-                \times\nonumber\\
+            \frac{f_5 \Gamma(14/3)}{3\p*{1 - e^2}^{10}}
+                \p*{\frac{9e^2f_3}{2f_5}}^{11/6}\nonumber\\
+        &+
+            \frac{N_{\max}^{11/3}}{8}
+            \frac{f_5}{\p*{1 - e^2}^{9/2}}
+            \Gamma\p*{14/3} \times\nonumber\\
         &\begin{cases}
             \abs*{1 - 1.1772\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}
-                \frac{\Gamma(26/3)}{5!}\frac{1}{4^{8/3}},
+                \frac{\Gamma\p*{26/3}}{4!}\p*{\frac{1}{4}}^{8/3}
                 & \Omega_s < N_{\max}\Omega/2,\\[5pt]
-            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}\frac{5}{4},
+            -\abs*{1 - 2\frac{\Omega_s}{N_{\max}\Omega}}^{8/3}5.
                 & \Omega_s > N_{\max}\Omega/2.
         \end{cases}\label{eq:total_heating}
 \end{align}

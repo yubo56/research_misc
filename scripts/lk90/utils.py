@@ -153,9 +153,24 @@ def plot_traj(ret, fn,
     ax2.set_ylabel(r'$a / a_0$')
 
     # a(1 - e)
-    ax3.loglog(1 - e_tot, a, 'r')
-    ax3.set_xlim(right=0.1)
+    # ax3.loglog(1 - e_tot, a, 'r')
+    # ax3.set_xlim(right=0.1)
     # ax3.yaxis.tick_right()
+    # overplot adiabaticity boundaries in a(1 - e) space
+    # e_vals = 1 - np.linspace(*ax3.get_xlim(), 30)
+    # def get_a_adiabatic(e):
+    #     I_e = np.arccos(np.cos(I0) / np.sqrt(1 - e**2))
+    #     def opt_func(a):
+    #         return get_adiab(getter_kwargs, a, e, I_e) - 1
+    #     return brenth(opt_func, 0.05, 1)
+    # a_vals = [get_a_adiabatic(e) for e in e_vals]
+    # # for a, e in zip(a_vals, e_vals):
+    # #     print(a, e)
+    # ax3.loglog(1 - e_vals, a_vals, 'k:')
+
+    # theta_sb
+    ax3.plot(t_vals, np.degrees(np.arccos(s[2, plot_slice])))
+    ax3.set_ylabel(r'$\theta_{SB}$')
 
     # $A$ Adiabaticity param
     A = get_adiab(getter_kwargs, a, e_tot, I)
@@ -197,18 +212,6 @@ def plot_traj(ret, fn,
     ax7.plot(t_vals, np.degrees(q_eff), 'r')
     ax7.set_ylabel(r'$\theta_{\rm eff, L}$')
     ax3.set_title(r'$t_{LK,0} = %.2e\;\mathrm{yr}$' % t_lk)
-
-    # overplot adiabaticity boundaries in a(1 - e) space
-    e_vals = 1 - np.linspace(*ax3.get_xlim(), 30)
-    def get_a_adiabatic(e):
-        I_e = np.arccos(np.cos(I0) / np.sqrt(1 - e**2))
-        def opt_func(a):
-            return get_adiab(getter_kwargs, a, e, I_e) - 1
-        return brenth(opt_func, 0.05, 1)
-    a_vals = [get_a_adiabatic(e) for e in e_vals]
-    # for a, e in zip(a_vals, e_vals):
-    #     print(a, e)
-    ax3.loglog(1 - e_vals, a_vals, 'k:')
 
     plt.savefig(fn, dpi=300)
     plt.close()
@@ -255,6 +258,10 @@ def get_dydt_gr(n2,
             + (eps_gr / a**(5/2)) * dedt_gr(Lhat, e, e_sq)
         )
         dsdt = (eps_sl / a**(5/2)) * dsdt_sl(Lhat, s, e_sq)
+
+        dadt = 2 / (1 - e_sq) * (
+            np.dot(L, dldt) + a * np.dot(e, dedt))
+        print(t, a)
 
         return np.concatenate((dldt, dedt, dsdt))
     return dydt
