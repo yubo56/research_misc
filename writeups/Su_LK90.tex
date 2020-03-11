@@ -1,0 +1,149 @@
+    \documentclass[
+        fleqn,
+        usenatbib,
+        % referee,
+    ]{mnras}
+    \usepackage{
+        amsmath,
+        amssymb,
+        newtxtext,
+        newtxmath,
+        graphicx,
+        ae, aecompl,
+        booktabs,
+        caption,
+        subcaption,
+    }
+    \usepackage[T1]{fontenc}
+    \captionsetup{compatibility=false}
+
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+    \newcommand*{\abs}[1]{\left|#1\right|}
+    \newcommand*{\ev}[1]{\langle#1\rangle}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\uv}[1]{\hat{\bm{#1}}}
+    \newcommand*{\p}[1]{\left(#1\right)}
+    \newcommand*{\s}[1]{\left[#1\right]}
+    \newcommand*{\z}[1]{\left\{#1\right\}}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator*{\med}{med}
+    \DeclareMathOperator*{\sgn}{sgn}
+
+\title[$90^\circ$ LK]{$90^\circ$ Attractor}
+\author[Authors]{
+Millie Vick$^1$
+\\
+$^1$ Cornell Center for Astrophysics and Planetary Science, Department of
+Astronomy, Cornell University, Ithaca, NY 14853, USA
+}
+
+\date{Accepted XXX\@. Received YYY\@; in original form ZZZ}
+
+\pubyear{2020}
+
+\begin{document}\label{firstpage}
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+\maketitle
+
+\begin{abstract}
+    Abstract
+\end{abstract}
+
+\begin{keywords}
+keywords % chktex 8
+\end{keywords}
+
+\section{Introduction}
+
+This problem is important as it will be important for self-driving cars, curing
+cancer, and the search for extraterrestrial intelligence.
+
+\section{Analytical Results}
+
+\subsection{Equations of Motion}
+
+We study Lidov-Kozai oscillations due to an external perturber to quadrupole
+order and include precession of pericenter and gravitational wave radiation due
+to general relativity. Consider an inner BH binary with masses $m_1$ and $m_2$
+having total mass $m_{12}$ and reduced mass $\mu$ orbited by a third BH with
+mass $m_3$. Call $a_3$ the orbital semimajor axis of the third BH from the
+center of mass of the inner binary, and $e_3$ the eccentricity of its orbit, and
+define effective semimajor axis
+\begin{equation}
+    \bar{a}_3 \equiv a_3\sqrt{1 - e_3^2}.
+\end{equation}
+We adopt the test particle approximation such that the orbit of the third mass
+is fixed in space.
+
+We then consider the motion of the inner binary, described by orbital elements
+$(a, e, \Omega, I, \omega)$. The equations describing the motion of these
+orbital elements is then \citep{storch,bin2,peters1964}
+\begin{align}
+    \rd{a}{t} &= -\frac{a}{t_{GW}},\\
+    \rd{e}{t} &= \frac{15}{8t_{LK}} e\sqrt{1 - e^2}\sin 2\omega
+        \sin^2 I,\\
+    \rd{\Omega}{t} &= \frac{3}{4t_{LK}}
+        \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}}
+        + \Omega_{GR},\\
+    \rd{I}{t} &= \frac{15}{16}\frac{e^2\sin 2\omega \sin 2I}{
+        \sqrt{1 - e^2}},\\
+    \rd{\omega}{t} &= \frac{3}{4t_{LK}}
+        \frac{2\p{1 - e^2} + 5\sin^2\omega
+            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}}.
+\end{align}
+Here, we have defined
+\begin{align}
+    t_{LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\bar{a}_3}}^3,\\
+    t_{GW}^{-1} &= \frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
+        \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
+            + \frac{37}{96}e^4},\\
+    \Omega_{GR} &= \frac{3Gnm_{12}}{c^2a\p{1 - e^2}},
+\end{align}
+and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary.
+
+We are ultimately interested in the evolution of the spin vector of the inner
+BHs. Neglecting spin-spin interactions, they evolve independently as
+\begin{align}
+    \rd{\hat{\bm{S}}}{t} &= \Omega_{SL}\hat{\bm{L}} \times \hat{\bm{S}},\\
+    \Omega_{SL} &= \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
+\end{align}
+
+\appendix
+
+\section{Equations of Motion}
+
+We follow \citet{kinoshita,storch} and write down Hamiltonian in the frame where
+
+\section{Difference from Chaotic Stellar Spin Dynamics}
+
+\begin{itemize}
+    \item LK is not a perturbation for us (compared to $\uv{S} \cdot \uv{L}$
+        dynamics), it is significantly dominant. This corresponds to the
+        $\mathcal{A} \ll 1$ regime of SL15. They obtain a neat bifurcation due
+        to separatrix crossing, which is not observed in our LK simulations, so
+        this cannot in spirit be a similar mechanism.
+
+    \item SL15 focuses on adiabatically changing $\mathcal{A}$ and seeing how it
+        encounters resonances. In our problem, nothing nontrivial can occur if
+        $\mathcal{A}$ changes slowly.
+
+    \item Our Hamiltonian takes on form $H = \p*{\bm{\Omega}_{SL} - \bm{R}}
+        \cdot \uv{S}$. This will never have any resonances since it's perfectly
+        linear; anything that looks nonlinear is a pure consequence of
+        coordinates (e.g.\ multiplication of $\theta$ and $\phi$ terms).
+\end{itemize}
+
+\bibliographystyle{mnras}
+\bibliography{Su_LK90}
+
+% \clearpage
+% \onecolumn
+
+\bsp
+\label{lastpage} % chktex 24
+\end{document}

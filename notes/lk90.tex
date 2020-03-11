@@ -40,6 +40,7 @@
     \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
     \newcommand*{\svec}[1]{\vec{#1}\;\!}
     \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\uv}[1]{\hat{\bm{#1}}}
     \newcommand*{\ang}[0]{\;\text{\AA}}
     \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
     \newcommand*{\at}[1]{\left.#1\right|}
@@ -61,13 +62,13 @@
     \DeclareMathOperator{\sgn}{sgn}
     \DeclareMathOperator{\diag}{diag\;}
 
-    \DeclarePairedDelimiter\bra{\langle}{\rvert}
-    \DeclarePairedDelimiter\ket{\lvert}{\rangle}
-    \DeclarePairedDelimiter\abs{\lvert}{\rvert}
-    \DeclarePairedDelimiter\ev{\langle}{\rangle}
-    \DeclarePairedDelimiter\p{\lparen}{\rparen}
-    \DeclarePairedDelimiter\s{\lbrack}{\rbrack}
-    \DeclarePairedDelimiter\z{\lbrace}{\rbrace}
+    \newcommand*{\bra}[1]{\left<#1\right|}
+    \newcommand*{\ket}[1]{\left|#1\right>}
+    \newcommand*{\abs}[1]{\left|#1\right|}
+    \newcommand*{\ev}[1]{\langle#1\rangle}
+    \newcommand*{\p}[1]{\left(#1\right)}
+    \newcommand*{\s}[1]{\left[#1\right]}
+    \newcommand*{\z}[1]{\left\{#1\right\}}
 
     % \everymath{\displaystyle} % biggify limits of inline sums and integrals
     \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
@@ -106,8 +107,6 @@
 
 \maketitle
 
-% \begin{multicols}{2}
-
 \section{Equations}
 
 \subsection{Bin's Papers}
@@ -121,23 +120,23 @@ The easiest formulation is just to express everything in terms of $\bm{L}$ and
 $\bm{e}$, following LL18. We drop octupole terms and hold the third perturber
 constant. These equations come out to be (Eqs.~4--5 w/ substitutions)
 \begin{align}
-    \rd{\bm{L}}{t} &= \frac{3}{4t_{LK}} \mu \sqrt{Gm_{12}a} \s*{
-        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
-        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+    \rd{\bm{L}}{t} &= \frac{3}{4t_{LK}} \mu \sqrt{Gm_{12}a} \s{
+        \p{\bm{j} \cdot \hat{n}_2} \p{\bm{j} \times \hat{n}_2}
+        - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{e} \times \hat{n}_2}
         },\\
-    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s*{
-        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s{
+        \p{\bm{j} \cdot \hat{n}_2} \p{\bm{e} \times \hat{n}_2}
         + 2\bm{j} \times \bm{e}
-        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+        - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{j} \times \hat{n}_2}
         }.
 \end{align}
 Note that $\bm{j} \equiv \sqrt{1 - e^2}\hat{\bm{L}} = \frac{\bm{L}}{\mu
 \sqrt{Gm_{12}a}}$. $m_{12} = m_1 + m_2$ and $\mu = m_1m_2/m_{12}$. We've defined
 \begin{equation}
     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
-        = \frac{1}{n_1}\p*{\frac{m_{12}}{m_3}}
-            \p*{\frac{a_2}{a}}^3
-            \p*{1 - e_2^2}^{3/2}.
+        = \frac{1}{n_1}\p{\frac{m_{12}}{m_3}}
+            \p{\frac{a_2}{a}}^3
+            \p{1 - e_2^2}^{3/2}.
 \end{equation}
 Here, $n_1 \equiv \sqrt{Gm_{12}/a^3}$. Thus, $1 / t_{LK} \propto a^{3/2}$.
 
@@ -145,16 +144,16 @@ GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
 \begin{align}
     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
         \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
-        \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}\hat{L},\\
+        \frac{1 + 7e^2/8}{\p{1 - e^2}^2}\hat{L},\\
     \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
-        \frac{\mu m_{12}^2}{a^4\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+        \frac{\mu m_{12}^2}{a^4\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}
             e^2}\bm{e}.
 \end{align}
 Here, $m_{12} \equiv m_1 + m_2$, and $a$ is implicitly defined by $\bm{L}$ and
 $e$. The last GR effect is precession of $\vec{e}$, which acts as
 \begin{align}
     \at{\rd{\bm{e}}{t}}_{GR} &= \frac{1}{t_{GR}}\hat{\bm{L}} \times \bm{e},\\
-    \frac{1}{t_{GR}} &\equiv \frac{3Gnm_{12}}{c^2a\p*{1 - e^2}}.
+    \frac{1}{t_{GR}} &\equiv \frac{3Gnm_{12}}{c^2a\p{1 - e^2}}.
 \end{align}
 Note that $t_{GR}^{-1} \propto a^{-5/2}$.
 
@@ -162,7 +161,7 @@ Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
 term (from de Sitter precession), which is given in LL18 to be
 \begin{align}
     \rd{\hat{\bm{S}}}{t} &= \frac{1}{t_{SL}}\hat{\bm{L}} \times \hat{\bm{S}},\\
-    \frac{1}{t_{SL}} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
+    \frac{1}{t_{SL}} &\equiv \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
 \end{align}
 Note that $\mu$ is the reduced mass of the inner binary. We can drop the
 back-reaction term since $S \ll L$. Thus, $t_{SL}^{-1} \propto a^{-5/2}$ as
@@ -170,100 +169,100 @@ well.
 
 Finally, an adiabaticity parameter can be defined:
 \begin{align}
-    \mathcal{A} &\equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}}.
+    \mathcal{A} &\equiv \abs{\frac{\Omega_{SL}}{\Omega_L}}.
 \end{align}
-Here, $\Omega_L \simeq\frac{3\p*{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs*{\sin
+Here, $\Omega_L \simeq\frac{3\p{1 + 4e^2}}{8t_{LK}\sqrt{1 - e^2}}\abs{\sin
 2I}$ is an approximate rate of change of $L$ during an LK cycle
 
 It's natural to redimensionalize to the initial LK time such that
 \begin{equation}
-    \frac{1}{t_{LK, 0}} \equiv \p*{\frac{a}{a_0}}^{3/2}\frac{1}{t_{LK}},
+    \frac{1}{t_{LK, 0}} \equiv \p{\frac{a}{a_0}}^{3/2}\frac{1}{t_{LK}},
 \end{equation}
 since nothing else in $t_{LK}$ is changing. The next natural timescale for
 gravitational waves is
 \begin{equation}
     \frac{1}{t_{GW}} \equiv \frac{G^3 \mu m_{12}^2}{c^5a^4}
-        \equiv \frac{1}{t_{GW, 0}} \p*{\frac{a_0}{a}}^4
-        \equiv \epsilon_{GW} \frac{1}{t_{LK, 0}} \p*{\frac{a_0}{a}}^4.
+        \equiv \frac{1}{t_{GW, 0}} \p{\frac{a_0}{a}}^4
+        \equiv \epsilon_{GW} \frac{1}{t_{LK, 0}} \p{\frac{a_0}{a}}^4.
 \end{equation}
 We can repeat the procedure for the GR precession term and the spin-orbit
 coupling terms:
 \begin{align}
     \frac{1}{t_{GR}} &= \epsilon_{GR}\frac{1}{t_{LK, 0}}
-        \p*{\frac{a_0}{a}}^{5/2},\\
+        \p{\frac{a_0}{a}}^{5/2},\\
     \frac{1}{t_{SL}} &= \epsilon_{SL}\frac{1}{t_{LK, 0}}
-        \p*{\frac{a_0}{a}}^{5/2}.
+        \p{\frac{a_0}{a}}^{5/2}.
 \end{align}
 Thus, finally, if we let $\tau = t / t_{LK, 0}$, then we obtain full equations
 of motion (note that $a_0 = 1$ below)
 \begin{align}
-    \rd{\bm{L}}{\tau} ={}& \p*{\frac{a}{a_0}}^{3/2} \frac{3}{4}\sqrt{a}\s*{
-            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
-            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+    \rd{\bm{L}}{\tau} ={}& \p{\frac{a}{a_0}}^{3/2} \frac{3}{4}\sqrt{a}\s{
+            \p{\bm{j} \cdot \hat{n}_2} \p{\bm{j} \times \hat{n}_2}
+            - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{e} \times \hat{n}_2}
             }\nonumber\\
-        &- \epsilon_{GW}\p*{\frac{a_0}{a}}^4
-            \frac{32}{5} \frac{1 + 7e^2/8}{\p*{1 - e^2}^{5/2}}\bm{L},\\
-    \rd{\bm{e}}{\tau} ={}& \p*{\frac{a}{a_0}}^{3/2} \frac{3}{4}\s*{
-            \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+        &- \epsilon_{GW}\p{\frac{a_0}{a}}^4
+            \frac{32}{5} \frac{1 + 7e^2/8}{\p{1 - e^2}^{5/2}}\bm{L},\\
+    \rd{\bm{e}}{\tau} ={}& \p{\frac{a}{a_0}}^{3/2} \frac{3}{4}\s{
+            \p{\bm{j} \cdot \hat{n}_2} \p{\bm{e} \times \hat{n}_2}
             + 2\bm{j} \times \bm{e}
-            - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+            - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{j} \times \hat{n}_2}
             }\nonumber\\
-        &-\epsilon_{GW}\p*{\frac{a_0}{a}}^4
-            \frac{304}{15} \frac{1}{\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+        &-\epsilon_{GW}\p{\frac{a_0}{a}}^4
+            \frac{304}{15} \frac{1}{\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}
                 e^2}\bm{e}\nonumber\\
-        &+ \epsilon_{GR}\p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+        &+ \epsilon_{GR}\p{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
             \hat{\bm{L}} \times \bm{e},\\
     \rd{\hat{\bm{S}}}{t} ={}&
-        \epsilon_{SL}\p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+        \epsilon_{SL}\p{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
         \hat{\bm{L}} \times \hat{\bm{S}}.
 \end{align}
-For reference, we note that $a = \abs*{\bm{L}}^2 / \p*{\mu^2 Gm_{12}\p*{1 -
-e^2}}$, while $\bm{j} = \bm{L} / \p*{\mu\sqrt{Gm_{12}a}}$. To invert $a(\bm{L})$
-and $\bm{J}\p*{\bm{L}}$ in this coordinate system where $a_0 = 1$, it is easiest
+For reference, we note that $a = \abs{\bm{L}}^2 / \p{\mu^2 Gm_{12}\p{1 -
+e^2}}$, while $\bm{j} = \bm{L} / \p{\mu\sqrt{Gm_{12}a}}$. To invert $a(\bm{L})$
+and $\bm{J}\p{\bm{L}}$ in this coordinate system where $a_0 = 1$, it is easiest
 to choose the angular momentum dimensions such that $\mu \sqrt{Gm_{12}} = 1$,
 such that now
 \begin{align}
-    \abs*{\bm{L}\p*{t = 0}} \equiv \mu \sqrt{Gm_{12}a_0\p*{1 - e_0^2}}
-        &= \sqrt{\p*{1 - e_0^2}},\\
-    a &= \frac{\abs*{\bm{L}}^2}{1 - e^2},\\
+    \abs{\bm{L}\p{t = 0}} \equiv \mu \sqrt{Gm_{12}a_0\p{1 - e_0^2}}
+        &= \sqrt{\p{1 - e_0^2}},\\
+    a &= \frac{\abs{\bm{L}}^2}{1 - e^2},\\
     \bm{j} &= \frac{\bm{L}}{\sqrt{a}} = \hat{\bm{L}}\sqrt{1 - e^2}.
 \end{align}
 
 Finally, the timescales are
 \begin{align}
     t_{LK, 0} &= \frac{1}{n}
-        \frac{m_{12}}{m_3}\p*{\frac{a_2}{a(t = 0)}}^3 \p*{1 - e_2^2}^{3/2},\\
+        \frac{m_{12}}{m_3}\p{\frac{a_2}{a(t = 0)}}^3 \p{1 - e_2^2}^{3/2},\\
     \epsilon_{GW} \equiv \frac{t_{LK, 0}}{t_{GW, 0}}
         &= \frac{1}{n}
-            \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^7} \p*{1 - e_2^2}^{3/2}
+            \frac{m_{12}}{m_3}\frac{a_2^3}{\p{a(t = 0)}^7} \p{1 - e_2^2}^{3/2}
             \frac{G^3 \mu m_{12}^2}{c^5},\\
     \epsilon_{GR} \equiv \frac{t_{LK, 0}}{t_{GR, 0}}
-        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^4} \p*{1 - e_2^2}^{3/2}
+        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p{a(t = 0)}^4} \p{1 - e_2^2}^{3/2}
             \frac{3Gm_{12}}{c^2},\\
     \epsilon_{SL} \equiv \frac{t_{SL, 0}}{t_{GR, 0}}
-        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p*{a(t = 0)}^4} \p*{1 - e_2^2}^{3/2}
-            \frac{3G\p*{m_2 + \mu/3}}{2c^2}.
+        &= \frac{m_{12}}{m_3}\frac{a_2^3}{\p{a(t = 0)}^4} \p{1 - e_2^2}^{3/2}
+            \frac{3G\p{m_2 + \mu/3}}{2c^2}.
 \end{align}
 
 The adiabacitity parameter
 \begin{equation}
-    \mathcal{A} \equiv \abs*{\frac{\Omega_{SL}}{\Omega_L}}
+    \mathcal{A} \equiv \abs{\frac{\Omega_{SL}}{\Omega_L}}
         = \frac{\epsilon_{SL}}{t_{LK, 0}}
-            \p*{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
-            \s*{\frac{3(1 + 4e^2)}{8t_{LK, 0}\sqrt{1 - e^2}}
-                \p*{\frac{a}{a_0}}^{3/2}\abs*{\sin 2I}}^{-1},
+            \p{\frac{a_0}{a}}^{5/2}\frac{1}{1 - e^2}
+            \s{\frac{3(1 + 4e^2)}{8t_{LK, 0}\sqrt{1 - e^2}}
+                \p{\frac{a}{a_0}}^{3/2}\abs{\sin 2I}}^{-1},
 \end{equation}
 (note that $\Omega_L$ is a somewhat averaged sense, see LL18) can be evaluated
 in these units as
 \begin{equation}
-    \mathcal{A} = \epsilon_{SL}\p*{\frac{a_0}{a}}^4\frac{1}{\sqrt{1 - e^2}}
-        \frac{8}{3\p*{1 + 4e^2}\abs*{\sin 2I}}.
+    \mathcal{A} = \epsilon_{SL}\p{\frac{a_0}{a}}^4\frac{1}{\sqrt{1 - e^2}}
+        \frac{8}{3\p{1 + 4e^2}\abs{\sin 2I}}.
 \end{equation}
 
 Note also that the Hamiltonian is just
 \begin{equation}
     H = \Omega_{SL} \hat{\bm{L}} \cdot \hat{\bm{S}},
-        = \epsilon_{SL}\p*{\frac{a_0}{a}}^{5/2} \frac{1}{1 - e^2}
+        = \epsilon_{SL}\p{\frac{a_0}{a}}^{5/2} \frac{1}{1 - e^2}
             \hat{\bm{L}} \cdot \hat{\bm{S}}.
 \end{equation}
 
@@ -274,8 +273,8 @@ and $\bm{e}_2$, we are in the test mass approximation, under which we set $\eta
 = 0$ in Bin's equations. As such, the maximum eccentricity satisfies (Eq 42 of
 LL18 with $\eta \to 0$)
 \begin{equation}
-    \frac{3}{8}\frac{j_{\min}^2 - 1}{j_{\min}^2}\s*{
-        5\cos I_0^2 - 3j_{\min}^2} + \epsilon_{GR}\p*{1 - \frac{1}{j_{\min}}} =
+    \frac{3}{8}\frac{j_{\min}^2 - 1}{j_{\min}^2}\s{
+        5\cos I_0^2 - 3j_{\min}^2} + \epsilon_{GR}\p{1 - \frac{1}{j_{\min}}} =
         0.
 \end{equation}
 Note that $\epsilon_{GR}$ is exactly as we defined above, incidentally, and that
@@ -323,7 +322,7 @@ become larger over time, but peak smaller for larger $I_0$.
 
 The natural way to think about this is to consider the evolution of the
 trajectory in $(a, e)$ space. There are two curves that can be drawn on here,
-$\mathcal{A} \sim 1$ and $\abs*{\Delta \theta_{sb}} \sim 1$ (the kick size), and
+$\mathcal{A} \sim 1$ and $\abs{\Delta \theta_{sb}} \sim 1$ (the kick size), and
 then we can see which one gets crossed first. The hypothesis is that the first
 always gets crossed first, but if $e_{\max}$ is too large, then the second gets
 crossed in the same LK cycle, and we get kicked far away from the starting
@@ -335,14 +334,14 @@ To get the kick size, we have to integrate one of the LK peaks. This is easiest
 done by considering the evolution of the $\delta e \equiv 1 - e$ variable by
 dotting $\vec{e}$ into $\rd{\vec{e}}{t}$, such that
 \begin{align}
-    2e\rd{e}{t} &= \rd{\p*{\vec{e} \cdot \vec{e}}}{t}
+    2e\rd{e}{t} &= \rd{\p{\vec{e} \cdot \vec{e}}}{t}
         = 2\vec{e} \cdot \rd{\vec{e}}{t},\\
-        &= -\frac{15}{2t_{LK}}\p*{\bm{e} \cdot \hat{n}_2}
-            \p*{\hat{n}_2 \cdot \p*{\bm{e} \times \bm{j}}},\\
+        &= -\frac{15}{2t_{LK}}\p{\bm{e} \cdot \hat{n}_2}
+            \p{\hat{n}_2 \cdot \p{\bm{e} \times \bm{j}}},\\
         &\lesssim \pm\frac{15}{2t_{LK}}e^2\sqrt{1 - e^2},\\
     \rd{e}{t} &\sim -\frac{15}{4t_{LK}}e\sqrt{1 - e^2},\\
     \rd{(\delta e)}{t} &\sim \frac{15}{4t_{LK}}\sqrt{2\delta e},\\
-    \delta e(t) &\sim \p*{\frac{15 t}{4\sqrt{2}t_{LK}}}^2.
+    \delta e(t) &\sim \p{\frac{15 t}{4\sqrt{2}t_{LK}}}^2.
 \end{align}
 The finding of a power law/quadratic seems in accordance w/ my simulations,
 though I have to plot $\delta e - \delta e_{\min}$. Then, we can simply
@@ -350,13 +349,13 @@ integrate
 \begin{align}
     \Delta \theta_{sb} &\sim \oint\limits_{LK}
             \Omega_{SL}\;\mathrm{d}t,\\
-        &\sim \frac{\epsilon_{SL}}{2}\p*{\frac{a_0}{a}}^{5/2}
+        &\sim \frac{\epsilon_{SL}}{2}\p{\frac{a_0}{a}}^{5/2}
             \oint\limits_{LK} \frac{1}{\delta e}\;\mathrm{d}t,\\
-        &\sim \frac{\epsilon_{SL}}{2}\p*{\frac{a_0}{a}}^{5/2}
+        &\sim \frac{\epsilon_{SL}}{2}\p{\frac{a_0}{a}}^{5/2}
             \oint\limits_{LK}
-            \frac{1}{\delta e_{\min} + \p*{\frac{15}{4\sqrt{2}t_{LK}}}^2
+            \frac{1}{\delta e_{\min} + \p{\frac{15}{4\sqrt{2}t_{LK}}}^2
                 t^2}\;\mathrm{d}t,\\
-        &\sim \frac{\epsilon_{SL}}{2 \delta e_{\min}}\p*{\frac{a_0}{a}}^{5/2}
+        &\sim \frac{\epsilon_{SL}}{2 \delta e_{\min}}\p{\frac{a_0}{a}}^{5/2}
             \pi \frac{4t_{LK} \sqrt{2 \delta e_{\min}}}{15},\\
         &\sim \frac{\epsilon_{SL}}{\sqrt{2\delta e_{\min}}}\frac{a_0}{a}
             \pi \frac{4}{15}.
@@ -371,8 +370,8 @@ $\Delta \theta_{sb} \sim 1$ in the $(a, e)$ plane, then we obtain
     a_{c,\theta} &\sim \frac{\epsilon_{SL}}{\sqrt{2\delta e_{\min}}}
         \frac{4\pi}{15},\\
     a_{c, \mathcal{A}} &\sim
-        \s*{\epsilon_{SL}\frac{8/3}{\sqrt{1 - e_{\min}^2}
-            \p*{1 + 4e_{\min}^2}\abs*{\sin 2I}}}^{1/4}.
+        \s{\epsilon_{SL}\frac{8/3}{\sqrt{1 - e_{\min}^2}
+            \p{1 + 4e_{\min}^2}\abs{\sin 2I}}}^{1/4}.
 \end{align}
 The key difference between the two is that kicks occur at $e_{\max}$ or $\delta
 e_{\min}$, while the adiabaticity parameter is moreso evaluated at $e_{\min}$.
@@ -381,7 +380,7 @@ e_{\min}$, while the adiabaticity parameter is moreso evaluated at $e_{\min}$.
 symmetric scatter of $\theta_{sl}$ about $\theta_{sb, 0}$, which is not the case
 (see Fig 19 of LL18). Instead, it must really be how quickly the axis of
 precession of $\rd{\hat{\bm{S}}}{t}$ moves compared to the precession
-frequency, or indeed $\abs*{\Omega_{eff}}$ as compared to
+frequency, or indeed $\abs{\Omega_{eff}}$ as compared to
 $\rd{\hat{\bm{\Omega}}_{eff}}{t}$.
 
 \subsection{More analysis on LL18's proposal}
@@ -412,11 +411,11 @@ let's go to the co-rotating frame with $\bm{L}$ (fix this in the $\hat{x},
 \hat{z}$ plane) and look at the evolution of the components of $\bm{\Omega}_{\rm
 eff}$:
 \begin{align}
-    \bm{\Omega}_{\rm eff} &= \Omega_{SL}\p*{\sin I \hat{x} + \cos I \hat{z}}
+    \bm{\Omega}_{\rm eff} &= \Omega_{SL}\p{\sin I \hat{x} + \cos I \hat{z}}
             + \Omega_{pl} \hat{z},\\
     \hat{\bm{\Omega}}_{\rm eff} \cdot \hat{z}
         &= \frac{\Omega_{SL} \cos I + \Omega_{pl}}{
-            \sqrt{\Omega_{SL}^2\sin^2 I + \p*{\Omega_{SL}\cos I
+            \sqrt{\Omega_{SL}^2\sin^2 I + \p{\Omega_{SL}\cos I
                 + \Omega_{pl}}^2}}.
 \end{align}
 Then, we just have to compare $\rd{\arccos\hat{\Omega}_{\rm eff, z}}{t}$ to
@@ -429,7 +428,7 @@ varies occurs when it is $\sim 90^\circ$, or when $\Omega_{\rm eff, z} \approx
 0$, so we can simply the expression a bit
 \begin{equation}
     \rd{\arccos\hat{\Omega}_{\rm eff, z}}{t}
-        \lesssim \rd{}{t}\p*{\frac{\Omega_{SL} \cos I + \Omega_{pl}}{
+        \lesssim \rd{}{t}\p{\frac{\Omega_{SL} \cos I + \Omega_{pl}}{
             \Omega_{SL}\sin I}} \sim \frac{1}{\sin I}
                 \rd{(\mathcal{A}^{-1})}{t}
 \end{equation}
@@ -478,11 +477,11 @@ We now make some comments on the dynamics in each of these regimes:
         drives $e_{\min}$ to increase over time. We can integrate one Kozai
         cycle
         \begin{align}
-            \Delta \omega &= \oint_{LK} \frac{3Gnm_{12}e}{c^2a\p*{1 - e^2}}
+            \Delta \omega &= \oint_{LK} \frac{3Gnm_{12}e}{c^2a\p{1 - e^2}}
                 \;\mathrm{d}t,\\
             &\approx \frac{Gnm_{12}e}{2c^2a}
                 \int\limits_{-\infty}^\infty \frac{1}{\delta e_{\min}
-                    + \p*{\frac{15 t}{4\sqrt{2}t_{LK}}^2}}\;\mathrm{d}t,\\
+                    + \p{\frac{15 t}{4\sqrt{2}t_{LK}}^2}}\;\mathrm{d}t,\\
             &\approx \frac{3Gnm_{12} 4\pi t_{LK}}{c^2a\sqrt{2\delta e_{\min}}}.
         \end{align}
         It's likely we can replace $\sqrt{2 \delta e_{\min}} \to \sqrt{1 -
@@ -522,7 +521,7 @@ We now make some comments on the dynamics in each of these regimes:
         consider the $H(\omega, x)$ surface, where we drop constant of
         proportionality
         \begin{equation}
-            H \propto \p*{2 + 3e^2}\p*{3\cos^2 I - 1}
+            H \propto \p{2 + 3e^2}\p{3\cos^2 I - 1}
                 + 15e^2\sin^2I \cos 2\omega,
         \end{equation}
         and $I$ is implicitly defined by conservation of the Kozai constant $K =
@@ -530,9 +529,9 @@ We now make some comments on the dynamics in each of these regimes:
         if we give a kick at the location of maximum eccentricity ($\sin^2 I =
         2/5, e = 1, \omega = \pi/2$), the change in $H$ is quadratic like
         \begin{equation}
-            \delta H = \frac{1}{2}\ptd{H}{\omega}\p*{\delta \omega}^2,
+            \delta H = \frac{1}{2}\ptd{H}{\omega}\p{\delta \omega}^2,
         \end{equation}
-        where $\delta \omega \sim \p*{1 - e_{\max}^2}^{-1/2}$ was an earlier
+        where $\delta \omega \sim \p{1 - e_{\max}^2}^{-1/2}$ was an earlier
         result we showed. The sign of this term is negative, so $H$ is being
         driven towards oscillating at large $e$ with small amplitude.
 
@@ -550,15 +549,15 @@ We now make some comments on the dynamics in each of these regimes:
         implicitly by conservation of the Kozai constant (so long as Kozai still
         is active). Thus, to order of magnitude, $\dot{\hat{\Omega_{\rm eff}}} \sim
         \Omega_{GW}$ while $\Omega_{\rm eff} \sim \Omega_{GR}$, and since
-        $\Omega_{GW} \propto 1/\p*{a^4 x^{7/2}}$ while $\Omega_{GR} \propto
-        1/\p*{a^{5/2}x}$, it's clear that for sufficiently large eccentricities
+        $\Omega_{GW} \propto 1/\p{a^4 x^{7/2}}$ while $\Omega_{GR} \propto
+        1/\p{a^{5/2}x}$, it's clear that for sufficiently large eccentricities
         exiting the fuzz regime that $\hat{S}$ will not keep up with
         $\hat{\Omega}_{\rm eff, S}$.
 
         If so, what is the predicted $\theta_{\rm sl, f}$? Well, suppose that
         $\hat{L}$ ends up on the ring with uniform $I$ (probably\dots), and take
         the limit where $\hat{S}$ is not able to respond at all, then
-        $\theta_{\rm sl, f} \in \s*{I - \theta_{\rm sb, i}, 2\pi - I -
+        $\theta_{\rm sl, f} \in \s{I - \theta_{\rm sb, i}, 2\pi - I -
         \theta_{\rm sb, i}}$ and is roughly centered on $\pi - \theta_{\rm sb,
         i}$.
 
@@ -605,11 +604,314 @@ We now make some comments on the dynamics in each of these regimes:
 Edit: Looks like I got $\Omega, \omega$ confused, and most of the above is
 either wrong or not new.
 
-\subsection{Hamiltonian Analysis}
+\section{Fresh Start}
 
+\subsection{Useful Kozai Results}
 
+I have a bunch of formulas that I need to write down before I forget them, so
+I'll do that here. We have begun analyzing the EOM (at quadrupolar order) in
+Keplerian orbital elements, so I'll reproduce them here
+\begin{align}
+    \rd{a}{t} &= -\frac{64}{5}\frac{a}{t_{GW,0}} \frac{1}{\p{1 - e^2}^{7/2}}
+        \p{1 + \frac{73}{24}e^2 + \frac{37}{96}e^4},\\
+    \rd{e}{t} &= \frac{15}{8t_{LK}} e\sqrt{1 - e^2}\sin 2\omega
+        \sin^2 I - \frac{304}{15}\frac{e}{t_{GW, 0}}\frac{1}{\p{1 - e^2}^{5/2}}
+            \p{1 + \frac{121}{304}e^2},\\
+    \rd{\Omega}{t} &= \frac{3}{4t_{LK}}
+        \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}},\\
+    \rd{I}{t} &= -\frac{15}{16}\frac{e^2\sin 2\omega \sin 2I}{
+        \sqrt{1 - e^2}},\\
+    \rd{\omega}{t} &= \frac{3}{4t_{LK}}
+        \frac{2\p{1 - e^2} + 5\sin^2\omega
+            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}} + \frac{\Omega_{GR,0}}{1 - e^2},\\
+    \rd{\hat{\bm{S}}}{t} &= \frac{\Omega_{SL,0}}{1 - e^2}\hat{\bm{L}} \times \hat{\bm{S}}.
+\end{align}
+Here, we have defined
+\begin{align}
+    t_{LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\bar{a}_3}}^3,\\
+    t_{GW,0}^{-1} &= \frac{G^3 \mu m_{12}^2}{c^5a^4},\\
+    \Omega_{GR,0} &= \frac{3Gnm_{12}}{c^2a},\\
+    \Omega_{SL,0} &= \frac{3Gn\p{m_2 + \mu/3}}{2c^2a}.
+\end{align}
+and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary. We
+define/recall the following:
+\begin{itemize}
+    \item $K = \sqrt{1 - e^2}\cos I$ is conserved, and we will sometimes write
+        $x = 1 - e^2$.
 
-% \end{multicols}
+    \item Kozai eccentricity excursions occur at $\omega = \pi/2, 3\pi/2$.
+
+    \item If we ever need this, Natalia's paper gives ``closed'' forms for the
+        eccentricity evolution
+
+        \begin{align}
+            x &= x_0 + \p{x_1 - x_0}\mathrm{cn}^2(\theta, k^2),\\
+            \theta &= \frac{K}{\pi}\p{n_e t + \pi},\\
+            n_e &= \frac{6\pi \sqrt{6}}{8Kt_{LK}}\sqrt{x_2 - x_1},\\
+            k^2 &= \frac{x_0 - x_1}{x_2 - x_1}.
+        \end{align}
+        Here, $x_0$ and $x_1$ are the maximum/minimum $x$ respectively
+        (corresponding to min/max eccentricity), and $x_2$ is the other root to
+        the quadratic ($x_1$ is one of them).
+        \begin{equation}
+            x^2 - \frac{1}{3}\p{5 + 5K - 2x_0}x + \frac{5K}{3} = 0.
+        \end{equation}
+
+        Note that this implies $x_1 + x_2 = \frac{5 + 5K - 2x_0}{3}$.
+
+    \item In terms of this $x$ parameter, the LK components of the EOM
+        take on particularly simple form
+        \begin{align}
+            \dot{\Omega} &= \frac{3\sqrt{K}}{4t_{LK}}\p{1 - 2\frac{x_0 - h}{x -
+                h}},\\
+            \dot{I} &= \frac{\dot{x} \cos I}{2x \sin I}.
+        \end{align}
+\end{itemize}
+
+It is not so hard to solve for the Kozai resonance location in the absence of GW
+radiation; we know this occurs at $\omega = \pi/2$, which forces $\dot{e} =
+\dot{I} = 0$, then we set $\dot{\omega} = 0$ and find
+\begin{align}
+    \rd{\omega}{t} &= \frac{3}{4t_{LK}} \frac{2(1 - e^2) + 5(e^2 - \sin^2 I)}{
+            \sqrt{1 - e^2}} + \Omega_{GR},\\
+    0 &= \frac{\Omega_{GR}\sqrt{1 - e^2}4t_{LK}}{3}
+        + 2\p{1 - e^2} - 5\p{1 - \cos^2 I - e^2},\\
+    5\cos^2 I &= 3\p{1 - e^2} + \mathcal{O}\p{\Omega_{GR}}.
+\end{align}
+Then, given some $K$, which is conserved even with GR precession, we know $(I,
+e)$ the Kozai resonance. To obtain the $\mathcal{O}\p{\Omega_{GR}}$ correction,
+we have to solve a quadratic, which yields
+\begin{equation}
+    \sqrt{1 - e^2} = \frac{5\cos^2I}{6}\p{2 +
+        \sqrt{1 + \frac{16 \Omega_{GR}t_{LK}}{25 \cos^4 I}}}.
+\end{equation}
+If $\Omega_{GR}$ is strong, the equilibrium condition drives $\cos^2 I \to 0$,
+and simplifying in this limit we get the familiar condition $\Omega_{GR}t_{LK}
+\leq 9/4$ for the Kozai resonance itself to exist (of course, the separatrix
+about which trajectories librate will begin shrinking much earlier).
+
+We can use this to understand what $\mathcal{A}$ looks like when Kozai
+disappears. Assuming $m_1 = m_2$, we can find $\Omega_{SL} =
+\Omega_{GR}\frac{7}{24}$, and so when Kozai dies we obtain constraints
+\begin{align}
+    \Omega_{SL}t_{LK} &= \frac{21}{32},\\
+    \mathcal{A} \simeq \abs{\frac{\Omega_{SL}}{\dot{\Omega}}}
+        &= \frac{7}{8}\frac{\sqrt{1 - e^2}}{\cos I\p{4e^2 + 1}}.
+\end{align}
+If we plug in the values near the Kozai equilibrium when it disappears, we find
+rough scaling
+\begin{equation}
+    \mathcal{A} \simeq \frac{7}{8\p{1 + 4e^2} \cos I}.
+\end{equation}
+Thus, indeed, typically $\mathcal{A} \sim 1$ when Kozai dies.
+
+Finally, it bears noting that
+\begin{align}
+    \mathcal{A} &= \mathcal{A}_0 \frac{1}{\p{1 + 4e^2}
+            \sqrt{1 - e^2}\abs{\sin 2I}} ,\\
+        &= \mathcal{A}_0 \frac{1}{2\p{1 + 4e^2}K \sin I}.
+\end{align}
+Thus, over the course of a Kozai cycle, where $\sin I \in [\sqrt{2/5}, 1]$, and
+$e \in [0, 1]$, the adiabaticity does not actually change very much, unless
+$\mathcal{A}_0 \propto a^{-4}$ changes significantly due to $\dot{a}_{GW}$.
+
+\subsection{Hamiltonian Approach 1: Natalia Style}
+
+We go to the frame where $\uv{L}$ is stationary. The rotation vector is the
+same as in SL15, and we obtain Hamiltonian ($\uv{L}_o$ is the outer angular
+momentum, is constant in nonrotating frame)
+\begin{align}
+    H &= \Omega_{SL}\cos \theta - \bm{R} \cdot \uv{S},\\
+    \bm{R} &\equiv \p{\dot{\Omega} \uv{L}_{o}
+        + \dot{I}\p{\frac{\uv{L}_{o} \times \uv{L}}{\sin I}}}.
+\end{align}
+If we break down all the vectors into component form, such that $\uv{L} =
+\uv{z}$, $\uv{L}_{o} = -\sin I \uv{x} + \cos I \uv{z}$, then we obtain
+\begin{equation}
+    H = \Omega_{SL}\cos \theta - \dot{\Omega}
+        \p{-\sin I \sin \theta \cos \phi + \cos I \cos \theta}
+        + \dot{I}\sin \theta \sin \phi.
+\end{equation}
+Note ICs $\theta = 0$, $\phi = 0$, $I = 90^\circ$. The EOM are
+\begin{align}
+    \dot{\phi} &= \pd{H}{\cos \theta} = \Omega_{SL} - \dot{\Omega}\cos I
+        - \cot \theta\p{\dot{\Omega} \sin I \cos \phi - \dot{I}\sin \phi},\\
+    \rd{(\cos \theta)}{t} &= -\pd{H}{\phi} =
+        -\dot{\Omega} \sin I \sin \theta \sin \phi
+        + \dot{I}\sin \theta \cos \phi,\\
+    \rd{\theta}{t} &= -\frac{1}{\sin \theta}\rd{(\cos \theta)}{t}
+        = \dot{\Omega}\sin I \sin \phi - \dot{I}\cos \phi.
+\end{align}
+If we assume $\Omega_{SL} \ll \dot{\Omega}, \dot{I}$ initially, even during LK
+peaks (which is true by our experience), then we can imagine breaking down the
+trajectory of $\uv{S}$ into a zeroth order precession about $\bm{R}$ (which is
+very complicated, since $\bm{R}$ is both moving and changing in magnitude) and a
+leading order perturbation due to $\Omega_{SL}$. The perturbation Hamiltonian is
+then given
+\begin{equation}
+    H^{(1)} = \Omega_{SL}(t) \s{\cos \theta}(t).
+\end{equation}
+If we're brave like Natalia, we would expand $\cos \theta(t)$ in Fourier
+components, and $\Omega_{SL}(t)$ in Fourier components, but there is clearly no
+chance for a resonance here since there is no $\phi$ dependence, so the level
+curves of this Hamiltonian are azimuthally symmetric and there can be no
+resonance.
+
+Conversely, if we're in the other regime $\Omega_{SL} \gg \dot{\Omega},
+\dot{I}$, we must be in the regime where Kozai cycles have died out, which
+implies $\dot{I} = 0$. Here, the Hamiltonian is much more similar to Natalia's
+problem. Let's consider that $\theta = \theta_0$ and $\phi = \Omega_{SL}t$, then
+the perturbing Hamiltonian is
+\begin{equation}
+    H^{(1)} = \dot{\Omega}\p{-\sin I \sin \theta_0 \cos \phi
+        + \cos I \cos \theta_0}.
+\end{equation}
+Again, there is no resonance condition since there is only one $\phi$ dependent
+term, and we really need two so we can get a form $\cos \p{\phi - Mt}$ like
+Natalia's problem. Thus, there are no resonances to investigate here.
+
+We can identify the key reasons that we don't have a similar problem:
+\begin{itemize}
+    \item LK is not a perturbation for us (compared to $\uv{S} \cdot \uv{L}$
+        dynamics), it is significantly dominant. This corresponds to the
+        $\mathcal{A} \ll 1$ regime of SL15. They obtain a neat bifurcation due
+        to separatrix crossing, which is not observed in our LK simulations, so
+        this cannot in spirit be a similar mechanism.
+
+    \item SL15 focuses on adiabatically changing $\mathcal{A}$ and seeing how it
+        encounters resonances. In our problem, nothing nontrivial can occur if
+        $\mathcal{A}$ changes slowly.
+
+    \item Our Hamiltonian takes on form $H = \p{\bm{\Omega}_{SL} - \bm{R}}
+        \cdot \uv{S}$. This will never have any resonances since it's perfectly
+        linear; anything that looks nonlinear is a pure consequence of
+        coordinates (e.g.\ multiplication of $\theta$ and $\phi$ terms).
+\end{itemize}
+
+\subsection{Hamiltonian 2: Rotating Style}
+
+Why is the previous Hamiltonian hard to use? Well, since there are no
+resonances, and $H$ is linear in $\uv{S}$, it makes much more sense to just
+analyze the EOM\@. As such, it's better to just find the right set of rotations
+such that we have a convenient coordinate. LL18 proposed this $\theta_{\rm S,
+eff}$, and I think this is the right idea, but it can be expounded on.
+
+Let's consider the following: we clearly want to rotate by at least
+$\dot{\Omega} \uv{L}_o$, so that $\bm{L}$ does not precess any more, but it
+still nutates ($\dot{I}$) about fixed $\uv{L}_o = \uv{z}$. Let's first write
+down the Hamiltonian and the EOM for this case:
+\begin{align}
+    H &= \Omega_{SL} \uv{S} \cdot \uv{L} - \dot{\Omega} \uv{L}_o \cdot \uv{S},\\
+        &= \Omega_{SL}\p{\sin I \sin \theta \cos \phi
+            + \cos I \cos \theta}
+            - \dot{\Omega}\cos \theta,\\
+    \rd{\cos \theta}{t} &= -\pd{H}{\phi}
+        = -\Omega_{SL}\sin I\sin \theta \sin \phi,\\
+    \rd{\theta}{t} &= \Omega_{SL}\sin I \sin \phi,\\
+    \rd{\phi}{t} &= \pd{H}{\cos \theta}
+        = -\Omega_{SL}\sin I \cot \theta \cos \phi + \Omega_{SL}\cos I
+            - \dot{\Omega}.
+\end{align}
+This is an even stupider example than the previous section, since the desired
+final angle $\theta_{sl, f}$ is almost impossible to measure, and writing down
+$\dot{\theta}_{sl, f}$ would give huge excursions early in the evolution due to
+$\dot{I}$ (we've seen this plot before, in LL18). But similarly, the EOM from
+the previous section is also very difficult to use, since it's very unclear how
+$\theta = \theta_{sl}$ evolves through the Kozai phase; with the benefit of
+hindsight, we know that this $\dot{\theta}$ equation is just along a great
+circle normal to $\bm{R}$, but it's hard to say anything quantitative other than
+``this angle gets frozen by conservation of adiabatic invariant.''
+
+Instead, let's consider applying an arbitrary rotation in the $\uv{y}$
+direction for the time being, let's call it $\bm{R} = \dot{I}_o \uv{y}$; taking
+this to equal either $0$ or $I$ equates to taking $\uv{L}_o$ or $\uv{L}$ as
+$\uv{z}$ respectively. We can write down this Hamiltonian, calling $I_L = I -
+I_o$ (these have interpretation of $\cos I_L = \uv{L} \cdot \uv{z}$ and $\cos
+I_o = \uv{L}_o \cdot \uv{z}$ respectively)
+\begin{align}
+    H &= \Omega_{SL} \uv{S} \cdot \uv{L} - \uv{R} \cdot \uv{S},\\
+        &= \Omega_{SL}\p{\sin I_L \sin \theta \cos \phi
+            + \cos I_L \cos \theta}
+            - \dot{\Omega}\p{-\sin I_{o} \sin \theta \cos \phi
+                + \cos I_o \cos \theta}
+            + \dot{I}_o \sin \theta \sin \phi,\\
+    \rd{\cos \theta}{t}
+        &= -\p{\Omega_{SL} \sin I_L + \dot{\Omega} \sin I_o}\p{-\sin \theta \sin
+            \phi}
+            - \dot{I}_o \sin \theta \cos \phi,\\
+    \rd{\theta}{t}
+        &= -\p{\Omega_{SL} \sin I_L - \dot{\Omega} \sin I_o}\sin \phi
+            + \dot{I}_o \cos \phi,\\
+    \rd{\phi}{t}
+        &= -\cot \theta\p{\Omega_{SL}\sin I_L \cos \phi
+                + \dot{\Omega}\sin I_o \cos \phi
+                - \dot{I}_o \sin \phi}
+            + \p{\Omega_{SL}\cos I_L - \dot{\Omega}\cos I_o}.
+\end{align}
+Immediately, we can see both of the terms that made the above equations hard to
+work with: both $\Omega_{SL}\sin I_L$ and $\dot{\Omega} \sin I_{o}$ become
+large at some point or another, making it hard to consider the effect on the
+final $\theta$. But if we choose some $\dot{I}_o$ such that $\theta(t = 0) =
+\theta_{sb}$ while $\theta(t = \infty) = \theta_{sl}$, then the EOM is easy to
+analyze in both regimes.
+
+Instead, the obvious thing to do is as follows: choose $\dot{I}_o$ such that
+$\Omega_{SL} \sin I_L = \dot{\Omega} \sin I_o$, also satisfying $I_L + I_o = I$.
+This ensures that the two terms $\Omega_{SL}$ and $\dot{\Omega}$ are almost
+always small, while $\dot{I}_o$ is generally symmetric per cycle. On the other
+hand, $\dot{\phi} \approx \max\p{\Omega_{SL}, \dot{\Omega}}$.
+
+This immediately lets us read off one adiabaticity criterion: if $\cos \phi$
+doesn't sweep through $2\pi$ much faster than it takes $\dot{I}_o$ to
+accumulate, then $\theta$ will receive a kick. Another adiabaticity criterion is
+obvious: the number of times we cross $\Omega_{SL} \simeq \dot{\Omega}$ will
+yield a substantially larger kick than usual, since $\Omega_{SL}, \dot{\Omega}
+\gg \dot{I}_o$.
+
+Let's be a bit more quantitative and write down this $\dot{I}_o$ rotation. It
+must satisfy (recall $I_L = I - I_o$)
+\begin{align}
+    \Omega_{SL}\sin I_L &= \dot{\Omega} \sin I_0,\\
+    \dot{\Omega}_{SL}\sin I_L + \Omega_{SL}\cos I_L \p{\dot{I} - \dot{I}_o}
+        &= \ddot{\Omega} \sin I_o + \dot{\Omega} \cos I_0 \dot{I}_o,\\
+    \dot{\Omega}_{SL}\sin I_L - \ddot{\Omega} \sin I_o +
+            \Omega_{SL}\cos I_L \dot{I}
+        &= \dot{I}_o\p{\dot{\Omega} \cos I_0 + \Omega_{SL} \cos I_L},\\
+    \dot{I}_o &= \frac{\dot{\Omega}_{SL}\sin I_L
+            - \ddot{\Omega} \sin I_o
+            + \Omega_{SL}\cos I_L \dot{I}}{
+        \dot{\Omega} \cos I_0
+            + \Omega_{SL} \cos I_L}
+\end{align}
+This is an absolute mess, but does it hold up?
+\begin{itemize}
+    \item Well, if we are in the $\dot{\Omega} \sim \dot{I} \gg \Omega_{SL}$
+        limit, then $I_o \approx 0$, and things simplify to
+        \begin{equation}
+            \frac{\dot{I}_o}{\dot{I}} \approx
+                \frac{\dot{\Omega}_{SL} \sin I / \dot{I} + \Omega_{SL}\cos I}
+                {\dot{\Omega}} \ll 1,
+        \end{equation}
+        since all time derivatives are the same, $\sim 1/t_{LK}$. This is
+        correct, since the rotation should basically not be acting in this
+        limit.
+
+    \item And in the other limit, $\dot{\Omega} \sim \dot{I} \ll
+        \Omega_{SL}$ limit, then $I_l \approx 0$ and we have
+        \begin{equation}
+            \frac{\dot{I}_o}{\dot{I}} \approx
+                \frac{-\ddot{\Omega}\sin I_0 / \dot{I}
+                    + \dot{I} \Omega_{SL} \cos I}{
+                        \Omega_{SL} \cos I}
+                \approx 1.
+        \end{equation}
+        This is also correct, since in this limit we should have to rotate by
+        $\dot{I}$.
+\end{itemize}
+Thus, it seems like we have the correct expression, as ugly as it is. In fact,
+numerically, this turns out to be exactly $\bm{\Omega}_{\rm eff}$, which
+shouldn't be a huge surprise, since that's exactly our definition.
+
 \appendix
 
 \section{$\bm{j}$ Equations}
@@ -624,14 +926,14 @@ eccentricity vector; see LML15 for precise definitions. Note that $\bm{j} \cdot
 \bm{e} = 0$, $j^2 + e^2 = 1$. Then, the EOM for the inner and outer vectors
 satisfy to quadrupolar order
 \begin{align}
-    \rd{\bm{j}}{t} &= \frac{3}{4t_{LK}} \s*{
-        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{j} \times \hat{n}_2}
-        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{e} \times \hat{n}_2}
+    \rd{\bm{j}}{t} &= \frac{3}{4t_{LK}} \s{
+        \p{\bm{j} \cdot \hat{n}_2} \p{\bm{j} \times \hat{n}_2}
+        - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{e} \times \hat{n}_2}
         },\\
-    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s*{
-        \p*{\bm{j} \cdot \hat{n}_2} \p*{\bm{e} \times \hat{n}_2}
+    \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s{
+        \p{\bm{j} \cdot \hat{n}_2} \p{\bm{e} \times \hat{n}_2}
         + 2\bm{j} \times \bm{e}
-        - 5\p*{\bm{e} \cdot \hat{n}_2}\p*{\bm{j} \times \hat{n}_2}
+        - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{j} \times \hat{n}_2}
         }.
 \end{align}
 Let's assume for the time being that $L_1 \ll L_2$, so the system is
@@ -639,51 +941,51 @@ sufficiently hierarchical that $\bm{j}_2$, $\bm{e}_2$ are constants. Note for
 reference that
 \begin{equation}
     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
-        = \frac{1}{n_1}\p*{\frac{m_1 + m_2}{m_3}}
-            \p*{\frac{a_2}{a}}^3
-            \p*{1 - e_2^2}^{3/2}.
+        = \frac{1}{n_1}\p{\frac{m_1 + m_2}{m_3}}
+            \p{\frac{a_2}{a}}^3
+            \p{1 - e_2^2}^{3/2}.
 \end{equation}
-Here, $n_1 \equiv \sqrt{G\p*{m_1 + m_2}/a^3}$. Thus, $1 / t_{LK} \propto
+Here, $n_1 \equiv \sqrt{G\p{m_1 + m_2}/a^3}$. Thus, $1 / t_{LK} \propto
 a^{3/2}$.
 
 GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
 \begin{align}
     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
         \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
-        \frac{1 + 7e^2/8}{\p*{1 - e^2}^2}\hat{L},\\
+        \frac{1 + 7e^2/8}{\p{1 - e^2}^2}\hat{L},\\
     \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
-        \frac{\mu m_{12}^2}{a^4\p*{1 - e^2}^{5/2}}\p*{1 + \frac{121}{304}
+        \frac{\mu m_{12}^2}{a^4\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}
             e^2}\bm{e},\\
     \at{\frac{\dot{a}}{a}}_{GW} &= -\frac{64}{5} \frac{G^3 \mu m_{12}^2}{c^5a^4}
-        \frac{1}{\p*{1 - e^2}^{7/2}}\p*{1 + \frac{73}{24}e^2
+        \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
             + \frac{37}{96}e^4}.
 \end{align}
 Here, $m_{12} \equiv m_1 + m_2$. The last GR effect is precession of $\vec{e}$,
 which acts as
 \begin{equation}
-    \at{\rd{\bm{e}}{t}}_{GR} = \frac{3Gnm_{12}}{c^2a\p*{1 - e^2}}.
+    \at{\rd{\bm{e}}{t}}_{GR} = \frac{3Gnm_{12}}{c^2a\p{1 - e^2}}.
 \end{equation}
 
 Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
 term (from de Sitter precession), which is given in LL18 to be
 \begin{align}
     \rd{\hat{S}}{t} &= \Omega_{SL}\hat{L} \times \hat{S},\\
-    \Omega_{SL} &\equiv \frac{3Gn\p*{m_2 + \mu/3}}{2c^2a\p*{1 - e^2}}.
+    \Omega_{SL} &\equiv \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
 \end{align}
 Note that $\mu$ is the reduced mass of the inner binary. We can drop the
 back-reaction term since $S \ll L$. Thus, $\Omega_{SL} \propto a^{-5/2}$.
 
 What is observed is that, as this system is evolved forward in time and GR
-coalesces the inner binary, $\theta_{sl} \equiv \arccos\p*{\hat{S} \cdot
+coalesces the inner binary, $\theta_{sl} \equiv \arccos\p{\hat{S} \cdot
 \hat{L}}$ goes to $90^\circ$ consistently. The relevant figure is Fig.~19 of
 LL18, which shows that for a close-in, low-eccentricity perturber ($\bar{a}_{\rm
 out, eff} \propto a_{out}$), the focusing is significantly stronger. Note that
-initially, $I \equiv \arccos\p*{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
+initially, $I \equiv \arccos\p{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
 $\theta_{sl} \approx 0$.
 
 Next, when accounting for GR, we should let $a$ evolve as above. Note that since
 $\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
-\sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p*{1 -
+\sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p{1 -
 e^2}}}$ and rewrite
 \begin{equation}
     \at{\rd{\bm{j}}{t}}_{GW} = \frac{1}{\mu\sqrt{GMa}}\at{\rd{\bm{L}}{t}}_{GW}
@@ -694,22 +996,22 @@ which can be verified as (Let's set $G = M = \mu = a = c = 1$ for convenience)
 \begin{align}
     \frac{1}{2}\rd{(j^2 + e^2)}{t}
         &= \bm{j} \cdot \rd{\bm{j}}{t} + \bm{e} \cdot \rd{\bm{e}}{t},\\
-        &= \bm{j} \cdot \s*{
-            \p*{-\frac{32}{5}\frac{1 + 7e^2/8}{\p*{1 - e^2}^2}}\hat{L}
-                - \frac{\bm{j}}{2}\p*{-\frac{64}{5}
-                    \frac{1 + 73e^2/24 + 37e^4/96}{\p*{1 - e^2}^{7/2}}}}
+        &= \bm{j} \cdot \s{
+            \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^2}}\hat{L}
+                - \frac{\bm{j}}{2}\p{-\frac{64}{5}
+                    \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{7/2}}}}
             + \bm{e} \cdot
-                \p*{-\frac{304}{15}\frac{1 + 121e^2/304}{\p*{1 - e^2}^{5/2}}}
+                \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
                 \bm{e},\\
-        &= \p*{-\frac{32}{5}\frac{1 + 7e^2/8}{\p*{1 - e^2}^{3/2}}}
-                + \p*{\frac{32}{5}
-                    \frac{1 + 73e^2/24 + 37e^4/96}{\p*{1 - e^2}^{5/2}}}
-            + e^2 \p*{-\frac{304}{15}\frac{1 + 121e^2/304}{\p*{1 - e^2}^{5/2}}}
+        &= \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^{3/2}}}
+                + \p{\frac{32}{5}
+                    \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{5/2}}}
+            + e^2 \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
                 ,\\
-        &= \frac{1}{15\p*{1 - e^2}^{5/2}}\s*{
-            -96\p*{1 - e^2}\p*{1 + \frac{7e^2}{8}}
-                + 96\p*{1 + \frac{73e^2}{24} + \frac{37e^4}{96}}
-                - 304e^2\p*{1 + \frac{121e^2}{304}}}.
+        &= \frac{1}{15\p{1 - e^2}^{5/2}}\s{
+            -96\p{1 - e^2}\p{1 + \frac{7e^2}{8}}
+                + 96\p{1 + \frac{73e^2}{24} + \frac{37e^4}{96}}
+                - 304e^2\p{1 + \frac{121e^2}{304}}}.
 \end{align}
 This can be verified to vanish upon term-by-term examination indeed.
 
