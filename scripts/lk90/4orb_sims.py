@@ -203,12 +203,10 @@ def plot_all(ret_lk, s_vec, getter_kwargs,
     plt.savefig(fn_template % get_fn_I(I0), dpi=200)
     plt.clf()
 
-if __name__ == '__main__':
+def run_for_Ideg(I_deg):
     m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
-    # I_deg = 90.3
-    I_deg = 90.5
     ret_lk = get_kozai(I_deg, getter_kwargs, af=1e-3, atol=1e-10, rtol=1e-10)
     s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs)
     plot_all(ret_lk, s_vec, getter_kwargs)
@@ -225,3 +223,8 @@ if __name__ == '__main__':
                                pkl_template='4sim_qsl40_%s.pkl')
     plot_all(ret_lk, s_vec, getter_kwargs,
              fn_template='4sim_qsl40_%s')
+if __name__ == '__main__':
+    # I_deg = 90.3
+    I_deg = 90.4
+    # I_deg = 90.5
+    run_for_Ideg(I_deg)
