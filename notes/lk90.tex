@@ -915,7 +915,76 @@ This is an absolute mess, but does it hold up?
 \end{itemize}
 Thus, it seems like we have the correct expression, as ugly as it is. In fact,
 numerically, this turns out to be exactly $\bm{\Omega}_{\rm eff}$, which
-shouldn't be a huge surprise, since that's exactly our definition.
+shouldn't be a huge surprise, since that's exactly our definition. In this case,
+it seems easier to just use Dong's suggestion along with Natalia's Hamiltonian
+and EOM\@.
+
+\section{Finding a Resonance}
+
+Recall EOM from when we rotated $\hat{L} \propto \hat{z}$ (here, $\theta =
+\theta_{sl}$):
+\begin{align}
+    \dot{\phi} &= \pd{H}{\cos \theta} = \Omega_{SL} - \dot{\Omega}\cos I
+        - \cot \theta\p{\dot{\Omega} \sin I \cos \phi - \dot{I}\sin \phi},\\
+    \rd{\theta}{t} &= -\frac{1}{\sin \theta}\rd{(\cos \theta)}{t}
+        = \dot{\Omega}\sin I \sin \phi - \dot{I}\cos \phi.
+\end{align}
+If we directly substitute our known forms for $\dot{\Omega}$ and $\dot{I}$, we
+obtain
+\begin{align}
+    \rd{\theta}{t}
+        &= \frac{3\sin 2I}{8t_{LK}\sqrt{x}}\s{
+            \p{5e^2\cos^2 \omega - 4e^2 - 1}\sin \phi
+            - \p{\frac{5e^2\sin 2\omega}{2}}\cos \phi},\\
+        &= \frac{3\sin 2I}{8t_{LK}\sqrt{x}}\p{
+            -\sin \phi\p{\frac{3e^2}{2} - 1}
+                + \frac{5e^2}{2}\sin\p{\phi - 2\omega}}.
+\end{align}
+If $\phi$ is slowly varying compared to $\omega$, the second term just becomes
+an $\dot{I}$, and we indeed find the total change in $\theta$ is indeed just
+$I$. Thus, we put together $\theta_{sl,i} + I = \theta_{sl, f}$, in the peaceful
+limit.
+
+But there does seem to be a resonance here, if $\dot{\phi} = 2\dot{\omega}$, or
+if just $\dot{\phi} = 0$, then some kicks will add rather than cancel out. It's
+not obvious what the final value will be, but this is a breakdown condition to
+the above equality.
+
+However, this doesn't seem to be the entire picture, since $\theta_{sb}$ seems
+to be conserved to different extents in my $I = 90.45^\circ$ and $I =
+90.5^\circ$ simulations. This again highlights the importance of choosing a good
+coordinate system, since $\theta_{sb}$ is very difficult to analyze in this
+coordinate system; we can't find the resonance that causes this.
+
+We can see the origin of the $\theta_{sb}$ resonance as well: recall EOM
+\begin{equation}
+    \rd{\theta_{sb}}{t} = \Omega_{SL}\sin I \sin \phi.
+\end{equation}
+Since $\Omega_{SL}\sin I$ is periodic in $t_{LK}$, we can write
+\begin{align}
+    \rd{\theta_{sb}}{t} &= \sin \phi \sum\limits_{N = -\infty}^\infty
+            \tilde{\Omega}_{SL}\cos\p{\frac{Nt}{t_{LK}}},\\
+        &= \sum\limits_{N = -\infty}^\infty
+            \frac{\tilde{\Omega}_{SL}}{2}\s{\sin\p{\phi - \frac{Nt}{t_{LK}}}
+                + \sin \p{\phi + \frac{Nt}{t_{LK}}}},\\
+    \rd{\phi_{sb}}{t} &= \pd{H}{\cos \theta}
+        = -\Omega_{SL}\sin I \cot \theta \cos \phi + \Omega_{SL}\cos I
+            - \dot{\Omega}.
+\end{align}
+Thus, there can be a resonance if $\dot{\phi}$ matches one of the harmonics of
+$t_{LK}$. However, these resonances are indeed weaker, since they go with
+$\Omega_{SL}$.
+
+\textbf{Edit:} I don't think these are the resonances that I am seeing in the
+simulations. Rather, it is much simpler: when $\theta_{sb} \approx 90^\circ$,
+then $\rd{\phi_{\rm sb}}{t} \approx 0$ in between Kozai cycles. Then, when
+$\phi_{sb}$ attains substantial values, the $\rd{\theta_{sb}}{t}$ term
+activates even off LK peaks and $\theta_{sb}$ drifts from its initial
+value. When $\theta_{sb} \neq 90^\circ$, then there is a slow and steady
+$\Omega_{SL}$ term in $\dot{\phi}_{\rm sb}$ that prevents substantial drift of
+$\theta_{\rm sb}$.
+
+Is it possible to be more general than this?
 
 \appendix
 

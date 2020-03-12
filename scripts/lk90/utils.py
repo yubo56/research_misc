@@ -4,6 +4,7 @@ Notes:
 * x = (vec{j}, vec{e}, vec{s})
 * t_{lk, 0} = a0 = 1
 '''
+import os
 import numpy as np
 import time
 from scipy.integrate import solve_ivp
@@ -30,6 +31,15 @@ def get_eps(m1, m2, m3, a0, a2, e2):
     eps_sl = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * (
         3 * G * (m2 + mu / 3) / 2)
     return {'eps_gw': eps_gw, 'eps_gr': eps_gr, 'eps_sl': eps_sl}
+
+def get_hat(phi, theta):
+    return np.array([np.cos(phi) * np.sin(theta),
+                     np.sin(phi) * np.sin(theta),
+                     np.cos(theta)])
+
+def mkdirp(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
 
 def get_vals(m1, m2, m3, a0, a2, e2, I):
     ''' calculates a bunch of physically relevant values '''
@@ -84,12 +94,22 @@ def get_tmerge(m1, m2, m3, a0, a2, e2, I):
 def to_vars(x):
     return x[ :3], x[3:6], x[6:9]
 
+def reg(z):
+    return np.minimum(np.maximum(z, -1), 1)
+
 def ts_dot(x, y):
     ''' dot product of two time series (is there a better way?) '''
     z = np.zeros(np.shape(x)[1])
     for x1, y1 in zip(x, y):
         z += x1 * y1
-    return z
+    return reg(z)
+
+def ts_cross(x, y):
+    return np.array([
+        x[1] * y[2] - x[2] * y[1],
+        -x[0] * y[2] + x[2] * y[0],
+        x[0] * y[1] - x[1] * y[0],
+    ])
 
 def plot_traj_vecs(ret, fn, *args,
                    num_pts=1000, getter_kwargs={},

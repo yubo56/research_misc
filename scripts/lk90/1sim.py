@@ -61,10 +61,6 @@ def plot_many(ens_fn='1ensemble', plot=True,
         plt.close()
     return q_slfs
 
-def mkdirp(path):
-    if not os.path.exists(path):
-        os.mkdir(path)
-
 if __name__ == '__main__':
     # run_one(I_deg=90.4,
     #         a_f=0.1,
