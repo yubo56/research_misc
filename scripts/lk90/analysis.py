@@ -46,9 +46,37 @@ def plot_time(ret, idx, filename='dir/analysis'):
     plt.savefig(filename + '_%09d' % idx)
     plt.clf()
 
+def plot_lk_phase():
+    e0 = 0.001
+    I0 = np.radians(95)
+    n_pts = 100
+    emax = np.sqrt(1 - 5 * np.cos(I0)**2 / 3)
+    log_neg_e = np.linspace(0, np.log10(1 - emax) * 1.05, n_pts)
+    omega = np.linspace(0, 2 * np.pi, n_pts)
+    log_neg_e_grid = np.outer(log_neg_e, np.ones_like(omega))
+    omega_grid = np.outer(np.ones_like(log_neg_e), omega)
+    e_grid = 1 - (10**log_neg_e_grid)
+    I_grid = np.arccos(np.sqrt(1 - e0**2) * np.cos(I0) /
+                       np.sqrt(1 - e_grid**2))
+    H_vals = (
+        (2 + 3 * e_grid**2) * (3 * np.cos(I_grid)**2 - 1)
+         + 15 * e_grid**2 * np.sin(I_grid)**2 * np.cos(omega_grid * 2))
+    plt.contour(omega_grid, log_neg_e_grid, H_vals, cmap='RdBu_r')
+    plt.xlabel(r'$\omega$')
+    plt.ylabel(r'$\log_{10} (1 - e)$')
+    plt.savefig('analysis_H')
+    plt.clf()
+
+    plt.contour(omega_grid, np.degrees(I_grid), H_vals, cmap='RdBu_r')
+    plt.xlabel(r'$\omega$')
+    plt.ylabel(r'$I$')
+    plt.savefig('analysis_H_I')
+    plt.clf()
+
 if __name__ == '__main__':
-    with open(FN, 'rb') as f:
-        ret = pickle.load(f)
+    plot_lk_phase()
+    # with open(FN, 'rb') as f:
+    #     ret = pickle.load(f)
 
         # plot particular idxs of the simulation
         # idxs = np.where(np.logical_and(ret.t < 24, ret.t > 26))[0][::200]
