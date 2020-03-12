@@ -97,6 +97,10 @@ def get_spins_inertial(I_deg, ret_lk, getter_kwargs,
         a = interp1d(t_lk, a_arr)
         e = interp1d(t_lk, e_arr)
         def dydt(t, s):
+            # apparently not guaranteed, see
+            # https://github.com/scipy/scipy/issues/9198
+            if t > t_lk[-1]:
+                return None
             Lhat = [Lx(t), Ly(t), Lz(t)]
             return eps_sl * np.cross(Lhat, s) / (
                 a(t) * (1 - e(t)**2))
@@ -213,7 +217,9 @@ def run_for_Ideg(I_deg, af=1e-4):
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
     ret_lk = get_kozai(I_deg, getter_kwargs, af=af, atol=1e-10, rtol=1e-10)
-    s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs)
+    s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs,
+                               atol=1e-10,
+                               rtol=1e-10)
     plot_all(ret_lk, s_vec, getter_kwargs)
 
     # try with q_sl0
