@@ -69,7 +69,7 @@ def get_kozai(I_deg, getter_kwargs,
         events = [peak_event, a_term_event]
         ret = solve_ivp(dydt, (0, tf), y0, events=events, **kwargs)
         t, y, t_events = ret.t, ret.y, ret.t_events
-        print('Finished for I=%.1f, took %d steps, t_f %.3f (%d cycles)' %
+        print('Finished for I=%.3f, took %d steps, t_f %.3f (%d cycles)' %
               (I_deg, len(t), t[-1], len(t_events[0])))
 
         with open(pkl_fn, 'wb') as f:
@@ -117,7 +117,7 @@ def get_spins_inertial(I_deg, ret_lk, getter_kwargs,
 
         ret = solve_ivp(dydt, (t0, t_lk[-1]), s_new, dense_output=True, **kwargs)
         y = ret.sol(t_lk)
-        print('Finished spins for I=%.1f, took %d steps' %
+        print('Finished spins for I=%.3f, took %d steps' %
               (I_deg, len(ret.t)))
 
         with open(pkl_fn, 'wb') as f:
