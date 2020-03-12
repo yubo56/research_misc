@@ -26,7 +26,7 @@ def get_kozai(I_deg, getter_kwargs,
               a0=1, e0=1e-3, W0=0, w0=0, tf=np.inf, af=0,
               pkl_template='4sim_lk_%s.pkl', **kwargs):
     I0 = np.radians(I_deg)
-    pkl_fn = pkl_template % get_fn_I(I_deg)
+    pkl_fn = '4sims/' + pkl_template % get_fn_I(I_deg)
 
     if not os.path.exists(pkl_fn):
         eps_gr = getter_kwargs['eps_gr']
@@ -39,16 +39,19 @@ def get_kozai(I_deg, getter_kwargs,
                     5 * a**3 * x**(7/2))
             )
             dedt = (
-                15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w) * np.sin(I)**2 / 8
+                15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                        * np.sin(I)**2 / 8
                     - eps_gw * 304 * e * (1 + 121 * e**2 / 304)
                         / (15 * a**4 * x**(5/2))
             )
             dWdt = (
-                3 * a**(3/2) * np.cos(I) * (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+                3 * a**(3/2) * np.cos(I) *
+                        (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
                     / (4 * np.sqrt(x))
             )
             dIdt = (
-                -15 * e**2 * np.sin(2 * w) * np.sin(2 * I) / (16 * np.sqrt(x))
+                -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                    * np.sin(2 * I) / (16 * np.sqrt(x))
             )
             dwdt = (
                 3 * a**(3/2)
@@ -83,7 +86,7 @@ def get_spins_inertial(I_deg, ret_lk, getter_kwargs,
                        pkl_template='4sim_s_%s.pkl',
                        **kwargs):
     ''' uses the same times as ret_lk '''
-    pkl_fn = pkl_template % get_fn_I(I_deg)
+    pkl_fn = '4sims/' + pkl_template % get_fn_I(I_deg)
     if not os.path.exists(pkl_fn):
         t_lk, y, _ = ret_lk
         a_arr, e_arr, W, I, _ = y
@@ -141,6 +144,8 @@ def plot_all(ret_lk, s_vec, getter_kwargs,
     q_sl = np.degrees(np.arccos(ts_dot(Lhat, s_vec)))
     q_sb = np.degrees(np.arccos(sz))
     Wsl = getter_kwargs['eps_sl'] / (a**(5/2) * (1 - e**2))
+    Wdot_eff = (
+        3 * a**(3/2) / 4 * np.cos(I) * (4 * e**2 + 1) / np.sqrt(1 - e**2))
     Wdot = (
         3 * a**(3/2) / 4 * np.cos(I) * (
             5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1) / np.sqrt(1 - e**2))
@@ -169,8 +174,8 @@ def plot_all(ret_lk, s_vec, getter_kwargs,
 
     axs[0].semilogy(t, a, 'r')
     axs[0].set_ylabel(r'$a$')
-    axs[1].semilogy(t, 1 - e**2, 'r')
-    axs[1].set_ylabel(r'$1 - e^2$')
+    axs[1].semilogy(t, 1 - e, 'r')
+    axs[1].set_ylabel(r'$1 - e$')
     axs[2].plot(t, W % (2 * np.pi), 'ro', ms=0.5)
     axs[2].set_ylabel(r'$\Omega$')
     axs[3].plot(t, np.degrees(I), 'r')
@@ -200,31 +205,40 @@ def plot_all(ret_lk, s_vec, getter_kwargs,
     axs_orig[-1][0].set_xlabel(r'$t / t_{LK,0}$')
 
     plt.tight_layout()
-    plt.savefig(fn_template % get_fn_I(I0), dpi=200)
+    plt.savefig('4sims/' + fn_template % get_fn_I(I0), dpi=200)
     plt.clf()
 
-def run_for_Ideg(I_deg):
+def run_for_Ideg(I_deg, af=1e-4):
     m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
-    ret_lk = get_kozai(I_deg, getter_kwargs, af=1e-3, atol=1e-10, rtol=1e-10)
+    ret_lk = get_kozai(I_deg, getter_kwargs, af=af, atol=1e-10, rtol=1e-10)
     s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs)
     plot_all(ret_lk, s_vec, getter_kwargs)
 
     # try with q_sl0
     s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs,
                                q_sl0=np.radians(20),
+                               atol=1e-10,
+                               rtol=1e-10,
                                pkl_template='4sim_qsl20_%s.pkl')
     plot_all(ret_lk, s_vec, getter_kwargs,
              fn_template='4sim_qsl20_%s')
 
     s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs,
                                q_sl0=np.radians(40),
+                               atol=1e-10,
+                               rtol=1e-10,
                                pkl_template='4sim_qsl40_%s.pkl')
     plot_all(ret_lk, s_vec, getter_kwargs,
              fn_template='4sim_qsl40_%s')
 if __name__ == '__main__':
-    # I_deg = 90.3
-    I_deg = 90.4
-    # I_deg = 90.5
-    run_for_Ideg(I_deg)
+    # I_deg = 90.35
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # ret_lk = get_kozai(I_deg, getter_kwargs, af=1e-3, atol=1e-10, rtol=1e-10)
+    # s_vec = get_spins_inertial(I_deg, ret_lk, getter_kwargs)
+    # plot_all(ret_lk, s_vec, getter_kwargs)
+
+    for I_deg in np.arange(90.1, 90.51, 0.05):
+        run_for_Ideg(I_deg)

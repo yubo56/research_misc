@@ -606,6 +606,11 @@ either wrong or not new.
 
 \section{Fresh Start}
 
+\textbf{NB:} I think these orbital elements Kozai actually give much slower
+inspirals. It could be because my atol/rtol params were too loose when I was
+doing the vector simulations, so we should prefer the \lstinline{4sims} line of
+results, which qualitatively seem to agree with Bin's.
+
 \subsection{Useful Kozai Results}
 
 I have a bunch of formulas that I need to write down before I forget them, so
@@ -619,7 +624,7 @@ Keplerian orbital elements, so I'll reproduce them here
             \p{1 + \frac{121}{304}e^2},\\
     \rd{\Omega}{t} &= \frac{3}{4t_{LK}}
         \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}},\\
-    \rd{I}{t} &= -\frac{15}{16}\frac{e^2\sin 2\omega \sin 2I}{
+    \rd{I}{t} &= -\frac{15}{16t_{LK}}\frac{e^2\sin 2\omega \sin 2I}{
         \sqrt{1 - e^2}},\\
     \rd{\omega}{t} &= \frac{3}{4t_{LK}}
         \frac{2\p{1 - e^2} + 5\sin^2\omega
