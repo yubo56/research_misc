@@ -20,7 +20,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 2
+N_THREADS = 40
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
@@ -313,6 +313,7 @@ def get_qslfs(folder, I_deg, q_sl_arr, af,
     ret_lk = get_kozai(folder, I_deg, getter_kwargs,
                        af=af, atol=atol, rtol=rtol, save=save)
     qslfs = []
+    t_mergers = []
     for q_sl0 in q_sl_arr:
         pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + '_%s.pkl'
         s_vec = get_spins_inertial(
@@ -333,7 +334,7 @@ def get_qslfs(folder, I_deg, q_sl_arr, af,
         Lhat = get_hat(W, I)
         qslfs.append(np.degrees(np.arccos(np.dot(Lhat, sf))))
 
-    return q_sl_arr, qslfs
+    return I_deg, ret_lk[0][-1], q_sl_arr, qslfs
 
 def run_ensemble(folder, I_vals=np.arange(90.01, 90.5001, 0.002),
                  save_fn='ensemble.pkl'):
@@ -341,7 +342,7 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.5001, 0.002),
         af = 3e-3
         mkdirp(folder)
         q_sl_arr = np.arange(-20, 21, 4)
-        args = [(folder, I_deg, q_sl_arr, af) for I_deg in I_vals]
+        args = [(folder, I_deg, q_sl_arr, af) for I_deg in I_vals[::-1]]
         with Pool(N_THREADS) as p:
             res = p.starmap(get_qslfs, args)
         with open(folder + save_fn, 'wb') as f:
@@ -349,7 +350,7 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.5001, 0.002),
     else:
         with open(folder + save_fn, 'rb') as f:
             res = pickle.load(f)
-    return I_vals, res
+    return res
 
 if __name__ == '__main__':
     # I_deg = 90.5

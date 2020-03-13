@@ -21,3 +21,11 @@ S2: sum of modes, formula, give closed form (plus constants-dropped term)
 S3: application to SYSTEM
 
 Appendix: show sum, + fit against stuff
+
+
+
+- Any chance that applying eccentric tides in a dense star cluster gives the
+  distribution of $theta_{sb, i}$? Maybe?
+    - Initially two massive stars, then one SNe, then second SNe, can track
+      eccentricity + inclination evolution through the two SNes maybe. Might
+      require sim to be exact
