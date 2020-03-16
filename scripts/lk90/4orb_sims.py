@@ -336,12 +336,13 @@ def get_qslfs(folder, I_deg, q_sl_arr, af,
 
     return I_deg, ret_lk[0][-1], q_sl_arr, qslfs
 
-def run_ensemble(folder, I_vals=np.arange(90.01, 90.5001, 0.002),
-                 save_fn='ensemble.pkl'):
-    if not os.path.exists(folder + save_fn):
-        af = 3e-3
+def run_ensemble(folder, I_vals=np.arange(90.01, 90.6001, 0.001),
+                 af=1e-4, save_fn='ensemble.pkl'):
+    pkl_fn = folder + save_fn
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
         mkdirp(folder)
-        q_sl_arr = np.arange(-20, 21, 4)
+        q_sl_arr = np.radians(np.arange(-20, 21, 2))
         args = [(folder, I_deg, q_sl_arr, af) for I_deg in I_vals[::-1]]
         with Pool(N_THREADS) as p:
             res = p.starmap(get_qslfs, args)
@@ -349,8 +350,26 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.5001, 0.002),
             pickle.dump(res, f)
     else:
         with open(folder + save_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
             res = pickle.load(f)
     return res
+
+def plot_ensemble(folder, ensemble_dat):
+    fig, axs_raw = plt.subplots(3, 3, figsize=(16, 9), sharex=True, sharey=True)
+    axs = np.reshape(axs_raw, np.size(axs_raw))
+    ax_pts_arr = [[] for _ in axs]
+    for I_deg, t_merger, q_sl_inits, q_sl_finals in ensemble_dat:
+        qsb_is_deg = I_deg - np.array(q_sl_inits)
+        dqs_deg = np.array(q_sl_finals) - qsb_is_deg
+        for ax, ax_pts, dq_deg in zip(axs, ax_pts_arr, dqs_deg):
+            ax_pts.append((I_deg, dq_deg))
+    for ax, ax_pts in zip(axs, ax_pts_arr):
+        ax.plot(*np.array(ax_pts).T, 'ro', ms=1)
+    axs_raw[-1][0].set_xlabel(r'$I_0$')
+    axs_raw[1][0].set_ylabel(r'$\theta_{sl,f} - \theta_{sb,i}$')
+    plt.tight_layout()
+    plt.savefig(folder + 'ensemble')
+    plt.close()
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -367,4 +386,5 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg)
     # run_for_Ideg('4sims/', 90.475)
 
-    run_ensemble('4sims_ensemble/')
+    ensemble_dat = run_ensemble('4sims_ensemble/')
+    plot_ensemble('4sims_ensemble/', ensemble_dat)
