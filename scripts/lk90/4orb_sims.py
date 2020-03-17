@@ -4,6 +4,7 @@ the fact w/ a given trajectory
 '''
 import pickle
 import os
+from collections import defaultdict
 
 from multiprocessing import Pool
 import numpy as np
@@ -360,22 +361,32 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
     return res
 
 def plot_ensemble(folder, ensemble_dat):
-    fig, axs_raw = plt.subplots(1, 1, figsize=(16, 9), sharex=True, sharey=True)
-    axs = np.reshape(axs_raw, np.size(axs_raw))
-    ax_pts_arr = [[] for _ in axs]
+    fig, axs = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
+    I_degs = []
+    t_mergers = []
+    qsl_dats = defaultdict(list)
     for I_deg, t_merger, q_sl_inits, q_sl_finals in ensemble_dat:
-        qsb_is_deg = I_deg - np.degrees(np.array(q_sl_inits))
+        I_degs.append(I_deg)
+        t_mergers.append(t_merger)
+
+        qsb_is_deg = I_deg + np.degrees(np.array(q_sl_inits))
         dqs_deg = np.array(q_sl_finals) - qsb_is_deg
-        for ax, ax_pts, dq_deg in zip(axs, ax_pts_arr, dqs_deg):
-            ax_pts.append((I_deg, dq_deg))
-    for ax, ax_pts in zip(axs, ax_pts_arr):
-        ax.plot(*np.array(ax_pts).T, 'ro', ms=1)
-    # axs_raw[-1][0].set_xlabel(r'$I_0$')
-    # axs_raw[1][0].set_ylabel(r'$\theta_{sl,f} - \theta_{sb,i}$')
-    axs_raw.set_xlabel(r'$I_0$')
-    axs_raw.set_ylabel(r'$\theta_{sl,f} - \theta_{sb,i}$')
+        for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
+            qsl_dats[qsl_init].append(dq_deg)
+
+    axs[0].semilogy(I_degs, t_mergers)
+    axs[0].set_ylabel(r'$T_m / t_{\rm LK,0}$')
+    axs[1].set_xlabel(r'$I^0$')
+
+    qsldat_keys = sorted(qsl_dats.keys(), reverse=True)
+    for qsl_init in qsldat_keys:
+        axs[1].plot(I_degs, qsl_dats[qsl_init],
+                    label='%.1f' % np.degrees(qsl_init))
+    axs[1].legend(fontsize=8)
+    axs[1].set_ylabel(r'$\theta_{\rm sl, f} - \theta_{\rm sb, i}$')
+    axs[1].set_xlabel(r'$I^0$')
     plt.tight_layout()
-    plt.savefig(folder + 'ensemble')
+    plt.savefig(folder + 'ensemble', dpi=150)
     plt.close()
 
 def get_qeff_toy(folder, I_deg, ret_lk, getter_kwargs,
@@ -448,14 +459,15 @@ if __name__ == '__main__':
     # for I_deg in np.arange(90.1, 90.51, 0.05):
     #     run_for_Ideg('4sims/', I_deg)
     # run_for_Ideg('4sims/', 90.475)
-    I_deg = 90.35
-    ret_lk = get_kozai('4sims/', I_deg, getter_kwargs, af=5e-3, atol=1e-9,
-                       rtol=1e-9)
-    s_vec = get_qeff_toy('4sims/', I_deg, ret_lk, getter_kwargs,
-                         atol=1e-8, rtol=1e-8)
-    plt.plot(ret_lk[0], np.degrees(s_vec[0]) % (360))
-    # plt.xlim([0.95 * ret_lk[0][-1], ret_lk[0][-1]])
-    plt.savefig('/tmp/toy')
 
-    # ensemble_dat = run_ensemble('4sims_ensemble/')
-    # plot_ensemble('4sims_ensemble/', ensemble_dat)
+    # I_deg = 90.35
+    # ret_lk = get_kozai('4sims/', I_deg, getter_kwargs, af=5e-3, atol=1e-9,
+    #                    rtol=1e-9)
+    # s_vec = get_qeff_toy('4sims/', I_deg, ret_lk, getter_kwargs,
+    #                      atol=1e-8, rtol=1e-8)
+    # plt.plot(ret_lk[0], np.degrees(s_vec[0]) % (360))
+    # plt.xlim([0.95 * ret_lk[0][-1], ret_lk[0][-1]])
+    # plt.savefig('/tmp/toy')
+
+    ensemble_dat = run_ensemble('4sims_ensemble/')
+    plot_ensemble('4sims_ensemble/', ensemble_dat)
