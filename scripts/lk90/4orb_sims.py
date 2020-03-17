@@ -361,7 +361,9 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
     return res
 
 def plot_ensemble(folder, ensemble_dat):
-    fig, axs = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
+    # fig, axs = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
+    fig, ax = plt.subplots(1, 1, figsize=(8, 5), sharex=True)
+    axs = [ax]
     I_degs = []
     t_mergers = []
     qsl_dats = defaultdict(list)
@@ -369,24 +371,24 @@ def plot_ensemble(folder, ensemble_dat):
         I_degs.append(I_deg)
         t_mergers.append(t_merger)
 
-        qsb_is_deg = I_deg + np.degrees(np.array(q_sl_inits))
-        dqs_deg = np.array(q_sl_finals) - qsb_is_deg
+        qsb_is_deg = I_deg - np.degrees(np.array(q_sl_inits))
+        dqs_deg = 180 - np.array(q_sl_finals) - qsb_is_deg
         for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
             qsl_dats[qsl_init].append(dq_deg)
 
-    axs[0].semilogy(I_degs, t_mergers)
-    axs[0].set_ylabel(r'$T_m / t_{\rm LK,0}$')
-    axs[1].set_xlabel(r'$I^0$')
+    # axs[1].semilogy(I_degs, t_mergers)
+    # axs[1].set_ylabel(r'$T_m / t_{\rm LK,0}$')
+    axs[0].set_xlabel(r'$I^0$')
 
     qsldat_keys = sorted(qsl_dats.keys(), reverse=True)
     for qsl_init in qsldat_keys:
-        axs[1].plot(I_degs, qsl_dats[qsl_init],
-                    label='%.1f' % np.degrees(qsl_init))
-    axs[1].legend(fontsize=8)
-    axs[1].set_ylabel(r'$\theta_{\rm sl, f} - \theta_{\rm sb, i}$')
-    axs[1].set_xlabel(r'$I^0$')
+        axs[0].plot(I_degs, qsl_dats[qsl_init],
+                    label=r'$%d^\circ$' % (90 - np.degrees(qsl_init)))
+    axs[0].legend(fontsize=12, ncol=4)
+    axs[0].set_ylabel(r'$180 - \theta_{\rm sl, f} - \theta_{\rm sb, i}$')
+    axs[-1].set_xlabel(r'$I_0$ (Deg)')
     plt.tight_layout()
-    plt.savefig(folder + 'ensemble', dpi=150)
+    plt.savefig(folder + 'ensemble', dpi=200)
     plt.close()
 
 def get_qeff_toy(folder, I_deg, ret_lk, getter_kwargs,
