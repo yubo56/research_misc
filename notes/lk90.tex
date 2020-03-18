@@ -861,17 +861,25 @@ final $\theta$. But if we choose some $\dot{I}_o$ such that $\theta(t = 0) =
 analyze in both regimes.
 
 Instead, the obvious thing to do is as follows: choose $\dot{I}_o$ such that
-$\Omega_{SL} \sin I_L = \dot{\Omega} \sin I_o$, also satisfying $I_L + I_o = I$.
-This ensures that the two terms $\Omega_{SL}$ and $\dot{\Omega}$ are almost
+$\Omega_{SL} \sin I_L + \dot{\Omega} \sin I_o = 0$, also satisfying $I_L + I_o =
+I$. This ensures that the two terms $\Omega_{SL}$ and $\dot{\Omega}$ are almost
 always small, while $\dot{I}_o$ is generally symmetric per cycle. On the other
-hand, $\dot{\phi} \approx \max\p{\Omega_{SL}, \dot{\Omega}}$.
+hand, $\dot{\phi} \approx \max\p{\Omega_{SL}, \dot{\Omega}}$. Note that if the
+initial inclination $> 90^\circ$, then $\dot{\Omega} > 0$, and we want $I_o <
+0$. This ensures that the $\Omega$-dependent terms in $\rd{\phi}{t}$ have the
+same sign, and the EOM become
+\begin{align}
+    \rd{\theta}{t}
+        &= \dot{I}_o \cos \phi,\\
+    \rd{\phi}{t}
+        &= \dot{I}_o \cot \theta \sin \phi
+            + \p{\Omega_{SL}\cos I_L - \dot{\Omega}\cos I_o}.
+\end{align}
 
-This immediately lets us read off one adiabaticity criterion: if $\cos \phi$
-doesn't sweep through $2\pi$ much faster than it takes $\dot{I}_o$ to
-accumulate, then $\theta$ will receive a kick. Another adiabaticity criterion is
-obvious: the number of times we cross $\Omega_{SL} \simeq \dot{\Omega}$ will
-yield a substantially larger kick than usual, since $\Omega_{SL}, \dot{\Omega}
-\gg \dot{I}_o$.
+This should be almost analytically solvable, if we take a simple parameterized
+form for $\dot{I}_o$. In particular, let's realize that $\dot{I}_o$ will always
+go through negative-positive signs every Kozai cycle, so we can factor this out
+by considering $\dot{I}_0 = F(t) \sin \p{2\pi t / t_{\rm LK}}$.
 
 Let's be a bit more quantitative and write down this $\dot{I}_o$ rotation. It
 must satisfy (recall $I_L = I - I_o$)
