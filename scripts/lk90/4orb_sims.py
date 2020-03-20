@@ -9,19 +9,22 @@ from collections import defaultdict
 from multiprocessing import Pool
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
-plt.rc('lines', lw=1.5)
-plt.rc('xtick', direction='in', top=True, bottom=True)
-plt.rc('ytick', direction='in', left=True, right=True)
+try:
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif', size=16)
+    plt.rc('lines', lw=1.5)
+    plt.rc('xtick', direction='in', top=True, bottom=True)
+    plt.rc('ytick', direction='in', left=True, right=True)
+except: # let it fail later
+    pass
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 4
+N_THREADS = 40
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
