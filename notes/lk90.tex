@@ -993,9 +993,191 @@ $\Omega_{SL}$ term in $\dot{\phi}_{\rm sb}$ that prevents substantial drift of
 $\theta_{\rm sb}$.
 
 \textbf{Edit 2:} It seems like once I increased atol and rtol, this resonance
-behavior also died out.
+behavior also died out. This isn't super surprising, since the cause was that
+$\phi$ wasn't precessing enough during the LK peaks, and $\dot{\phi}$ should
+never be zero (we match signs of $\Omega_{SL} \hat{L}$ to $\dot{\Omega}
+\hat{L}_o$).
 
-Is it possible to be more general than this?
+\subsection{Finding Resonance Take 2: Deriving an Slow-Merger Criterion}
+
+The goal of this calculation will be to identify a criterion by which we may
+classify the nonadiabatic $\to$ adiabatic transition as sufficiently slow that
+$\theta_{\rm eff}$ is conserved. We want to consider the problem where some
+constant characteristic precession frequency $\Omega$ crosses through some other
+resonance frequencies $m\Omega'$, then define ``sufficiently slowly'' such that
+the transition is adiabatic. In practice this is tricky since there are two
+strongly varying precession rates, $\Omega_{SL}$ and all the LK cycles.
+
+Let's go back to the Hamiltonian in the inertial frame, $H_i =
+\Omega_{SL}\uv{S} \cdot \uv{L}$. We then consider rotating to the frame where
+$\uv{L}$ only nutates, so this gives us
+\begin{equation}
+    H = \Omega_{SL}\uv{L} \cdot \uv{S} - \dot{\Omega} \uv{z} \cdot \uv{S}.
+\end{equation}
+The following is in the spirit of Natalia's work. Note that both
+$\Omega_{SL}\uv{L}$ and $\dot{\Omega}$ vary greatly over the course of an LK
+cycle, but are non-zero mean. Define angle brackets and prime quantities to be
+the mean and mean-subtracted values, then perform Fourier decomposition over
+$T_{LK}$ Kozai period. WLOG, assume the phases are such that we can just use
+cosines, then
+\begin{equation}
+    H = \p{\ev{\Omega_{SL}\uv{L}} - \ev{\dot{\Omega}} \uv{z}}
+        \cdot \uv{S}
+        + \z{\sum\limits_{m = 1}^\infty \s{\Omega_{SL}\uv{L}}_m'
+                \cos \p{\frac{2\pi mt}{T_{LK}}}
+            - \sum\limits_{N = 1}^\infty \s{\dot{\Omega}}_N'
+                \cos \p{\frac{2\pi Nt}{T_{LK}}}
+            \uv{z}} \cdot \uv{S}.
+\end{equation}
+The first term corresponds to the intuitively averaged terms, where $\uv{S}$
+precesses about some effective axis, and the second terms correspond to
+terms that should average out to zero unless there are resonant terms. Thus,
+there are clearly possible resonances when $\uv{S}$ has average precession rate
+equal to an integer multiple of the Kozai period.
+
+\subsubsection{Aside: Toy Problem}
+
+What actually happens at these commensurabilities though? The Hamiltonian is
+linear, so there can be no separatrix. The toy model to consider is
+\begin{align}
+    H &= \s{\omega_0 \uv{z} + \epsilon \p{\cos\p{\omega t}\uv{x} + \sin\p{\omega
+            t}\uv{y}}} \cdot \uv{s},\\
+    \rd{\uv{s}}{t} &= \s{\omega_0 \uv{z} + \epsilon \p{\cos\p{\omega t}\uv{x} +
+            \sin\p{\omega t}\uv{y}}} \times \uv{s},\\
+        &\approx \omega_0 \uv{\phi} + \epsilon\uv{z}\s{
+            \cos \p{\omega t} s_y - \sin \p{\omega t} s_x}.
+\end{align}
+The zeroth order solution is just $s_x = \sin \theta \cos \phi$ and $s_y = \sin
+\theta \sin \phi$ and $\phi \approx \omega_0 t$, so the $\uv{z}$ component
+simplifies to
+\begin{equation}
+    \rd{s_z}{t} \approx \epsilon \sin \theta \sin\p{\omega t -
+        \omega_0 t}.
+\end{equation}
+This obviously breaks down for $\omega = \omega_0$. What breaks? Well, consider
+Hamiltonian in rotating frame $H = \p{\omega_0 \uv{z} + \epsilon \p{\dots}-
+\omega \uv{z}} \cdot \uv{s}$ such that the second vector is stationary in space,
+maybe $\epsilon \uv{x}$. Then it is very clear that when $\omega = \omega_0$
+that rotation is just about $\uv{x}$ with very reduced frequency $\epsilon$.
+This explains the coordinate singularity, since some trajectories pass through
+the poles; if we hadn't dropped the $s_\phi$ contributions at $\epsilon$ order
+we probably could have seen the trajectory traces out a great circle.
+
+What about when the second axis is just nutating, e.g.\ if the total rotation is
+$\omega_0 \uv{z} + \epsilon \p{A + B \cos \p{\omega t}}\uv{x}$? Well, we can
+write down the equation of motion again
+\begin{equation}
+    \rd{\uv{s}}{t} \approx \omega_0 \uv{\phi}
+        + \epsilon \uv{z}\p{A + B \cos \omega t}s_y.
+\end{equation}
+Again, if we assume $s_y \approx \sin \theta \sin \omega_0 t$, then we can use
+the trick from before to factorize and keep only slowly varying terms
+\begin{align}
+    \rd{s_z}{t} &\approx \epsilon \sin \theta\p{A + B \cos \omega t}
+            \sin \omega_0 t,\\
+        &\approx \epsilon \sin \theta \frac{B}{2}\s{
+            \sin \p{\omega_0 t + \omega t} + \sin\p{\omega_0 t - \omega t}}.
+\end{align}
+We have had to introduce an extra term, but again there is a divergence if
+$\omega_0 = \omega$, which implies that terms that don't start at the pole can
+reach the pole.
+
+If we want to get the quantitative behavior of this toy model (specifically, we
+want to know how far the precession axis gets from $\uv{z}$ when we're near
+resonance), we just have to write down the EOM carefully. The Hamiltonian in
+spherical coordinates is
+\begin{equation}
+    H = \omega_0 \cos \theta + \epsilon \p{A + B \cos \omega t} \sin \theta \cos
+        \phi.
+\end{equation}
+This yields EOM
+\begin{align}
+    \rd{\cos \theta}{t} &= \epsilon \p{A + B \cos \omega t}\sin \theta \sin \phi,\\
+    \rd{\phi}{t} &= \omega_0 + \epsilon\p{A + B \cos \omega t}\cot \theta \cos
+        \phi.
+\end{align}
+Compare to EOM for the case we could solve exactly above (with the $-\omega
+\uv{z}$ rotation)
+\begin{align}
+    \rd{\cos \theta}{t} &= \epsilon \sin \theta \cos\p{\omega t} \sin \phi
+            - \epsilon \sin \theta \sin \p{\omega t}\cos \phi,\\
+        &= \epsilon \sin \theta \sin\p{\omega t - \phi},\\
+    \rd{\phi}{t} &= \omega_0 + \epsilon\p{\cos \omega t + \sin \omega t}\cot
+        \theta.
+\end{align}
+Thus, it becomes clear: the rotation axis will still tilt all the way into the
+$xy$ plane, but it has some variations on the time scale of $\omega_0$ (due to
+the $A$ term) and $\omega_0 + \omega$ (due to the additive term).
+
+What about if $\omega$ doesn't exactly equal $\omega_0$, how far are we from
+tilting all the way? Let's consider the first toy problem for simplicity, then
+it's very obvious the total rotation axis is just $\epsilon \uv{x} + \p{\omega_0
+- \omega}\uv{z}$. Therefore, the ``resonance width'' is just the strength of the
+time-varying perturbation.
+
+\subsubsection{Returning to Kozai}
+
+Returning to our Hamiltonian and Fourier series, it's clear that we could get a
+resonance if some of the zero-sum perturbing terms have the same frequency as
+the precession of the first term. Let's just call the first term
+$\uv{\Omega}_{\rm eff}$, and consider some $m'$ such that $\frac{2\pi
+m'}{T_{LK}} = \Omega_{\rm eff}$. Let's also call the second term just generally
+$\uv{\Omega}'_m$, grouping coefficients together. Then there are infinitely many
+resonant terms. We will do some loose work with the indicies
+(let's just assume all the small $m$ are negligible, then sum half of every term
+with $m'$ less than it and the other half with $m'$ greater than it), but we
+also need to generalize the trig identity $\cos x + \cos y = 2\cos
+\p{\frac{x + y}{2}} \cos \p{\frac{x - y}{2}}$ to vector valued arguments, or
+just generally unequal coefficients. This is not hard:
+\begin{align}
+    A\cos x + B \cos y &= \p{\frac{A + B}{2}}\p{\cos x + \cos y}
+            + \p{\frac{A - B}{2}}\p{\cos x - \cos y},\\
+        &= \p{A + B}\cos \p{\frac{x + y}{2}}\cos \p{\frac{x - y}{2}}
+            - \p{A - B}\sin \p{\frac{x + y}{2}}\sin \p{\frac{x - y}{2}}.
+\end{align}
+
+Finally, we obtain
+\begin{equation}
+    H = \uv{\Omega}_{\rm eff} \cdot \uv{S}
+        + \frac{1}{2}\sum\limits_m \z{ \p{\uv{\Omega}_{m}' + \uv{\Omega}_{m +
+            m'}'} \cos \frac{2\pi \p{2m + m'}t}{T_{LK}}\cos \Omega_{\rm eff}
+            - \p{\uv{\Omega}_{m}' - \uv{\Omega}_{m +
+            m'}'} \sin \frac{2\pi \p{2m + m'}t}{T_{LK}}\sin \Omega_{\rm eff}}
+            \cdot \uv{S}
+        + \dots
+\end{equation}
+
+Note that every time one of these resonances is hit, everything else
+approximately averages out over $T_{LK}$ and the effective effective spin axis
+(heh) tilts into the $xy$ plane, and the effective effective precession rate
+goes with the coefficient (i.e.\ the magnitude of the vector with the two
+components $\Omega_{m}' \pm \Omega_{m + m'}'$). If this resonance is traversed
+slower than the effective effective precession rate, then the effective
+effective precession axis will adiabatically tilt into the $xy$ plane and then
+tilt back. If the resonance is traversed significantly more quickly than the
+effective effective precession rate, then the resonance will have no time to
+cause $\uv{S}$ to shift (this is the case when the Fourier components are all
+very small). It's only in the intermediate regime where a substantial
+kick to $\uv{S}$ can be experienced.
+
+Of course, in reality, most of the Fourier components are small, and therefore
+most resonances will be traversed too quickly. Thus, we only need to examine the
+largest width resonances, i.e.\ the ones corresponding to the strongest Fourier
+components. If any of these exceed $\Omega_{\rm eff}$ at the traversal, then by
+the intermediate value theorem (LK is almost always pretty sharp, so there
+shouldn't be discretization problems) there must be a frequency for which there
+is commensurability, and therefore strong kicks can be experienced. Perhaps this
+is what causes the apparent ``chaos'' in Bin's first paper, despite everything
+being truly linear.
+
+In these resonances, the signature is to examine $\theta_{\rm eff}, \phi_{\rm
+eff}$; we should terms go from rapidly varying to very rapidly varying with a
+slow envelope.
+
+Of course, the second, obvious source of nonadiabaticity is when $\Omega_{\rm
+eff}$ changes so quickly that even the averaged Hamiltonian is nonadiabatic.
+This is trivial to solve for though, since we just have some circular
+frequencies that vary in time.
 
 \appendix
 
