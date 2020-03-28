@@ -9,19 +9,22 @@ from collections import defaultdict
 from multiprocessing import Pool
 import numpy as np
 import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
-plt.rc('lines', lw=1.5)
-plt.rc('xtick', direction='in', top=True, bottom=True)
-plt.rc('ytick', direction='in', left=True, right=True)
+try:
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif', size=16)
+    plt.rc('lines', lw=1.5)
+    plt.rc('xtick', direction='in', top=True, bottom=True)
+    plt.rc('ytick', direction='in', left=True, right=True)
+except: # let it fail later
+    pass
 from scipy.integrate import solve_ivp
 from scipy.interpolate import interp1d
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 44
+N_THREADS = 40
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
@@ -90,8 +93,8 @@ def get_kozai(folder, I_deg, getter_kwargs,
     return t, y, t_events
 
 def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
-                       q_sl0=0,
-                       f_sl0=0, # not supported yet
+                       q_sl0=0, # NB: for backcompat, but q_sb0 = I - q_sl0
+                       phi_sb=0,
                        pkl_template='4sim_s_%s.pkl',
                        save=True,
                        **kwargs):
@@ -117,17 +120,14 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
             return eps_sl * np.cross(Lhat, s) / (
                 a(t)**(5/2) * (1 - e(t)**2))
         t0 = t_lk[0]
-        s0 = [Lx(t0), Ly(t0), Lz(t0)]
 
-        # q_sl0 rotation
-        xy_mag = np.sqrt(s0[0]**2 + s0[1]**2)
-        new_zmag = s0[2] * np.cos(q_sl0) + xy_mag * np.sin(q_sl0)
-        new_xy = -s0[2] * np.sin(q_sl0) + xy_mag * np.cos(q_sl0)
-        s_new = [s0[0] * new_xy / xy_mag,
-                 s0[1] * new_xy / xy_mag,
-                 new_zmag]
+        # initial spin (for q_sl0=0, phi_sb0=0, equals L[0])
+        q_sb0 = np.radians(I_deg) - q_sl0
+        s_rot = [np.sin(q_sb0) * np.cos(phi_sb),
+                 np.sin(q_sb0) * np.sin(phi_sb),
+                 np.cos(q_sb0)]
 
-        ret = solve_ivp(dydt, (t0, t_lk[-1]), s_new, dense_output=True, **kwargs)
+        ret = solve_ivp(dydt, (t0, t_lk[-1]), s_rot, dense_output=True, **kwargs)
         y = ret.sol(t_lk)
         print('Finished spins for I=%.3f, took %d steps' %
               (I_deg, len(ret.t)))
@@ -308,35 +308,48 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
     plot_all(folder, ret_lk, s_vec, getter_kwargs,
              fn_template='4sim_qsl40_%s')
 
-def get_qslfs(folder, I_deg, q_sl_arr, af,
-              atol=1e-8, rtol=1e-8,  save_pkl=True, save_png=False, **kwargs):
+def get_qslfs_base(folder, I_deg, q_sl_arr, af, phi_sbs,
+                   atol=1e-8, rtol=1e-8,  save_pkl=True, save_png=False, **kwargs):
     ''' this is the ensemble simulation, default do not save '''
     mkdirp(folder)
     ret_lk = get_kozai(folder, I_deg, getter_kwargs,
                        af=af, atol=atol, rtol=rtol, save=save_pkl)
-    qslfs = []
-    t_mergers = []
-    for q_sl0 in q_sl_arr:
-        pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + '_%s.pkl'
-        s_vec = get_spins_inertial(
-            folder, I_deg, ret_lk, getter_kwargs,
-            q_sl0=q_sl0,
-            atol=atol,
-            rtol=rtol,
-            save=save_pkl,
-            pkl_template=pkl_fn,
-            )
-        if save_png:
-            fn_template = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + '_%s'
-            plot_all(folder, ret_lk, s_vec, getter_kwargs,
-                     fn_template=fn_template)
-        _, _, W, I, _ = ret_lk[1][:, -1]
-        sf = s_vec[:, -1]
 
-        Lhat = get_hat(W, I)
-        qslfs.append(np.degrees(np.arccos(np.dot(Lhat, sf))))
+    qslfs_tot = []
+    for phi_sb in phi_sbs:
+        qslfs = []
+        for q_sl0 in q_sl_arr:
+            if phi_sb == 0:
+                pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + '_%s.pkl'
+            else:
+                pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + \
+                    ('_phi_sb%d' % np.degrees(phi_sb)) + '_%s.pkl'
+            s_vec = get_spins_inertial(
+                folder, I_deg, ret_lk, getter_kwargs,
+                q_sl0=q_sl0,
+                atol=atol,
+                rtol=rtol,
+                save=save_pkl,
+                phi_sb=phi_sb,
+                pkl_template=pkl_fn,
+                )
+            if save_png:
+                fn_template = '4sim_qsl' + ('%d' % np.degrees(q_sl0)) + '_%s'
+                plot_all(folder, ret_lk, s_vec, getter_kwargs,
+                         fn_template=fn_template)
+            _, _, W, I, _ = ret_lk[1][:, -1]
+            sf = s_vec[:, -1]
 
-    return I_deg, ret_lk[0][-1], q_sl_arr, qslfs
+            Lhat = get_hat(W, I)
+            qslfs.append(np.degrees(np.arccos(np.dot(Lhat, sf))))
+        qslfs_tot.append(qslfs)
+
+    return I_deg, ret_lk[0][-1], q_sl_arr, qslfs_tot
+
+def get_qslfs(folder, I_deg, q_sl_arr, af, **kwargs):
+    I_deg, t_merge, q_sl_arr, qslfs_tot = get_qslfs_base(
+        folder, I_deg, q_sl_arr, af, [0], **kwargs)
+    return I_deg, t_merge, q_sl_arr, qslfs_tot[0]
 
 def run_ensemble(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
                  af=3e-3, save_fn='ensemble.pkl'):
@@ -390,6 +403,25 @@ def plot_ensemble(folder, ensemble_dat):
     plt.tight_layout()
     plt.savefig(folder + 'ensemble', dpi=200)
     plt.close()
+
+def run_ensemble_phase(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
+                       phi_sbs=[0],
+                       af=3e-3, save_fn='ensemble_phase.pkl'):
+    pkl_fn = folder + save_fn
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        mkdirp(folder)
+        q_sl_arr = np.radians([-30, 0, 30])
+        args = [(folder, I_deg, q_sl_arr, af, phi_sbs) for I_deg in I_vals[::-1]]
+        with Pool(N_THREADS) as p:
+            res = p.starmap(get_qslfs_base, args)
+        with open(folder + save_fn, 'wb') as f:
+            pickle.dump(res, f)
+    else:
+        with open(folder + save_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            res = pickle.load(f)
+    return res
 
 def get_qeff_toy(folder, I_deg, ret_lk, getter_kwargs,
                        q_sl0=0,
@@ -471,5 +503,10 @@ if __name__ == '__main__':
     # plt.xlim([0.95 * ret_lk[0][-1], ret_lk[0][-1]])
     # plt.savefig('/tmp/toy')
 
-    ensemble_dat = run_ensemble('4sims_ensemble/')
-    plot_ensemble('4sims_ensemble/', ensemble_dat)
+    # ensemble_dat = run_ensemble('4sims_ensemble/')
+    # ensemble_dat2 = run_ensemble('4sims_ensemble/',
+    #                              I_vals=np.arange(89.99, 89.5999, 0.001),
+    #                              save_fn='ensemble2.pkl')
+    run_ensemble_phase('4sims_ensemble/', phi_sbs=np.radians([
+        0, 45, 90, 180, 270]))
+    # plot_ensemble('4sims_ensemble/', ensemble_dat)
