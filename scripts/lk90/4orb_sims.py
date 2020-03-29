@@ -463,6 +463,38 @@ def plot_ensemble_phase(folder, ensemble_phase, phi_sbs):
     plt.savefig(folder + 'ensemble_phase', dpi=200)
     plt.close()
 
+def plot_deviations(folder, ensemble_dat):
+    ''' does it look like a power law? '''
+    I_degs = []
+    qsl_dats = defaultdict(list)
+    for I_deg, _, q_sl_inits, q_sl_finals in ensemble_dat:
+        I_degs.append(I_deg)
+
+        qsb_is_deg = I_deg - np.degrees(np.array(q_sl_inits))
+        dqs_deg = 180 - np.array(q_sl_finals) - qsb_is_deg
+        for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
+            qsl_dats[qsl_init].append(dq_deg)
+
+    I_degs = np.array(I_degs)
+    qsldat_keys = sorted(qsl_dats.keys(), reverse=True)
+    for qsl_init in qsldat_keys:
+        plt.loglog(I_degs - 90, np.abs(qsl_dats[qsl_init]),
+                    marker='.', linestyle='', markersize=1.5,
+                    label=r'$%d^\circ$' % (90 - np.degrees(qsl_init)))
+
+    # hardcode power law overplot
+    cosd = lambda x: np.cos(np.radians(x))
+    fit_line = 60 * cosd(90.1)**3 / cosd(I_degs)**3
+    plt.plot(I_degs - 90, fit_line, 'k', lw=3)
+
+    plt.xlabel(r'$I^0$')
+    plt.ylabel(r'$\left|\theta_{\rm sl}^{f} - \theta_{\rm sl, th}^f\right|$ (Deg)')
+    plt.xlim(left=0.1, right=0.4)
+    plt.ylim(bottom=1, top=100)
+    plt.tight_layout()
+    plt.savefig(folder + 'deviations', dpi=200)
+    plt.close()
+
 def run_close_in():
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
@@ -491,11 +523,11 @@ if __name__ == '__main__':
     #                            pkl_template='4shorto_tilt_s_%s.pkl')
     # plot_all(folder, ret_lk, s_vec, getter_kwargs, fn_template='4shorto_tilt_%s')
 
-    for I_deg in np.arange(90.1, 90.51, 0.05):
-        run_for_Ideg('4sims/', I_deg)
-    run_for_Ideg('4sims/', 90.475)
+    # for I_deg in np.arange(90.1, 90.51, 0.05):
+    #     run_for_Ideg('4sims/', I_deg)
+    # run_for_Ideg('4sims/', 90.475)
 
-    # ensemble_dat = run_ensemble('4sims_ensemble/')
+    ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
     #                              I_vals=np.arange(89.99, 89.5999, 0.001),
     #                              save_fn='ensemble2.pkl')
@@ -506,3 +538,5 @@ if __name__ == '__main__':
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
     # run_close_in()
+
+    plot_deviations('4sims_ensemble/', ensemble_dat)

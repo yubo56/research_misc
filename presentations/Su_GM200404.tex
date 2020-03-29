@@ -82,9 +82,9 @@
 \begin{document}
 
 \title{Spin-Orbit Misalignment Dynamics in Black Hole Triples}
-\subtitle{Group Meeting}
+\subtitle{Group Meeting?}
 \author{Yubo Su}
-\date{Apr. 4, 2020}
+\date{Apr. 4, 2020?}
 
 \maketitle
 
@@ -126,7 +126,7 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Averaging}
+    \frametitle{Averaging and Resonances}
     \framesubtitle{Toy Model}
 
     \begin{columns}
@@ -189,15 +189,18 @@
 \end{frame}
 
 \begin{frame}
-    \frametitle{Averaging}
+    \frametitle{Averaged Scenario}
     \framesubtitle{Resonances in the Slow-Merger Regime}
 
     % N sums with (N + N'), gives cos((2N + N') / 2) cos(N' / 2)
     \begin{columns}
         \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item If resonance $\Omega_{\rm eff} = \pi N'/T_{LK}$:
+            \end{itemize}
             \begin{align}
                 \rd{\uv{S}}{t} ={}&
-                    \ev{\Omega_{SL}\uv{L} - \dot{\Omega} \uv{L_3}}_{LK}
+                    \ev{\uv{\Omega}_{\rm eff}}_{LK}
                         \times \uv{S}\nonumber\\
                     &-\frac{\uv{S}}{2} \times \sum\limits_{N = 1}^{N'} \uv{A}_N
                         \cos \p{\frac{2\pi N t}{T_{LK}}}\nonumber\\
@@ -212,10 +215,129 @@
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item In reality, $\uv{A}_N$ are small (Fourier coefficients of
-                    $\p{\Omega_{SL}(t)\uv{L}(t) - \dot{\Omega}(t)\uv{L}_3}$), so
-                    seek maximum resonance width. If too small, \emph{all} fast
-                    encounter, conservation.
+                \item Note: If $\Omega_{SL} \gtrsim \dot{\Omega}$, LK
+                    suppressed. Thus, consider primarily
+                    $\ev{\dot{\Omega}}_{LK}$.
+
+                \item We want $\ev{\dot{\Omega}} = \pi N'/T_{LK}$, which is
+                    equivalent to:
+                    \begin{equation}
+                        \pi N' = \Delta \Omega = \int\limits_0^{T_{LK}}
+                            \dot{\Omega}\;\mathrm{d}t.
+                    \end{equation}
+
+                \item It turns out that for a wide range of parameters,
+                    $\abs{\Delta \Omega} < \pi$, thus, no resonance can be hit.
+            \end{itemize}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Averaged Scenario}
+    \framesubtitle{When are Resonances Hit?}
+
+    \begin{itemize}
+        \item As GW radiates, $e_0$ increases, \emph{decreases} $\Delta
+            \Omega$ (right; numerical). Never resonance crossing ($\Delta \Omega
+            < -\pi$, black line) when $e_0 = 10^{-3}$ for $I_0 \in [75, 105]$.
+            Seems about right! Fig.~4 from Liu \& Lai 2017.
+    \end{itemize}
+
+    \begin{figure}[h]
+        \centering
+        \includegraphics[width=0.4\textwidth]{bin_2017_f4.png}
+        \includegraphics[width=0.55\textwidth]{../scripts/lk90/5_dWs.png}
+    \end{figure}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Averaged Scenario}
+    \framesubtitle{What is the Effect of Hitting a Resonance?}
+
+    \begin{itemize}
+        \item Consider again toy problem
+            \begin{equation}
+                \p{\rd{\uv{S}}{t}}_{\rm rot} =
+                    \s{\p{\omega_0 - \omega}\uv{z} + \epsilon
+                        \uv{x}} \times \uv{S}.
+            \end{equation}
+
+        \item Allow $\omega = \omega_0 + \dot{\omega}t$. What is $\theta_f -
+            \theta_i$? Exact:
+            \begin{equation}
+                \Delta \theta = \epsilon \sqrt{\frac{2\pi}{\dot{\omega}}}
+                    \sin \p{\phi_0 + \frac{\pi}{4}}.
+            \end{equation}
+
+        \item Here, $\dot{\omega} \sim 1 / T_{GW}$, while $\epsilon \propto 1 /
+            T_{LK}$, $\Rightarrow \Delta \theta \gg 1$?
+
+        \item Caveat: $\epsilon$ is Fourier coefficient of $\dot{\Omega}$, has
+            $1/T_{LK}$ scaling but \emph{is probably substantially smaller}. So
+            can probably predict width ($\sim \epsilon$)?
+
+        \begin{itemize}
+            \item Might explain why deviations from the blue curve in Bin's
+                figure seem to appear closer to $I_0 = 90^\circ$ than expected
+                ($100^\circ$ vs $105^\circ$).
+
+            \item Might also predict the amplitude of the deviations (which
+                appear bounded closer to $90^\circ$).
+        \end{itemize}
+    \end{itemize}
+\end{frame}
+
+\begin{frame}
+    \frametitle{Resonance-Free Dynamics}
+    \framesubtitle{Few-Shot Merger Solution}
+
+    \begin{columns}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item When no resonances, just
+                    \begin{align}
+                        \rd{\uv{S}}{t} &=
+                            \ev{\Omega_{SL}\uv{L} - \dot{\Omega} \uv{L_3}}_{LK}
+                                \times \uv{S},\\
+                        \frac{1}{\dot{\Omega}} \rd{\uv{S}}{t}
+                            &\simeq \s{\mathcal{A}_0\p{\sin I \uv{x}
+                                + \cos I \uv{z}}
+                                \mp \uv{z}} \times \uv{S}.
+                    \end{align}
+
+                \item Here, $I$ is the inclination of $\ev{\Omega_{SL}\uv{L}}$,
+                    shouldn't change much, $\sim 120^\circ$?
+
+                \item Crosses resonance at $\mathcal{A} \simeq 1 / \cos I \simeq
+                    1$, and the jump
+                    in angle is
+                    \begin{equation}
+                        \Delta \theta \simeq \sin I
+                            \sqrt{\frac{2\pi}{\dot{\mathcal{A}_0}}}
+                                \sin \p{\phi_0 + \pi/4}.
+                    \end{equation}
+
+                \item Explains why for fixed $\phi$, $\Delta \theta$ overlaps.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.5\textwidth}
+            \begin{itemize}
+                \item Sweeped some stuff under the rug, but does this make
+                    qualitative sense?
+
+                \item $T_{\rm m} \sim \cos^6 I_0$, so if $\dot{\mathcal{A}}_0
+                    \propto 1 / T_{\rm m}$ then $\Delta \theta \propto 1 /
+                    \cos^3 I_0$. Seems to be the right scaling (black is fit by
+                    eye, correct power law index):
+
+                \begin{figure}[h]
+                    \centering
+                    \includegraphics[width=0.7\textwidth]{../scripts/lk90/4sims_ensemble/deviations.png}
+                \end{figure}
+
+                \item {\small (Ignore the nonzero tail at the right, I made a
+                    lazy approximation in my code)}
             \end{itemize}
         \end{column}
     \end{columns}
