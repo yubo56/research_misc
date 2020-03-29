@@ -373,7 +373,7 @@ def run_ensemble(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
             res = pickle.load(f)
     return res
 
-def plot_ensemble(folder, ensemble_dat):
+def plot_ensemble(folder, ensemble_dat, ensemble_dat2):
     # fig, axs = plt.subplots(2, 1, figsize=(16, 9), sharex=True)
     fig, ax = plt.subplots(1, 1, figsize=(8, 5), sharex=True)
     axs = [ax]
@@ -388,6 +388,14 @@ def plot_ensemble(folder, ensemble_dat):
         dqs_deg = 180 - np.array(q_sl_finals) - qsb_is_deg
         for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
             qsl_dats[qsl_init].append(dq_deg)
+    for I_deg, t_merger, q_sl_inits, q_sl_finals in ensemble_dat2:
+        I_degs.append(I_deg)
+        t_mergers.append(t_merger)
+
+        qsb_is_deg = I_deg - np.degrees(np.array(q_sl_inits))
+        dqs_deg = np.array(q_sl_finals) - qsb_is_deg
+        for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
+            qsl_dats[qsl_init].append(dq_deg)
 
     # axs[1].semilogy(I_degs, t_mergers)
     # axs[1].set_ylabel(r'$T_m / t_{\rm LK,0}$')
@@ -396,9 +404,10 @@ def plot_ensemble(folder, ensemble_dat):
     qsldat_keys = sorted(qsl_dats.keys(), reverse=True)
     for qsl_init in qsldat_keys:
         axs[0].plot(I_degs, qsl_dats[qsl_init],
+                    marker='.', linestyle='', markersize=1.5,
                     label=r'$%d^\circ$' % (90 - np.degrees(qsl_init)))
-    axs[0].legend(fontsize=12, ncol=4)
-    axs[0].set_ylabel(r'$180 - \theta_{\rm sl, f} - \theta_{\rm sb, i}$')
+    axs[0].legend(fontsize=10, ncol=4, loc='lower right')
+    axs[0].set_ylabel(r'$\theta_{\rm sl}^{f} - \theta_{\rm sl, th}^f$')
     axs[-1].set_xlabel(r'$I_0$ (Deg)')
     plt.tight_layout()
     plt.savefig(folder + 'ensemble', dpi=200)
@@ -423,54 +432,36 @@ def run_ensemble_phase(folder, I_vals=np.arange(90.01, 90.4001, 0.001),
             res = pickle.load(f)
     return res
 
-def get_qeff_toy(folder, I_deg, ret_lk, getter_kwargs,
-                       q_sl0=0,
-                       f_sl0=0, # not supported yet
-                       pkl_template='4sim_toy_%s.pkl',
-                       save=True,
-                       **kwargs):
-    ''' uses the same times as ret_lk '''
-    mkdirp(folder)
-    pkl_fn = folder + pkl_template % get_fn_I(I_deg)
-    if not os.path.exists(pkl_fn):
-        print('Running %s' % pkl_fn)
-        t_lk, y, _ = ret_lk
-        a_arr, e_arr, _, I_arr, _ = y
-        eps_sl = getter_kwargs['eps_sl']
-        a = interp1d(t_lk, a_arr)
-        e = interp1d(t_lk, e_arr)
-        I = interp1d(t_lk, I_arr)
-        def dydt(t, v):
-            # apparently not guaranteed, see
-            # https://github.com/scipy/scipy/issues/9198
-            if t > t_lk[-1]:
-                return None
-            Wdot_eff = (
-                3 * a(t)**(3/2) / 4 * np.cos(I(t)) * (4 * e(t)**2 + 1)
-                / np.sqrt(1 - e(t)**2))
-            Wsl = eps_sl / (a(t)**(5/2) * (1 - e(t)**2))
-            q, phi = v
-            if Wsl > -Wdot_eff:
-                return (2 * Wdot_eff * np.sin(phi), Wsl)
-            else:
-                return (-2 * Wsl * np.sin(phi), -Wdot_eff)
+def plot_ensemble_phase(folder, ensemble_phase, phi_sbs):
+    I_degs = []
+    # key first by qsl_i, then phi_sb
+    qsl_phase_dats = defaultdict(lambda: defaultdict(list))
+    for I_deg, _, q_sl_inits, qslf_arr in ensemble_phase:
+        I_degs.append(I_deg)
+        for q_slf, phi_sb in zip(qslf_arr, phi_sbs):
+            qsb_is_deg = I_deg - np.degrees(np.array(q_sl_inits))
+            dqs_deg = 180 - np.array(q_slf) - qsb_is_deg
+            for qsl_init, dq_deg in zip(q_sl_inits, dqs_deg):
+                qsl_phase_dats[qsl_init][phi_sb].append(dq_deg)
 
-        t0 = t_lk[0]
-        v0 = [np.radians(90), 0]
+    plt.xlabel(r'$I^0$')
 
-        ret = solve_ivp(dydt, (t0, t_lk[-1]), v0, dense_output=True, **kwargs)
-        y = ret.sol(t_lk)
-        print('Finished toy spins for I=%.3f, took %d steps' %
-              (I_deg, len(ret.t)))
-
-        # if save:
-        #     with open(pkl_fn, 'wb') as f:
-        #         pickle.dump(y, f)
-    else:
-        print('Loading %s' % pkl_fn)
-        with open(pkl_fn, 'rb') as f:
-            y = pickle.load(f)
-    return y
+    qsldat_keys = sorted(qsl_phase_dats.keys(), reverse=True)
+    colors = ['r', 'b', 'g']
+    styles = ['-', ':', '-.', '--']
+    for qsl_init, c in zip(qsldat_keys, colors):
+        for idx, (phi_sb, qslf) in enumerate(qsl_phase_dats[qsl_init].items()):
+            ls = '-' if idx == 0 else styles[idx - 1]
+            lw = 1.5 if idx == 0 else 0.7
+            plt.plot(I_degs, qslf, linestyle=ls, linewidth=lw, color=c,
+                     label=r'$%d^\circ, %d^\circ$' % (
+                         (90 - np.degrees(qsl_init)), np.degrees(phi_sb)))
+    plt.legend(fontsize=10, ncol=3, loc='lower right')
+    plt.ylabel(r'$\theta_{\rm sl}^{f} - \theta_{\rm sl, th}^f$')
+    plt.xlabel(r'$I_0$ (Deg)')
+    plt.tight_layout()
+    plt.savefig(folder + 'ensemble_phase', dpi=200)
+    plt.close()
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -494,19 +485,12 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg)
     # run_for_Ideg('4sims/', 90.475)
 
-    # I_deg = 90.35
-    # ret_lk = get_kozai('4sims/', I_deg, getter_kwargs, af=5e-3, atol=1e-9,
-    #                    rtol=1e-9)
-    # s_vec = get_qeff_toy('4sims/', I_deg, ret_lk, getter_kwargs,
-    #                      atol=1e-8, rtol=1e-8)
-    # plt.plot(ret_lk[0], np.degrees(s_vec[0]) % (360))
-    # plt.xlim([0.95 * ret_lk[0][-1], ret_lk[0][-1]])
-    # plt.savefig('/tmp/toy')
-
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
     #                              I_vals=np.arange(89.99, 89.5999, 0.001),
     #                              save_fn='ensemble2.pkl')
-    run_ensemble_phase('4sims_ensemble/', phi_sbs=np.radians([
-        0, 45, 90, 180, 270]))
-    # plot_ensemble('4sims_ensemble/', ensemble_dat)
+    # plot_ensemble('4sims_ensemble/', ensemble_dat, ensemble_dat2)
+
+    phi_sbs = np.radians([0, 45, 90, 180, 270])
+    ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
+    plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
