@@ -657,7 +657,9 @@ define/recall the following:
         \end{align}
         Here, $x_0$ and $x_1$ are the maximum/minimum $x$ respectively
         (corresponding to min/max eccentricity), and $x_2$ is the other root to
-        the quadratic ($x_1$ is one of them).
+        the quadratic ($x_1$ is one of them). $K$ is not the Kozai constant but
+        is approximately $\pi / (2 \mathrm{agm}(1, \sqrt{1 - k^2}))$, the
+        \emph{arithmetic-geometric mean}.
         \begin{equation}
             x^2 - \frac{1}{3}\p{5 + 5K - 2x_0}x + \frac{5K}{3} = 0.
         \end{equation}
@@ -667,7 +669,7 @@ define/recall the following:
     \item In terms of this $x$ parameter, the LK components of the EOM
         take on particularly simple form
         \begin{align}
-            \dot{\Omega} &= \frac{3\sqrt{K}}{4t_{LK}}\p{1 - 2\frac{x_0 - h}{x -
+            \dot{\Omega} &= \frac{3\sqrt{h}}{4t_{LK}}\p{1 - 2\frac{x_0 - h}{x -
                 h}},\\
             \dot{I} &= \frac{\dot{x} \cos I}{2x \sin I}.
         \end{align}
@@ -1033,7 +1035,7 @@ The first term corresponds to the intuitively averaged terms, where $\uv{S}$
 precesses about some effective axis, and the second terms correspond to
 terms that should average out to zero unless there are resonant terms. Thus,
 there are clearly possible resonances when $\uv{S}$ has average precession rate
-equal to an integer multiple of the Kozai period.
+equal to a half-integer multiple of the Kozai period.
 
 \subsubsection{Aside: Toy Problem}
 
@@ -1120,15 +1122,15 @@ time-varying perturbation.
 Returning to our Hamiltonian and Fourier series, it's clear that we could get a
 resonance if some of the zero-sum perturbing terms have the same frequency as
 the precession of the first term. Let's just call the first term
-$\uv{\Omega}_{\rm eff}$, and consider some $m'$ such that $\frac{2\pi
-m'}{T_{LK}} = \Omega_{\rm eff}$. Let's also call the second term just generally
-$\uv{\Omega}'_m$, grouping coefficients together. Then there are infinitely many
-resonant terms. We will do some loose work with the indicies
-(let's just assume all the small $m$ are negligible, then sum half of every term
-with $m'$ less than it and the other half with $m'$ greater than it), but we
-also need to generalize the trig identity $\cos x + \cos y = 2\cos
-\p{\frac{x + y}{2}} \cos \p{\frac{x - y}{2}}$ to vector valued arguments, or
-just generally unequal coefficients. This is not hard:
+$\uv{\Omega}_{\rm eff}$, and consider some $m'$ such that $\frac{\pi
+m'}{T_{LK}} = \Omega_{\rm eff}$ (note the factor of $2$ missing). Let's also
+call the second term just generally $\uv{\Omega}'_m$, grouping coefficients
+together. Then there are infinitely many resonant terms. We will do some loose
+work with the indicies (let's just assume all the small $m$ are negligible, then
+sum half of every term with $m'$ less than it and the other half with $m'$
+greater than it), but we also need to generalize the trig identity $\cos x +
+\cos y = 2\cos \p{\frac{x + y}{2}} \cos \p{\frac{x - y}{2}}$ to vector valued
+arguments, or just generally unequal coefficients. This is not hard:
 \begin{align}
     A\cos x + B \cos y &= \p{\frac{A + B}{2}}\p{\cos x + \cos y}
             + \p{\frac{A - B}{2}}\p{\cos x - \cos y},\\
@@ -1140,9 +1142,9 @@ Finally, we obtain
 \begin{equation}
     H = \uv{\Omega}_{\rm eff} \cdot \uv{S}
         + \frac{1}{2}\sum\limits_m \z{ \p{\uv{\Omega}_{m}' + \uv{\Omega}_{m +
-            m'}'} \cos \frac{2\pi \p{2m + m'}t}{T_{LK}}\cos \Omega_{\rm eff}
+            m'}'} \cos \frac{\pi \p{2m + m'}t}{T_{LK}}\cos \Omega_{\rm eff}
             - \p{\uv{\Omega}_{m}' - \uv{\Omega}_{m +
-            m'}'} \sin \frac{2\pi \p{2m + m'}t}{T_{LK}}\sin \Omega_{\rm eff}}
+            m'}'} \sin \frac{\pi \p{2m + m'}t}{T_{LK}}\sin \Omega_{\rm eff}}
             \cdot \uv{S}
         + \dots
 \end{equation}
@@ -1178,6 +1180,17 @@ Of course, the second, obvious source of nonadiabaticity is when $\Omega_{\rm
 eff}$ changes so quickly that even the averaged Hamiltonian is nonadiabatic.
 This is trivial to solve for though, since we just have some circular
 frequencies that vary in time.
+
+\subsection{Estimating Whether Resonances Get Hit}
+
+Numerically, we find that in some of our far-out binaries, $\Delta \Omega$ over
+one LK period starts at $\lesssim 3$ and quickly decreases over the course of
+the simulation. Recall that we need $\Omega_{\rm eff}$ to be a half-integer
+multiple of the Kozai angular frequency, which implies $\Delta \Omega$ needs to
+be at least $\pi$. Can we thus calculate what $\Delta \Omega$ is over a Kozai
+cycle? Also calculating $\oint \Omega_{SL}\;\mathrm{d}t$ would be nice, since it
+gives us an idea of what is the dominant contribution to $\ev{\uv{\Omega}_{\rm
+eff}}$.
 
 \appendix
 

@@ -148,14 +148,13 @@
                     \begin{align}
                         \rd{\uv{S}}{t} ={}&
                             \ev{\Omega_{SL}\uv{L} - \dot{\Omega} \uv{L_3}}_{LK}
-                                \cdot \uv{S}\nonumber\\
-                            &+\bm{S} \cdot \sum\limits_{N = 1}^\infty \uv{A}_N
+                                \times \uv{S}\nonumber\\
+                            &- \bm{S} \times \sum\limits_{N = 1}^\infty \uv{A}_N
                                 \cos \p{\frac{2\pi N t}{T_{LK}}}.
                     \end{align}
 
-                \item Formally, either average over many $T_{LK}$, or WKBJ
-                    solution. \textbf{Unless} $\Omega_{\rm eff} = \frac{2\pi
-                    N'}{T_{LK}}$.
+                \item Formally, can average (or WKBJ) \textbf{unless}
+                    $\Omega_{\rm eff} = \frac{2\pi \p{N' / 2}}{T_{LK}}$.
             \end{itemize}
         \end{column}
         \begin{column}{0.5\textwidth}
@@ -165,10 +164,10 @@
                     \begin{align}
                         \rd{\uv{S}}{t} &= \s{\omega_0 \uv{z}
                             + \epsilon\p{\cos \omega t \uv{x} + \sin
-                            \omega t \uv{y}}} \cdot \uv{S},\\
+                            \omega t \uv{y}}} \times \uv{S},\\
                         \p{\rd{\uv{S}}{t}}_{\rm rot} &=
                             \s{\p{\omega_0 - \omega}\uv{z} + \epsilon
-                                \uv{x}} \cdot \uv{S}.
+                                \uv{x}} \times \uv{S}.
                     \end{align}
 
                 \item In resonances, the precession axis tilts away from
@@ -193,21 +192,22 @@
     \frametitle{Averaging}
     \framesubtitle{Resonances in the Slow-Merger Regime}
 
+    % N sums with (N + N'), gives cos((2N + N') / 2) cos(N' / 2)
     \begin{columns}
         \begin{column}{0.5\textwidth}
             \begin{align}
                 \rd{\uv{S}}{t} ={}&
                     \ev{\Omega_{SL}\uv{L} - \dot{\Omega} \uv{L_3}}_{LK}
-                        \cdot \uv{S}\nonumber\\
-                    &+\frac{\uv{S}}{2} \cdot \sum\limits_{N = 1}^{N'} \uv{A}_N
+                        \times \uv{S}\nonumber\\
+                    &-\frac{\uv{S}}{2} \times \sum\limits_{N = 1}^{N'} \uv{A}_N
                         \cos \p{\frac{2\pi N t}{T_{LK}}}\nonumber\\
-                    &+ \frac{\uv{S}}{2} \cdot \sum\limits_{N = 1}^\infty
+                    &- \frac{\uv{S}}{2} \times \sum\limits_{N = 1}^\infty
                         \uv{B}_N \cos\p{\Omega_{\rm eff}t}
                         - \uv{C}_N \sin \p{\Omega_{\rm eff}t},\\
-                \uv{B}_N(t) &= \p{\uv{A}_N + \uv{A}_{N + N'}}\cos \p{\frac{2\pi
-                    \p{2N + N'}t}{T_{LK}}},\\
-                \uv{C}_N(t) &= \p{\uv{A}_N - \uv{A}_{N + N'}}\sin \p{\frac{2\pi
-                    \p{2N + N'}t}{T_{LK}}}.
+                \uv{B}_N(t) &= \p{\uv{A}_N + \uv{A}_{N + N'}}\cos \p{\frac{\pi
+                    \p{N + N'}t}{T_{LK}}},\\
+                \uv{C}_N(t) &= \p{\uv{A}_N - \uv{A}_{N + N'}}\sin \p{\frac{\pi
+                    \p{N + N'}t}{T_{LK}}}.
             \end{align}
         \end{column}
         \begin{column}{0.5\textwidth}

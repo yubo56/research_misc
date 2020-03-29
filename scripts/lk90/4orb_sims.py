@@ -463,6 +463,16 @@ def plot_ensemble_phase(folder, ensemble_phase, phi_sbs):
     plt.savefig(folder + 'ensemble_phase', dpi=200)
     plt.close()
 
+def run_close_in():
+    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    I_deg = 80
+    folder = '4inner/'
+    ret_lk = get_kozai(folder, I_deg, getter_kwargs, af=1e-2, atol=1e-9,
+                       rtol=1e-9)
+    s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs)
+    plot_all(folder, ret_lk, s_vec, getter_kwargs)
+
 if __name__ == '__main__':
     # I_deg = 90.5
     # folder = './'
@@ -481,9 +491,9 @@ if __name__ == '__main__':
     #                            pkl_template='4shorto_tilt_s_%s.pkl')
     # plot_all(folder, ret_lk, s_vec, getter_kwargs, fn_template='4shorto_tilt_%s')
 
-    # for I_deg in np.arange(90.1, 90.51, 0.05):
-    #     run_for_Ideg('4sims/', I_deg)
-    # run_for_Ideg('4sims/', 90.475)
+    for I_deg in np.arange(90.1, 90.51, 0.05):
+        run_for_Ideg('4sims/', I_deg)
+    run_for_Ideg('4sims/', 90.475)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
@@ -491,6 +501,8 @@ if __name__ == '__main__':
     #                              save_fn='ensemble2.pkl')
     # plot_ensemble('4sims_ensemble/', ensemble_dat, ensemble_dat2)
 
-    phi_sbs = np.radians([0, 45, 90, 180, 270])
-    ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
-    plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
+    # phi_sbs = np.radians([0, 45, 90, 180, 270])
+    # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
+    # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
+
+    # run_close_in()
