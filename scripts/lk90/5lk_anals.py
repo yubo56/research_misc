@@ -15,6 +15,7 @@ from scipy.interpolate import interp1d
 import pickle
 funcs4 = __import__('4orb_sims')
 from utils import *
+from scipy.fftpack import fft
 
 def get_dW(e0, I0):
     '''
@@ -71,8 +72,8 @@ def get_I_avg_traj(folder, pkl_head):
     w_int = interp1d(t, w)
     num_periods = int(W[-1] // (2 * np.pi))
     start = 0
-    I_avgs = [] # average Is over each LK period, W weighted
-    t_mids = [] # t during the middle of each LK period
+    I_avgs = [] # average Is over each W period, W weighted
+    t_mids = [] # t during the middle of each W period
     for i in range(num_periods - 1):
         end = brenth(lambda t: W_int(t) - (i + 1) * (2 * np.pi), start, t[-1])
 
@@ -109,22 +110,84 @@ def get_I_avg_traj(folder, pkl_head):
     plt.savefig('5I_avg_' + pkl_head, dpi=200)
     plt.close()
 
+def plot_Wdot_ft(folder, pkl_head):
+    '''
+    we want the Fourier components of the fast-varying component in the
+    Hamliltonian, so the components of <(W_sl * cos(I)) + Wdot>, <W_sl * sin(I)>
+
+    Let's plot the shape of these coefficients (within one LK cycle) evolving
+    over time (or the cycle number...)
+    '''
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    with open(folder + pkl_head + '.pkl', 'rb') as f:
+        t, (a, e, W, I, w), [t_lks, _] = pickle.load(f)
+    a_int = interp1d(t, a)
+    e_int = interp1d(t, e)
+    I_int = interp1d(t, I)
+    W_int = interp1d(t, W)
+    w_int = interp1d(t, w)
+    ffts_x = []
+    ffts_z = []
+    N_maxs = []
+    times = []
+    num_lk = len(t_lks) // 16
+    size = 20000
+    for start, end in list(zip(t_lks[ :-1], t_lks[1: ]))[ :num_lk:num_lk // 8]:
+
+        dt = min(np.diff(t[np.where(np.logical_and(t <= end, t >= start))[0]]))
+        ts = np.linspace(start, end, size)
+        e_t = e_int(ts)
+        dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
+                (5 * e_t**2 * np.cos(w_int(ts))**2
+                 - 4 * e_t**2 - 1)
+            / (4 * np.sqrt(1 - e_t**2)))
+        W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
+        fftz = 2 * np.real(fft(W_sl * np.cos(I_int(ts)) + dWdt)[1:size//2])
+        fftx = 2 * np.real(fft(W_sl * np.sin(I_int(ts)))[1:size//2])
+        # fftz = np.real(fft(W_sl * np.cos(I_int(ts)) + dWdt))
+        # fftx = np.real(fft(W_sl * np.sin(I_int(ts))))
+        ffts_x.append(fftx / size)
+        ffts_z.append(fftz / size)
+        N_maxs.append(int(1 / np.sqrt(1 - max(e_t)**2)))
+        times.append((end + start) / 2)
+
+    idxs = np.arange(1, size // 2)
+    # idxs = np.arange(size) - (size // 2)
+    colors = ['b', 'g', 'r', 'c', 'm', 'y', 'k'] + \
+        ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
+    for fftz, nmax, time, c in zip(ffts_z, N_maxs, times, colors):
+        plt.semilogy(idxs, fftz, c=c, label=r'$%.1f$' % time, alpha=0.7)
+        plt.semilogy(idxs, -fftz, c=c, ls=':', alpha=0.7)
+        plt.xscale('log')
+    plt.xlim(right=size // 4)
+    # plt.xlim((-size // 20, size // 20))
+    plt.ylim(bottom=1e-5)
+    plt.xlabel(r'$N$')
+    plt.legend(fontsize=10, ncol=2, loc='upper right')
+    plt.tight_layout()
+    plt.savefig('5ffts_' + pkl_head, dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
     # plot_dWs()
     # get_I_avg_traj('4sims/', '4sim_lk_90_500')
     # get_I_avg_traj('4sims/', '4sim_lk_90_400')
     # get_I_avg_traj('4sims/', '4sim_lk_90_250')
 
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    getter_kwargs['eps_gr'] = 0
-    folder = '4sims/'
-    I_deg = 90.4
-    ret_lk = funcs4.get_kozai(folder, I_deg, getter_kwargs, af=5e-3, atol=1e-9,
-                              rtol=1e-9, pkl_template='4sim_nogr_%s.pkl')
-    s_vec = funcs4.get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
-                                      atol=1e-8, rtol=1e-8,
-                                      pkl_template='4sim_nogr_s_%s.pkl')
-    funcs4.plot_all(folder, ret_lk, s_vec, getter_kwargs,
-                    fn_template='4sim_nogr_%s')
-    get_I_avg_traj(folder, '4sim_nogr_90_400')
+    # test get_I_avg w/o pericenter precession
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # getter_kwargs['eps_gr'] = 0
+    # folder = '4sims/'
+    # I_deg = 90.4
+    # ret_lk = funcs4.get_kozai(folder, I_deg, getter_kwargs, af=5e-3, atol=1e-9,
+    #                           rtol=1e-9, pkl_template='4sim_nogr_%s.pkl')
+    # s_vec = funcs4.get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
+    #                                   atol=1e-8, rtol=1e-8,
+    #                                   pkl_template='4sim_nogr_s_%s.pkl')
+    # funcs4.plot_all(folder, ret_lk, s_vec, getter_kwargs,
+    #                 fn_template='4sim_nogr_%s')
+    # get_I_avg_traj(folder, '4sim_nogr_90_400')
+
+    plot_Wdot_ft('4sims/', '4sim_lk_90_500')

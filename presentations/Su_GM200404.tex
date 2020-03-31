@@ -147,7 +147,7 @@
                     with $T_{LK}$ (varying), so decompose about the mean value:
                     \begin{align}
                         \rd{\uv{S}}{t} ={}&
-                            \ev{\Omega_{SL}\uv{L} - \dot{\Omega} \uv{L_3}}_{LK}
+                            \ev{\uv{\Omega}_{\rm eff}}_{LK}
                                 \times \uv{S}\nonumber\\
                             &- \bm{S} \times \sum\limits_{N = 1}^\infty \uv{A}_N
                                 \cos \p{\frac{2\pi N t}{T_{LK}}}.
@@ -215,22 +215,49 @@
         \end{column}
         \begin{column}{0.5\textwidth}
             \begin{itemize}
-                \item Note: If $\Omega_{SL} \gtrsim \dot{\Omega}$, LK
-                    suppressed. Thus, consider primarily
-                    $\ev{\dot{\Omega}}_{LK}$.
-
-                \item We want $\ev{\dot{\Omega}} = \pi N'/T_{LK}$, which is
-                    equivalent to:
-                    \begin{equation}
-                        \pi N' = \Delta \Omega = \int\limits_0^{T_{LK}}
-                            \dot{\Omega}\;\mathrm{d}t.
-                    \end{equation}
-
-                \item It turns out that for a wide range of parameters,
-                    $\abs{\Delta \Omega} < \pi$, thus, no resonance can be hit.
+                \item Equivalently, consider using Hamiltonian and going to
+                    coordinates (sum every $N$ and $N + N'$ term to generate
+                    multiples of $N'/2$). Note $\sin\p{\phi - \frac{\pi N'
+                    t}{T_{LK}}}$ dependencies.
             \end{itemize}
+            \begin{align}
+                H ={}&
+                    \ev{\uv{\Omega}_{\rm eff}}_{LK}
+                        \cdot \uv{S}\nonumber\\
+                    &+ \sum\limits_{N = 1}^\infty \p{A_{N,z}\cos\theta
+                        + A_{N,x}\sin\theta \cos \phi}
+                        \cos \p{\frac{2\pi N t}{T_{LK}}},\\
+                    ={}& \ev{\uv{\Omega}_{\rm eff}}_{LK}
+                        \cdot \uv{S}\nonumber\\
+                    &+\frac{\uv{S}}{2} \cdot \sum\limits_{N = 1}^{N'} \uv{A}_N
+                        \cos \p{\frac{2\pi N t}{T_{LK}}}\nonumber\\
+                    &+ \frac{\uv{S}}{2} \cdot \sum\limits_{N = 1}^\infty
+                        \p{B_{N,z} \cos\theta + B_{N,x}\sin\theta\cos \phi}
+                            \cos\p{\frac{\pi N' t}{T_{LK}}}\nonumber\\
+                    &- \p{C_{N,z}\cos\theta + C_{N,x}\sin\theta \cos \phi }
+                        \sin \p{\frac{\pi N' t}{T_{LK}}}.
+            \end{align}
         \end{column}
     \end{columns}
+\end{frame}
+\begin{frame}
+    \frametitle{Averaged Scenario}
+    \framesubtitle{When are Resonances Hit?}
+    \begin{itemize}
+        \item Note: If $\Omega_{SL} \gtrsim \dot{\Omega}$, LK
+            suppressed. Thus, consider primarily
+            $\ev{\dot{\Omega}}_{LK}\uv{z}$ dominating $\uv{\Omega}_{\rm eff}$.
+
+        \item We want $\ev{\dot{\Omega}} = \pi N'/T_{LK}$, which is
+            equivalent to:
+            \begin{equation}
+                \pi N' = \Delta \Omega = \int\limits_0^{T_{LK}}
+                    \dot{\Omega}\;\mathrm{d}t.
+            \end{equation}
+
+        \item It turns out that for a wide range of parameters,
+            $\abs{\Delta \Omega} < \pi$, thus, no resonance can be hit.
+    \end{itemize}
 \end{frame}
 
 \begin{frame}
