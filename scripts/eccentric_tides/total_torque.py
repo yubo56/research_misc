@@ -223,5 +223,5 @@ if __name__ == '__main__':
     # plot_spin()
     # plot_energy()
     # plot_energy(400)
-    # plot_7319()
-    plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
+    plot_7319()
+    # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
