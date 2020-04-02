@@ -34,6 +34,8 @@
     \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
     \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
     \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rdil}[2]{\mathrm{d}#1 / \mathrm{d}#2}
+    \newcommand*{\pdil}[2]{\partial#1 / \partial#2}
     \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
     \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
     \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
@@ -1225,7 +1227,7 @@ criterion for the adiabatic prediction to break down in LL17. The shape of the
 curve is somewhat complicated, but is in theory purely analytic, albeit not in
 closed form: we have $x(t)$ and $\dot{\Omega}(x)$, so it's easy to integrate.
 
-\subsection{Few-Shot Merger}
+\subsection{Few-Shot Merger (WRONG)}
 
 Let's now ignore all the resonant terms, and just consider precession about
 $\uv{\Omega}_{\rm eff}$. The EOM is then
@@ -1246,7 +1248,11 @@ adiabatic resonance crossing is just
         \sin\p{\phi_0 + \frac{\pi}{4}}.
 \end{equation}
 For $I_0 \approx 90^\circ$, we can replace $\cos^3 I_0$ with $\p{I_0 -
-\pi/2}^3$. This checks out well with simulation.
+\pi/2}^3$. This checks out well with simulation. (Edit: I flipped a coefficient
+here and accidentally got the right answer: It should be $\Delta \theta_{\rm
+eff} \propto \dot{\mathcal{A}}^{+1/2}$ instead, such that when the crossing is
+slow, the time derivative is small and $\Delta \theta \to 0$. So we need to do
+this more exactly, per the following subsection).
 
 Finally, let's remember in our simulations that, for identical initial phases
 $\phi_{sb}$, the $\Delta \theta_{\rm eff}(I_0)$ curves are identical (past the
@@ -1272,7 +1278,139 @@ We can probably predict the final value of $I$ by the above argument though, and
 know its rough range (around $120^\circ$), which tells us that the $I$ in our
 $\Delta \theta_{\rm eff}$ calculation indeed does not change too much.
 
-\subsection{}
+\subsection{Few-Shot Merger Exact}
+
+To do this problem exactly, let's start with the LK-averaged $\rd{\uv{S}}{t}$
+but then transform to the frame where $\uv{\Omega}_{\rm eff} \propto \uv{z}$.
+Again, this is effected by some rotation about the $\uv{y}$ axis; let's call it
+$\dot{I}_{\rm out}$ for simplicity. Here, $I_{\rm out}$ is the angle between the
+old and new $z$ axis and is defined such that
+\begin{equation}
+    -\dot{\Omega} \sin I_{\rm out} + \Omega_{SL}\sin \p{I + I_{\rm out}}
+        = 0.\label{eq:I_out_def}
+\end{equation}
+Here, positive $I_{\rm out}$ means a \emph{positive} component along the $x$
+axis.
+
+Recall that $\sgn(\dot{\Omega}) = -\sgn(\cos I)$. Let's first specialize to $I <
+\pi/2$, then $\dot{\Omega} < 0$. Then, when $\dot{\Omega}$ dominates, $I_{\rm
+out} < 0, \to 0$, while when $\Omega_{SL}$ dominates, $I_{\rm out} > -I \to -I$.
+Similarly, when $I > \pi/2$: when $\dot{\Omega}$ dominates, $I_{\rm out} > 0,
+\to 0$, and when $\Omega_{SL}$ dominates, $I_{\rm out} < \pi - I \to \pi - I$.
+
+In terms of this, the EOM are then
+\begin{equation}
+    \rd{\uv{S}}{t} = \s{-\dot{\Omega} \cos I_{\rm out}\uv{z} + \Omega_{SL}
+        \cos \p{I + I_{\rm out}}\uv{z} - \dot{I}_{\rm out}\uv{y}} \times
+        \uv{S}.\label{eq:shat_eom}
+\end{equation}
+This gives the anticipated behavior: for $I < \pi/2$, the system stays
+precessing about $\uv{z}$, and otherwise around $-\uv{z}$ (which, in the final
+state, corresponds to precession around $\pm \uv{L}$ respectively).
+
+Again, it appears we will need a closed form for $\dot{I}_{\rm out}$.
+Thankfully, numerically, it seems $I$ is roughly constant, so implicit
+differentiation gives
+\begin{align}
+    \dot{I}_{\rm out}\p{-\dot{\Omega}\cos I_{\rm out}
+        + \Omega_{SL}\cos\p{I + I_{\rm out}}}
+        &= \ddot{\Omega} \sin I_{\rm out} - \dot{\Omega}_{SL}
+            \sin\p{I + I_{\rm out}},\\
+        &= \ddot{\Omega}\frac{\Omega_{SL}\sin\p{I + I_{\rm out}}}{\dot{\Omega}}
+            - \dot{\Omega}_{SL}\sin\p{I + I_{\rm out}},\\
+    \dot{I}_{\rm out}\p{-\cot I_{\rm out} + \cot \p{I + I_{\rm out}}}
+        &= \rd{}{t}\p{\ln \dot{\Omega} - \ln
+        \Omega_{SL}}.\label{eq:idot_out_sol}
+\end{align}
+It is clear that the LHS coefficients are large except where $I_{\rm out}
+\approx I / 2$, as the RHS is very peaceful ($\sim 1/T_{GW}$, no large
+variations). This occurs where $\abs{\dot{\Omega}} \sim \Omega_{SL}$.
+
+Now, note that Eq.~\eqref{eq:shat_eom} has no resonance structure, but it has
+decomposed very cleanly: $\theta$ dependence depends only on the $\uv{y}$
+component, and the rest only on the $\uv{z}$ component. As such, we obtain
+explicit closed form
+\begin{align}
+    \phi(t) &= \int_0^t \p{-\dot{\Omega}\cos I_{\rm out}
+            + \Omega_{SL}\p{\cos \p{I + I_{\rm out}}}}\;\mathrm{d}\tau,\\
+    \Delta \theta_{\rm eff}
+        &= \int\limits_0^\infty \dot{I}_{\rm out}\cos \phi(t)\;\mathrm{d}t.
+\end{align}
+Consider modeling $\dot{I}_{\rm out}(t)$ as a Gaussian with some width $\sigma$
+and peaking at some time $t_0 > 0$. $\sigma$ is then roughly $\sigma \sim
+I / \dot{I}_{\rm out}$ (the total change in $I_{\rm out}$ is $I$). Referencing
+Eq.~\eqref{eq:idot_out_sol} and approximating the LHS as $2\dot{I}_{\rm out}$
+and the RHS as $\rdil{\ln \mathcal{A}}{t} \approx \rdil{\mathcal{A}}{t}$ gives
+$\sigma \simeq 2I /\dot{\mathcal{A}}$. The height of the Gaussian for
+$\dot{I}_{\rm out}$ is just its peak value, which conveniently is just
+$\dot{\mathcal{A}} / 2$. Requiring $\dot{I}_{\rm out}$ normalize correctly gives
+us
+\begin{equation}
+    \dot{I}_{\rm out} \approx \frac{\dot{\mathcal{A}}}{2}\exp\s{
+        -\frac{t^2}{2}\frac{2\pi \dot{\mathcal{A}}^2}{4I^2}}.
+\end{equation}
+
+There are two regimes in which this integral is evaluated: (i) $\sigma$ is small
+(specifically $\dot{\phi}\sigma \ll 1$), and we perform the Gaussian integral
+with a slowly varying phase, or (ii) $\sigma$ is large and we perform stationary
+phase integration for fixed $\dot{I}_{\rm out}$ near its peak value.
+
+In the first case, we can solve the resulting Gaussian integral exactly ($\tau =
+t - t_0$)
+\begin{align}
+    \Delta \theta_{\rm eff} &= \Im \int\limits_{-\infty}^\infty
+            A\exp\s{-\frac{(t - t_0)^2}{2\sigma^2}} e^{i\phi}\;\mathrm{d}\phi,\\
+        &\approx \Im \int\limits_{-\infty}^\infty A
+            \exp\s{-\frac{\tau^2}{2\sigma^2} + i\p{\phi_0 + \tau
+                \at{\rd{\phi}{t}}_{\tau = 0}}}\;\mathrm{d}\tau,\\
+        &= \Im Ae^{i\phi_0} \int\limits_{-\infty}^\infty
+            \exp\s{-\frac{1}{2\sigma^2}\p{\tau^2 -
+                2i\tau \sigma^2\at{\rd{\phi}{t}}_{\tau = 0}}}\;\mathrm{d}\tau,\\
+        &= \Im Ae^{i\phi_0}\sqrt{2\pi \sigma^2} \exp\s{
+            -\frac{\sigma^2}{2} \p{\at{\rd{\phi}{t}}_{\tau = 0}}^2},\\
+        &= I \exp\s{-\frac{1}{2}\frac{4I^2}{2\pi \dot{\mathcal{A}}^2}
+                \dot{\phi}_{\tau = 0}^2}\cos \phi_0.
+\end{align}
+The encouraging thing is that everything is that when indeed $\dot{\phi} \sigma
+\ll 1$ we recover $\Delta \theta_{\rm eff} = I$, as the spin co-moves with
+$\uv{L}$ as it nutates into $\uv{z}$. Furthermore, if $\mathcal{A}$ changes
+somewhat more slowly, $\Delta \theta_{\rm eff}$ is somewhat lesser, until it
+goes to zero for the slow-merger limit. In this limit, this expression isn't
+valid, but it will join with the stationary phase calculation, so it should have
+the qualitatively same behavior.
+
+In the other regime, where $\sigma$ is large, let's just take $\dot{I}_{\rm out}
+\approx \dot{\mathcal{A}} / 2$ and integrate the stationary phase, where
+$\dot{\phi}$ has a minimum for $t_0 > 0$, so $\tau = t - t_0$
+\begin{align}
+    \Delta \theta_{\rm eff} &= \Im \frac{\dot{\mathcal{A}}}{2}
+            \int\limits_{0}^\infty e^{i\phi}\;\mathrm{d}t,\\
+        &\approx \Im \frac{\dot{\mathcal{A}}}{2}
+            \int\limits_{-\infty}^\infty \exp\s{
+                i\phi_0 + \frac{i\ddot{\phi}}{2}\tau^2}\;\mathrm{d}\tau,\\
+        &\approx \Im \frac{\dot{\mathcal{A}}}{2} e^{i\phi_0}
+            \sqrt{2\pi i/\ddot{\phi}}
+\end{align}
+We want to rewrite $\ddot{\phi}$, for which we observe
+\begin{align}
+    \dot{\phi} &= -\dot{\Omega} \cos I_{\rm out}
+            + \Omega_{SL} \cos \p{I + I_{\rm out}},\\
+        &= -\mathcal{A}^{-3/8}\dot{\Omega}_0 \cos I_{\rm out}
+            + \mathcal{A}^{5/8}\Omega_{SL, 0}\cos \p{I + I_{\rm, out}},\\
+    \dot{\phi}\p{\tau = 0} &\approx
+        -\mathcal{A}^{-3/8}\dot{\Omega}_0 \cos\p{\frac{I}{2}}
+            + \mathcal{A}^{5/8}\Omega_{SL, 0}\cos \p{\frac{I}{2}},\\
+    \ddot{\phi}\p{\tau = 0} &\approx
+        -\cos \p{\frac{I}{2}} \dot{\Omega}\p{\tau = 0}
+            \p{-\frac{3\dot{\mathcal{A}}}{8\mathcal{A}}
+                + \frac{5\dot{\mathcal{A}}}{8\mathcal{A}}}
+                = \frac{\dot{\phi}(\tau = 0)}{2}\frac{\dot{\mathcal{A}}}{4},\\
+    \Delta \theta_{\rm eff} &\approx
+        \sqrt{\frac{4\pi \dot{\mathcal{A}}}{\dot{\phi}(\tau = 0)}}
+            \sin\p{\phi_0 +  \frac{\pi}{4}}.
+\end{align}
+Indeed, this now has the desired scaling: $\sqrt{\dot{\mathcal{A}}} \sim
+\cos^{-3}(I_0)$.
 
 \appendix
 
