@@ -1432,13 +1432,13 @@ define $\omega_c \equiv \sqrt{GM_c/R_c^3}$ the core breakup rotation rate. For
 our problem, only the stellar parameters themselves are uncertain, so we will
 place all measurable parameters in curly braces going forwards:
 \begin{align}
-    \frac{GM_t^2}{3a}\frac{\dot{P}}{P}
+    -\frac{GM_t^2}{3a}\frac{\dot{P}}{P}
         &\leq \beta_2 \frac{GM_2^2r_c^5}{a^6}
             \p{\frac{\Omega}{\omega_c}}^{8/3} \frac{\rho_c}{\bar{\rho}_c}
                 \p{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
             \Omega \p{\frac{f_5 N_{\max}}{8\p{1 - e^2}^{9/2}}
             5\Gamma(14/3)2^{8/3}}\abs{\frac{\Omega_s}{\Omega}}^{8/3},\\
-    \frac{(1 + q)^2}{3} \frac{\dot{P}}{2\pi} &\leq
+    -\frac{(1 + q)^2}{3} \frac{\dot{P}}{2\pi} &\leq
         \beta_2 \p{\frac{r_c}{a}}^5 \p{\frac{\Omega_s}{\omega_c}}^{8/3}
             \z{\frac{\rho_c}{\bar{\rho_c}}
             \p{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
@@ -1449,8 +1449,8 @@ Using this, we can relate $r_c$ and $\Omega_s$, assuming all IGW break.
 Surprisingly, $r_c$ does \emph{not} depend on the mass of the star. We evaluate
 numerically and find for the given values:
 \begin{align}
-    \dot{P} &= \frac{4421040.6(4)\;\mathrm{s}}{0.5\;\mathrm{Myr}}
-        \approx \scinot{2.8}{-7},\\
+    \dot{P} &= -\frac{4421040.6(4)\;\mathrm{s}}{0.5\;\mathrm{Myr}}
+        \approx -\scinot{2.8}{-7},\\
     q &= 6.3 \pm 1.2,\\
     e &= 0.807949(3),\\
     \frac{\rho_c}{\bar{\rho_c}} \p{1 - \frac{\rho_c}{\bar{\rho}_c}}^2
@@ -1462,13 +1462,20 @@ numerically and find for the given values:
 % braces \approx 19550.5
 % (1 + 3 * e**2 + 3 * e**4/8) * 21 * 5 * gamma(14/3) / (2**(1/3) * (1 - e**2)**(9/2)) * 0.0438
     \frac{r_c}{a} &\geq
-            \s{\frac{(1 + q)^2}{6\pi}
+            \s{-\frac{(1 + q)^2}{6\pi}
                 \frac{\dot{P}}{\beta_2\z{19550.5}}}^{1/5}
                 \p{\frac{\Omega_s}{\omega_c}}^{-8/15},\\
-        &\geq \scinot{8.346}{-3}\p{\frac{\Omega_s}{\omega_c}}^{-8/15},\\
-    r_c &\gtrsim 1.052R_{\odot}\p{\frac{\Omega_s}{\omega_c}}^{-8/15}.
+        &\geq \scinot{8.346}{-3}\p{\frac{\Omega_s}{\omega_c}}^{-8/15}
+            \p{\frac{1 + q}{7.3}}^{2/5}
+            \p{-\frac{\dot{P}}{\scinot{2.8}{-7}}}^{1/5},\\
+    r_c &\gtrsim 1.052R_{\odot}\p{\frac{\Omega_s}{\omega_c}}^{-8/15}
+        \p{\frac{1 + q}{7.3}}^{2/5}\p{-\frac{\dot{P}}{\scinot{2.8}{-7}}}^{1/5}.
 \end{align}
-This is a surprisingly simple relation that relates $r_c$ and $\Omega_s$.
+This is a surprisingly simple relation that relates $r_c$ and $\Omega_s$\dots
+and the scaling seems correct, since the accepted parameters have $r_c \approx
+1.6R_{\odot}$ while many of my MESA simulations have $r_c$ near
+$\scinot{5}{10}\;\mathrm{cm}$, smaller than $R_{\odot} =
+\scinot{6.96}{10}\;\mathrm{cm}$.
 
 \end{document}
 
