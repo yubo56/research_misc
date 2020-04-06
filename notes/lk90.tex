@@ -1211,74 +1211,19 @@ eff}$ changes so quickly that even the averaged Hamiltonian is nonadiabatic.
 This is trivial to solve for though, since we just have some circular
 frequencies that vary in time.
 
-\subsection{Estimating Whether Resonances Get Hit}
-
-Numerically, we find that in some of our far-out binaries, $\Delta \Omega$ over
-one LK period starts at $\lesssim 3$ and quickly decreases over the course of
-the simulation. Recall that we need $\Omega_{\rm eff}$ to be a half-integer
-multiple of the Kozai angular frequency, which implies $\Delta \Omega$ needs to
-be at least $\pi$. Can we thus calculate what $\Delta \Omega$ is over a Kozai
-cycle? Also calculating $\oint \Omega_{SL}\;\mathrm{d}t$ would be nice, since it
-gives us an idea of what is the dominant contribution to $\ev{\uv{\Omega}_{\rm
-eff}}$ (Edit: I don't think I'm going to bother doing this).
+\subsection{Estimating Whether Resonances Get Hit (LL17)}
 
 Numerically, we can verify that $\abs{\Delta \Omega} \gtrsim \pi$ is a necessary
-criterion for the adiabatic prediction to break down in LL17. The shape of the
-curve is somewhat complicated, but is in theory purely analytic, albeit not in
-closed form: we have $x(t)$ and $\dot{\Omega}(x)$, so it's easy to integrate.
+criterion for the adiabatic prediction to break down in LL17. This corresponds
+to $m' = 1$. The shape of the curve is somewhat complicated, but is in theory
+purely analytic, albeit not in closed form: we have $x(t)$ and
+$\dot{\Omega}(x)$, so it's easy to integrate.
 
-\subsection{Few-Shot Merger (WRONG)}
+What about the width of this resonance? Well, I have a new suspicion that it's
+actually just a parametric resonance, in which case the width and all may be
+easy to compute.
 
-Let's now ignore all the resonant terms, and just consider precession about
-$\uv{\Omega}_{\rm eff}$. The EOM is then
-\begin{align}
-    \rd{\uv{S}}{t} &= \s{-\dot{\Omega}\uv{z} + \Omega_{SL}\p{\cos I \uv{z} +
-        \sin I \uv{x}}} \times \uv{S},\\
-        &= \s{\p{\mathcal{A}_0 - \cos I}\uv{z} + \mathcal{A}_0\sin I \uv{x}}
-            \times \dot{\Omega} \uv{S}.
-\end{align}
-We've defined $\mathcal{A}_0$ to be the zero-eccentricity adiabaticity per the
-LL papers. The resonance occurs then when $\mathcal{A}_0 \sim 1$, and the speed
-of the crossing scales like $\mathcal{A}_0$. Let's guess that $\dot{A}_0 \sim
-1/T_m$ the merger time. Using LL18, we know $T_m \sim \p{1 - e_{\max}^2}^3$,
-which is also $\sim \cos^6 I_0$. Thus, the jump \emph{relative} to an exactly
-adiabatic resonance crossing is just
-\begin{equation}
-    \Delta \theta_{\rm eff} \sim \frac{\sqrt{2\pi}}{\cos^3 I_0}
-        \sin\p{\phi_0 + \frac{\pi}{4}}.
-\end{equation}
-For $I_0 \approx 90^\circ$, we can replace $\cos^3 I_0$ with $\p{I_0 -
-\pi/2}^3$. This checks out well with simulation. (Edit: I flipped a coefficient
-here and accidentally got the right answer: It should be $\Delta \theta_{\rm
-eff} \propto \dot{\mathcal{A}}^{+1/2}$ instead, such that when the crossing is
-slow, the time derivative is small and $\Delta \theta \to 0$. So we need to do
-this more exactly, per the following subsection).
-
-Finally, let's remember in our simulations that, for identical initial phases
-$\phi_{sb}$, the $\Delta \theta_{\rm eff}(I_0)$ curves are identical (past the
-one-shot case). This is again in agreement with our prediction above.
-
-This is not exactly rigorous, claiming the ``jump relative to an exactly
-adiabatic crossing''. Instead, we should probably add a rotation such that
-$\uv{\Omega}_{\rm eff}$ is pointing along the $\uv{z}$ axis, and examine only
-the EOM about $\theta_{\rm eff}$. TODO sort this out\dots
-
-Finally, I noticed one more thing: in the above calculation, we somewhat assume
-$I$ is constant, in these averaged equations. How valid is this? Well,
-numerically, one of the vector-averaged $I$s is pretty constant. In particular,
-$\ev{\dot{\Omega}\uv{L}} \sim \oint \cos I \;\mathrm{d}\Omega$, which is one of
-the phase space areas. Since the Kozai constant only changes slowly, we should
-expect this area to be conserved indeed. Unfortunately, I got confused, and we
-really want $\ev{\Omega_{SL} \bm{L}}$. This means that the averaged $I$ is
-slightly more dominated during the high-$e$ phases, so the averaged $I$ being
-used above will start slightly above its final value ($\sim 125^\circ$) and the
-LK max of $141^\circ$.
-
-We can probably predict the final value of $I$ by the above argument though, and
-know its rough range (around $120^\circ$), which tells us that the $I$ in our
-$\Delta \theta_{\rm eff}$ calculation indeed does not change too much.
-
-\subsection{Few-Shot Merger Exact}
+\subsection{Few-Shot Merger Exact (LL18)}
 
 To do this problem exactly, let's start with the LK-averaged $\rd{\uv{S}}{t}$
 but then transform to the frame where $\uv{\Omega}_{\rm eff} \propto \uv{z}$.
@@ -1411,6 +1356,25 @@ We want to rewrite $\ddot{\phi}$, for which we observe
 \end{align}
 Indeed, this now has the desired scaling: $\sqrt{\dot{\mathcal{A}}} \sim
 \cos^{-3}(I_0)$.
+
+Finally, let's remember in our simulations that, for identical initial phases
+$\phi_{sb}$, the $\Delta \theta_{\rm eff}(I_0)$ curves are identical (past the
+one-shot case). This is again in agreement with our prediction above.
+
+Finally, I noticed one more thing: in the above calculation, we somewhat assume
+$I$ is constant, in these averaged equations. How valid is this? Well,
+numerically, one of the vector-averaged $I$s is pretty constant. In particular,
+$\ev{\dot{\Omega}\uv{L}} \sim \oint \cos I \;\mathrm{d}\Omega$, which is one of
+the phase space areas. Since the Kozai constant only changes slowly, we should
+expect this area to be conserved indeed. Unfortunately, I got confused, and we
+really want $\ev{\Omega_{SL} \bm{L}}$. This means that the averaged $I$ is
+slightly more dominated during the high-$e$ phases, so the averaged $I$ being
+used above will start slightly above its final value ($\sim 125^\circ$) and the
+LK max of $141^\circ$.
+
+We can probably predict the final value of $I$ by the above argument though, and
+know its rough range (around $120^\circ$), which tells us that the $I$ in our
+$\Delta \theta_{\rm eff}$ calculation indeed does not change too much.
 
 \appendix
 
