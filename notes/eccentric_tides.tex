@@ -1380,20 +1380,28 @@ $\dot{E}_{\rm rot} = \dot{E}_{\rm in} - \Omega_s \tau$) is $\sim \scinot{4}{12}
 \hat{T}\Omega = \scinot{3}{28}\;\mathrm{W} = 80L_{\odot}$. This is still
 somewhat negligible compared to the luminosity of the host star\dots
 
+\subsection{MESA Sims Take 1}
+
 Let's try running this via MESA\@. It looks like the metallicity should be
-somewhere around $0.1\times$ or $0.2\times$
-solar\footnote{https://academic.oup.com/mnras/article/422/2/1109/1032973\#18429474}.
-Hilariously, the old mass estimate comes from requiring a $1.4M_{\odot}$ NS,
-which is not accurate; Thorsett \& Chakrabatty 1999 give a new estimate $\sim 10
-M_{\odot}$. We want a star of the correct metallicity to reproduce the only
-observational constraints, $L \sim \scinot{1.2}{4}L_{\odot}$ and $T \sim 24000
-\pm 100\;\mathrm{K}$. This seems to be hard to satisfy, my original MESA
-simulations have higher temperatures and lower luminosities, at least on the MS
-down to a central hydrogen abundance $\sim 0.5$. This seems to suggest possible
-signatures of tidal heating, which could puff up the star (lowering the Teff and
-raising the luminosity), but this seems somewhat unlikely from the $\dot{E}_{\rm
-rot}$ calculation using the OG values above. See plots for comparison of MESA
-data. % TODO
+somewhere around $0.1\times$ or $0.2\times$ solar\footnote{
+\url{https://academic.oup.com/mnras/article/422/2/1109/1032973\#18429474},
+\url{https://iopscience.iop.org/article/10.1088/0004-637X/741/1/12/meta}}.% chktex 8
+It seems the metallicity tends to be low, so let's generously assume
+solar is $0.02$ and thus SMC can be as high as $0.004$ (we tried quite a few
+parameters
+with $0.0012$ with very little success).
+
+Hilariously, the old mass estimate
+comes from requiring a $1.4M_{\odot}$ NS, which is not accurate; Thorsett \&
+Chakrabatty 1999 give a new estimate $\sim 10 M_{\odot}$. We want a star of the
+correct metallicity to reproduce the only observational constraints, $L \sim
+\scinot{1.2}{4}L_{\odot}$ and $T \sim 24000 \pm 100\;\mathrm{K}$. This seems to
+be hard to satisfy, my original MESA simulations have higher temperatures and
+lower luminosities, at least on the MS down to a central hydrogen abundance
+$\sim 0.5$. This seems to suggest possible signatures of tidal heating, which
+could puff up the star (lowering the Teff and raising the luminosity), but this
+seems somewhat unlikely from the $\dot{E}_{\rm rot}$ calculation using the OG
+values above. See plots for comparison of MESA data. % TODO
 
 Taking $M = 11.4M_{\odot}$ (which matches at least the luminosity) and companion
 mass $1.81 M_{\odot}$, we can plug in some values
@@ -1476,6 +1484,20 @@ and the scaling seems correct, since the accepted parameters have $r_c \approx
 1.6R_{\odot}$ while many of my MESA simulations have $r_c$ near
 $\scinot{5}{10}\;\mathrm{cm}$, smaller than $R_{\odot} =
 \scinot{6.96}{10}\;\mathrm{cm}$.
+
+\subsection{MESA Sims Take 2}
+
+We seek a $r_c \gtrsim 1.052R_{\odot}$. It seems that using $\alpha_{\rm ov}
+\sim 0.6$ (from the ``higher convective core masses'' paper) and a substantial
+ZAMS $v_{\rm surf} = 500\;\mathrm{km/s}$ is able to generate $v_{\rm surf}
+\approx 160\;\mathrm{km/s}$, as expected. If we further inflate the $Z$ and use
+$Z = 0.004$ ($Z = 0.0012$ has no chance, which was our previous number), then we
+can run MESA sims that fit $L, T_{\rm eff}$ and see what the resultant $r_c$ is.
+
+Note that it seems all SMC metallicies are reported in solar fractions, since it
+seems it all has the same biases. Recent papers\footnote{
+https://www.mdpi.com/2218-2004/7/2/41} seem to suggest higher solar % chktex 8
+metallicities again, which backs up our $Z \approx 0.004$ for the SMC\@.
 
 \end{document}
 

@@ -134,8 +134,6 @@ def plot_Wdot_ft(folder, pkl_head):
     num_lk = len(t_lks) // 16
     size = 20000
     for start, end in list(zip(t_lks[ :-1], t_lks[1: ]))[ :num_lk:num_lk // 8]:
-
-        dt = min(np.diff(t[np.where(np.logical_and(t <= end, t >= start))[0]]))
         ts = np.linspace(start, end, size)
         e_t = e_int(ts)
         dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
@@ -169,6 +167,74 @@ def plot_Wdot_ft(folder, pkl_head):
     plt.savefig('5ffts_' + pkl_head, dpi=200)
     plt.close()
 
+def plot_dWeff_mags(folder, pkl_head):
+    '''
+    we want the Fourier components of the fast-varying component in the
+    Hamliltonian, so the components of <(W_sl * cos(I)) + Wdot>, <W_sl * sin(I)>
+
+    Let's plot the shape of these coefficients (within one LK cycle) evolving
+    over time (or the cycle number...)
+    '''
+    stride = 100
+    size = 50
+
+    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    with open(folder + pkl_head + '.pkl', 'rb') as f:
+        t, (a, e, W, I, w), [t_lks, _] = pickle.load(f)
+    t_lk0, _, _, _ = get_vals(m1, m2, m3, a0, a2, e2, I[0])
+    print(t_lk0)
+    a_int = interp1d(t, a)
+    e_int = interp1d(t, e)
+    I_int = interp1d(t, I)
+    W_int = interp1d(t, W)
+    w_int = interp1d(t, w)
+    dWeff_mags = []
+    dWsl_mags = []
+    dWdot_mags = []
+    times = []
+
+    # test, plot Wdot/Wsl over a single "period"
+    start, end = t_lks[1000:1002]
+    ts = np.linspace(start, end, size)
+    e_t = e_int(ts)
+    dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
+            (5 * e_t**2 * np.cos(w_int(ts))**2
+             - 4 * e_t**2 - 1)
+        / (4 * np.sqrt(1 - e_t**2)))
+    W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
+    plt.semilogy(ts * t_lk0, W_sl, 'r:')
+    plt.semilogy(ts * t_lk0, -dWdt, 'g:')
+    plt.savefig('/tmp/Wdots', dpi=200)
+    plt.close()
+    return
+
+    for start, end in zip(t_lks[ :-1:stride], t_lks[1::stride]):
+        ts = np.linspace(start, end, size)
+        e_t = e_int(ts)
+        dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
+                (5 * e_t**2 * np.cos(w_int(ts))**2
+                 - 4 * e_t**2 - 1)
+            / (4 * np.sqrt(1 - e_t**2)))
+        W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
+
+        Wtot = np.sqrt(
+            (W_sl * np.cos(I_int(ts)) - dWdt)**2
+            + (W_sl * np.sin(I_int(ts)))**2)
+        # NB: dW = int(Wdot dt)
+        dWeff_mags.append(np.sum(Wtot * (end - start) / size))
+
+        dWsl_mags.append(np.sum(W_sl * (end - start) / size))
+        dWdot_mags.append(np.sum(dWdt * (end - start) / size))
+        times.append((end + start) / 2 * t_lk0)
+
+    plt.semilogx(times, dWeff_mags, 'k:')
+    plt.semilogx(times, dWsl_mags, 'r:')
+    plt.semilogx(times, dWdot_mags, 'g:')
+    plt.ylim(-5, 5)
+    plt.savefig('5dWeffs_' + pkl_head, dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
     # plot_dWs()
     # get_I_avg_traj('4sims/', '4sim_lk_90_500')
@@ -190,4 +256,5 @@ if __name__ == '__main__':
     #                 fn_template='4sim_nogr_%s')
     # get_I_avg_traj(folder, '4sim_nogr_90_400')
 
-    plot_Wdot_ft('4sims/', '4sim_lk_90_500')
+    # plot_Wdot_ft('4sims/', '4sim_lk_90_500')
+    plot_dWeff_mags('4inner/', '4sim_lk_80_000')

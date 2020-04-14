@@ -146,6 +146,12 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
              **kwargs):
     mkdirp(folder)
     lk_t, lk_y, lk_events = ret_lk
+    if not s_vec:
+        s_vec = np.array(
+            [np.zeros_like(lk_t),
+             np.zeros_like(lk_t),
+             np.ones_like(lk_t)])
+    s_vec = s_vec[:, time_slice]
     sx, sy, sz = s_vec
     fig, axs_orig = plt.subplots(3, 5, figsize=(16, 9))
     axs = np.reshape(axs_orig, np.size(axs_orig))
@@ -500,10 +506,13 @@ def run_close_in():
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     I_deg = 80
     folder = '4inner/'
-    ret_lk = get_kozai(folder, I_deg, getter_kwargs, af=1e-2, atol=1e-9,
-                       rtol=1e-9)
-    s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs)
-    plot_all(folder, ret_lk, s_vec, getter_kwargs)
+    getter_kwargs['eps_gw'] *= 2
+    ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
+                       af=0.3)
+    # s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
+    #                            atol=1e-6, rtol=1e-6)
+    plot_all(folder, ret_lk, None, getter_kwargs,
+             time_slice=np.s_[::1000])
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -527,7 +536,7 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg)
     # run_for_Ideg('4sims/', 90.475)
 
-    ensemble_dat = run_ensemble('4sims_ensemble/')
+    # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
     #                              I_vals=np.arange(89.99, 89.5999, 0.001),
     #                              save_fn='ensemble2.pkl')
@@ -537,6 +546,6 @@ if __name__ == '__main__':
     # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
-    # run_close_in()
+    run_close_in()
 
-    plot_deviations('4sims_ensemble/', ensemble_dat)
+    # plot_deviations('4sims_ensemble/', ensemble_dat)
