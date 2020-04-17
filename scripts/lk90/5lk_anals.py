@@ -17,36 +17,105 @@ funcs4 = __import__('4orb_sims')
 from utils import *
 from scipy.fftpack import fft
 
-def get_dW(e0, I0):
+def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1):
     '''
-    total delta Omega over an LK cycle
+    total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
+    eps_gw
 
     wdot = 3 * sqrt(h) / 4 * (1 - 2 * (x0 - h) / (x - h))
     '''
+    a0 = 1
+    W0 = 0
+    w0 = 0
+
+    def dydt(t, y):
+        a, e, W, I, w = y
+        x = 1 - e**2
+        dadt =  (
+            -eps_gw * (64 * (1 + 73 * e**2 / 24 + 37 * e**4 / 96)) / (
+                5 * a**3 * x**(7/2))
+        )
+        dedt = (
+            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                    * np.sin(I)**2 / 8
+        )
+        dWdt = (
+            3 * a**(3/2) * np.cos(I) *
+                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+                / (4 * np.sqrt(x))
+        )
+        dIdt = (
+            -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                * np.sin(2 * I) / (16 * np.sqrt(x))
+        )
+        dwdt = (
+            3 * a**(3/2)
+                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
+                / (4 * np.sqrt(x))
+            + eps_gr / (a**(5/2) * x)
+        )
+        return (dadt, dedt, dWdt, dIdt, dwdt)
+    def term_event(t, y):
+        return y[4] - np.pi
+    term_event.terminal = True
+    ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
+                    events=[term_event], atol=1e-9, rtol=1e-9,
+                    dense_output=True)
+    times = np.linspace(0, ret.t[-1], int(3e6))
+    a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
+    dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / (1 - e_arr**2)
+                    * ret.t[-1] / len(times))
+    dWsl_x = np.sum(eps_sl / a_arr**(5/2) * np.sin(I_arr) / (1 - e_arr**2)
+                    * ret.t[-1] / len(times))
+    return ret.y[2, -1], (dWsl_z, dWsl_x)
+
+def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
+                   **kwargs):
+    dW, dWSL = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
+
+    # calculate n_e...
     x0 = 1 - e0**2
     h = x0 * np.cos(I0)**2
-
-    # quadratic for x1/x2
     b = -(5 + 5 * h - 2 * x0) / 3
     c = 5 * h / 3
     x1 = (-b - np.sqrt(b**2 - 4 * c)) / 2
     x2 = (-b + np.sqrt(b**2 - 4 * c)) / 2
-
     k_sq = (x0 - x1) / (x2 - x1)
     K = spe.ellipk(k_sq)
     ne = 6 * np.pi * np.sqrt(6) / (8 * K) * np.sqrt(x2 - x1)
-    def dWdt(t, _):
-        q = K / np.pi * (ne * t + np.pi)
-        x = x0 + (x1 - x0) * spe.ellipj(q, k_sq)[1]**2
-        return 3 * np.sqrt(h) / 4 * (
-            1 - 2 * (x0 - h) / x - h)
-    ret = solve_ivp(dWdt, (0, 2 * np.pi / ne), [0],
-                    atol=1e-9, rtol=1e-9)
-    return ret.y[0, -1]
+
+    def solve_Wsl():
+        phi = np.linspace(0, np.pi, int(3e6))
+        intg_tot = np.pi / (
+            (x0 + (x1 - x0) * np.cos(phi)**2)
+                * np.sqrt(1 - k_sq * np.sin(phi)**2)
+                * ne * K)
+        intg_z = np.pi * np.sqrt(h) / (
+            (x0 + (x1 - x0) * np.cos(phi)**2)**(3/2)
+                * np.sqrt(1 - k_sq * np.sin(phi)**2)
+                * ne * K)
+        intg_x = np.pi * np.sqrt(1 - h / (x0 + (x1 - x0) * np.cos(phi)**2)) / (
+            (x0 + (x1 - x0) * np.cos(phi)**2)
+                * np.sqrt(1 - k_sq * np.sin(phi)**2)
+                * ne * K)
+        # wsl_tot = np.sum(intg_tot * phi[-1] / len(phi))
+        wsl_z = np.sum(intg_z * phi[-1] / len(phi))
+        wsl_x = np.sum(intg_x * phi[-1] / len(phi))
+        return eps_sl * wsl_z, eps_sl * wsl_x
+    def solve_dot():
+        phi = np.linspace(0, np.pi, int(3e6))
+        intg = (np.sin(I0)**2 / np.sqrt(1 - k_sq * np.sin(phi)**2)) / (
+            np.sin(I0)**2 + (x1 / x0 - 1) * np.cos(phi)**2)
+        int_res = np.sum(intg * phi[-1] / len(phi))
+        return (3 * np.sqrt(h) * 2 * np.pi) / (4 * ne) * (1 - 1 / K * int_res)
+
+    print(solve_Wsl(), dWSL)
+    print(solve_dot(), dW)
 
 def plot_dWs():
+    ''' not really useful now that I have the analytical form '''
     I0_max = np.pi - np.arccos(np.sqrt(3/5))
-    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, 50)
+    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, 200)
     e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
     e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
     plt.axhline(-np.pi, c='k', ls='-')
@@ -237,6 +306,18 @@ def plot_dWeff_mags(folder, pkl_head):
 
 if __name__ == '__main__':
     # plot_dWs()
+
+    print('No GR limit')
+    check_anal_dWs()
+    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    print('Compact Params')
+    check_anal_dWs(**getter_kwargs)
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    print('Outer Params')
+    check_anal_dWs(**getter_kwargs)
+
     # get_I_avg_traj('4sims/', '4sim_lk_90_500')
     # get_I_avg_traj('4sims/', '4sim_lk_90_400')
     # get_I_avg_traj('4sims/', '4sim_lk_90_250')
@@ -257,4 +338,4 @@ if __name__ == '__main__':
     # get_I_avg_traj(folder, '4sim_nogr_90_400')
 
     # plot_Wdot_ft('4sims/', '4sim_lk_90_500')
-    plot_dWeff_mags('4inner/', '4sim_lk_80_000')
+    # plot_dWeff_mags('4inner/', '4sim_lk_80_000')
