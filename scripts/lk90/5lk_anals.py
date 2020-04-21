@@ -112,21 +112,21 @@ def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
     print(solve_Wsl(), dWSL)
     print(solve_dot(), dW)
 
-def plot_dWs():
+def plot_dWs(**kwargs):
     ''' not really useful now that I have the analytical form '''
     I0_max = np.pi - np.arccos(np.sqrt(3/5))
-    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, 200)
+    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, 20)
     e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
     e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
     plt.axhline(-np.pi, c='k', ls='-')
     for e0, lbl in zip(e0s, e0_labels):
         dWs = []
         for I0 in I0s:
-            dWs.append(get_dW(e0, I0))
+            dWs.append(get_dW(e0, I0, **kwargs)[0])
         plt.plot(np.degrees(I0s), dWs, ls='', marker='o', label=lbl, ms=1.0)
     plt.xlabel(r'$I_0$')
     plt.ylabel(r'$\Delta \Omega$')
-    plt.ylim(bottom=-2 * np.pi, top=0)
+    # plt.ylim(bottom=-2 * np.pi, top=0)
     plt.legend(fontsize=10, ncol=3)
     plt.tight_layout()
     plt.savefig('5_dWs', dpi=200)
@@ -236,7 +236,7 @@ def plot_Wdot_ft(folder, pkl_head):
     plt.savefig('5ffts_' + pkl_head, dpi=200)
     plt.close()
 
-def plot_dWeff_mags(folder, pkl_head):
+def plot_dWeff_mags(folder, pkl_head, stride=1, size=50):
     '''
     we want the Fourier components of the fast-varying component in the
     Hamliltonian, so the components of <(W_sl * cos(I)) + Wdot>, <W_sl * sin(I)>
@@ -244,79 +244,52 @@ def plot_dWeff_mags(folder, pkl_head):
     Let's plot the shape of these coefficients (within one LK cycle) evolving
     over time (or the cycle number...)
     '''
-    stride = 100
-    size = 50
+    # m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 
-    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     with open(folder + pkl_head + '.pkl', 'rb') as f:
-        t, (a, e, W, I, w), [t_lks, _] = pickle.load(f)
+        ret_lk = pickle.load(f)
+    t, (a, e, W, I, w), [t_lks, _] = ret_lk
     t_lk0, _, _, _ = get_vals(m1, m2, m3, a0, a2, e2, I[0])
-    print(t_lk0)
-    a_int = interp1d(t, a)
-    e_int = interp1d(t, e)
-    I_int = interp1d(t, I)
-    W_int = interp1d(t, W)
-    w_int = interp1d(t, w)
-    dWeff_mags = []
-    dWsl_mags = []
-    dWdot_mags = []
-    times = []
+    # print(t_lk0)
+    dWeff_mags, dWsl_mags, dWdot_mags, times, _, _ = get_dWs(
+        ret_lk, getter_kwargs, stride, size)
+    times *= t_lk0
 
-    # test, plot Wdot/Wsl over a single "period"
-    start, end = t_lks[1000:1002]
-    ts = np.linspace(start, end, size)
-    e_t = e_int(ts)
-    dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
-            (5 * e_t**2 * np.cos(w_int(ts))**2
-             - 4 * e_t**2 - 1)
-        / (4 * np.sqrt(1 - e_t**2)))
-    W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
-    plt.semilogy(ts * t_lk0, W_sl, 'r:')
-    plt.semilogy(ts * t_lk0, -dWdt, 'g:')
-    plt.savefig('/tmp/Wdots', dpi=200)
-    plt.close()
-    return
-
-    for start, end in zip(t_lks[ :-1:stride], t_lks[1::stride]):
-        ts = np.linspace(start, end, size)
-        e_t = e_int(ts)
-        dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
-                (5 * e_t**2 * np.cos(w_int(ts))**2
-                 - 4 * e_t**2 - 1)
-            / (4 * np.sqrt(1 - e_t**2)))
-        W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
-
-        Wtot = np.sqrt(
-            (W_sl * np.cos(I_int(ts)) - dWdt)**2
-            + (W_sl * np.sin(I_int(ts)))**2)
-        # NB: dW = int(Wdot dt)
-        dWeff_mags.append(np.sum(Wtot * (end - start) / size))
-
-        dWsl_mags.append(np.sum(W_sl * (end - start) / size))
-        dWdot_mags.append(np.sum(dWdt * (end - start) / size))
-        times.append((end + start) / 2 * t_lk0)
-
-    plt.semilogx(times, dWeff_mags, 'k:')
-    plt.semilogx(times, dWsl_mags, 'r:')
-    plt.semilogx(times, dWdot_mags, 'g:')
-    plt.ylim(-5, 5)
+    plt.loglog(times[-1] - times, dWeff_mags, 'k:')
+    plt.loglog(times[-1] - times, dWsl_mags, 'r:')
+    plt.loglog(times[-1] - times, dWdot_mags, 'g:')
+    idx = np.where(dWdot_mags - dWsl_mags < 0)[0][0]
+    print('dWs', dWsl_mags[idx], dWdot_mags[idx])
+    print('ddot(phi)',
+          dWeff_mags[idx + 1] - dWeff_mags[idx - 1] /
+          (times[idx + 1] - times[idx - 1]))
+    print('dA/dt', (
+        np.log(dWsl_mags[idx + 1] / dWdot_mags[idx + 1])
+        - np.log(dWsl_mags[idx - 1] / dWdot_mags[idx - 1])
+    ) / (times[idx + 1] - times[idx - 1]) * t_lk0)
+    # plt.ylim(-5, 5)
     plt.savefig('5dWeffs_' + pkl_head, dpi=200)
     plt.close()
 
 if __name__ == '__main__':
-    # plot_dWs()
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # plot_dWs(**getter_kwargs)
 
-    print('No GR limit')
-    check_anal_dWs()
-    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    print('Compact Params')
-    check_anal_dWs(**getter_kwargs)
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    print('Outer Params')
-    check_anal_dWs(**getter_kwargs)
+    # print('No GR limit')
+    # check_anal_dWs()
+    # m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # print('Compact Params')
+    # check_anal_dWs(**getter_kwargs)
+    # print('Compact Params (I = 100)')
+    # check_anal_dWs(I0=np.radians(100), **getter_kwargs)
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # print('Outer Params')
+    # check_anal_dWs(**getter_kwargs)
 
     # get_I_avg_traj('4sims/', '4sim_lk_90_500')
     # get_I_avg_traj('4sims/', '4sim_lk_90_400')
@@ -338,4 +311,9 @@ if __name__ == '__main__':
     # get_I_avg_traj(folder, '4sim_nogr_90_400')
 
     # plot_Wdot_ft('4sims/', '4sim_lk_90_500')
-    # plot_dWeff_mags('4inner/', '4sim_lk_80_000')
+    # plot_dWeff_mags('4inner/', '4sim_lk_80_000', stride=100)
+
+    # plot_dWeff_mags('4sims/', '4sim_lk_90_200')
+    # plot_dWeff_mags('4sims/', '4sim_lk_90_300')
+    # plot_dWeff_mags('4sims/', '4sim_lk_90_350')
+    plot_dWeff_mags('4sims/', '4sim_lk_90_500')

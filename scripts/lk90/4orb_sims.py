@@ -146,7 +146,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
              **kwargs):
     mkdirp(folder)
     lk_t, lk_y, lk_events = ret_lk
-    if not s_vec:
+    if s_vec is None:
         s_vec = np.array(
             [np.zeros_like(lk_t),
              np.zeros_like(lk_t),
@@ -172,8 +172,8 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
             5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1) / np.sqrt(1 - e**2))
     Idot = (-15 * a**(3/2) * e**2 * np.sin(2 * w)
                     * np.sin(2 * I) / (16 * np.sqrt(1 - e**2)))
-    A = np.abs(Wsl / Wdot)
-    A_eff = np.abs(Wsl / Wdot_eff)
+    # A = np.abs(Wsl / Wdot)
+    # A_eff = np.abs(Wsl / Wdot_eff)
 
     # use the averaged Wdot, else too fluctuating
     W_eff_bin = Wsl * Lhat + Wdot_eff * Lout_hat
@@ -213,8 +213,51 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     dphi_sb_dt = np.gradient(phi_sb) / np.gradient(t)
     lk_period = np.gradient(lk_events[0])
     lk_p_interp = interp1d(lk_events[0], lk_period)
-    interp_idx = np.where(np.logical_and(
-        t > min(lk_events[0]), A_eff < 1))[0]
+
+    # computing effective angle to N = 0 axis
+    _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
+    eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
+    t_eff = t[eff_idx]
+    Wslx = interp1d(t_lkmids, dWslx)(t_eff)
+    Wslz = interp1d(t_lkmids, dWslz)(t_eff)
+    Wdot = interp1d(t_lkmids, dWdot)(t_eff)
+    Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
+    Lhat_xy[2] *= 0
+    Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+    Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
+    Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
+    _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
+    q_eff0 = np.degrees(_q_eff0)
+    # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
+    q_eff0_interp = interp1d(t_eff, q_eff0)
+    q_eff_pred = np.mean(q_eff0_interp(
+        np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
+    # print(Weff_hat[:, 0], Weff_hat[:, -1],
+    #       get_hat(W[eff_idx[-1]], I[eff_idx[-1]]))
+    # compute phi as well
+    yhat = ts_cross(Weff_hat, Lout_hat[:, eff_idx])
+    xhat = ts_cross(yhat, Weff_hat)
+    sin_phiWeff = (ts_dot(s_vec[:, eff_idx], yhat) / np.sin(_q_eff0))
+    cos_phiWeff = (ts_dot(s_vec[:, eff_idx], xhat) / np.sin(_q_eff0))
+    phi_Weff = np.arctan2(sin_phiWeff, cos_phiWeff)
+    # f = lambda x: np.degrees(np.arccos(x))
+    # print(f(np.dot(s_vec[:, 0], Weff_hat[:, 0])),
+    #       f(np.dot([0, s_vec[0, 0], s_vec[2, 0]], Weff_hat[:, 0])),
+    #       f(np.dot([-s_vec[0, 0], 0, s_vec[2, 0]], Weff_hat[:, 0])),
+    #       )
+    A = np.abs(dWsl / dWdot)
+
+    # Plot averaged I, Iouts
+    I_avg = np.arccos(Wslz / np.sqrt(Wslx**2 + Wslz**2))
+    def get_Iout(W, Wsl, I):
+        def Iout_constr(_Iout):
+            return -W * np.sin(_Iout) + Wsl * np.sin(I + _Iout)
+
+        if I0 > 90:
+            return brenth(Iout_constr, 0, np.pi - I)
+        return brenth(Iout_constr, -I, 0)
+    Wsl = np.sqrt(Wslx**2 + Wslz**2)
+    Iouts = [get_Iout(*args) for args in zip(Wdot, Wsl, I_avg)]
 
     alf=0.7
     axs[0].semilogy(t, a, 'r', alpha=alf)
@@ -227,53 +270,86 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[3].set_ylabel(r'$I$')
     axs[4].plot(t, w % (2 * np.pi), 'r,', alpha=alf)
     axs[4].set_ylabel(r'$w$')
-    axs[5].set_ylim([2 * K[0], 0])
-    axs[5].plot(t, K, 'r', alpha=alf)
-    axs[5].set_ylabel(r'$K$')
-    axs[6].semilogy(t, A, 'r', alpha=alf)
-    axs[6].semilogy(t, A_eff, 'k', alpha=alf)
-    axs[6].set_ylabel(r'$\Omega_{\rm SL} / \dot{\Omega}$')
-    axs[6].axhline(1, c='k', lw=1)
-    axs[7].plot(t, np.degrees(q_sl), 'r', alpha=alf)
-    axs[7].set_ylabel(r'$\theta_{\rm sl}$ ($\theta_{\rm sl,f} = %.2f$)'
+    # axs[5].set_ylim([2 * K[0], 0])
+    # axs[5].plot(t, K, 'r', alpha=alf)
+    # axs[5].set_ylabel(r'$K$')
+    axs[5].semilogy(t_lkmids, A, 'r', alpha=alf)
+    axs[5].set_ylabel(r'$\Omega_{\rm SL,N=0} / \dot{\Omega}_{\rm N=0}$')
+    axs[5].axhline(1, c='k', lw=1)
+    axs[6].plot(t, np.degrees(q_sl), 'r', alpha=alf)
+    axs[6].set_ylabel(r'$\theta_{\rm sl}$ ($\theta_{\rm sl,f} = %.2f$)'
                       % np.degrees(q_sl)[-1])
+    axs[7].plot(t[phi_idxs], phi_sl % (2 * np.pi), 'r,', alpha=alf)
+    axs[7].set_ylabel(r'$\phi_{\rm sl}$')
+    # axs[8].plot(t, q_eff_me, 'r', alpha=alf)
+    # axs[8].plot(t, q_eff_bin, 'k', alpha=alf)
+    # axs[8].set_ylabel(r'$\left<\theta_{\rm eff, S}\right>$' +
+    #                   r'($\left<\theta_{\rm eff, S, f}\right> = %.2f$)'
+    #                   % q_eff_bin[-1])
     axs[8].plot(t, np.degrees(q_sb), 'r', alpha=alf)
     axs[8].set_ylabel(r'$\theta_{\rm sb}$ ($\theta_{\rm sb,i} = %.2f$)'
                       % np.degrees(q_sb)[0])
-    axs[9].plot(t, q_eff_me, 'r', alpha=alf)
-    axs[9].plot(t, q_eff_bin, 'k', alpha=alf)
-    axs[9].set_ylabel(r'$\left<\theta_{\rm eff, S}\right>$' +
-                      r'($\left<\theta_{\rm eff, S, f}\right> = %.2f$)'
-                      % q_eff_bin[-1])
-    axs[10].plot(t[phi_idxs], phi_sl % (2 * np.pi), 'r,', alpha=alf)
-    axs[10].set_ylabel(r'$\phi_{\rm sl}$')
-    axs[11].plot(t[phi_idxs], (phi_sl - 2 * w[phi_idxs]) % (2 * np.pi), 'r,', alpha=alf)
-    axs[11].set_ylabel(r'$\phi_{\rm sl} - 2 \omega$')
-    # axs[11].plot(t[interp_idx],
+    # axs[9].plot(t[phi_idxs], (phi_sl - 2 * w[phi_idxs]) % (2 * np.pi), 'r,', alpha=alf)
+    # axs[9].set_ylabel(r'$\phi_{\rm sl} - 2 \omega$')
+    # interp_idx = np.where(np.logical_and(
+    #     t > min(lk_events[0]), A < 1))[0]
+    # axs[9].plot(t[interp_idx],
     #              dphi_sb_dt[interp_idx] / lk_p_interp(t[interp_idx]),
     #              'r',
     #              alpha=alf,
     #              lw=0.5
     #              )
-    # axs[11].set_ylabel(r'$\dot{\phi}_{\rm sb} / t_{LK}$')
-    # axs[11].set_ylim((-5, 1))
-    axs[12].plot(t, phi_sb, 'r', alpha=alf)
-    axs[12].set_ylabel(r'$\phi_{\rm sb}$')
-    lk_axf = 12 # so it's hard to forget lol
+    # axs[9].set_ylabel(r'$\dot{\phi}_{\rm sb} / t_{LK}$')
+    # axs[9].set_ylim((-5, 1))
+    axs[9].plot(t, phi_sb, 'r,', alpha=alf)
+    axs[9].set_ylabel(r'$\phi_{\rm sb}$')
+
+    axs[10].plot(t_eff, q_eff0, 'k', alpha=alf)
+    axs[10].set_ylabel(r'$\theta_{N=0}$ [$%.2f (%.2f)$--$%.2f$]' %
+                       (q_eff0[0], q_eff_pred, q_eff0[-1]))
+    axs[10].plot(t, q_eff_bin, 'r', alpha=0.3)
+    axs[11].plot(t_eff, phi_Weff, 'r,', alpha=alf)
+    axs[11].set_ylabel(r'$\phi_{N=0}$')
+    lk_axf = 11 # so it's hard to forget lol
+
+    axs[12].plot(t_eff, np.degrees(I_avg), 'r')
+    axs[12].set_ylabel(r'$\langle I \rangle_{LK}$')
+    axs[13].plot(t_eff, np.degrees(Iouts), 'r')
+    twinIout_ax = axs[13].twinx()
+    Iout_dot = [(Iouts[i + 4] - Iouts[i]) / (t_eff[i + 4] - t_eff[i])
+                for i in range(len(Iouts) - 4)]
+    twinIout_ax.plot(t_eff[2:-2], Iout_dot, 'k', alpha=0.2)
+    twinIout_ax.set_yticks([])
+    print('max Iout_dot', np.max(Iout_dot))
+    axs[13].set_ylabel(r'$I_{\rm out}$')
+    axs[14].semilogy(t_lkmids, dWsl, 'g')
+    axs[14].semilogy(t_lkmids, dWdot, 'k')
+    axs[14].set_ylabel(r'$d\phi / dt$')
+    # axs[14].loglog(t_lkmids[-1] - t_lkmids, dWsl * np.diff(lk_events[0]), 'g')
+    # axs[14].loglog(t_lkmids[-1] - t_lkmids, dWdot * np.diff(lk_events[0]), 'k')
+    # axs[14].set_ylabel(r'$\Delta \phi$')
+    axs[14].set_ylim([0.01, 100])
+    # NB: dtheta theory for 90.2 ~ 6.12 degrees
+    # for dphi in np.linspace(0, 2 * np.pi, 10):
+    #     print('Idot_num_integ', np.degrees(np.sum(
+    #         Iout_dot * np.cos(dphi + phi_Weff[2:-2]) * np.gradient(t_eff[2:-2]))))
+    # for ax in axs[lk_axf + 1: ]:
+    #     ax.set_xlim(left=0.9 * t[-1])
+    #     ax.set_xlim(220, 225)
 
     # scatter plots in LK phase space
-    final_idx = np.where(t < t[-1] * 0.7)[0][-1] # cut off plotting of end
-    sl = np.s_[ :final_idx]
-    axs[lk_axf + 1].scatter(w[sl] % (2 * np.pi), 1 - e[sl]**2, c=t[sl],
-                            marker=',', alpha=0.5)
-    axs[lk_axf + 1].set_yscale('log')
-    axs[lk_axf + 1].set_ylim(min(1 - e**2), max(1 - e**2))
-    axs[lk_axf + 1].set_xlabel(r'$\omega$')
-    axs[lk_axf + 1].set_ylabel(r'$1 - e^2$')
-    axs[lk_axf + 2].scatter(w[sl] % (2 * np.pi), np.degrees(I[sl]), c=t[sl],
-                            marker=',', alpha=0.5)
-    axs[lk_axf + 2].set_xlabel(r'$\omega$')
-    axs[lk_axf + 2].set_ylabel(r'$I$')
+    # final_idx = np.where(t < t[-1] * 0.7)[0][-1] # cut off plotting of end
+    # sl = np.s_[ :final_idx]
+    # axs[lk_axf + 1].scatter(w[sl] % (2 * np.pi), 1 - e[sl]**2, c=t[sl],
+    #                         marker=',', alpha=0.5)
+    # axs[lk_axf + 1].set_yscale('log')
+    # axs[lk_axf + 1].set_ylim(min(1 - e**2), max(1 - e**2))
+    # axs[lk_axf + 1].set_xlabel(r'$\omega$')
+    # axs[lk_axf + 1].set_ylabel(r'$1 - e^2$')
+    # axs[lk_axf + 2].scatter(w[sl] % (2 * np.pi), np.degrees(I[sl]), c=t[sl],
+    #                         marker=',', alpha=0.5)
+    # axs[lk_axf + 2].set_xlabel(r'$\omega$')
+    # axs[lk_axf + 2].set_ylabel(r'$I$')
 
     # set effectively for axs[0-9], label in last
     xticks = axs[lk_axf].get_xticks()[1:-1]
@@ -287,7 +363,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     plt.close()
 
 def run_for_Ideg(folder, I_deg, af=5e-3,
-                 atol=1e-8, rtol=1e-8, **kwargs):
+                 atol=1e-8, rtol=1e-8, short=False, **kwargs):
     mkdirp(folder)
     ret_lk = get_kozai(folder, I_deg, getter_kwargs,
                        af=af, atol=atol, rtol=rtol)
@@ -296,6 +372,8 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
                                rtol=rtol,
                                )
     plot_all(folder, ret_lk, s_vec, getter_kwargs)
+    if short:
+        return
 
     # try with q_sl0
     s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
@@ -470,7 +548,7 @@ def plot_ensemble_phase(folder, ensemble_phase, phi_sbs):
     plt.close()
 
 def plot_deviations(folder, ensemble_dat):
-    ''' does it look like a power law? '''
+    ''' plot deviations from analytic prediction due to fast merger limit '''
     I_degs = []
     qsl_dats = defaultdict(list)
     for I_deg, _, q_sl_inits, q_sl_finals in ensemble_dat:
@@ -488,10 +566,20 @@ def plot_deviations(folder, ensemble_dat):
                     marker='.', linestyle='', markersize=1.5,
                     label=r'$%d^\circ$' % (90 - np.degrees(qsl_init)))
 
-    # hardcode power law overplot
+    # fit using the exact integral, two halves
     cosd = lambda x: np.cos(np.radians(x))
-    fit_line = 60 * cosd(90.1)**3 / cosd(I_degs)**3
-    plt.plot(I_degs - 90, fit_line, 'k', lw=3)
+    # (i) exp part, say I ~ 120 (avg value) (don't think is relevant)
+    # fit_line = 120 * np.exp(
+    #     -(np.radians(120) * 100**2) /
+    #     (np.pi * (25 * 4.63 * cosd(90.3)**6 / cosd(I_degs)**6)))
+    # (ii) phi_dot ~ 100, Adot ~ 4.63 @ I = 90.3
+    # fit_line2 = np.degrees(np.sqrt(
+    #     (np.pi * 1.723 * cosd(90.3)**6)
+    #      / (cosd(I_degs)**6)
+    # ) / 3)
+    # plt.plot(I_degs - 90, fit_line2, 'k', lw=3)
+
+    plt.plot(0.2, 6, 'ko', ms=3)
 
     plt.xlabel(r'$I^0$')
     plt.ylabel(r'$\left|\theta_{\rm sl}^{f} - \theta_{\rm sl, th}^f\right|$ (Deg)')
@@ -533,8 +621,9 @@ if __name__ == '__main__':
     # plot_all(folder, ret_lk, s_vec, getter_kwargs, fn_template='4shorto_tilt_%s')
 
     # for I_deg in np.arange(90.1, 90.51, 0.05):
-    #     run_for_Ideg('4sims/', I_deg)
-    # run_for_Ideg('4sims/', 90.475)
+    #     run_for_Ideg('4sims/', I_deg, short=True)
+    # run_for_Ideg('4sims/', 90.475, short=True)
+    # run_for_Ideg('4sims/', 90.2, short=True) # 6.12
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
@@ -546,6 +635,7 @@ if __name__ == '__main__':
     # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
-    run_close_in()
+    # run_close_in()
 
-    # plot_deviations('4sims_ensemble/', ensemble_dat)
+    ensemble_dat = run_ensemble('4sims_ensemble/')
+    plot_deviations('4sims_ensemble/', ensemble_dat)

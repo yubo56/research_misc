@@ -10,7 +10,7 @@ import time
 from scipy.integrate import solve_ivp
 from scipy.optimize import brenth
 import matplotlib.pyplot as plt
-plt.style.use('ggplot')
+from scipy.interpolate import interp1d
 
 DEF_EPS_SL = 0
 DEF_EPS_GR = 0
@@ -320,3 +320,62 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
     print('Done for I0=%f, e0=%f. t_f=%f (took %.2fs)' %
           (np.degrees(I), e, ret.t[-1], time.time() - start))
     return ret
+
+def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4)):
+    t, (a, e, W, I, w), [t_lks, _] = ret_lk
+    a_int = interp1d(t, a)
+    e_int = interp1d(t, e)
+    I_int = interp1d(t, I)
+    W_int = interp1d(t, W)
+    w_int = interp1d(t, w)
+    dWeff_mags = []
+    dWslx = []
+    dWslz = []
+    dWdot_mags = []
+    times = []
+
+    # # test, plot Wdot/Wsl over a single "period"
+    # start, end = t_lks[1000:1002]
+    # ts = np.linspace(start, end, size)
+    # e_t = e_int(ts)
+    # dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
+    #         (5 * e_t**2 * np.cos(w_int(ts))**2
+    #          - 4 * e_t**2 - 1)
+    #     / (4 * np.sqrt(1 - e_t**2)))
+    # W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
+    # plt.semilogy(ts, W_sl, 'r:')
+    # plt.semilogy(ts, -dWdt, 'g:')
+    # plt.savefig('/tmp/Wdots', dpi=200)
+    # plt.close()
+    # return
+
+    mult = 1 if I[0] < np.radians(90) else -1
+    for start, end in zip(t_lks[ :-1:stride], t_lks[1::stride]):
+        ts = np.linspace(start, end, size)
+        e_t = e_int(ts)
+        dWdt = (3 * a_int(ts)**(3/2) * np.cos(I_int(ts)) *
+                (5 * e_t**2 * np.cos(w_int(ts))**2
+                 - 4 * e_t**2 - 1)
+            / (4 * np.sqrt(1 - e_t**2))) #* mult
+        W_sl = getter_kwargs['eps_sl'] / (a_int(ts)**(5/2) * (1 - e_t**2))
+
+        # dWdt = (W_int(end) - W_int(start)) / (end - start)# * mult
+        Wtot = np.sqrt(
+            (W_sl * np.cos(I_int(ts)) - dWdt)**2
+            + (W_sl * np.sin(I_int(ts)))**2)
+        # NB: dW = int(Wdot dt)
+        dWeff_mags.append(np.mean(Wtot))
+        dWslx.append(np.mean(W_sl * np.sin(I_int(ts))))
+        dWslz.append(np.mean(W_sl * np.cos(I_int(ts))))
+        dWdot_mags.append(np.mean(dWdt))
+        times.append((end + start) / 2)
+    dWslx = np.array(dWslx)
+    dWslz = np.array(dWslz)
+    dWsl_mags = np.sqrt(dWslx**2 + dWslz**2)
+    return (
+        np.array(dWeff_mags),
+        dWsl_mags,
+        np.array(dWdot_mags),
+        np.array(times),
+        dWslx,
+        dWslz)
