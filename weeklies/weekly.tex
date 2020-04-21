@@ -168,5 +168,28 @@ How does this do? Figure~\ref{fig:plots}.
     \Omega_{\rm SL}}_{\rm LK}$ (black).}\label{fig:plots}
 \end{figure}
 
+\clearpage
+
+How well does this do for our ensemble? See Figure~\ref{fig:deviations}.
+Blue is a $\propto \cos^{-9}(I_0)$ slope, dashed green shows the semimajor axis
+at the end of the Kozai cycle we average over (recall we have to average over a
+Kozai cycle to determine the initial $\theta$).
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{plots/deviations_one.png}
+    \caption{Deviations from exact conservation of
+    $\theta$.}\label{fig:deviations}
+\end{figure}
+
+This seems to confirm with expectation: we have calculations that show
+\begin{equation}
+    \dot{I}_{\rm out}\p{-\cot I_{\rm out} + \cot \p{I + I_{\rm out}}}
+        = \rd{}{t}\ln \p{-\dot{\Omega} / \Omega_{\rm SL}}.
+\end{equation}
+The RHS of the above $\propto 1 / T_{\rm m} \propto \cos^{-6}I_0$, which is the
+peak of $\dot{I}_{\rm out}$. Therefore, the width of $\dot{I}_{\rm out}$ is
+$\propto I T_{\rm m}$. Phases cancel better then when $I_{\rm out}$ is broader,
+so a scaling stronger than $-6$ seems understandable.
+
 \end{document}
 
