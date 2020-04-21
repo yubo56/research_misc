@@ -1,7 +1,8 @@
 % single document keeping track of all weekly notes sent to Dong
     \documentclass[11pt,
         usenames, % allows access to some tikz colors
-        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+        dvipsnames, % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+        twocolumn,
     ]{article}
     \usepackage{
         amsmath,
@@ -23,7 +24,7 @@
         booktabs, % \bottomrule instead of hline apparently
         cancel % can cancel things out!
     }
-    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[margin=0.5in]{geometry} % page geometry
     \usepackage[
         labelfont=bf, % caption names are labeled in bold
         font=scriptsize % smaller font for captions
@@ -70,7 +71,7 @@
     \DeclareMathOperator{\diag}{diag\;}
 
     % \everymath{\displaystyle} % biggify limits of inline sums and integrals
-    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+    \tikzstyle{circ} %u sage: \cnode[irc, placement] (label) {text};
         = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
     \definecolor{commentgreen}{rgb}{0,0.6,0}
     \lstset{
@@ -95,7 +96,77 @@
 
 \singlespacing
 
-\section{Someday}
+\section{Apr 21, 2020}
+
+For the $90^\circ$ attractor in the LK problem, investigated the $N = 0$
+dynamics. Recall EOM
+\begin{align}
+    \rd{\uv{S}}{t} ={}& \ev{-\dot{\Omega}\uv{z} + \Omega_{\rm SL}\uv{L}}_{\rm LK}
+        \times \uv{S}\nonumber\\
+        &+ \s{
+            \sum\limits_{N = 1}^\infty \uv{\Omega}_{\rm eff, N}
+            \exp\p{2\pi i N t / t_{\rm LK}}} \times \uv{S}.
+\end{align}
+
+We ignore $N \geq 1$ for now, assuming resonances are not hit, so we examine
+\begin{equation}
+    \rd{\uv{S}}{t} = \ev{-\dot{\Omega}\uv{z} + \Omega_{\rm SL}\uv{L}}_{\rm LK}
+        \times \uv{S}.
+\end{equation}
+
+Consider rotation by $I_{\rm out}$ given by Figure~\ref{fig:geometry}.
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw[->] (0, 0)--(1, 1);
+        \draw[->] (0, 0)--(-1.3, 0.3);
+        \draw[->] (0, 0) -- (0, 1.414);
+        \node[right] at (1, 1) {$\uv{L}_{\rm out}$};
+        \node[left] at (-1.3, 0.3) {$\uv{L}$};
+        \node[above] at (0, 1.414) {$\Omega_{\rm eff}$};
+        \node[right] at (0, 1.0) {$I_{\rm out}$};
+    \end{tikzpicture}
+    \caption{Geometry. $I$ is angle between $\uv{L}, \uv{L}_{\rm out}$ while
+    $I_{\rm out}$ is angle between $\uv{L}_{\rm out}, \Omega_{\rm eff}$.
+    }\label{fig:geometry}
+\end{figure}
+In equations, this requires
+\begin{equation}
+    -\dot{\Omega} \sin I_{\rm out} + \Omega_{SL}\sin \p{I + I_{\rm out}} = 0.
+\end{equation}
+
+We obtain EOM (note that LK-averaged $I$ is almost constant):
+\begin{align}
+    \rd{\uv{S}}{t} ={}& \s{-\dot{\Omega}\cos I_{\rm out}
+        + \Omega_{\rm SL}\cos \p{I + I_{\rm out}}}\uv{z} \times
+        \uv{S}\nonumber\\
+        &- \dot{I}_{\rm out} \uv{y} \times \uv{S},\\
+    \Delta \phi(t) ={}& \int\limits_0^t \s{-\dot{\Omega}\cos I_{\rm out}(\tau)
+        + \Omega_{\rm SL}\cos \p{I + I_{\rm out}(\tau)}}
+            \;\mathrm{d}\tau,\\
+    \Delta \theta ={}& \int\limits_0^{T_{\rm m}}
+        \dot{I}_{\rm out} \sin \phi\;\mathrm{d}t.
+\end{align}
+Intuition: $\dot{I}_{\rm out} \sim 1 / T_{\rm GW}$ while $\dot{\phi} \sim
+\min\p{\dot{\Omega}, \Omega_{\rm SL}}$. Thus, when sufficiently slow, phases
+cancel, $\Delta \theta \to 0$. \textbf{NB:} in full numerical simulations,
+$\ev{\theta}_{\rm LK}$ is the approximately conserved quantity, $\theta$ varies
+within LK cycles.
+
+How does this do? Figure~\ref{fig:plots}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{plots/4sim_90_300_qN0.png}
+
+    \includegraphics[width=\columnwidth]{plots/4sim_90_300_Iout.png}
+
+    \includegraphics[width=\columnwidth]{plots/4sim_90_300_phidots.png}
+    \caption{$I = 90.3^\circ$. Top: Comparison of $\theta$ (black) vs
+    $\theta_{\rm eff}$ from Bin's paper (red). Middle: $I_{\rm out}$ is
+    red, $\dot{I}_{\rm out}$ is light black. Bottom: Comparison of LK-averaged
+    $\dot{\Omega}$ (red), $\Omega_{\rm SL}$ (green), and $\ev{\dot{\Omega} +
+    \Omega_{\rm SL}}_{\rm LK}$ (black).}\label{fig:plots}
+\end{figure}
 
 \end{document}
 
