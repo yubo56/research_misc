@@ -17,7 +17,8 @@ funcs4 = __import__('4orb_sims')
 from utils import *
 from scipy.fftpack import fft
 
-def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1):
+def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
+           atol=1e-9, rtol=1e-9, intg_pts=int(1e5)):
     '''
     total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
     eps_gw
@@ -59,9 +60,9 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1):
         return y[4] - np.pi
     term_event.terminal = True
     ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
-                    events=[term_event], atol=1e-9, rtol=1e-9,
+                    events=[term_event], atol=atol, rtol=rtol,
                     dense_output=True)
-    times = np.linspace(0, ret.t[-1], int(3e6))
+    times = np.linspace(0, ret.t[-1], intg_pts)
     a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
     dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / (1 - e_arr**2)
                     * ret.t[-1] / len(times))
@@ -69,10 +70,7 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1):
                     * ret.t[-1] / len(times))
     return ret.y[2, -1], (dWsl_z, dWsl_x)
 
-def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
-                   **kwargs):
-    dW, dWSL = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
-
+def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
     # calculate n_e...
     x0 = 1 - e0**2
     h = x0 * np.cos(I0)**2
@@ -85,7 +83,7 @@ def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
     ne = 6 * np.pi * np.sqrt(6) / (8 * K) * np.sqrt(x2 - x1)
 
     def solve_Wsl():
-        phi = np.linspace(0, np.pi, int(3e6))
+        phi = np.linspace(0, np.pi, intg_pts)
         intg_tot = np.pi / (
             (x0 + (x1 - x0) * np.cos(phi)**2)
                 * np.sqrt(1 - k_sq * np.sin(phi)**2)
@@ -103,33 +101,50 @@ def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
         wsl_x = np.sum(intg_x * phi[-1] / len(phi))
         return eps_sl * wsl_z, eps_sl * wsl_x
     def solve_dot():
-        phi = np.linspace(0, np.pi, int(3e6))
+        phi = np.linspace(0, np.pi, intg_pts)
         intg = (np.sin(I0)**2 / np.sqrt(1 - k_sq * np.sin(phi)**2)) / (
             np.sin(I0)**2 + (x1 / x0 - 1) * np.cos(phi)**2)
         int_res = np.sum(intg * phi[-1] / len(phi))
         return (3 * np.sqrt(h) * 2 * np.pi) / (4 * ne) * (1 - 1 / K * int_res)
+    return solve_dot(), solve_Wsl()
+def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
+                   **kwargs):
+    dW, dWSL = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
+    dW_anal, dWSL_anal = get_dW_anal(e0, I0, eps_sl=eps_sl)
 
-    print(solve_Wsl(), dWSL)
-    print(solve_dot(), dW)
+    print(dWSL_anal, dWSL)
+    print(dW_anal, dW)
 
-def plot_dWs(**kwargs):
-    ''' not really useful now that I have the analytical form '''
+def plot_dWs(fn='5_dWs', num_Is=100, **kwargs):
+    ''' useful when eps_gr not << 1, significant corrections '''
     I0_max = np.pi - np.arccos(np.sqrt(3/5))
-    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, 20)
+    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, num_Is)
+    I0s_d = np.degrees(I0s)
+
     e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
     e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
-    plt.axhline(-np.pi, c='k', ls='-')
-    for e0, lbl in zip(e0s, e0_labels):
+    colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
+
+    for e0, lbl, c in zip(e0s, e0_labels, colors):
         dWs = []
+        dWs_anal = []
         for I0 in I0s:
-            dWs.append(get_dW(e0, I0, **kwargs)[0])
-        plt.plot(np.degrees(I0s), dWs, ls='', marker='o', label=lbl, ms=1.0)
+            print(e0, I0)
+            dW_num, (dWSLz_num, dWSLx_num) = get_dW(e0, I0, **kwargs)
+            dWs.append(np.sqrt((abs(dW_num) + dWSLz_num)**2 + dWSLx_num**2))
+
+            dW_anl, (dWSLz_anl, dWSLx_anl) = get_dW_anal(e0, I0)
+            dWs_anal.append(np.sqrt(
+                (abs(dW_anl) + dWSLz_anl)**2 + dWSLx_anl**2))
+        plt.plot(I0s_d, dWs, ls='', marker='o', c=c, label=lbl, ms=1.0)
+        plt.plot(I0s_d, dWs_anal, c=c, ls=':', lw=1.0)
     plt.xlabel(r'$I_0$')
     plt.ylabel(r'$\Delta \Omega$')
-    # plt.ylim(bottom=-2 * np.pi, top=0)
+    plt.ylim(bottom=0, top=2 * np.pi)
+    plt.axhline(np.pi, c='k', ls='-')
     plt.legend(fontsize=10, ncol=3)
     plt.tight_layout()
-    plt.savefig('5_dWs', dpi=200)
+    plt.savefig(fn, dpi=200)
 
 def get_I_avg_traj(folder, pkl_head):
     with open(folder + pkl_head + '.pkl', 'rb') as f:
@@ -256,27 +271,44 @@ def plot_dWeff_mags(folder, pkl_head, stride=1, size=50):
     dWeff_mags, dWsl_mags, dWdot_mags, times, _, _ = get_dWs(
         ret_lk, getter_kwargs, stride, size)
     times *= t_lk0
+    if I[0] < np.radians(90):
+        dWdot_mags *= -1
 
-    plt.loglog(times[-1] - times, dWeff_mags, 'k:')
-    plt.loglog(times[-1] - times, dWsl_mags, 'r:')
-    plt.loglog(times[-1] - times, dWdot_mags, 'g:')
-    idx = np.where(dWdot_mags - dWsl_mags < 0)[0][0]
-    print('dWs', dWsl_mags[idx], dWdot_mags[idx])
-    print('ddot(phi)',
-          dWeff_mags[idx + 1] - dWeff_mags[idx - 1] /
-          (times[idx + 1] - times[idx - 1]))
-    print('dA/dt', (
-        np.log(dWsl_mags[idx + 1] / dWdot_mags[idx + 1])
-        - np.log(dWsl_mags[idx - 1] / dWdot_mags[idx - 1])
-    ) / (times[idx + 1] - times[idx - 1]) * t_lk0)
+    plt.loglog(times[-1] - times, dWeff_mags, 'k')
+    plt.loglog(times[-1] - times, dWsl_mags, 'r')
+    plt.loglog(times[-1] - times, dWdot_mags, 'g')
+    # idx = np.where(dWdot_mags - dWsl_mags < 0)[0][0]
+    # print('dWs', dWsl_mags[idx], dWdot_mags[idx])
+    # print('ddot(phi)',
+    #       dWeff_mags[idx + 1] - dWeff_mags[idx - 1] /
+    #       (times[idx + 1] - times[idx - 1]))
+    # print('dA/dt', (
+    #     np.log(dWsl_mags[idx + 1] / dWdot_mags[idx + 1])
+    #     - np.log(dWsl_mags[idx - 1] / dWdot_mags[idx - 1])
+    # ) / (times[idx + 1] - times[idx - 1]) * t_lk0)
     # plt.ylim(-5, 5)
+    plt.xlabel(r'$t_{\rm f} - t$')
     plt.savefig('5dWeffs_' + pkl_head, dpi=200)
     plt.close()
 
+    delta_ts = np.diff(t_lks)[::stride]
+    plt.semilogx(times[-1] - times, dWeff_mags * delta_ts, 'k')
+    plt.semilogx(times[-1] - times, dWsl_mags * delta_ts, 'r')
+    plt.semilogx(times[-1] - times, dWdot_mags * delta_ts, 'g')
+    # plt.ylim(0.01, 10)
+    plt.axhline(np.pi)
+    plt.xlabel(r'$t_{\rm f} - t$')
+    plt.savefig('5dWeffs_' + pkl_head + '_dphi', dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
-    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    # plot_dWs(**getter_kwargs)
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    plot_dWs(**getter_kwargs)
+
+    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    plot_dWs(fn='5_dWs_inner', **getter_kwargs)
 
     # print('No GR limit')
     # check_anal_dWs()
@@ -316,4 +348,4 @@ if __name__ == '__main__':
     # plot_dWeff_mags('4sims/', '4sim_lk_90_200')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_300')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_350')
-    plot_dWeff_mags('4sims/', '4sim_lk_90_500')
+    # plot_dWeff_mags('4sims/', '4sim_lk_90_500')

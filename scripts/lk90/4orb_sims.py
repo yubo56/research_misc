@@ -751,9 +751,10 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
              )**(9), 'b', lw=2)
     plt.ylim(ylims)
     plt.xlabel(r'$I - 90^\circ$ (Deg)')
-    plt.ylabel(r'$\theta_{\rm f} - \theta_{\rm sl,f}$ (Deg)')
+    plt.ylabel(r'$\theta_{\rm i} - \theta_{\rm sl,f}$ (Deg)')
     plt.xlim(left=0.1)
     plt.ylim(bottom=1e-3)
+    plt.plot(0.2, 6.14, 'kx') # checked from 90.2 simulation by hand-integrating
 
     a_ax = plt.gca().twinx()
     a_ax.loglog(I_vals - 90, a_vals, 'g--', lw=2)
