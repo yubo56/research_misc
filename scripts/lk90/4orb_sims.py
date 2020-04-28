@@ -765,17 +765,26 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
     plt.close()
 
 def run_close_in():
+    '''
+    run spins after running ret_lk to see which times are useful to exmaine
+    '''
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     I_deg = 80
+    getter_kwargs['eps_gw'] *= 3
     folder = '4inner/'
-    getter_kwargs['eps_gw'] *= 2
-    ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
-                       af=0.3)
+
+    # ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
+    #                    af=0.9)
     # s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
     #                            atol=1e-6, rtol=1e-6)
-    plot_all(folder, ret_lk, None, getter_kwargs,
-             time_slice=np.s_[::1000])
+    # plot_all(folder, ret_lk, None, getter_kwargs,
+    #          time_slice=np.s_[::1000])
+
+    ret_lk = get_kozai(folder, 70, getter_kwargs, atol=1e-7, rtol=1e-7,
+                       af=0.9)
+    # plot_all(folder, ret_lk, None, getter_kwargs,
+    #          time_slice=np.s_[::1000])
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -810,9 +819,9 @@ if __name__ == '__main__':
     # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
-    # run_close_in()
+    run_close_in()
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)
 
-    plot_deviations_good('4sims_ensemble/')
+    # plot_deviations_good('4sims_ensemble/')

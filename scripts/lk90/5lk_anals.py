@@ -1,5 +1,6 @@
 ''' use t_LK = 1 throughout '''
 import numpy as np
+import os
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -17,96 +18,6 @@ funcs4 = __import__('4orb_sims')
 from utils import *
 from scipy.fftpack import fft
 
-def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
-           atol=1e-9, rtol=1e-9, intg_pts=int(1e5)):
-    '''
-    total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
-    eps_gw
-
-    wdot = 3 * sqrt(h) / 4 * (1 - 2 * (x0 - h) / (x - h))
-    '''
-    a0 = 1
-    W0 = 0
-    w0 = 0
-
-    def dydt(t, y):
-        a, e, W, I, w = y
-        x = 1 - e**2
-        dadt =  (
-            -eps_gw * (64 * (1 + 73 * e**2 / 24 + 37 * e**4 / 96)) / (
-                5 * a**3 * x**(7/2))
-        )
-        dedt = (
-            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
-                    * np.sin(I)**2 / 8
-        )
-        dWdt = (
-            3 * a**(3/2) * np.cos(I) *
-                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
-                / (4 * np.sqrt(x))
-        )
-        dIdt = (
-            -15 * a**(3/2) * e**2 * np.sin(2 * w)
-                * np.sin(2 * I) / (16 * np.sqrt(x))
-        )
-        dwdt = (
-            3 * a**(3/2)
-                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
-                / (4 * np.sqrt(x))
-            + eps_gr / (a**(5/2) * x)
-        )
-        return (dadt, dedt, dWdt, dIdt, dwdt)
-    def term_event(t, y):
-        return y[4] - np.pi
-    term_event.terminal = True
-    ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
-                    events=[term_event], atol=atol, rtol=rtol,
-                    dense_output=True)
-    times = np.linspace(0, ret.t[-1], intg_pts)
-    a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
-    dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / (1 - e_arr**2)
-                    * ret.t[-1] / len(times))
-    dWsl_x = np.sum(eps_sl / a_arr**(5/2) * np.sin(I_arr) / (1 - e_arr**2)
-                    * ret.t[-1] / len(times))
-    return ret.y[2, -1], (dWsl_z, dWsl_x)
-
-def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
-    # calculate n_e...
-    x0 = 1 - e0**2
-    h = x0 * np.cos(I0)**2
-    b = -(5 + 5 * h - 2 * x0) / 3
-    c = 5 * h / 3
-    x1 = (-b - np.sqrt(b**2 - 4 * c)) / 2
-    x2 = (-b + np.sqrt(b**2 - 4 * c)) / 2
-    k_sq = (x0 - x1) / (x2 - x1)
-    K = spe.ellipk(k_sq)
-    ne = 6 * np.pi * np.sqrt(6) / (8 * K) * np.sqrt(x2 - x1)
-
-    def solve_Wsl():
-        phi = np.linspace(0, np.pi, intg_pts)
-        intg_tot = np.pi / (
-            (x0 + (x1 - x0) * np.cos(phi)**2)
-                * np.sqrt(1 - k_sq * np.sin(phi)**2)
-                * ne * K)
-        intg_z = np.pi * np.sqrt(h) / (
-            (x0 + (x1 - x0) * np.cos(phi)**2)**(3/2)
-                * np.sqrt(1 - k_sq * np.sin(phi)**2)
-                * ne * K)
-        intg_x = np.pi * np.sqrt(1 - h / (x0 + (x1 - x0) * np.cos(phi)**2)) / (
-            (x0 + (x1 - x0) * np.cos(phi)**2)
-                * np.sqrt(1 - k_sq * np.sin(phi)**2)
-                * ne * K)
-        # wsl_tot = np.sum(intg_tot * phi[-1] / len(phi))
-        wsl_z = np.sum(intg_z * phi[-1] / len(phi))
-        wsl_x = np.sum(intg_x * phi[-1] / len(phi))
-        return eps_sl * wsl_z, eps_sl * wsl_x
-    def solve_dot():
-        phi = np.linspace(0, np.pi, intg_pts)
-        intg = (np.sin(I0)**2 / np.sqrt(1 - k_sq * np.sin(phi)**2)) / (
-            np.sin(I0)**2 + (x1 / x0 - 1) * np.cos(phi)**2)
-        int_res = np.sum(intg * phi[-1] / len(phi))
-        return (3 * np.sqrt(h) * 2 * np.pi) / (4 * ne) * (1 - 1 / K * int_res)
-    return solve_dot(), solve_Wsl()
 def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
                    **kwargs):
     dW, dWSL = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
@@ -115,7 +26,7 @@ def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
     print(dWSL_anal, dWSL)
     print(dW_anal, dW)
 
-def plot_dWs(fn='5_dWs', num_Is=100, **kwargs):
+def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
     ''' useful when eps_gr not << 1, significant corrections '''
     I0_max = np.pi - np.arccos(np.sqrt(3/5))
     I0s = np.linspace(np.pi / 2 + 0.001, I0_max, num_Is)
@@ -145,6 +56,7 @@ def plot_dWs(fn='5_dWs', num_Is=100, **kwargs):
     plt.legend(fontsize=10, ncol=3)
     plt.tight_layout()
     plt.savefig(fn, dpi=200)
+    plt.close()
 
 def get_I_avg_traj(folder, pkl_head):
     with open(folder + pkl_head + '.pkl', 'rb') as f:
@@ -301,14 +213,106 @@ def plot_dWeff_mags(folder, pkl_head, stride=1, size=50):
     plt.savefig('5dWeffs_' + pkl_head + '_dphi', dpi=200)
     plt.close()
 
-if __name__ == '__main__':
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    plot_dWs(**getter_kwargs)
+def resonance_sim_single(_W0, psi, tf, q0, tol, eps, freq_mult):
+    W0 = np.array([0, 0, _W0])
+    W1hat = np.array([np.sin(psi), 0, np.cos(psi)])
+    def dydt(t, y):
+        return np.cross(W0, y) + eps * (
+            np.sin(freq_mult * _W0 * t) * np.cross(W1hat, y))
+    return solve_ivp(dydt, (0, tf), [0, np.sin(q0), np.cos(q0)],
+                     atol=tol, rtol=tol)
 
-    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    plot_dWs(fn='5_dWs_inner', **getter_kwargs)
+# q = __import__('5lk_anals'); mpl.use('MacOSX'); get_ret = q.resonance_sim_single; ret = get_ret(0.5, np.radians(60), 500, np.radians(20), 1e-8, 0.1, 0.5); plt.plot(ret.t, ret.y[2, :])
+# ret = get_ret(0.5, np.radians(60), 5000, np.radians(20), 1e-6, 0.1, 1/3); plt.clf(); plt.plot(ret.t, ret.y[2, :])
+def resonance_sim_single(_W0, psi, tf, q0, tol, eps, freq_mult):
+    ''' inertial frame '''
+    W0 = np.array([0, 0, _W0])
+    W1hat = np.array([np.sin(psi), 0, np.cos(psi)])
+    def dydt(t, y):
+        return np.cross(W0, y) + eps * (
+            np.sin(freq_mult * _W0 * t) * np.cross(W1hat, y))
+    return solve_ivp(dydt, (0, tf), [0, np.sin(q0), np.cos(q0)],
+                     atol=tol, rtol=tol)
+
+def resonance_sim_model1(_W0, psi, tf, q0, tol, eps, freq_mult):
+    '''
+    instead of using a sinusoidal component, use a rotating component
+    indeed, resonance at freq_mult = 0.5 *vanishes* compared to sim_single
+    '''
+    W0 = np.array([0, 0, _W0])
+    def dydt(t, y):
+        W1hat = np.array([np.sin(psi) * np.sin(freq_mult * _W0 * t),
+                          np.sin(psi) * np.cos(freq_mult * _W0 * t),
+                          np.cos(psi)])
+        return np.cross(W0, y) + eps * np.cross(W1hat, y)
+    return solve_ivp(dydt, (0, tf), [0, np.sin(q0), np.cos(q0)],
+                     atol=tol, rtol=tol)
+
+def resonance_sim(_W0=0.5, psi=np.radians(60), tf=500, q0=np.radians(20),
+                  tol=1e-8, num_freqs=250, freq_max=2.5,
+                  fn='5_resonance_heights'):
+    '''
+    simulate the linear resonance effect across perturbation frequency +
+    strength
+    '''
+    colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
+    eps_arr = [0.01, 0.1, 0.3, 1]
+    freq_mults = np.linspace(0.01, 2.5, num_freqs)
+    # freq_mults = [0.95, 1, 1.05]
+    d_omega_cutoff = 1e-4
+    # NB: code's eps * _W0 = eps in notes
+
+    pkl_fn = '%s.pkl' % fn
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        q_amps_tot = []
+        q_amps_th_tot = []
+        for eps, c in zip(eps_arr, colors):
+        # for eps, c in zip([0.1], colors):
+            q_amps = []
+            q_amps_th = []
+            for freq_mult in freq_mults:
+                ret = resonance_sim_single(_W0, psi, tf, q0, tol, eps, freq_mult)
+
+                q_amps.append(ret.y[2, :].max() - ret.y[2, :].min())
+                print('Finished for', eps, freq_mult, q_amps[-1])
+                dW = freq_mult - 1
+                if abs(dW) < d_omega_cutoff: # regularize div-by-zero
+                    dW = d_omega_cutoff
+                psi_p = np.arctan(eps / dW)
+                q_amps_th.append(abs(np.cos(q0) - np.cos(2 * psi_p - q0)))
+            q_amps_tot.append(q_amps)
+            q_amps_th_tot.append(q_amps_th)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((q_amps_tot, q_amps_th_tot), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            q_amps_tot, q_amps_th_tot = pickle.load(f)
+            print(np.shape(q_amps_tot), np.shape(q_amps_th_tot))
+    for q_amps, q_amps_th, c, eps in\
+            zip(q_amps_tot, q_amps_th_tot, colors, eps_arr):
+        print(np.shape(q_amps), np.shape(q_amps_th))
+        plt.plot(freq_mults, q_amps, '%so' % c, ms=1, label=eps)
+        plt.plot(freq_mults, q_amps_th, '%s:' % c, lw=1, label=eps)
+    plt.savefig(fn, dpi=200)
+    plt.close()
+
+def plot_resonance_rates():
+    '''
+    plot time growth rate of the N = 1/2 parametric resonances (versus eps) and
+    the maximum amplitude
+    '''
+    pass
+
+if __name__ == '__main__':
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # plot_dWs(**getter_kwargs, intg_pts=int(3e5))
+
+    # m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # plot_dWs(fn='5_dWs_inner', intg_pts=int(3e5), **getter_kwargs)
 
     # print('No GR limit')
     # check_anal_dWs()
@@ -349,3 +353,11 @@ if __name__ == '__main__':
     # plot_dWeff_mags('4sims/', '4sim_lk_90_300')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_350')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_500')
+
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6)
+    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+                  psi=np.radians(90), fn='5_resonance_sims_90')
+    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+                  psi=np.radians(5), fn='5_resonance_sims_5')
+    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+                  psi=np.radians(45), fn='5_resonance_sims_45')
