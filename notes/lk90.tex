@@ -1126,9 +1126,9 @@ time-varying perturbation.
 Let's consider again the first toy problem. We can write down the EOM
 explicitly:
 \begin{align}
-    \rd{(\cos \theta)}{t} &= -\epsilon \sin \theta \sin \phi,\\
-    \rd{\theta}{t} &= \epsilon \sin \phi,\\
-    \rd{\phi}{t} &= -\p{\omega_0 - \omega}.
+    \rd{(\cos \theta)}{t} &= \epsilon \sin \theta \sin \phi,\\
+    \rd{\theta}{t} &= -\epsilon \sin \phi,\\
+    \rd{\phi}{t} &= \omega_0 - \omega.
 \end{align}
 Consider now $\omega = \omega_0 + \dot{\omega}t$. Then, $\rd{\phi}{t} =
 \dot{\omega}t$ and $\phi = \dot{\omega}t^2/2 + \phi_0$. Thus, we can integrate
@@ -1147,83 +1147,139 @@ Indeed, this matches our qualitative assertions from before: if $\epsilon \to
 time to rotate during the resonance, while if $\dot{\omega} \to \infty$ then the
 resonance is crossed too quickly to generate misalignment.
 
-\subsubsection{Returning to Kozai}
+% Below is wrong, looked for standard N = 1/2 resonance by adding/subtracting
+% trig terms, it's actually just paremetric w/ N = 1
+% \subsubsection{Returning to Kozai}
 
-Returning to our Hamiltonian and Fourier series, it's clear that we could get a
-resonance if some of the zero-sum perturbing terms have the same frequency as
-the precession of the first term. Let's just call the first term
-$\uv{\Omega}_{\rm eff}$, and consider some $m'$ such that $\frac{\pi
-m'}{T_{LK}} = \Omega_{\rm eff}$ (note the factor of $2$ missing). Let's also
-call the second term just generally $\uv{\Omega}'_m$, grouping coefficients
-together. Then there are infinitely many resonant terms. We will do some loose
-work with the indicies (let's just assume all the small $m$ are negligible, then
-sum half of every term with $m'$ less than it and the other half with $m'$
-greater than it), but we also need to generalize the trig identity $\cos x +
-\cos y = 2\cos \p{\frac{x + y}{2}} \cos \p{\frac{x - y}{2}}$ to vector valued
-arguments, or just generally unequal coefficients. This is not hard:
-\begin{align}
-    A\cos x + B \cos y &= \p{\frac{A + B}{2}}\p{\cos x + \cos y}
-            + \p{\frac{A - B}{2}}\p{\cos x - \cos y},\\
-        &= \p{A + B}\cos \p{\frac{x + y}{2}}\cos \p{\frac{x - y}{2}}
-            - \p{A - B}\sin \p{\frac{x + y}{2}}\sin \p{\frac{x - y}{2}}.
-\end{align}
+% Returning to our Hamiltonian and Fourier series, it's clear that we could get a
+% resonance if some of the zero-sum perturbing terms have the same frequency as
+% the precession of the first term. Let's just call the first term
+% $\uv{\Omega}_{\rm eff}$, and consider some $m'$ such that $\frac{\pi
+% m'}{T_{LK}} = \Omega_{\rm eff}$ (note the factor of $2$ missing). Let's also
+% call the second term just generally $\uv{\Omega}'_m$, grouping coefficients
+% together. Then there are infinitely many resonant terms. We will do some loose
+% work with the indicies (let's just assume all the small $m$ are negligible, then
+% sum half of every term with $m'$ less than it and the other half with $m'$
+% greater than it), but we also need to generalize the trig identity $\cos x +
+% \cos y = 2\cos \p{\frac{x + y}{2}} \cos \p{\frac{x - y}{2}}$ to vector valued
+% arguments, or just generally unequal coefficients. This is not hard:
+% \begin{align}
+%     A\cos x + B \cos y &= \p{\frac{A + B}{2}}\p{\cos x + \cos y}
+%             + \p{\frac{A - B}{2}}\p{\cos x - \cos y},\\
+%         &= \p{A + B}\cos \p{\frac{x + y}{2}}\cos \p{\frac{x - y}{2}}
+%             - \p{A - B}\sin \p{\frac{x + y}{2}}\sin \p{\frac{x - y}{2}}.
+% \end{align}
 
-Finally, we obtain
+% Finally, we obtain
+% \begin{equation}
+%     H = \uv{\Omega}_{\rm eff} \cdot \uv{S}
+%         + \frac{1}{2}\sum\limits_m \z{ \p{\uv{\Omega}_{m}' + \uv{\Omega}_{m +
+%             m'}'} \cos \frac{\pi \p{2m + m'}t}{T_{LK}}\cos \Omega_{\rm eff}
+%             - \p{\uv{\Omega}_{m}' - \uv{\Omega}_{m +
+%             m'}'} \sin \frac{\pi \p{2m + m'}t}{T_{LK}}\sin \Omega_{\rm eff}}
+%             \cdot \uv{S}
+%         + \dots
+% \end{equation}
+
+% Note that every time one of these resonances is hit, everything else
+% approximately averages out over $T_{LK}$ and the effective effective spin axis
+% (heh) tilts into the $xy$ plane, and the effective effective precession rate
+% goes with the coefficient (i.e.\ the magnitude of the vector with the two
+% components $\Omega_{m}' \pm \Omega_{m + m'}'$). If this resonance is traversed
+% slower than the effective effective precession rate, then the effective
+% effective precession axis will adiabatically tilt into the $xy$ plane and then
+% tilt back. If the resonance is traversed significantly more quickly than the
+% effective effective precession rate, then the resonance will have no time to
+% cause $\uv{S}$ to shift (this is the case when the Fourier components are all
+% very small). It's only in the intermediate regime where a substantial
+% kick to $\uv{S}$ can be experienced.
+
+% Of course, in reality, most of the Fourier components are small, and therefore
+% most resonances will be traversed too quickly. Thus, we only need to examine the
+% largest width resonances, i.e.\ the ones corresponding to the strongest Fourier
+% components. If any of these exceed $\Omega_{\rm eff}$ at the traversal, then by
+% the intermediate value theorem (LK is almost always pretty sharp, so there
+% shouldn't be discretization problems) there must be a frequency for which there
+% is commensurability, and therefore strong kicks can be experienced. Perhaps this
+% is what causes the apparent ``chaos'' in Bin's first paper, despite everything
+% being truly linear.
+
+% In these resonances, the signature is to examine $\theta_{\rm eff}, \phi_{\rm
+% eff}$; we should terms go from rapidly varying to very rapidly varying with a
+% slow envelope.
+
+\subsection{Untangling the Parametric Resonance (LL17)}
+
+We proceed by solving for the second toy model. In the second toy model, let's
+set $A = 0$, since we will consider resonances with the $N = 1$ Fourier
+component which is zero mean. Also shifting into the rotating frame (by
+replacing $\phi + \omega t \to \phi$), we obtain
+\begin{subequations}
+    \begin{align}
+        \rd{\cos \theta}{t} &= \epsilon B\cos \omega t
+                \sin \theta \sin\p{\phi - \omega t},\\
+        \rd{\theta}{t} &= -\epsilon B \s{
+            \sin \phi - \sin \omega t \cos\p{\phi - \omega t}},\\
+        \rd{\phi}{t} &= \omega_0 - \omega + \epsilon B\cos \omega t \cot \theta
+            \cos\p{\phi - \omega t}.
+    \end{align}
+\end{subequations}
+This resembles the EOM for the first toy model above, for which a $-\omega
+\uv{z}$ rotation gave us a very clean EOM (total rotation axis $\epsilon \uv{x}
++ \p{\omega_0 - \omega}\uv{z}$), but there are a few fast-varying terms. It's
+intuitively clear that the two possibilities for the rotation axis in this
+second toy model are either the same or the $\uv{x}$ component is something like
+halved.
+
+To verify this numerically, we compute the range of $\cos \theta$ excited for a
+given $\epsilon$ and fixed $\omega - \omega_0$. For simplicity, we start both
+$\uv{\Omega}_1$ and $\uv{S}$ at $\phi = 0$, and call their polar angles $\psi,
+\theta$ respectively. Under our formalism, if the polar angle of the tilted axis
+is $\psi'$ (which will also be in the $\phi = 0$) plane, we see that $\theta$
+ranges between $\theta$ and $2\psi' - \theta$, and $\psi'$ is given by
 \begin{equation}
-    H = \uv{\Omega}_{\rm eff} \cdot \uv{S}
-        + \frac{1}{2}\sum\limits_m \z{ \p{\uv{\Omega}_{m}' + \uv{\Omega}_{m +
-            m'}'} \cos \frac{\pi \p{2m + m'}t}{T_{LK}}\cos \Omega_{\rm eff}
-            - \p{\uv{\Omega}_{m}' - \uv{\Omega}_{m +
-            m'}'} \sin \frac{\pi \p{2m + m'}t}{T_{LK}}\sin \Omega_{\rm eff}}
-            \cdot \uv{S}
-        + \dots
+    \psi' = \arctan \frac{\epsilon}{\omega_0 - \omega}.
 \end{equation}
 
-Note that every time one of these resonances is hit, everything else
-approximately averages out over $T_{LK}$ and the effective effective spin axis
-(heh) tilts into the $xy$ plane, and the effective effective precession rate
-goes with the coefficient (i.e.\ the magnitude of the vector with the two
-components $\Omega_{m}' \pm \Omega_{m + m'}'$). If this resonance is traversed
-slower than the effective effective precession rate, then the effective
-effective precession axis will adiabatically tilt into the $xy$ plane and then
-tilt back. If the resonance is traversed significantly more quickly than the
-effective effective precession rate, then the resonance will have no time to
-cause $\uv{S}$ to shift (this is the case when the Fourier components are all
-very small). It's only in the intermediate regime where a substantial
-kick to $\uv{S}$ can be experienced.
+Upon plotting, we find generally very good agreement for small $\epsilon$,
+particularly near $\omega \approx \omega_0$. But for $\epsilon = 1$, the total
+change in $\cos \theta$ is much larger than predicted, saturating at $2$ over a
+wide range of parameters. Furthermore, for $\epsilon = 0.1$, we find a distinct
+peak at $\epsilon = 0.5\omega_0$. Further investigation shows that reducing
+$\epsilon$ significantly lengthens the timescale of this change in $\theta$,
+strongly suggesting a parametric-type instability. Also further investigation
+shows the appearance of smaller peaks at all integer fractions of $\epsilon /
+\omega_0$. Most interestingly, this instability \emph{vanishes} when analyzing
+the first toy model. Thus, it is behavior unique to the second toy model. Let's
+recap the behavior we are observing so far:
+\begin{itemize}
+    \item Occurs at $\epsilon / \omega_0 = 1 / N$.
+    \item Timescale and amplitude of oscillations are $\epsilon$-dependent.
+    \item Only occur for toy model 2.
+    \item Is much stronger for $\psi = 0$ than $\psi = 90$.
+\end{itemize}
 
-Of course, in reality, most of the Fourier components are small, and therefore
-most resonances will be traversed too quickly. Thus, we only need to examine the
-largest width resonances, i.e.\ the ones corresponding to the strongest Fourier
-components. If any of these exceed $\Omega_{\rm eff}$ at the traversal, then by
-the intermediate value theorem (LK is almost always pretty sharp, so there
-shouldn't be discretization problems) there must be a frequency for which there
-is commensurability, and therefore strong kicks can be experienced. Perhaps this
-is what causes the apparent ``chaos'' in Bin's first paper, despite everything
-being truly linear.
+The combination of the first and second properties strongly suggest a parametric
+instability, which explains the timescale growth, while Lindstedt-Poincar\'e
+perturbation theory likely gives a bound on the amplitude. The first property
+may be a result of the identity
+\begin{equation}
+    \int\limits_0^{2\pi} \sin\p{Nx} \sin(x)\;\mathrm{d}x
+        = \frac{\sin \p{2\pi N}}{N^2 - 1}.
+\end{equation}
+This is consistent with the third bullet as well since the parametric
+instability relies on a time-modulating amplitude. The final bullet suggests
+that it is the modulation of the $\uv{z}$ precession frequency that is
+generating the parametric instability, completing the picture.
 
-In these resonances, the signature is to examine $\theta_{\rm eff}, \phi_{\rm
-eff}$; we should terms go from rapidly varying to very rapidly varying with a
-slow envelope.
-
-Of course, the second, obvious source of nonadiabaticity is when $\Omega_{\rm
-eff}$ changes so quickly that even the averaged Hamiltonian is nonadiabatic.
-This is trivial to solve for though, since we just have some circular
-frequencies that vary in time.
-
-\subsection{Estimating Whether Resonances Get Hit (LL17)}
-
-Numerically, we can verify that $\abs{\Delta \Omega} \gtrsim \pi$ is a necessary
-criterion for the adiabatic prediction to break down in LL17. This corresponds
-to $m' = 1$. The shape of the curve is somewhat complicated, but is in theory
-purely analytic, albeit not in closed form: we have $x(t)$ and
-$\dot{\Omega}(x)$, so it's easy to integrate. This prediction in fact holds up
-when numerically evaluating $\ev{\dot{\Omega} \uv{z} + \Omega_{SL}\uv{L}}$ as
-well, so there must be something about this. The Hamiltonian doesn't have terms
-that are obviously resonant for a $2T_{LK}$ period though, and I can't seem to
-find a toy model that results in a parametric resonance.
+It is tempting to use the analytic LK solution to get $\epsilon$ (the $N = 1$
+Fourier coefficient) but we should do it numerically, as we know that GR is
+significant in our regime of interest (e.g.\ the discrepancy of
+$\ev{\dot{\Omega}}_{LK}$ versus the analytical form).
 
 \subsection{Few-Shot Merger Exact (LL18)}
+
+We solve for the second source of non-adiabicity, the short-merger limit.
 
 To do this problem exactly, let's start with the LK-averaged $\rd{\uv{S}}{t}$
 but then transform to the frame where $\uv{\Omega}_{\rm eff} \propto \uv{z}$.

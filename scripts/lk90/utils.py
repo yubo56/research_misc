@@ -435,6 +435,76 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
                     * ret.t[-1] / len(times))
     return ret.y[2, -1], (dWsl_z, dWsl_x)
 
+# get the dWs with time-averaged jhat (for agreement w/ LL17)
+def get_dWjhat(e0, I0, Lout_mag, L_mag, eps_gr=0, eps_gw=0, eps_sl=1,
+           atol=1e-9, rtol=1e-9, intg_pts=int(1e5)):
+    '''
+    total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
+    eps_gw
+
+    wdot = 3 * sqrt(h) / 4 * (1 - 2 * (x0 - h) / (x - h))
+    '''
+    a0 = 1
+    W0 = 0
+    w0 = 0
+
+    def dydt(t, y):
+        a, e, W, I, w = y
+        x = 1 - e**2
+        dadt =  (
+            -eps_gw * (64 * (1 + 73 * e**2 / 24 + 37 * e**4 / 96)) / (
+                5 * a**3 * x**(7/2))
+        )
+        dedt = (
+            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                    * np.sin(I)**2 / 8
+        )
+        dWdt = (
+            3 * a**(3/2) * np.cos(I) *
+                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+                / (4 * np.sqrt(x))
+        )
+        dIdt = (
+            -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                * np.sin(2 * I) / (16 * np.sqrt(x))
+        )
+        dwdt = (
+            3 * a**(3/2)
+                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
+                / (4 * np.sqrt(x))
+            + eps_gr / (a**(5/2) * x)
+        )
+        return (dadt, dedt, dWdt, dIdt, dwdt)
+    def term_event(t, y):
+        return y[4] - np.pi
+    term_event.terminal = True
+    ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
+                    events=[term_event], atol=atol, rtol=rtol,
+                    dense_output=True)
+    times = np.linspace(0, ret.t[-1], intg_pts)
+    a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
+    x_arr = 1 - e_arr**2
+    dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / x_arr
+                    * ret.t[-1] / len(times))
+    dWsl_x = np.sum(eps_sl / a_arr**(5/2) * np.sin(I_arr) / x_arr
+                    * ret.t[-1] / len(times))
+    dW = (
+        3 * a_arr**(3/2) * np.cos(I_arr) *
+                (5 * e_arr**2 * np.cos(w_arr)**2 - 4 * e_arr**2 - 1)
+            / (4 * np.sqrt(x_arr))
+    )
+    Jvec = L_mag * np.array([
+        np.sin(I_arr),
+        np.cos(I_arr),
+    ]) + Lout_mag * np.array([
+        np.zeros_like(I_arr),
+        np.ones_like(I_arr),
+    ])
+    Jvec_hatx, Jvec_hatz = Jvec / np.sqrt(np.sum(Jvec**2, axis=0))
+    dWz = np.sum(Jvec_hatz * dW * ret.t[-1] / len(times))
+    dWx = np.sum(Jvec_hatx * dW * ret.t[-1] / len(times))
+    return (dWz, dWx), (dWsl_z, dWsl_x)
+
 def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
     # calculate n_e...
     x0 = 1 - e0**2

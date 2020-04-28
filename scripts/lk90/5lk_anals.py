@@ -279,7 +279,7 @@ def resonance_sim(_W0=0.5, psi=np.radians(60), tf=500, q0=np.radians(20),
                 dW = freq_mult - 1
                 if abs(dW) < d_omega_cutoff: # regularize div-by-zero
                     dW = d_omega_cutoff
-                psi_p = np.arctan(eps / dW)
+                psi_p = np.arctan(eps * np.sin(psi) / dW)
                 q_amps_th.append(abs(np.cos(q0) - np.cos(2 * psi_p - q0)))
             q_amps_tot.append(q_amps)
             q_amps_th_tot.append(q_amps_th)
@@ -289,12 +289,13 @@ def resonance_sim(_W0=0.5, psi=np.radians(60), tf=500, q0=np.radians(20),
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             q_amps_tot, q_amps_th_tot = pickle.load(f)
-            print(np.shape(q_amps_tot), np.shape(q_amps_th_tot))
     for q_amps, q_amps_th, c, eps in\
             zip(q_amps_tot, q_amps_th_tot, colors, eps_arr):
-        print(np.shape(q_amps), np.shape(q_amps_th))
         plt.plot(freq_mults, q_amps, '%so' % c, ms=1, label=eps)
-        plt.plot(freq_mults, q_amps_th, '%s:' % c, lw=1, label=eps)
+        plt.plot(freq_mults, q_amps_th, '%s:' % c, lw=1)
+    plt.xlabel(r'$\Omega_0 / \omega$')
+    plt.ylabel(r'$\Delta \cos \theta$')
+    plt.legend(fontsize=14)
     plt.savefig(fn, dpi=200)
     plt.close()
 
@@ -354,10 +355,10 @@ if __name__ == '__main__':
     # plot_dWeff_mags('4sims/', '4sim_lk_90_350')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_500')
 
-    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6)
+    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6)
     resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
                   psi=np.radians(90), fn='5_resonance_sims_90')
     resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
                   psi=np.radians(5), fn='5_resonance_sims_5')
-    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
-                  psi=np.radians(45), fn='5_resonance_sims_45')
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+    #               psi=np.radians(45), fn='5_resonance_sims_45')

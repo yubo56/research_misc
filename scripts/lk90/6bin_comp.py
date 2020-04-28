@@ -447,19 +447,19 @@ def plot_anal():
     qeff_S1 = np.arccos(np.abs(ts_dot(L_hat, Weff_hat))) # L_hat = initial S
     plt.plot(I_degs, np.degrees(qeff_S1), 'r', lw=1.3, alpha=0.5, label='LL17')
 
-    # my estimate
+    # my estimate (TODO jhat should be averaged too...)
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     qeff_my = []
     for I, lhat, jhat, qeffs1, wlpmult in\
             zip(I_rads, L_hat.T, J_hat.T, qeff_S1, WLp_mult):
-        dW, (dWSLz, dWSLx) = get_dW(0.001, I, **getter_kwargs)
-        dWcorr = dW / wlpmult
-        Weff_my = np.array([dWSLx, 0, dWSLz]) - dW * jhat
+        (dWz, dWx), (dWSLz, dWSLx) = get_dWjhat(
+            0.001, I, Lout_mag, L_mag, **getter_kwargs)
+        Weff_my = np.array([dWSLx - dWx, 0, dWSLz - dWz])
         Weff_my_hat = Weff_my / np.sqrt(np.sum(Weff_my**2, axis=0))
         qeff_I = np.arccos(np.abs(np.dot(lhat, Weff_my_hat)))
         qeff_my.append(qeff_I)
-        # print(np.degrees(I), np.degrees(qeff_I), np.degrees(qeffs1))
+        print(np.degrees(I), np.degrees(qeff_I), np.degrees(qeffs1))
     qeff_my = np.array(qeff_my)
     plt.plot(I_degs, np.degrees(qeff_my), 'g', lw=1.3, alpha=0.5, label='YS')
 
