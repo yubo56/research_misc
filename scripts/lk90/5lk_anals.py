@@ -360,5 +360,5 @@ if __name__ == '__main__':
                   psi=np.radians(90), fn='5_resonance_sims_90')
     resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
                   psi=np.radians(5), fn='5_resonance_sims_5')
-    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
-    #               psi=np.radians(45), fn='5_resonance_sims_45')
+    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+                  psi=np.radians(45), fn='5_resonance_sims_45')

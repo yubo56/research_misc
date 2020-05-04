@@ -10,6 +10,8 @@ plt.rc('ytick', direction='in', left=True, right=True)
 
 from utils import *
 from scipy import optimize as opt
+from scipy.fft import dct, idct, fft
+from scipy.interpolate import interp1d
 
 # values from LL17
 I_degs, qslfs = np.array([
@@ -512,6 +514,218 @@ def Icrit_test():
         return np.arccos(eta / 2 * (4 * jlim**2 / 5 - 1))
     print(np.degrees(get_Ilim())) # should be 92.16
 
+TOY_FOLDER = '6toy/'
+mkdirp(TOY_FOLDER)
+def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95), intg_pts=int(3e5)):
+    '''
+    for far-out system params, solve toy problem in corotating frame
+    '''
+    eps_sl = getter_kwargs['eps_sl']
+    eps_gr = getter_kwargs['eps_gr']
+    a = 1
+    W0 = 0
+    w0 = 0
+
+    def dydt(t, y):
+        e, W, I, w = y
+        x = 1 - e**2
+        dedt = (
+            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                    * np.sin(I)**2 / 8
+        )
+        dWdt = (
+            3 * a**(3/2) * np.cos(I) *
+                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+                / (4 * np.sqrt(x))
+        )
+        dIdt = (
+            -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                * np.sin(2 * I) / (16 * np.sqrt(x))
+        )
+        dwdt = (
+            3 * a**(3/2)
+                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
+                / (4 * np.sqrt(x))
+            + eps_gr / (a**(5/2) * x)
+        )
+        return (dedt, dWdt, dIdt, dwdt)
+    def start_event(t, y):
+        return y[3] - np.pi / 2
+    def term_event(t, y): # one Kozai cycle, starting from emax
+        return y[3] - 3 * np.pi / 2
+    term_event.terminal = True
+    # use implicit method to ensure symmetry about half-period
+    ret = solve_ivp(dydt, (0, np.inf), [e0, W0, I0, w0],
+                    events=[start_event, term_event], atol=1e-10, rtol=1e-10,
+                    method='Radau', dense_output=True)
+    times = np.linspace(ret.t_events[0][0], ret.t[-1], intg_pts)
+    # symmetrize for exact symmetry, time-shift to drop dominant phase shift
+    def symmetrize(x):
+        return (x + np.flip(x, axis=-1)) / 2
+    e_arr, W_arr, I_arr, w_arr = ret.sol(times)
+    e_arr = symmetrize(e_arr)
+    I_arr = symmetrize(I_arr)
+    x_arr = 1 - e_arr**2
+
+    # compute W0_vec, WSL_vec, Weff_vec
+    W0_vec = np.outer(
+        np.array([0, 0, 1]),
+        (
+            3 * a**(3/2) * np.cos(I_arr) *
+                    (5 * e_arr**2 * np.cos(w_arr)**2 - 4 * e_arr**2 - 1)
+                / (4 * np.sqrt(x_arr))
+        ))
+    WSL_vec = np.array([
+        eps_sl / (a**(5/2) * x_arr) * np.sin(I_arr),
+        np.zeros(intg_pts),
+        eps_sl / (a**(5/2) * x_arr) * np.cos(I_arr)])
+    Weff_vec = WSL_vec - W0_vec
+    return Weff_vec, times
+
+def plot_weff_fft(Weff_vec, times, fn='6_vecfft', plot=True):
+    # cosine transform
+    dt = (times[-1] - times[0]) / len(times)
+    x_coeffs = dct(Weff_vec[0], type=1)[::2] * dt / 2
+    z_coeffs = dct(Weff_vec[2], type=1)[::2] * dt / 2
+
+    if plot:
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(9, 7))
+        # fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 7))
+        # ax3.semilogy(times, -Weff_vec[2], 'k', lw=1, label=r'$-z$')
+        # ax3.semilogy(times, Weff_vec[0], 'b', lw=1, label=r'$x$')
+        # ax3.legend(fontsize=12)
+        # ax3.set_ylabel(r'$\Omega_{\rm eff}$')
+
+        N = np.arange(len(z_coeffs))
+        ax1.semilogy(N, x_coeffs, 'bo', ms=1)
+        ax1.semilogy(N, -x_coeffs, 'ro', ms=1)
+        # ax2.semilogy(N, z_coeffs, 'bo', ms=1)
+        ax2.semilogy(N, -z_coeffs, 'ro', ms=1)
+        ax1.set_ylabel(r'$\tilde{\Omega}_{\rm eff, x, N}$')
+        ax2.set_ylabel(r'$\tilde{\Omega}_{\rm eff, z, N}$')
+        ax2.set_xlabel(r'$N$')
+
+        min_fact = 1e-6
+        Nmax = np.where(abs(z_coeffs) / np.max(abs(z_coeffs)) < min_fact)[0][0]
+        ax1.set_ylim(bottom=np.abs(x_coeffs).max() * min_fact / 3)
+        ax2.set_ylim(bottom=np.abs(z_coeffs).max() * min_fact / 3)
+        ax1.set_xlim((0, Nmax))
+        ax2.set_xlim((0, Nmax))
+
+        plt.tight_layout()
+        plt.savefig(TOY_FOLDER + fn, dpi=200)
+        plt.clf()
+
+    return x_coeffs, z_coeffs
+
+def get_dev(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0):
+    t0 = t_vals[0]
+    tf = t_vals[-1]
+    Weff_x_interp = interp1d(t_vals, Weff_vec[0])
+    Weff_z_interp = interp1d(t_vals, Weff_vec[2])
+    Weff_x_mean = np.mean(Weff_vec[0])
+    Weff_z_mean = np.mean(Weff_vec[2])
+    def dydt(t, s):
+        return np.cross(
+            [Weff_x_interp(t), 0, Weff_z_interp(t)],
+            s)
+    def dydt_mean(t, s):
+        return np.cross(
+            [Weff_x_mean, 0, Weff_z_mean],
+            s)
+
+    s0 = [np.sin(q0) * np.cos(phi0), np.sin(q0) * np.sin(phi0), np.cos(q0)]
+    ret = solve_ivp(dydt, (t0, tf), s0,
+                    atol=1e-10, rtol=1e-10, method='Radau')
+    ret_mean = solve_ivp(dydt_mean, (t0, tf), s0,
+                         atol=1e-10, rtol=1e-10, method='Radau')
+    dev = np.sqrt(np.sum((ret.y[:, -1] - ret_mean.y[:, -1])**2))
+    if plot:
+        plt.plot(ret.t, ret.y[2, :], 'r', lw=2, alpha=0.5)
+        plt.plot(ret_mean.t, ret_mean.y[2, :], 'b:', lw=1, alpha=0.5,
+                 label='%.3e' % dev)
+
+        plt.legend()
+        plt.tight_layout()
+        plt.savefig(TOY_FOLDER + fn, dpi=200)
+        plt.close()
+    return dev
+
+def get_devs(getter_kwargs, intg_pts=int(1e5)):
+    '''
+    For various e0, I0, run for isotropic distribution, get difference between
+    averaged + non-averaged (RMS diff), plot
+
+    Also, calulate "epsilon" (N = 1) / (N = 0) magnitudes for each
+    '''
+
+    configs = [
+        (0.001, np.radians(95), '6_devgrid_95'),
+        (0.9, np.radians(90.5), '6_devgrid_90_5_p9'),
+        (0.001, np.radians(90.5), '6_devgrid_90_5'),
+        (0.001, np.radians(91.5), '6_devgrid_91_5'),
+        (0.001, np.radians(92.5), '6_devgrid_92_5'),
+        (0.001, np.radians(93.5), '6_devgrid_93_5'),
+        (0.001, np.radians(94.5), '6_devgrid_94_5'),
+        (0.01, np.radians(92.5), '6_devgrid_92_5_n2'),
+        (0.1, np.radians(92.5), '6_devgrid_92_5_n1'),
+        (0.3, np.radians(92.5), '6_devgrid_92_5_p3'),
+    ]
+    config_stats = [] # store mean, stdev, N=0, N=1 coeffs
+    mus = np.linspace(-1, 1, 20)
+    phis = np.linspace(0, 2 * np.pi, 20)
+    for e0, I0, fn in configs:
+        Weff_vec, t_vals = single_cycle_toy(
+            getter_kwargs, e0=e0, I0=I0, intg_pts=intg_pts)
+        res_grid = []
+        for q in np.arccos(mus):
+            res = []
+            for phi in phis:
+                dev = get_dev(Weff_vec, t_vals, q0=q, phi0=phi)
+                print(e0, I0, q, phi, dev)
+                res.append(dev)
+            res_grid.append(res)
+        res_nparr = np.array(res_grid)
+        if fn is not None:
+            plt.imshow(res_nparr, extent=(0, 2 * np.pi, -1, 1),
+                       aspect='auto')
+            plt.colorbar()
+            plt.xlabel(r'$\phi$')
+            plt.ylabel(r'$\cos \theta$')
+            plt.tight_layout()
+            plt.savefig(TOY_FOLDER + fn, dpi=200)
+            plt.close()
+
+        x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, t_vals, plot=False)
+        config_stats.append((
+            np.mean(res_nparr), np.std(res_nparr),
+            x_coeffs[ :2], z_coeffs[ :2]))
+    with open('6devgrid.txt', 'w') as f:
+        f.write('e, I, mean, stdev, (N = 0), (N = 1)\n')
+        for c, cs in zip(configs, config_stats):
+            f.write('%s, %s, %s, %s, %s, %s\n' % (c[0],
+                    np.degrees(c[1]),
+                    cs[0],
+                    cs[1],
+                    (cs[2][0], cs[3][0]),
+                    (cs[2][1], cs[3][1])))
+
 if __name__ == '__main__':
-    plot_anal()
+    # plot_anal()
     # Icrit_test()
+
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # Weff_vec, t_vals = single_cycle_toy(getter_kwargs, I0=np.radians(90.5))
+    # plot_weff_fft(Weff_vec, t_vals, fn='6_vecfft_90_5', plot=False)
+    # get_dev(Weff_vec, t_vals, plot=True, fn='6_devs90_5')
+
+    # Weff_vec, t_vals = single_cycle_toy(getter_kwargs, e0=0.9, I0=np.radians(90.5))
+    # plot_weff_fft(Weff_vec, t_vals, fn='6_vecfft_90_5_highe')
+    # get_dev(Weff_vec, t_vals, plot=True, fn='6_devs90_5_highe')
+
+    # Weff_vec, t_vals = single_cycle_toy(getter_kwargs, I0=np.radians(95))
+    # plot_weff_fft(Weff_vec, t_vals, fn='6_vecfft_95')
+    # get_dev(Weff_vec, t_vals, plot=True, fn='6_devs95')
+
+    get_devs(getter_kwargs)
