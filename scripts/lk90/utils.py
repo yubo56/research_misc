@@ -11,6 +11,7 @@ from scipy.integrate import solve_ivp
 from scipy.optimize import brenth
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+import scipy.special as spe
 
 DEF_EPS_SL = 0
 DEF_EPS_GR = 0

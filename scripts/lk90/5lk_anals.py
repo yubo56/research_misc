@@ -9,7 +9,6 @@ plt.rc('font', family='serif', size=16)
 plt.rc('lines', lw=3.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
-import scipy.special as spe
 from scipy.integrate import solve_ivp, quad
 from scipy.optimize import brenth
 from scipy.interpolate import interp1d
@@ -32,7 +31,7 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
     I0s = np.linspace(np.pi / 2 + 0.001, I0_max, num_Is)
     I0s_d = np.degrees(I0s)
 
-    e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
+    e0_labels = ['1e-3', '0.003', '0.03', '0.2', '0.9']
     e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
     colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
 
@@ -292,9 +291,9 @@ def resonance_sim(_W0=0.5, psi=np.radians(60), tf=500, q0=np.radians(20),
     for q_amps, q_amps_th, c, eps in\
             zip(q_amps_tot, q_amps_th_tot, colors, eps_arr):
         plt.plot(freq_mults, q_amps, '%so' % c, ms=1, label=eps)
-        plt.plot(freq_mults, q_amps_th, '%s:' % c, lw=1)
+        # plt.plot(freq_mults, q_amps_th, '%s:' % c, lw=1)
     plt.xlabel(r'$\Omega_0 / \omega$')
-    plt.ylabel(r'$\Delta \cos \theta$')
+    plt.ylabel(r'$\max \cos \theta - \min \cos \theta$')
     plt.legend(fontsize=14)
     plt.savefig(fn, dpi=200)
     plt.close()
