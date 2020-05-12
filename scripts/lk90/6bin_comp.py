@@ -1,19 +1,26 @@
 import os
 import pickle
 import numpy as np
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
-plt.rc('lines', lw=3.5)
-plt.rc('xtick', direction='in', top=True, bottom=True)
-plt.rc('ytick', direction='in', left=True, right=True)
+from multiprocessing import Pool
+try:
+    import matplotlib
+    matplotlib.use('Agg')
+    import matplotlib.pyplot as plt
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif', size=16)
+    plt.rc('lines', lw=3.5)
+    plt.rc('xtick', direction='in', top=True, bottom=True)
+    plt.rc('ytick', direction='in', left=True, right=True)
+except ModuleNotFoundError:
+    # on exo4, don't plot
+    pass
 
 from utils import *
 from scipy import optimize as opt
 from scipy.fft import dct, idct, fft
 from scipy.interpolate import interp1d
+
+N_THREADS = 60
 
 # values from LL17
 I_degs, qslfs = np.array([
@@ -745,8 +752,8 @@ def get_devs(getter_kwargs, intg_pts=int(1e5), configs=[], outfile='',
             if fn is not None:
                 inner_plot(cs)
 
-def Iscan(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_Iscan', **kwargs):
-    I_vals = np.radians(np.linspace(95, 135, 1000))
+def Iscan(getter_kwargs, intg_pts=int(1e5), fn='6_Iscan',
+          e0=0.003, I_vals=np.radians(np.linspace(95, 135, 1000)), **kwargs):
     amps = []
     for I in I_vals:
         Weff_vec, t_vals = single_cycle_toy(
@@ -760,8 +767,8 @@ def Iscan(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_Iscan', **kwargs):
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
 
-def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1', **kwargs):
-    I_vals = np.radians(np.linspace(95, 135, 40))
+def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1',
+                      I_vals=np.radians(np.linspace(95, 135, 40)), **kwargs):
     ratios = []
     angles = []
     dWs = []
@@ -788,6 +795,104 @@ def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1'
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
 
+def do_getamp(getter_kwargs, e0, I, intg_pts):
+    Weff_vec, t_vals = single_cycle_toy(
+        getter_kwargs, e0=e0, I0=I, intg_pts=intg_pts)
+    amp = get_amp(Weff_vec, t_vals, q0=I)
+    print('Ran for I = %.3f, e0=%.3f, amp=%.3f' % (np.degrees(I), e0, amp))
+    return amp
+
+def get_905():
+    t_arr = []
+    e0arr = []
+    I0arr = []
+    a0arr = []
+    with open('4sims/4sim_lk_90_500.pkl', 'rb') as f:
+        t, (a, e, W, I, w), t_events = pickle.load(f)
+
+    for ti, tf in zip(t_events[0][ :-1], t_events[0][1: ]):
+        where_idx = np.where(np.logical_and(
+            t < tf, t > ti))[0]
+        min_idx = np.argmin(e[where_idx])
+        e0arr.append(e[where_idx][min_idx])
+        I0arr.append(I[where_idx][min_idx])
+        a0arr.append(a[where_idx][min_idx])
+        t_arr.append(t[where_idx][min_idx])
+    return t_arr, e0arr, I0arr, a0arr
+
+def Iscan_grid(getter_kwargs,
+               intg_pts=int(1e5),
+               fn='6_Iscan',
+               e_vals=np.geomspace(1e-3, 0.9, 120),
+               I_vals=np.radians(np.linspace(90.5, 130, 200)),
+               plot_905=False,
+               **kwargs):
+    pkl_fn = TOY_FOLDER + fn + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        args = []
+        for e0 in e_vals:
+            for I in I_vals:
+                args.append((getter_kwargs, e0, I, intg_pts))
+        p = Pool(N_THREADS)
+        res = p.starmap(do_getamp, args)
+        res = np.reshape(res, (len(e_vals), len(I_vals)))
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump(res, f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            res = pickle.load(f)
+    dI = np.mean(np.diff(I_vals))
+    de = e_vals[-1] / e_vals[-2]
+    I_edges = np.degrees(np.concatenate((I_vals - dI / 2,
+                                         [I_vals[-1] + dI / 2])))
+    e_edges = np.concatenate((e_vals / np.sqrt(de), [e_vals[-1] * np.sqrt(de)]))
+    e_grid = np.outer(e_edges, np.ones_like(I_edges))
+    I_grid = np.outer(np.ones_like(e_edges), I_edges)
+    plt.pcolormesh(e_grid, I_grid, res)
+    plt.xlim(left=1, right=1e-3)
+    plt.xscale('log')
+
+    # overplot lines of constant K for e0=1e-3
+    e0 = 1e-3
+    I_trunc = I_edges[:-1]
+    stride = len(I_trunc) // 4
+    for I0 in I_trunc[::stride]:
+        e_match_sq = 1 - cosd(I0)**2 / cosd(I_trunc)**2 * (1 - e0**2)
+        plt.plot(np.sqrt(e_match_sq), I_trunc, 'r:', lw=1)
+    # overplot I0=90.5 from simulation
+    if plot_905:
+        _, e0arr, I0arr, _ = get_905()
+        plt.plot(e0arr, np.degrees(I0arr), 'r', lw=2)
+
+    plt.xlabel(r'$e_{\min}$')
+    plt.ylabel(r'$I_{\min}$')
+    plt.colorbar()
+    plt.tight_layout()
+    plt.savefig(TOY_FOLDER + fn, dpi=200)
+    plt.close()
+
+def plot_905(n_pts=50):
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    t_arr, e0arr, I0arr, a0arr = get_905()
+    # resample, e0arr and I0arr are very dense at late times
+    t_vals = np.linspace(t_arr[0], t_arr[-1], n_pts)
+    e0_new = interp1d(t_arr, e0arr)(t_vals)
+    I0_new = interp1d(t_arr, I0arr)(t_vals)
+    a0_new = interp1d(t_arr, a0arr)(t_vals)
+
+    amps = []
+    for e0, I0, a0_new in zip(e0_new, I0_new, a0_new):
+        getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
+        amps.append(do_getamp(getter_kwargs, e0, I0, int(1e5)))
+        print('90.5sim, Did', e0, I0, a0_new, amps[-1])
+    plt.plot(t_vals, amps)
+    plt.xlabel(r'$t / t_{\rm LK, 0}$')
+    plt.ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    plt.savefig('6toy/6_905', dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
     # plot_anal()
     # Icrit_test()
@@ -810,8 +915,6 @@ if __name__ == '__main__':
     # Weff_vec, t_vals = single_cycle_toy(getter_kwargs, I0=np.radians(125))
     # plot_weff_fft(Weff_vec, t_vals, fn='6_vecfft_125')
     # get_amp(Weff_vec, t_vals, plot=True, fn='6_devs125')
-
-    # Iscan(getter_kwargs, fn='6_Iscan_out')
 
     # key takeaways:
     # configs1 = [
@@ -860,11 +963,19 @@ if __name__ == '__main__':
     #         q0=np.radians(120),
     #         num_periods=500)
 
-    # Iscan(getter_kwargs)
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # Iscan_N1Component(getter_kwargs, fn='6_IscanN1outer',
+    #                   I_vals=np.radians(np.linspace(90.5, 135, 200)))
+    # Iscan(getter_kwargs, fn='6_Iscan_out')
+    # Iscan(getter_kwargs, fn='6_Iscan_outnarrow',
+    #       I_vals=np.radians(np.linspace(90.5, 95, 200)))
+    # Iscan_grid(getter_kwargs, fn='6_Iscangrid', plot_905=True)
+    plot_905()
 
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    Iscan_N1Component(getter_kwargs, fn='6_IscanN1outer')
-    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    Iscan_N1Component(getter_kwargs, fn='6_IscanN1inner')
+    # m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # Iscan_N1Component(getter_kwargs, fn='6_IscanN1inner',
+    #                   I_vals=np.radians(np.linspace(90.5, 135, 200)))
+    # Iscan(getter_kwargs, fn='6_Iscan')
+    # Iscan_grid(getter_kwargs, fn='6_Iscangrid_inner')

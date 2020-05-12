@@ -808,6 +808,7 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, short=True)
     # run_for_Ideg('4sims/', 90.475, short=True)
     # run_for_Ideg('4sims/', 90.3, short=True, plotter=plot_good)
+    run_for_Ideg('4sims/', 90.5, short=True, plotter=plot_good)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
@@ -819,7 +820,7 @@ if __name__ == '__main__':
     # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
-    run_close_in()
+    # run_close_in()
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)

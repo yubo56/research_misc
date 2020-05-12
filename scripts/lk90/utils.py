@@ -9,9 +9,12 @@ import numpy as np
 import time
 from scipy.integrate import solve_ivp
 from scipy.optimize import brenth
-import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
 import scipy.special as spe
+try:
+    import matplotlib.pyplot as plt
+except ModuleNotFoundError:
+    pass
 
 DEF_EPS_SL = 0
 DEF_EPS_GR = 0
@@ -543,3 +546,6 @@ def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
         int_res = np.sum(intg * phi[-1] / len(phi))
         return (3 * np.sqrt(h) * 2 * np.pi) / (4 * ne) * (1 - 1 / K * int_res)
     return solve_dot(), solve_Wsl()
+
+def cosd(x):
+    return np.cos(np.radians(x))
