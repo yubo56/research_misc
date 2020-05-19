@@ -629,7 +629,7 @@ def plot_weff_fft(Weff_vec, times, fn='6_vecfft', plot=True):
     return x_coeffs, z_coeffs
 
 def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
-            num_periods=100, tol=1e-6):
+            num_periods=100, tol=1e-7):
     '''
     run for num_periods, and at each period, compute theta_eff (s dot Weff)
     '''
@@ -640,6 +640,10 @@ def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
     Weff_z_interp = interp1d(t_vals, Weff_vec[2])
     Weff_x_mean = np.mean(Weff_vec[0])
     Weff_z_mean = np.mean(Weff_vec[2])
+    # plt.plot(Weff_vec[0])
+    # plt.plot(Weff_vec[2])
+    # plt.savefig('/tmp/foo_late.png')
+    # plt.close()
     def dydt(t, s):
         t_curr = (t - t0) % period + t0
         return np.cross(
@@ -656,12 +660,16 @@ def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
                     atol=tol, rtol=tol, method='Radau')
     period_times = ret.t_events[0]
     period_spins = ret.sol(period_times)
+    # period_times = ret.t
+    # period_spins = ret.y
     q_effs = ts_dot(period_spins,
                     [np.full_like(period_times, Weff_x_mean),
                      np.zeros_like(period_times),
                      np.full_like(period_times, Weff_z_mean)])
     if plot:
-        plt.plot(period_times, np.degrees(q_effs), 'bo')
+        plt.plot(period_times, np.degrees(q_effs), 'bo', ms=0.5)
+        # plt.axvline(ret.t_events[0][10], c='r', lw=0.5, alpha=0.5)
+        # plt.axvline(ret.t_events[0][11], c='r', lw=0.5, alpha=0.5)
 
         plt.tight_layout()
         plt.savefig(TOY_FOLDER + fn, dpi=200)
@@ -802,13 +810,23 @@ def do_getamp(getter_kwargs, e0, I, intg_pts):
     print('Ran for I = %.3f, e0=%.3f, amp=%.3f' % (np.degrees(I), e0, amp))
     return amp
 
-def get_905():
+# used to be just to get 90.5, but now will be for all; gets (t, e, I, a) when
+# eccentricity is at its minimum in each LK cycle
+def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None):
     t_arr = []
     e0arr = []
     I0arr = []
     a0arr = []
-    with open('4sims/4sim_lk_90_500.pkl', 'rb') as f:
-        t, (a, e, W, I, w), t_events = pickle.load(f)
+    with open(fn, 'rb') as f:
+        t, (a, e, _, I, _), t_events = pickle.load(f)
+
+    if t_final is not None:
+        idx_final = np.where(t < t_final)[0][-1]
+        t = t[ :idx_final]
+        a = a[ :idx_final]
+        e = e[ :idx_final]
+        I = I[ :idx_final]
+        t_events[0] = t_events[0][np.where(t_events[0] < t[-1])[0]]
 
     for ti, tf in zip(t_events[0][ :-1], t_events[0][1: ]):
         where_idx = np.where(np.logical_and(
@@ -825,7 +843,7 @@ def Iscan_grid(getter_kwargs,
                fn='6_Iscan',
                e_vals=np.geomspace(1e-3, 0.9, 120),
                I_vals=np.radians(np.linspace(90.5, 130, 200)),
-               plot_905=False,
+               overplot_905=False,
                **kwargs):
     pkl_fn = TOY_FOLDER + fn + '.pkl'
     if not os.path.exists(pkl_fn):
@@ -862,7 +880,7 @@ def Iscan_grid(getter_kwargs,
         e_match_sq = 1 - cosd(I0)**2 / cosd(I_trunc)**2 * (1 - e0**2)
         plt.plot(np.sqrt(e_match_sq), I_trunc, 'r:', lw=1)
     # overplot I0=90.5 from simulation
-    if plot_905:
+    if overplot_905:
         _, e0arr, I0arr, _ = get_905()
         plt.plot(e0arr, np.degrees(I0arr), 'r', lw=2)
 
@@ -873,9 +891,11 @@ def Iscan_grid(getter_kwargs,
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
 
-def plot_905(n_pts=50):
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    t_arr, e0arr, I0arr, a0arr = get_905()
+def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
+             plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0),
+             t_slice=None):
+    m1, m2, m3, a0, a2, e2 = params
+    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn)
     # resample, e0arr and I0arr are very dense at late times
     t_vals = np.linspace(t_arr[0], t_arr[-1], n_pts)
     e0_new = interp1d(t_arr, e0arr)(t_vals)
@@ -883,14 +903,130 @@ def plot_905(n_pts=50):
     a0_new = interp1d(t_arr, a0arr)(t_vals)
 
     amps = []
-    for e0, I0, a0_new in zip(e0_new, I0_new, a0_new):
+    Weffs = []
+    ts_run = []
+    for t, e0, I0, a0_new in zip(t_vals, e0_new, I0_new, a0_new):
         getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
-        amps.append(do_getamp(getter_kwargs, e0, I0, int(1e5)))
-        print('90.5sim, Did', e0, I0, a0_new, amps[-1])
-    plt.plot(t_vals, amps)
+        try: # think running into an issue at small a0_new
+            Weff_vec, _t_vals = single_cycle_toy(
+                getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
+            Weff_mean = np.mean(Weff_vec, axis=1)
+            Weff_mag = np.sqrt(np.sum(Weff_mean**2))
+            amp = get_amp(Weff_vec, _t_vals, q0=I0)
+            amps.append(amp)
+            Weffs.append(Weff_mag)
+            ts_run.append(t)
+        except ValueError as e:
+            print(e)
+            break
+        print(fn, t, ': Did', e0, I0, a0_new, amps[-1])
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
+    ax1.plot(ts_run, amps, 'bo', ms=1.5)
+    ax1.set_ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    ax2.semilogy(ts_run, Weffs, 'bo', ms=1.5)
+    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
+    ax2.set_xlabel(r'$t / t_{\rm LK, 0}$')
+    plt.tight_layout()
+    plt.savefig(plot_fn, dpi=200)
+    plt.close()
+
+def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
+                      plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0)):
+    m1, m2, m3, a0, a2, e2 = params
+    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn)
+    # resample, e0arr and I0arr are very dense at late times
+    t_vals = t_arr[t_slice]
+    e0_new = e0arr[t_slice]
+    I0_new = I0arr[t_slice]
+    a0_new = a0arr[t_slice]
+
+    amps = []
+    Weffs = []
+    angles = []
+    ratios = []
+    ts_run = []
+    for t, e0, I0, a0_new in zip(t_vals, e0_new, I0_new, a0_new):
+        getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
+        try: # think running into an issue at small a0_new
+            Weff_vec, _t_vals = single_cycle_toy(
+                getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
+            Weff_mean = np.mean(Weff_vec, axis=1)
+            Weff_mag = np.sqrt(np.sum(Weff_mean**2))
+            amp = get_amp(Weff_vec, _t_vals, q0=I0)
+            # amp = get_amp(Weff_vec, _t_vals, q0=I0, plot=True, fn='905_late')
+            # amp = get_amp(Weff_vec, _t_vals, q0=I0, plot=True, fn='905_max')
+            # return
+            amps.append(amp)
+            Weffs.append(Weff_mag)
+            ts_run.append(t)
+
+            x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, _t_vals, plot=False)
+            get_mag = lambda idx: np.sqrt(x_coeffs[idx]**2 + z_coeffs[idx]**2)
+            ratios.append(get_mag(1) / get_mag(0))
+            angles.append(
+                (x_coeffs[0] * x_coeffs[1] + z_coeffs[0] * z_coeffs[1]) /
+                (get_mag(0) * get_mag(1)))
+        except ValueError as e:
+            print(e)
+            break
+        print(fn, t, ': Did', e0, I0, a0_new, amps[-1])
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8), sharex=True)
+    ax1.plot(ts_run, amps, 'bo', ms=3)
+    ax1.set_ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    ax2.semilogy(ts_run, Weffs, 'bo', ms=3)
+    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
+    ax3.plot(ts_run, angles, 'bo', ms=3)
+    ax3.set_ylabel(r'$\hat{\mathbf{\Omega}}_{\rm eff, 1} \cdot'
+                   '\hat{\mathbf{\Omega}}_{\rm eff, 0}$')
+    ax4.plot(ts_run, ratios, 'bo', ms=3)
+    ax4.set_ylabel(r'$\Omega_{\rm eff, 1} / \Omega_{\rm eff, 0}$')
+    ax4.set_xlabel(r'$t / t_{\rm LK, 0}$')
+    plt.tight_layout()
+    plt.savefig(plot_fn, dpi=200)
+    plt.close()
+
+def search(params, fn, plot_fn, target, t_final, t_opt=None):
+    # do brenth search for where Weff / T_{LK} crosses 0.5
+    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn, t_final=t_final)
+    e0_new = interp1d(t_arr, e0arr)
+    I0_new = interp1d(t_arr, I0arr)
+    a0_new = interp1d(t_arr, a0arr)
+    if t_opt is None:
+        def getWeff_mag(t):
+            getter_kwargs = get_eps(params[0], params[1], params[2],
+                                    params[3] * a0_new(t), params[4], params[5])
+            Weff_vec, _ = single_cycle_toy(
+                getter_kwargs, e0=e0_new(t), I0=I0_new(t), intg_pts=int(1e5))
+            Weff_mean = np.mean(Weff_vec, axis=1)
+            Weff_mag = np.sqrt(np.sum(Weff_mean**2))
+            print('Tried t=%.7f (%.2f, %.2f), Weff_mag=%.7f' %
+                  (t, t_arr[0], t_arr[-1], Weff_mag))
+            return Weff_mag - target
+        t_opt = opt.brenth(getWeff_mag, t_arr[0], t_arr[-1])
+    print('Optimum time is', t_opt)
+    # get amp at optimum time
+    times = np.linspace(t_opt - 200, t_opt + 200, 21)
+    amps = []
+    num_periods = 200; plot = False; fn=''
+    # THERE'S REALLY NO RESONANCE??
+    # times = [t_opt]; num_periods = 2000; plot = True; fn='80inner_amp_crit'
+    for t in times:
+        getter_kwargs = get_eps(params[0], params[1], params[2],
+                                params[3] * a0_new(t), params[4], params[5])
+        Weff_vec, _t_vals = single_cycle_toy(
+            getter_kwargs, e0=e0_new(t), I0=I0_new(t), intg_pts=int(1e5))
+        amp = get_amp(Weff_vec, _t_vals, q0=np.pi / 2,
+                      phi0=np.pi, num_periods=num_periods, plot=plot, fn=fn)
+        print('Ran for t', t, 'amp is', amp)
+        amps.append(amp)
+    # return
+    plt.plot(times, amps, 'go', ms=3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
     plt.ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
-    plt.savefig('6toy/6_905', dpi=200)
+    plt.axvline(t_opt)
+    plt.savefig(plot_fn, dpi=200)
     plt.close()
 
 if __name__ == '__main__':
@@ -970,8 +1106,20 @@ if __name__ == '__main__':
     # Iscan(getter_kwargs, fn='6_Iscan_out')
     # Iscan(getter_kwargs, fn='6_Iscan_outnarrow',
     #       I_vals=np.radians(np.linspace(90.5, 95, 200)))
-    # Iscan_grid(getter_kwargs, fn='6_Iscangrid', plot_905=True)
-    plot_905()
+    # Iscan_grid(getter_kwargs, fn='6_Iscangrid', overplot_905=True)
+
+    params_out = (30, 20, 30, 100, 4500, 0)
+    plot_905_detailed(np.s_[550:580], params=params_out,
+                      plot_fn='6toy/6_905_zoom')
+    # plot_905(params=params_out, n_pts=400)
+    # NB: real n_pts will be much lower, since many points run into the try
+    # catch in the loop
+
+    # params_in = (30, 30, 30, 0.1, 3, 0)
+    # plot_905(fn='4inner/4sim_lk_80_000.pkl', plot_fn='6toy/6_800',
+    #          params=params_in, n_pts=400)
+    # plot_905(fn='4inner/4sim_lk_70_000.pkl', plot_fn='6toy/6_700',
+    #          params=params_in, n_pts=400)
 
     # m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
@@ -979,3 +1127,15 @@ if __name__ == '__main__':
     #                   I_vals=np.radians(np.linspace(90.5, 135, 200)))
     # Iscan(getter_kwargs, fn='6_Iscan')
     # Iscan_grid(getter_kwargs, fn='6_Iscangrid_inner')
+
+
+    # params_in = (30, 30, 30, 0.1, 3, 0)
+    # t_lk0_yrs = get_vals(*params_in, np.radians(80))[0]
+    # print('t_lk0(years)', t_lk0_yrs)
+    # plug in the fitted value so no need to re-seek
+    # search(params_in, '4inner/4sim_lk_80_000.pkl', '6toy/search', 0.5, 0,
+    #        20000, t_opt=2007.9041936525675)
+    # search(params_in, '4inner/4sim_lk_80_000.pkl', '6toy/search', 0.5, 20000,
+    #        t_opt=2007.9041936525675)
+
+    pass

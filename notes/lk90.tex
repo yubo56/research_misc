@@ -96,6 +96,109 @@
 \renewcommand*{\equationautorefname}{Eq.}
 \renewcommand*{\tableautorefname}{Tab.}
 
+% \appendix
+
+% \section{$\bm{j}$ Equations}
+
+% We define vectors
+% \begin{align}
+%     \bm{j} &= \sqrt{1 - e^2}\hat{n},\\
+%     \bm{e} &= e\hat{u}.
+% \end{align}
+% Here, $\bm{j}$ is the dimensionless angular momentum vector and $\bm{e}$ is the
+% eccentricity vector; see LML15 for precise definitions. Note that $\bm{j} \cdot
+% \bm{e} = 0$, $j^2 + e^2 = 1$. Then, the EOM for the inner and outer vectors
+% satisfy to quadrupolar order
+% \begin{align}
+%     \rd{\bm{j}}{t} &= \frac{3}{4t_{LK}} \s{
+%         \p{\bm{j} \cdot \hat{n}_2} \p{\bm{j} \times \hat{n}_2}
+%         - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{e} \times \hat{n}_2}
+%         },\\
+%     \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s{
+%         \p{\bm{j} \cdot \hat{n}_2} \p{\bm{e} \times \hat{n}_2}
+%         + 2\bm{j} \times \bm{e}
+%         - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{j} \times \hat{n}_2}
+%         }.
+% \end{align}
+% Let's assume for the time being that $L_1 \ll L_2$, so the system is
+% sufficiently hierarchical that $\bm{j}_2$, $\bm{e}_2$ are constants. Note for
+% reference that
+% \begin{equation}
+%     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
+%         = \frac{1}{n_1}\p{\frac{m_1 + m_2}{m_3}}
+%             \p{\frac{a_2}{a}}^3
+%             \p{1 - e_2^2}^{3/2}.
+% \end{equation}
+% Here, $n_1 \equiv \sqrt{G\p{m_1 + m_2}/a^3}$. Thus, $1 / t_{LK} \propto
+% a^{3/2}$.
+
+% GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
+% \begin{align}
+%     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
+%         \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
+%         \frac{1 + 7e^2/8}{\p{1 - e^2}^2}\hat{L},\\
+%     \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
+%         \frac{\mu m_{12}^2}{a^4\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}
+%             e^2}\bm{e},\\
+%     \at{\frac{\dot{a}}{a}}_{GW} &= -\frac{64}{5} \frac{G^3 \mu m_{12}^2}{c^5a^4}
+%         \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
+%             + \frac{37}{96}e^4}.
+% \end{align}
+% Here, $m_{12} \equiv m_1 + m_2$. The last GR effect is precession of $\vec{e}$,
+% which acts as
+% \begin{equation}
+%     \at{\rd{\bm{e}}{t}}_{GR} = \frac{3Gnm_{12}}{c^2a\p{1 - e^2}}.
+% \end{equation}
+
+% Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
+% term (from de Sitter precession), which is given in LL18 to be
+% \begin{align}
+%     \rd{\hat{S}}{t} &= \Omega_{SL}\hat{L} \times \hat{S},\\
+%     \Omega_{SL} &\equiv \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
+% \end{align}
+% Note that $\mu$ is the reduced mass of the inner binary. We can drop the
+% back-reaction term since $S \ll L$. Thus, $\Omega_{SL} \propto a^{-5/2}$.
+
+% What is observed is that, as this system is evolved forward in time and GR
+% coalesces the inner binary, $\theta_{sl} \equiv \arccos\p{\hat{S} \cdot
+% \hat{L}}$ goes to $90^\circ$ consistently. The relevant figure is Fig.~19 of
+% LL18, which shows that for a close-in, low-eccentricity perturber ($\bar{a}_{\rm
+% out, eff} \propto a_{out}$), the focusing is significantly stronger. Note that
+% initially, $I \equiv \arccos\p{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
+% $\theta_{sl} \approx 0$.
+
+% Next, when accounting for GR, we should let $a$ evolve as above. Note that since
+% $\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
+% \sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p{1 -
+% e^2}}}$ and rewrite
+% \begin{equation}
+%     \at{\rd{\bm{j}}{t}}_{GW} = \frac{1}{\mu\sqrt{GMa}}\at{\rd{\bm{L}}{t}}_{GW}
+%         - \frac{\bm{j}}{2a}\at{\rd{a}{t}}_{GW}.
+% \end{equation}
+% To double check, we should verify that $\at{\rd{(j^2 + e^2)}{t}}_{GW} = 0$,
+% which can be verified as (Let's set $G = M = \mu = a = c = 1$ for convenience)
+% \begin{align}
+%     \frac{1}{2}\rd{(j^2 + e^2)}{t}
+%         &= \bm{j} \cdot \rd{\bm{j}}{t} + \bm{e} \cdot \rd{\bm{e}}{t},\\
+%         &= \bm{j} \cdot \s{
+%             \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^2}}\hat{L}
+%                 - \frac{\bm{j}}{2}\p{-\frac{64}{5}
+%                     \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{7/2}}}}
+%             + \bm{e} \cdot
+%                 \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
+%                 \bm{e},\\
+%         &= \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^{3/2}}}
+%                 + \p{\frac{32}{5}
+%                     \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{5/2}}}
+%             + e^2 \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
+%                 ,\\
+%         &= \frac{1}{15\p{1 - e^2}^{5/2}}\s{
+%             -96\p{1 - e^2}\p{1 + \frac{7e^2}{8}}
+%                 + 96\p{1 + \frac{73e^2}{24} + \frac{37e^4}{96}}
+%                 - 304e^2\p{1 + \frac{121e^2}{304}}}.
+% \end{align}
+% This can be verified to vanish upon term-by-term examination indeed.
+
 % \singlespacing
 
 \pagestyle{fancy}
@@ -1526,108 +1629,112 @@ need to evaluate $\dot{\phi}\p{\mathcal{A} \sim 1}$), or for (ii) slow mergers
 that cross resonances, which must be compact if they are to merge within a
 Hubble time.
 
-% \appendix
+\subsection{Using Resonances and Numerical LK Solutions}
 
-% \section{$\bm{j}$ Equations}
+I spent a few weeks away from the writeup doing mostly numerical work; these are
+captured in my weeklies. The present focus is on understanding the deviation
+from exact conservation of $\theta_{\rm eff}$. We did a Fourier decomposition of
+the $\rdil{\uv{S}}{t}$ EOM\@. The analysis when $N \geq 1$ can be ignored is
+given above, and we find very swift decay of $\Delta \theta_{\rm eff}$.
 
-% We define vectors
-% \begin{align}
-%     \bm{j} &= \sqrt{1 - e^2}\hat{n},\\
-%     \bm{e} &= e\hat{u}.
-% \end{align}
-% Here, $\bm{j}$ is the dimensionless angular momentum vector and $\bm{e}$ is the
-% eccentricity vector; see LML15 for precise definitions. Note that $\bm{j} \cdot
-% \bm{e} = 0$, $j^2 + e^2 = 1$. Then, the EOM for the inner and outer vectors
-% satisfy to quadrupolar order
-% \begin{align}
-%     \rd{\bm{j}}{t} &= \frac{3}{4t_{LK}} \s{
-%         \p{\bm{j} \cdot \hat{n}_2} \p{\bm{j} \times \hat{n}_2}
-%         - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{e} \times \hat{n}_2}
-%         },\\
-%     \rd{\bm{e}}{t} &= \frac{3}{4t_{LK}} \s{
-%         \p{\bm{j} \cdot \hat{n}_2} \p{\bm{e} \times \hat{n}_2}
-%         + 2\bm{j} \times \bm{e}
-%         - 5\p{\bm{e} \cdot \hat{n}_2}\p{\bm{j} \times \hat{n}_2}
-%         }.
-% \end{align}
-% Let's assume for the time being that $L_1 \ll L_2$, so the system is
-% sufficiently hierarchical that $\bm{j}_2$, $\bm{e}_2$ are constants. Note for
-% reference that
-% \begin{equation}
-%     t_{LK} \equiv \frac{L_1}{\mu_1 \Phi_0}
-%         = \frac{1}{n_1}\p{\frac{m_1 + m_2}{m_3}}
-%             \p{\frac{a_2}{a}}^3
-%             \p{1 - e_2^2}^{3/2}.
-% \end{equation}
-% Here, $n_1 \equiv \sqrt{G\p{m_1 + m_2}/a^3}$. Thus, $1 / t_{LK} \propto
-% a^{3/2}$.
+The next question to ask is how resonances can affect this conservation, when we
+reintroduce terms $N \geq 1$. This analysis can only be relevant in the slow
+merger regime, where an instantaneous Fourier decomposition of the LK inspiral
+(where we neglect GW but include GR) is a good approximation to the trajectory.
+We considered this analysis from two perspectives, the toy model approach
+(analyzed above) and the numerical LK approach, which was performed largely
+offline. In both setups, the key quantity we consider is the amplitude of
+oscillation of $\theta_{\rm eff}$, denoted $A$ (confusingly, sometimes also
+$\theta_{\rm eff}$, but I'll fix this for the paper) if the orbit is fixed in
+time indefinitely. The two results are generally in good agreement, and we
+summarize the results below:
+\begin{itemize}
+    \item Most importantly, $A$ can be computed using a particular $a_0$, $e_0$,
+        $I_0$ numerically ($e_0$ and $I_0$ are defined when eccentricity is
+        smallest). These results seem to agree to quite good accuracy when using
+        $a_0$, $e_0$, and $I_0$ to compute $\bm{\Omega}_{\rm eff, 0}$,
+        $\bm{\Omega}_{\rm eff, 1}$ and $P_{\rm LK}$ for the toy model and
+        measuring $A$ that way. I need to make a plot for this.
+        % TODO
 
-% GW radiation (Peters 1964) cause decays of $\bm{L}$ and $\bm{e}$ as
-% \begin{align}
-%     \at{\rd{\bm{L}}{t}}_{GW} &= -\frac{32}{5}\frac{G^{7/2}}{c^5}
-%         \frac{\mu^2 m_{12}^{5/2}}{a^{7/2}}
-%         \frac{1 + 7e^2/8}{\p{1 - e^2}^2}\hat{L},\\
-%     \at{\rd{\bm{e}}{t}}_{GW} &= -\frac{304}{15} \frac{G^3}{c^5}
-%         \frac{\mu m_{12}^2}{a^4\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}
-%             e^2}\bm{e},\\
-%     \at{\frac{\dot{a}}{a}}_{GW} &= -\frac{64}{5} \frac{G^3 \mu m_{12}^2}{c^5a^4}
-%         \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
-%             + \frac{37}{96}e^4}.
-% \end{align}
-% Here, $m_{12} \equiv m_1 + m_2$. The last GR effect is precession of $\vec{e}$,
-% which acts as
-% \begin{equation}
-%     \at{\rd{\bm{e}}{t}}_{GR} = \frac{3Gnm_{12}}{c^2a\p{1 - e^2}}.
-% \end{equation}
+        They are also in agreement with the original $\Omega_{\rm eff,0} P_{\rm
+        LK}$ plots that we made a bit back, further supporting the conclusion
+        that we're on the right track.
 
-% Given this system (from LML15 + LL18), we can then add the spin-orbit coupling
-% term (from de Sitter precession), which is given in LL18 to be
-% \begin{align}
-%     \rd{\hat{S}}{t} &= \Omega_{SL}\hat{L} \times \hat{S},\\
-%     \Omega_{SL} &\equiv \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
-% \end{align}
-% Note that $\mu$ is the reduced mass of the inner binary. We can drop the
-% back-reaction term since $S \ll L$. Thus, $\Omega_{SL} \propto a^{-5/2}$.
+    \item The locations of the resonances in the Paper I physical regime are
+        consistent with intermediate inclinations deviating significantly from
+        the adiabatic prediction.
 
-% What is observed is that, as this system is evolved forward in time and GR
-% coalesces the inner binary, $\theta_{sl} \equiv \arccos\p{\hat{S} \cdot
-% \hat{L}}$ goes to $90^\circ$ consistently. The relevant figure is Fig.~19 of
-% LL18, which shows that for a close-in, low-eccentricity perturber ($\bar{a}_{\rm
-% out, eff} \propto a_{out}$), the focusing is significantly stronger. Note that
-% initially, $I \equiv \arccos\p{\hat{L} \cdot \hat{L}_2} \approx 90^\circ$ while
-% $\theta_{sl} \approx 0$.
+    \item There is a gross overprediction of $\Delta \theta_{\rm eff}$ by
+        examining $A\p{a_0(t), e_0(t), I_0(t)}$ in the Paper II regime, since
+        numerically, an initial inclination of $90.5^\circ$ for the inspiral
+        simulation sees $\Delta \theta_{\rm eff} < 0.01^\circ$, but $A$ gets to
+        be as large as $8^\circ$. Thus, a mechanism is needed to ensure the
+        $\theta_{\rm eff}$ oscillations go back down in amplitude and maintain
+        the same value as initially.
+\end{itemize}
 
-% Next, when accounting for GR, we should let $a$ evolve as above. Note that since
-% $\bm{j}$ and $\vec{e}$ are our dynamical variables, we should use $\bm{j} \equiv
-% \sqrt{1 - e^2} \hat{L} = \sqrt{1 - e^2}\frac{\bm{L}}{\mu \sqrt{Gm_{12}a\p{1 -
-% e^2}}}$ and rewrite
-% \begin{equation}
-%     \at{\rd{\bm{j}}{t}}_{GW} = \frac{1}{\mu\sqrt{GMa}}\at{\rd{\bm{L}}{t}}_{GW}
-%         - \frac{\bm{j}}{2a}\at{\rd{a}{t}}_{GW}.
-% \end{equation}
-% To double check, we should verify that $\at{\rd{(j^2 + e^2)}{t}}_{GW} = 0$,
-% which can be verified as (Let's set $G = M = \mu = a = c = 1$ for convenience)
-% \begin{align}
-%     \frac{1}{2}\rd{(j^2 + e^2)}{t}
-%         &= \bm{j} \cdot \rd{\bm{j}}{t} + \bm{e} \cdot \rd{\bm{e}}{t},\\
-%         &= \bm{j} \cdot \s{
-%             \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^2}}\hat{L}
-%                 - \frac{\bm{j}}{2}\p{-\frac{64}{5}
-%                     \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{7/2}}}}
-%             + \bm{e} \cdot
-%                 \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
-%                 \bm{e},\\
-%         &= \p{-\frac{32}{5}\frac{1 + 7e^2/8}{\p{1 - e^2}^{3/2}}}
-%                 + \p{\frac{32}{5}
-%                     \frac{1 + 73e^2/24 + 37e^4/96}{\p{1 - e^2}^{5/2}}}
-%             + e^2 \p{-\frac{304}{15}\frac{1 + 121e^2/304}{\p{1 - e^2}^{5/2}}}
-%                 ,\\
-%         &= \frac{1}{15\p{1 - e^2}^{5/2}}\s{
-%             -96\p{1 - e^2}\p{1 + \frac{7e^2}{8}}
-%                 + 96\p{1 + \frac{73e^2}{24} + \frac{37e^4}{96}}
-%                 - 304e^2\p{1 + \frac{121e^2}{304}}}.
-% \end{align}
-% This can be verified to vanish upon term-by-term examination indeed.
+It is furthermore worth noting that the two resonances in the toy model when
+$\Omega_{\rm eff,0} P_{\rm LK} = \pi$ have much longer oscillation timescales
+(almost $100$ orbits) than the $2\pi$ ones (which are well understood, and have
+periods of just a few orbits as $\epsilon \lesssim 1$ for these highly eccentric
+orbits).
+
+The key puzzle at this point is however why both the $\pi, 2\pi$ resonances are
+able to generate significant $\Delta \theta_{\rm eff}$ values while the
+substantian $A$ in the Paper II regime (which is likely caused by $\psi$, the
+misalignment angle between the $N = 1$ and $N = 0$ components, growing as
+$\Omega_{\rm SL} / \dot{\Omega}$ oscillates about $1$ and $\bm{\Omega}_{\rm
+eff}$ nutates a lot in space) fails to generate any $\Delta \theta_{\rm eff}$ at
+all. I hypothesize that the key mechanism is that as $a_0(t)$ decreases, $P_{\rm
+LK}$ decreases tremendously (really just the period in $\omega$), so it is
+actually very easy to \emph{adiabatically} move the effective effective
+precession axis. We must next analyze the relevant timescales and see whether
+this is still consistent with a failed prediction in the Paper I regime.
+
+We find currently:
+\begin{itemize}
+    \item The $90.5^\circ$ Paper II simulation goes from $A \simeq 9^\circ$ to
+        $A = 0^\circ$ over the span of a few cycles. This implies the precession
+        axis has to change by about $4^\circ$ over a few LK periods. In this
+        limit, $\Omega_{\rm eff} P_{\rm LK} / (2\pi) \sim 40$, so we have $200$
+        precession cycles to transition the precession axis, plenty adiabatic.
+
+    \item The $80^\circ$ Paper I simulation should have passed a resonance quite
+        early in its evolution (we indeed predict this using the model above,
+        but there is a ``missing'' resonance in \lstinline{6_Iscan}, when
+        comparing to the N1 plot). This implies the resonance is exceedingly
+        narrow, and explains why deviation from the adiabatic prediction is
+        quite small when $I_0$ for the inspiral gets closer to $90^\circ$: GW
+        becomes more efficient, so the time spent inside the resonance is
+        shorter. This is a $\Omega_{\rm eff}P_{\rm LK}/2\pi = 0.5$ resonance, so
+        its growth rate is somewhat slower, so resonance crossing is always in
+        the nonadiabatic regime, and faster passings yield smaller kicks.
+
+        It is surprising this resonance should be narrow, since in the high
+        eccentricity regime, the $N = 1$ component should have a substantial
+        perpendicular angle (relatively speaking, $\psi$ is larger), and the $N
+        = 1$ component should be larger (larger temporal variations since the
+        oscillation is less mild than at $\sim 125^\circ$). Furthermore, we see
+        from the N1 plots that, graphically, the slope of $\Omega_{\rm eff}
+        P_{\rm LK}$ is quite flat at this resonance crossing, implying there
+        should be a larger range of inclinations that satisfy the resonant
+        condition. TODO investigate.
+\end{itemize}
+
+The next orders of business are: (i) ensure GW-driven passage through the
+fringes of the resonance (Paper II regime) is always adiabatic, (ii) find the
+missing resonance, (iii) check agreement of numerical LK coefficients + toy
+model vs.\ real $A$ plots, (iv) understand the nature of the toy model
+resonances (at least identify the locations of resonances and instability
+timescales).
+
+Updates: (i) we are able to find adiabatic evolution of the resonance, but (ii)
+the missing resonance stays missing, even when picking out $\Omega_{\rm eff}
+P_{\rm LK} / (2\pi)$ very precisely. It seems we will need to run the spin
+evolution for a substantial portion of the mild-Kozai problem. Towards (i), one
+last thing we can check are the properties of the N1 component, namely $\psi$
+and $\epsilon$.
 
 \end{document}
 

@@ -213,17 +213,6 @@ def plot_dWeff_mags(folder, pkl_head, stride=1, size=50):
     plt.close()
 
 def resonance_sim_single(_W0, psi, tf, q0, tol, eps, freq_mult):
-    W0 = np.array([0, 0, _W0])
-    W1hat = np.array([np.sin(psi), 0, np.cos(psi)])
-    def dydt(t, y):
-        return np.cross(W0, y) + eps * (
-            np.sin(freq_mult * _W0 * t) * np.cross(W1hat, y))
-    return solve_ivp(dydt, (0, tf), [0, np.sin(q0), np.cos(q0)],
-                     atol=tol, rtol=tol)
-
-# q = __import__('5lk_anals'); mpl.use('MacOSX'); get_ret = q.resonance_sim_single; ret = get_ret(0.5, np.radians(60), 500, np.radians(20), 1e-8, 0.1, 0.5); plt.plot(ret.t, ret.y[2, :])
-# ret = get_ret(0.5, np.radians(60), 5000, np.radians(20), 1e-6, 0.1, 1/3); plt.clf(); plt.plot(ret.t, ret.y[2, :])
-def resonance_sim_single(_W0, psi, tf, q0, tol, eps, freq_mult):
     ''' inertial frame '''
     W0 = np.array([0, 0, _W0])
     W1hat = np.array([np.sin(psi), 0, np.cos(psi)])
@@ -354,10 +343,17 @@ if __name__ == '__main__':
     # plot_dWeff_mags('4sims/', '4sim_lk_90_350')
     # plot_dWeff_mags('4sims/', '4sim_lk_90_500')
 
-    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6)
-    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
-                  psi=np.radians(90), fn='5_resonance_sims_90')
-    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
-                  psi=np.radians(5), fn='5_resonance_sims_5')
-    resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
-                  psi=np.radians(45), fn='5_resonance_sims_45')
+    # ret = resonance_sim_single(1, np.radians(0.01), 1000,
+    #                            np.radians(20), 1e-8, 0.1, 1)
+    # plt.plot(ret.t, ret.y[2, :])
+    # plt.savefig('/tmp/foo')
+
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6)
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+    #               psi=np.radians(90), fn='5_resonance_sims_90')
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+    #               psi=np.radians(5), fn='5_resonance_sims_5')
+    # resonance_sim(tf=5000, freq_max=2, num_freqs=500, tol=1e-6,
+    #               psi=np.radians(45), fn='5_resonance_sims_45')
+
+    pass
