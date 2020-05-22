@@ -20,8 +20,6 @@ from scipy import optimize as opt
 from scipy.fft import dct, idct, fft
 from scipy.interpolate import interp1d
 
-N_THREADS = 60
-
 # values from LL17
 I_degs, qslfs = np.array([
     [2.56256, 1.7252483882292753],
@@ -628,6 +626,7 @@ def plot_weff_fft(Weff_vec, times, fn='6_vecfft', plot=True):
 
     return x_coeffs, z_coeffs
 
+# can set initial s using either (q0, phi0) or just s0
 def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
             num_periods=100, tol=1e-7):
     '''
@@ -640,10 +639,6 @@ def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
     Weff_z_interp = interp1d(t_vals, Weff_vec[2])
     Weff_x_mean = np.mean(Weff_vec[0])
     Weff_z_mean = np.mean(Weff_vec[2])
-    # plt.plot(Weff_vec[0])
-    # plt.plot(Weff_vec[2])
-    # plt.savefig('/tmp/foo_late.png')
-    # plt.close()
     def dydt(t, s):
         t_curr = (t - t0) % period + t0
         return np.cross(
@@ -658,18 +653,23 @@ def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
     ret = solve_ivp(dydt, (t0, t0 + num_periods * period), s0,
                     events=[period_event], dense_output=True,
                     atol=tol, rtol=tol, method='Radau')
-    period_times = ret.t_events[0]
-    period_spins = ret.sol(period_times)
-    # period_times = ret.t
-    # period_spins = ret.y
+
+    all_times = ret.t_events[0]
+    all_spins = ret.sol(all_times)
+
+    period_times = ret.t
+    period_spins = ret.y
     q_effs = ts_dot(period_spins,
                     [np.full_like(period_times, Weff_x_mean),
                      np.zeros_like(period_times),
                      np.full_like(period_times, Weff_z_mean)])
+    q_effs_all = ts_dot(all_spins,
+                        [np.full_like(all_times, Weff_x_mean),
+                         np.zeros_like(all_times),
+                         np.full_like(all_times, Weff_z_mean)])
     if plot:
-        plt.plot(period_times, np.degrees(q_effs), 'bo', ms=0.5)
-        # plt.axvline(ret.t_events[0][10], c='r', lw=0.5, alpha=0.5)
-        # plt.axvline(ret.t_events[0][11], c='r', lw=0.5, alpha=0.5)
+        plt.plot(period_times, np.degrees(q_effs), 'g', lw=0.5, alpha=0.6)
+        plt.plot(all_times, np.degrees(q_effs_all), 'bo', ms=1.0)
 
         plt.tight_layout()
         plt.savefig(TOY_FOLDER + fn, dpi=200)
@@ -702,7 +702,7 @@ def get_devs(getter_kwargs, intg_pts=int(1e5), configs=[], outfile='',
         plt.xlabel(r'$\phi$')
         plt.ylabel(r'$\cos \theta$')
         plt.tight_layout()
-        plt.savefig(TOY_FOLDER + fn, dpi=200)
+        plt.savefig(TOY_FOLDER + fn.replace('.', '_'), dpi=200)
         plt.close()
 
     pkl_fn = TOY_FOLDER + outfile + '.pkl'
@@ -734,8 +734,6 @@ def get_devs(getter_kwargs, intg_pts=int(1e5), configs=[], outfile='',
                 cosq_eff,
                 res_nparr)
             config_stats.append(cs)
-            if fn is not None:
-                inner_plot(cs) # it's okay to plot twice
         with open(pkl_fn, 'wb') as f:
             pickle.dump(config_stats, f)
     else:
@@ -812,13 +810,17 @@ def do_getamp(getter_kwargs, e0, I, intg_pts):
 
 # used to be just to get 90.5, but now will be for all; gets (t, e, I, a) when
 # eccentricity is at its minimum in each LK cycle
-def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None):
+def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None, real_spins_fn=None):
     t_arr = []
     e0arr = []
     I0arr = []
     a0arr = []
+    svecarr = []
     with open(fn, 'rb') as f:
         t, (a, e, _, I, _), t_events = pickle.load(f)
+    if real_spins_fn is not None:
+        with open(real_spins_fn, 'rb') as f:
+            s_vec_sim = pickle.load(f)
 
     if t_final is not None:
         idx_final = np.where(t < t_final)[0][-1]
@@ -826,6 +828,8 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None):
         a = a[ :idx_final]
         e = e[ :idx_final]
         I = I[ :idx_final]
+        if real_spins_fn is not None:
+            s_vec_sim = s_vec_sim[:, :idx_final]
         t_events[0] = t_events[0][np.where(t_events[0] < t[-1])[0]]
 
     for ti, tf in zip(t_events[0][ :-1], t_events[0][1: ]):
@@ -836,8 +840,16 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None):
         I0arr.append(I[where_idx][min_idx])
         a0arr.append(a[where_idx][min_idx])
         t_arr.append(t[where_idx][min_idx])
-    return t_arr, e0arr, I0arr, a0arr
+        if real_spins_fn is not None:
+            svecarr.append([
+                s_vec_sim[0][where_idx][min_idx],
+                s_vec_sim[1][where_idx][min_idx],
+                s_vec_sim[2][where_idx][min_idx]])
 
+    svecarr = np.array(svecarr).T
+    return t_arr, e0arr, I0arr, a0arr, svecarr
+
+N_THREADS = 60
 def Iscan_grid(getter_kwargs,
                intg_pts=int(1e5),
                fn='6_Iscan',
@@ -881,7 +893,7 @@ def Iscan_grid(getter_kwargs,
         plt.plot(np.sqrt(e_match_sq), I_trunc, 'r:', lw=1)
     # overplot I0=90.5 from simulation
     if overplot_905:
-        _, e0arr, I0arr, _ = get_905()
+        _, e0arr, I0arr, _, _ = get_905()
         plt.plot(e0arr, np.degrees(I0arr), 'r', lw=2)
 
     plt.xlabel(r'$e_{\min}$')
@@ -893,33 +905,56 @@ def Iscan_grid(getter_kwargs,
 
 def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
              plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0),
-             t_slice=None):
+             t_slice=None, real_spins_fn=None):
     m1, m2, m3, a0, a2, e2 = params
-    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn)
+    t_arr, e0arr, I0arr, a0arr, s_vec =\
+        get_905(fn=fn, real_spins_fn=real_spins_fn)
     # resample, e0arr and I0arr are very dense at late times
     t_vals = np.linspace(t_arr[0], t_arr[-1], n_pts)
     e0_new = interp1d(t_arr, e0arr)(t_vals)
     I0_new = interp1d(t_arr, I0arr)(t_vals)
     a0_new = interp1d(t_arr, a0arr)(t_vals)
 
-    amps = []
-    Weffs = []
-    ts_run = []
-    for t, e0, I0, a0_new in zip(t_vals, e0_new, I0_new, a0_new):
-        getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
-        try: # think running into an issue at small a0_new
-            Weff_vec, _t_vals = single_cycle_toy(
-                getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
-            Weff_mean = np.mean(Weff_vec, axis=1)
-            Weff_mag = np.sqrt(np.sum(Weff_mean**2))
-            amp = get_amp(Weff_vec, _t_vals, q0=I0)
-            amps.append(amp)
-            Weffs.append(Weff_mag)
-            ts_run.append(t)
-        except ValueError as e:
-            print(e)
-            break
-        print(fn, t, ': Did', e0, I0, a0_new, amps[-1])
+    if real_spins_fn is not None:
+        sx = interp1d(t_arr, s_vec[0])(t_vals)
+        sy = interp1d(t_arr, s_vec[1])(t_vals)
+        sz = interp1d(t_arr, s_vec[2])(t_vals)
+
+    pkl_fn = plot_fn + 'amps.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        amps = []
+        Weffs = []
+        ts_run = []
+        for idx, (t, e0, I0, a0_new) in\
+                enumerate(zip(t_vals, e0_new, I0_new, a0_new)):
+            getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
+            try: # think running into an issue at small a0_new
+                Weff_vec, _t_vals = single_cycle_toy(
+                    getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
+                Weff_mean = np.mean(Weff_vec, axis=1)
+                Weff_mag = np.sqrt(np.sum(Weff_mean**2))
+                if real_spins_fn is not None:
+                    # convert from inertial frame to corotating frame
+                    q0 = np.arccos(sz[idx])
+                    perp_norm = np.sqrt(sx[idx]**2 + sy[idx]**2)
+                    phi0 = np.arctan2(sy[idx] / perp_norm, sx[idx] / perp_norm)
+                    amp = get_amp(Weff_vec, _t_vals, q0=q0, phi0=phi0)
+                else:
+                    amp = get_amp(Weff_vec, _t_vals, q0=I0)
+                amps.append(amp)
+                Weffs.append(Weff_mag)
+                ts_run.append(t)
+            except ValueError as e:
+                print(e)
+                break
+            print(fn, t, ': Did', e0, I0, a0_new, amps[-1])
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((amps, Weffs, ts_run), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            amps, Weffs, ts_run = pickle.load(f)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
     ax1.plot(ts_run, amps, 'bo', ms=1.5)
@@ -934,7 +969,7 @@ def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
 def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
                       plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0)):
     m1, m2, m3, a0, a2, e2 = params
-    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn)
+    t_arr, e0arr, I0arr, a0arr, _ = get_905(fn=fn)
     # resample, e0arr and I0arr are very dense at late times
     t_vals = t_arr[t_slice]
     e0_new = e0arr[t_slice]
@@ -954,9 +989,6 @@ def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
             Weff_mean = np.mean(Weff_vec, axis=1)
             Weff_mag = np.sqrt(np.sum(Weff_mean**2))
             amp = get_amp(Weff_vec, _t_vals, q0=I0)
-            # amp = get_amp(Weff_vec, _t_vals, q0=I0, plot=True, fn='905_late')
-            # amp = get_amp(Weff_vec, _t_vals, q0=I0, plot=True, fn='905_max')
-            # return
             amps.append(amp)
             Weffs.append(Weff_mag)
             ts_run.append(t)
@@ -986,6 +1018,79 @@ def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
     plt.tight_layout()
     plt.savefig(plot_fn, dpi=200)
     plt.close()
+
+def plot_amps(idxs, fn='4sims/4sim_lk_90_500.pkl',
+              fn_template='6_905_amps', params=(30, 20, 30, 100, 4500, 0),
+              num_periods=50):
+    m1, m2, m3, a0, a2, e2 = params
+    t_arr, e0arr, I0arr, a0arr, _ = get_905(fn=fn)
+    # same as get_amp's plotting, but grid of plots using multiple q0, phi0
+    def plot_many(Weff_vec, t_vals, fn='6_devs', num_periods=100, tol=1e-7):
+        t0 = t_vals[0]
+        tf = t_vals[-1]
+        period = tf - t0
+        Weff_x_interp = interp1d(t_vals, Weff_vec[0])
+        Weff_z_interp = interp1d(t_vals, Weff_vec[2])
+        Weff_x_mean = np.mean(Weff_vec[0])
+        Weff_z_mean = np.mean(Weff_vec[2])
+        def dydt(t, s):
+            t_curr = (t - t0) % period + t0
+            return np.cross(
+                [Weff_x_interp(t_curr), 0, Weff_z_interp(t_curr)],
+                s)
+
+        def period_event(t, y):
+            # want to transition continuously across (t - t0) % period = 0
+            return (t - t0 + period / 2) % period - period / 2
+        period_event.direction = +1
+        fig, axs = plt.subplots(4, 4, figsize=(16, 12), sharex=True)
+        q0s = np.linspace(0, np.pi, 6)[1:-1]
+        phi0s = np.linspace(0, 2 * np.pi, 4, endpoint=False)
+        for idx, (q0, ax_row) in enumerate(zip(q0s, axs)):
+            ax_row[0].set_ylabel(r'$%d^\circ$' % np.degrees(q0))
+            for phi0, ax in zip(phi0s, ax_row):
+                if idx == 3:
+                    ax.set_xlabel(r'$%d^\circ$' % np.degrees(phi0))
+                s0 = [
+                    np.sin(q0) * np.cos(phi0),
+                    np.sin(q0) * np.sin(phi0),
+                    np.cos(q0)]
+                ret = solve_ivp(dydt, (t0, t0 + num_periods * period), s0,
+                                events=[period_event], dense_output=True,
+                                atol=tol, rtol=tol, method='Radau')
+
+                all_times = ret.t_events[0]
+                all_spins = ret.sol(all_times)
+
+                period_times = ret.t
+                period_spins = ret.y
+                q_effs = ts_dot(period_spins,
+                                [np.full_like(period_times, Weff_x_mean),
+                                 np.zeros_like(period_times),
+                                 np.full_like(period_times, Weff_z_mean)])
+                q_effs_all = ts_dot(all_spins,
+                                    [np.full_like(all_times, Weff_x_mean),
+                                     np.zeros_like(all_times),
+                                     np.full_like(all_times, Weff_z_mean)])
+                ax.plot(period_times, np.degrees(q_effs), 'g', lw=0.5, alpha=0.6)
+                ax.plot(all_times, np.degrees(q_effs_all), 'bo', ms=1.0)
+
+        plt.tight_layout()
+        plt.savefig(TOY_FOLDER + fn, dpi=200)
+        plt.close()
+
+    # resample, e0arr and I0arr are very dense at late times
+    for idx in idxs:
+        t0 = t_arr[idx]
+        e0 = e0arr[idx]
+        I0 = I0arr[idx]
+        a0_new = a0arr[idx]
+        getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
+        Weff_vec, _t_vals = single_cycle_toy(
+            getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
+        print('Plotting', idx)
+        plot_many(Weff_vec, _t_vals,
+                fn=fn_template + str(idx), num_periods=num_periods)
 
 def search(params, fn, plot_fn, target, t_final, t_opt=None):
     # do brenth search for where Weff / T_{LK} crosses 0.5
@@ -1109,12 +1214,32 @@ if __name__ == '__main__':
     # Iscan_grid(getter_kwargs, fn='6_Iscangrid', overplot_905=True)
 
     params_out = (30, 20, 30, 100, 4500, 0)
-    plot_905_detailed(np.s_[550:580], params=params_out,
-                      plot_fn='6toy/6_905_zoom')
+    # plot_905_detailed(np.s_[550:580], params=params_out,
+    #                   plot_fn='6toy/6_905_zoom')
+    # plot_amps([650, 800, 950, 1200, 4500], params=params_out)
     # plot_905(params=params_out, n_pts=400)
+    # plot_905(params=params_out, n_pts=400, plot_fn='6toy/6_905_real',
+    #          real_spins_fn='4sims/4sim_s_90_500.pkl')
+    configs_manual = [
+        ('6_ampgrid_905_t1692.txt', 0.9987446427234956,
+         1.8120774793295245, 0.5348342662243027),
+        ('6_ampgrid_905_t1711.txt', 0.9995517249200406,
+         2.046376335980443, 0.4077825896167853),
+        ('6_ampgrid_905_t1720.txt', 0.9995651174092736,
+         2.133704480535729, 0.30940183669261984),
+        ('6_ampgrid_905_t1731.txt', 0.9994361449448852,
+         2.169822017703147, 0.21374783305738998),
+        ('6_ampgrid_905_t1759.txt', 0.997154739428045,
+         2.183407526210722, 0.04069596018484076),
+    ]
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    for outfile, e0, I0, a0_new in configs_manual:
+        getter_kwargs = get_eps(m1, m2, m3, a0 * a0_new, a2, e2)
+        get_devs(getter_kwargs, configs=[(e0, I0, outfile + 'ind')],
+                 outfile=outfile, num_periods=100)
+
     # NB: real n_pts will be much lower, since many points run into the try
     # catch in the loop
-
     # params_in = (30, 30, 30, 0.1, 3, 0)
     # plot_905(fn='4inner/4sim_lk_80_000.pkl', plot_fn='6toy/6_800',
     #          params=params_in, n_pts=400)

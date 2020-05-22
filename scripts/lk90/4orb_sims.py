@@ -97,6 +97,7 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                        phi_sb=0,
                        pkl_template='4sim_s_%s.pkl',
                        save=True,
+                       t_final=None,
                        **kwargs):
     ''' uses the same times as ret_lk '''
     mkdirp(folder)
@@ -104,6 +105,12 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         t_lk, y, _ = ret_lk
+        if t_final is not None:
+            print('Orig length', len(t_lk), t_lk[-1])
+            where_idx = np.where(t_lk < t_final)[0]
+            t_lk = t_lk[where_idx]
+            y = y[:, where_idx]
+            print('New length', len(t_lk), t_lk[-1])
         a_arr, e_arr, W, I, _ = y
         eps_sl = getter_kwargs['eps_sl']
         Lx = interp1d(t_lk, np.sin(I) * np.cos(W))
@@ -114,8 +121,8 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
         def dydt(t, s):
             # apparently not guaranteed, see
             # https://github.com/scipy/scipy/issues/9198
-            if t > t_lk[-1]:
-                return None
+            # if t > t_lk[-1]:
+            #     return None
             Lhat = [Lx(t), Ly(t), Lz(t)]
             return eps_sl * np.cross(Lhat, s) / (
                 a(t)**(5/2) * (1 - e(t)**2))
@@ -269,7 +276,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[3].plot(t, np.degrees(I), 'r', alpha=alf)
     axs[3].set_ylabel(r'$I$')
     axs[4].plot(t, w % (2 * np.pi), 'r,', alpha=alf)
-    axs[4].set_ylabel(r'$w$')
+    axs[4].set_ylabel(r'$\omega$')
     # axs[5].set_ylim([2 * K[0], 0])
     # axs[5].plot(t, K, 'r', alpha=alf)
     # axs[5].set_ylabel(r'$K$')
@@ -378,7 +385,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     sx, sy, sz = s_vec
     a, e, W, I, w = lk_y[:, time_slice]
     t = lk_t[time_slice]
-    I0 = np.degrees(I[0])
+    I0 = np.degrees(lk_y[3, 0])
 
     Lhat = get_hat(W, I)
     Lout_hat = get_hat(0 * I, 0 * I)
@@ -407,10 +414,6 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
     _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
     q_eff0 = np.degrees(_q_eff0)
-    # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
-    q_eff0_interp = interp1d(t_eff, q_eff0)
-    q_eff_pred = np.mean(q_eff0_interp(
-        np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
     # compute phi as well
     yhat = ts_cross(Weff_hat, Lout_hat[:, eff_idx])
     xhat = ts_cross(yhat, Weff_hat)
@@ -432,8 +435,15 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
 
     # plots
     plt.plot(t_eff, q_eff0, 'k', alpha=alf)
-    plt.ylabel(r'$\theta_{N=0}$ [$\langle %.2f \rangle$--$%.2f$]' %
-                   (q_eff_pred, q_eff0[-1]))
+    # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
+    try:
+        q_eff0_interp = interp1d(t_eff, q_eff0)
+        q_eff_pred = np.mean(q_eff0_interp(
+            np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
+        plt.ylabel(r'$\theta_{N=0}$ [$\langle %.2f \rangle$--$%.2f$]' %
+                       (q_eff_pred, q_eff0[-1]))
+    except: # time_slice can screw up the above
+        pass
     plt.plot(t, q_eff_bin, 'r', alpha=0.3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_qN0', dpi=200)
@@ -470,7 +480,7 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
                                atol=atol,
                                rtol=rtol,
                                )
-    plotter(folder, ret_lk, s_vec, getter_kwargs)
+    plotter(folder, ret_lk, s_vec, getter_kwargs, **kwargs)
     if short:
         return
 
@@ -764,27 +774,23 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
     plt.savefig(folder + 'deviations_one', dpi=200)
     plt.close()
 
-def run_close_in():
+def run_close_in(I_deg=80, t_final_mult=0.5):
     '''
     run spins after running ret_lk to see which times are useful to exmaine
     '''
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    I_deg = 80
     getter_kwargs['eps_gw'] *= 3
     folder = '4inner/'
 
-    # ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
-    #                    af=0.9)
-    # s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
-    #                            atol=1e-6, rtol=1e-6)
-    # plot_all(folder, ret_lk, None, getter_kwargs,
-    #          time_slice=np.s_[::1000])
-
-    ret_lk = get_kozai(folder, 70, getter_kwargs, atol=1e-7, rtol=1e-7,
+    ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
                        af=0.9)
-    # plot_all(folder, ret_lk, None, getter_kwargs,
-    #          time_slice=np.s_[::1000])
+    t_final = t_final_mult * ret_lk[0][-1]
+    s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
+                               atol=1e-8, rtol=1e-8, t_final=t_final)
+    idx_f = np.where(ret_lk[0] < t_final)[0][-1]
+    plot_all(folder, ret_lk, s_vec, getter_kwargs,
+             time_slice=np.s_[:idx_f:100])
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -808,7 +814,8 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, short=True)
     # run_for_Ideg('4sims/', 90.475, short=True)
     # run_for_Ideg('4sims/', 90.3, short=True, plotter=plot_good)
-    run_for_Ideg('4sims/', 90.5, short=True, plotter=plot_good)
+    # run_for_Ideg('4sims/', 90.5, short=True, plotter=plot_good,
+    #              time_slice=np.s_[-45000:-20000])
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
@@ -820,9 +827,12 @@ if __name__ == '__main__':
     # ensemble_phase = run_ensemble_phase('4sims_ensemble/', phi_sbs=phi_sbs)
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
-    # run_close_in()
+    # run_close_in(t_final_mult=0.5)
+    # run_close_in(t_final_mult=0.5, I_deg=70)
+    # run_close_in(t_final_mult=0.5, I_deg=80.01)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)
 
     # plot_deviations_good('4sims_ensemble/')
+    pass
