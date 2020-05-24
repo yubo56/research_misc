@@ -491,7 +491,7 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
                                rtol=rtol,
                                pkl_template='4sim_qsl20_%s.pkl')
     plotter(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_qsl20_%s')
+             fn_template='4sim_qsl20_%s', **kwargs)
 
     s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                                q_sl0=np.radians(40),
@@ -499,7 +499,7 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
                                rtol=rtol,
                                pkl_template='4sim_qsl40_%s.pkl')
     plotter(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_qsl40_%s')
+             fn_template='4sim_qsl40_%s', **kwargs)
 
 def get_qslfs_base(folder, I_deg, q_sl_arr, af, phi_sbs,
                    atol=1e-8, rtol=1e-8, save_pkl=True, save_png=False, **kwargs):
@@ -792,6 +792,61 @@ def run_close_in(I_deg=80, t_final_mult=0.5):
     plot_all(folder, ret_lk, s_vec, getter_kwargs,
              time_slice=np.s_[:idx_f:100])
 
+# try 90.5 simulation over an isotropic grid of ICs
+def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
+                 atol=1e-7, rtol=1e-7):
+    mkdirp(newfolder)
+    ret_lk = get_kozai('4sims/', I_deg, getter_kwargs,
+                       af=af, atol=atol, rtol=rtol)
+    t, (a, e, W, I, w), _ = ret_lk
+    # compute Weff_hat orientation
+    _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
+    eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
+    t_eff = t[eff_idx]
+    Wslx = interp1d(t_lkmids, dWslx)(t_eff)
+    Wslz = interp1d(t_lkmids, dWslz)(t_eff)
+    Wdot = interp1d(t_lkmids, dWdot)(t_eff)
+    Lhat_f = get_hat(W[-1], I[-1])
+    Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
+    Lhat_xy[2] *= 0
+    Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+    Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
+    Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
+
+    pkl_fn = newfolder + 'devgrid.pkl'
+    mus_edges = np.linspace(-1, 1, n_pts + 1)
+    phis_edges = np.linspace(0, 2 * np.pi, n_pts + 1)
+    mus = (mus_edges[ :-1] + mus_edges[1: ]) / 2
+    phis = (phis_edges[ :-1] + phis_edges[1: ]) / 2
+
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        res_grid = []
+        for q in np.arccos(mus):
+            res = []
+            for phi in phis:
+                pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q)) + \
+                    ('_phi_sb%d' % np.degrees(phi)) + '_%s.pkl'
+                s_vec = get_spins_inertial(
+                    newfolder, I_deg, ret_lk, getter_kwargs, atol=atol,
+                    rtol=rtol, q_sl0=q, phi_sb=phi,
+                    pkl_template=pkl_fn)
+                _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
+                q_eff0 = np.degrees(_q_eff0)[0]
+
+                dot_slf = np.dot(Lhat_f, s_vec[:,-1])
+                q_slf = np.degrees(np.arccos(dot_slf))
+                print('Ran for', q, phi, 'final angs are', q_eff0, q_slf)
+                res.append(q_eff0 - q_slf)
+            res_grid.append(res)
+        res_nparr = np.array(res_grid)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump(res_nparr, f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            res_nparr = pickle.load(f)
+
 if __name__ == '__main__':
     # I_deg = 90.5
     # folder = './'
@@ -814,7 +869,7 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, short=True)
     # run_for_Ideg('4sims/', 90.475, short=True)
     # run_for_Ideg('4sims/', 90.3, short=True, plotter=plot_good)
-    # run_for_Ideg('4sims/', 90.5, short=True, plotter=plot_good,
+    # run_for_Ideg('4sims/', 90.5, plotter=plot_good,
     #              time_slice=np.s_[-45000:-20000])
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
@@ -835,4 +890,6 @@ if __name__ == '__main__':
     # plot_deviations('4sims_ensemble/', ensemble_dat)
 
     # plot_deviations_good('4sims_ensemble/')
+
+    run_905_grid()
     pass

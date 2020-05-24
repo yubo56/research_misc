@@ -815,9 +815,10 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None, real_spins_fn=None):
     e0arr = []
     I0arr = []
     a0arr = []
+    W0arr = []
     svecarr = []
     with open(fn, 'rb') as f:
-        t, (a, e, _, I, _), t_events = pickle.load(f)
+        t, (a, e, W, I, _), t_events = pickle.load(f)
     if real_spins_fn is not None:
         with open(real_spins_fn, 'rb') as f:
             s_vec_sim = pickle.load(f)
@@ -828,6 +829,7 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None, real_spins_fn=None):
         a = a[ :idx_final]
         e = e[ :idx_final]
         I = I[ :idx_final]
+        W = W[ :idx_final]
         if real_spins_fn is not None:
             s_vec_sim = s_vec_sim[:, :idx_final]
         t_events[0] = t_events[0][np.where(t_events[0] < t[-1])[0]]
@@ -839,6 +841,7 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None, real_spins_fn=None):
         e0arr.append(e[where_idx][min_idx])
         I0arr.append(I[where_idx][min_idx])
         a0arr.append(a[where_idx][min_idx])
+        W0arr.append(W[where_idx][min_idx])
         t_arr.append(t[where_idx][min_idx])
         if real_spins_fn is not None:
             svecarr.append([
@@ -847,7 +850,7 @@ def get_905(fn='4sims/4sim_lk_90_500.pkl', t_final=None, real_spins_fn=None):
                 s_vec_sim[2][where_idx][min_idx]])
 
     svecarr = np.array(svecarr).T
-    return t_arr, e0arr, I0arr, a0arr, svecarr
+    return t_arr, e0arr, I0arr, a0arr, W0arr, svecarr
 
 N_THREADS = 60
 def Iscan_grid(getter_kwargs,
@@ -893,7 +896,7 @@ def Iscan_grid(getter_kwargs,
         plt.plot(np.sqrt(e_match_sq), I_trunc, 'r:', lw=1)
     # overplot I0=90.5 from simulation
     if overplot_905:
-        _, e0arr, I0arr, _, _ = get_905()
+        _, e0arr, I0arr, _, _, _ = get_905()
         plt.plot(e0arr, np.degrees(I0arr), 'r', lw=2)
 
     plt.xlabel(r'$e_{\min}$')
@@ -903,22 +906,35 @@ def Iscan_grid(getter_kwargs,
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
 
-def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
+def plot_905(t_slice=np.s_[::], fn='4sims/4sim_lk_90_500.pkl',
              plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0),
-             t_slice=None, real_spins_fn=None):
+             real_spins_fn=None):
     m1, m2, m3, a0, a2, e2 = params
-    t_arr, e0arr, I0arr, a0arr, s_vec =\
+    t_arr, e0arr, I0arr, a0arr, W0arr, s_vec =\
         get_905(fn=fn, real_spins_fn=real_spins_fn)
     # resample, e0arr and I0arr are very dense at late times
-    t_vals = np.linspace(t_arr[0], t_arr[-1], n_pts)
-    e0_new = interp1d(t_arr, e0arr)(t_vals)
-    I0_new = interp1d(t_arr, I0arr)(t_vals)
-    a0_new = interp1d(t_arr, a0arr)(t_vals)
+    # t_vals = np.linspace(t_arr[0], t_arr[-1], n_pts)
+    # e0_new = interp1d(t_arr, e0arr)(t_vals)
+    # I0_new = interp1d(t_arr, I0arr)(t_vals)
+    # a0_new = interp1d(t_arr, a0arr)(t_vals)
+    # W0_new = interp1d(t_arr, W0arr)(t_vals)
 
+    # if real_spins_fn is not None:
+    #     sx = interp1d(t_arr, s_vec[0])(t_vals)
+    #     sy = interp1d(t_arr, s_vec[1])(t_vals)
+    #     sz = interp1d(t_arr, s_vec[2])(t_vals)
+
+    t_vals = t_arr[t_slice]
+    e0_new = e0arr[t_slice]
+    I0_new = I0arr[t_slice]
+    a0_new = a0arr[t_slice]
+    W0_new = W0arr[t_slice]
     if real_spins_fn is not None:
-        sx = interp1d(t_arr, s_vec[0])(t_vals)
-        sy = interp1d(t_arr, s_vec[1])(t_vals)
-        sz = interp1d(t_arr, s_vec[2])(t_vals)
+        sx = s_vec[0][t_slice]
+        sy = s_vec[1][t_slice]
+        sz = s_vec[2][t_slice]
+
+    e0_new = e0arr
 
     pkl_fn = plot_fn + 'amps.pkl'
     if not os.path.exists(pkl_fn):
@@ -926,8 +942,8 @@ def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
         amps = []
         Weffs = []
         ts_run = []
-        for idx, (t, e0, I0, a0_new) in\
-                enumerate(zip(t_vals, e0_new, I0_new, a0_new)):
+        for idx, (t, e0, I0, a0_new, W0) in\
+                enumerate(zip(t_vals, e0_new, I0_new, a0_new, W0_new)):
             getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
             try: # think running into an issue at small a0_new
                 Weff_vec, _t_vals = single_cycle_toy(
@@ -938,8 +954,12 @@ def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
                     # convert from inertial frame to corotating frame
                     q0 = np.arccos(sz[idx])
                     perp_norm = np.sqrt(sx[idx]**2 + sy[idx]**2)
-                    phi0 = np.arctan2(sy[idx] / perp_norm, sx[idx] / perp_norm)
+                    phi0 = np.arctan2(sy[idx] / perp_norm, sx[idx] / perp_norm)\
+                        - W0
                     amp = get_amp(Weff_vec, _t_vals, q0=q0, phi0=phi0)
+                    # amp = get_amp(Weff_vec, _t_vals, q0=q0, phi0=phi0,
+                    #               plot=True, fn='6_905_tmptmp_%d' % idx)
+                    # print(t, e0, I0, a0_new, W0, q0, phi0 % (2 * np.pi), amp)
                 else:
                     amp = get_amp(Weff_vec, _t_vals, q0=I0)
                 amps.append(amp)
@@ -949,6 +969,7 @@ def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
                 print(e)
                 break
             print(fn, t, ': Did', e0, I0, a0_new, amps[-1])
+        # return
         with open(pkl_fn, 'wb') as f:
             pickle.dump((amps, Weffs, ts_run), f)
     else:
@@ -967,28 +988,46 @@ def plot_905(n_pts=200, fn='4sims/4sim_lk_90_500.pkl',
     plt.close()
 
 def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
+                      real_spins_fn=None,
                       plot_fn='6toy/6_905', params=(30, 20, 30, 100, 4500, 0)):
     m1, m2, m3, a0, a2, e2 = params
-    t_arr, e0arr, I0arr, a0arr, _ = get_905(fn=fn)
+    t_arr, e0arr, I0arr, a0arr, W0arr, s_vec =\
+        get_905(fn=fn, real_spins_fn=real_spins_fn)
     # resample, e0arr and I0arr are very dense at late times
     t_vals = t_arr[t_slice]
     e0_new = e0arr[t_slice]
     I0_new = I0arr[t_slice]
     a0_new = a0arr[t_slice]
+    W0_new = W0arr[t_slice]
+
+    if real_spins_fn is not None:
+        sx = interp1d(t_arr, s_vec[0])(t_vals)
+        sy = interp1d(t_arr, s_vec[1])(t_vals)
+        sz = interp1d(t_arr, s_vec[2])(t_vals)
 
     amps = []
     Weffs = []
     angles = []
     ratios = []
     ts_run = []
-    for t, e0, I0, a0_new in zip(t_vals, e0_new, I0_new, a0_new):
+    for t, e0, I0, a0_new, W0 in zip(t_vals, e0_new, I0_new, a0_new, W0_new):
         getter_kwargs = get_eps(m1, m2, m3, a0_new * a0, a2, e2)
         try: # think running into an issue at small a0_new
             Weff_vec, _t_vals = single_cycle_toy(
                 getter_kwargs, e0=e0, I0=I0, intg_pts=int(1e5))
             Weff_mean = np.mean(Weff_vec, axis=1)
             Weff_mag = np.sqrt(np.sum(Weff_mean**2))
-            amp = get_amp(Weff_vec, _t_vals, q0=I0)
+
+            if real_spins_fn is not None:
+                # convert from inertial frame to corotating frame
+                q0 = np.arccos(sz[idx])
+                perp_norm = np.sqrt(sx[idx]**2 + sy[idx]**2)
+                phi0 = np.arctan2(sy[idx] / perp_norm, sx[idx] / perp_norm)\
+                    - W0
+                amp = get_amp(Weff_vec, _t_vals, q0=q0, phi0=phi0)
+            else:
+                amp = get_amp(Weff_vec, _t_vals, q0=I0)
+
             amps.append(amp)
             Weffs.append(Weff_mag)
             ts_run.append(t)
@@ -1023,7 +1062,7 @@ def plot_amps(idxs, fn='4sims/4sim_lk_90_500.pkl',
               fn_template='6_905_amps', params=(30, 20, 30, 100, 4500, 0),
               num_periods=50):
     m1, m2, m3, a0, a2, e2 = params
-    t_arr, e0arr, I0arr, a0arr, _ = get_905(fn=fn)
+    t_arr, e0arr, I0arr, a0arr, W0arr, _ = get_905(fn=fn)
     # same as get_amp's plotting, but grid of plots using multiple q0, phi0
     def plot_many(Weff_vec, t_vals, fn='6_devs', num_periods=100, tol=1e-7):
         t0 = t_vals[0]
@@ -1094,7 +1133,7 @@ def plot_amps(idxs, fn='4sims/4sim_lk_90_500.pkl',
 
 def search(params, fn, plot_fn, target, t_final, t_opt=None):
     # do brenth search for where Weff / T_{LK} crosses 0.5
-    t_arr, e0arr, I0arr, a0arr = get_905(fn=fn, t_final=t_final)
+    t_arr, e0arr, I0arr, a0arr, W0arr, _ = get_905(fn=fn, t_final=t_final)
     e0_new = interp1d(t_arr, e0arr)
     I0_new = interp1d(t_arr, I0arr)
     a0_new = interp1d(t_arr, a0arr)
@@ -1214,29 +1253,39 @@ if __name__ == '__main__':
     # Iscan_grid(getter_kwargs, fn='6_Iscangrid', overplot_905=True)
 
     params_out = (30, 20, 30, 100, 4500, 0)
-    # plot_905_detailed(np.s_[550:580], params=params_out,
+    # plot_905_detailed(np.s_[650:1201:50], params=params_out,
     #                   plot_fn='6toy/6_905_zoom')
+    # plot_905(params=params_out, t_slice=np.s_[:4500:10])
+    # plot_amps([0, 545, 575, 580, 585], params=params_out)
     # plot_amps([650, 800, 950, 1200, 4500], params=params_out)
-    # plot_905(params=params_out, n_pts=400)
-    # plot_905(params=params_out, n_pts=400, plot_fn='6toy/6_905_real',
+    # # 90.5 sim idxs = [650, 800, 950, 1200, 4500]
+    # configs_manual = [
+    #     ('6_ampgrid_905_t1692.txt', 0.9987446427234956,
+    #      1.8120774793295245, 0.5348342662243027),
+    #     ('6_ampgrid_905_t1711.txt', 0.9995517249200406,
+    #      2.046376335980443, 0.4077825896167853),
+    #     ('6_ampgrid_905_t1720.txt', 0.9995651174092736,
+    #      2.133704480535729, 0.30940183669261984),
+    #     ('6_ampgrid_905_t1731.txt', 0.9994361449448852,
+    #      2.169822017703147, 0.21374783305738998),
+    #     ('6_ampgrid_905_t1759.txt', 0.997154739428045,
+    #      2.183407526210722, 0.04069596018484076),
+    # ]
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # for outfile, e0, I0, a0_new in configs_manual:
+    #     getter_kwargs = get_eps(m1, m2, m3, a0 * a0_new, a2, e2)
+    #     get_devs(getter_kwargs, configs=[(e0, I0, outfile + 'ind')],
+    #              outfile=outfile, num_periods=100)
+    # # print some stuff for the above times
+    # plot_905(params=params_out, t_slice=np.s_[650:1101:150],
+    #          plot_fn='6toy/6_905_real',
     #          real_spins_fn='4sims/4sim_s_90_500.pkl')
-    configs_manual = [
-        ('6_ampgrid_905_t1692.txt', 0.9987446427234956,
-         1.8120774793295245, 0.5348342662243027),
-        ('6_ampgrid_905_t1711.txt', 0.9995517249200406,
-         2.046376335980443, 0.4077825896167853),
-        ('6_ampgrid_905_t1720.txt', 0.9995651174092736,
-         2.133704480535729, 0.30940183669261984),
-        ('6_ampgrid_905_t1731.txt', 0.9994361449448852,
-         2.169822017703147, 0.21374783305738998),
-        ('6_ampgrid_905_t1759.txt', 0.997154739428045,
-         2.183407526210722, 0.04069596018484076),
-    ]
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    for outfile, e0, I0, a0_new in configs_manual:
-        getter_kwargs = get_eps(m1, m2, m3, a0 * a0_new, a2, e2)
-        get_devs(getter_kwargs, configs=[(e0, I0, outfile + 'ind')],
-                 outfile=outfile, num_periods=100)
+
+    # print(t, e0, I0, a0_new, W0, q0, phi0 % (2 * np.pi), amp)
+    # 1692.264854624479 0.02085146576582727 1.8120774793295245 0.5348342662243027 1614.9494806276307 1.8249864318305942 3.3637457451816744 0.9468997352971537
+    # 1711.1061848295042 0.029425520632750897 2.046376335980443 0.4077825896167853 1783.2573597420453 1.9884734974195502 2.7252143964678055 1.984651374568282
+    # 1720.9736993377662 0.036122191561206864 2.133704480535729 0.30940183669261984 1862.7397963539106 1.1577582074789137 5.3936667831664735 4.158866046890614
+    # 1727.7358378907797 0.04178610971614957 2.162444708676196 0.24446375842001486 1898.1829763131925 0.9450105091392582 5.56568215379216 4.8694619358343
 
     # NB: real n_pts will be much lower, since many points run into the try
     # catch in the loop
