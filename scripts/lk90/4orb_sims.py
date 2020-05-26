@@ -919,8 +919,8 @@ if __name__ == '__main__':
     # run_close_in(t_final_mult=0.5)
     # run_close_in(t_final_mult=0.5, I_deg=70)
     # run_close_in(t_final_mult=0.5, I_deg=80.01)
-    # run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
-    #              plotter=plot_good)
+    run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
+                 plotter=plot_good)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)

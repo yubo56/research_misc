@@ -277,27 +277,33 @@ answer to our proposed question.
 \section{Bin's Response to Line in Hang Yu's Paper}
 
 Hang Yu's paper contains a line where they are not sure whether $\theta_{\rm
-sl}^{\rm f}$ ends up being $\theta_{\rm sb, 0}^{\rm i}$ or $180^\circ -
-\theta_{\rm sb, 0}^{\rm i}$. With our basic theory, in the corotating
+sl}^{\rm f}$ ends up being $\theta_{\rm sb}^{\rm i}$ or $180^\circ -
+\theta_{\rm sb}^{\rm i}$. With our basic theory, in the corotating
 frame, this is a very simple insight that we discussed early in this project.
 Take the limit where $\bm{\Omega}_{\rm eff}^{\rm i} = -\dot{\Omega}\uv{L}_{\rm
-out}$ for simplicity, and perform analysis in the corotating frame:
+out}$ for simplicity, and perform analysis in the corotating frame (where
+$\bm{S}$ must always precess in the positive direction about $\bm{\Omega}_{\rm
+eff}$):
 \begin{itemize}
+    \item At the end of the dynamics, $\uv{S}$ precesses around $\bm{L}_{\rm
+        in}$ always in the positive direction, and so $\bm{\Omega}_{\rm
+        eff}^{\rm f} = \bm{L}_{\rm in}$
+
     \item Initially, $\uv{S}$ precesses about $\bm{L}_{\rm out}$ in either the
         positive ($I_0 < 90^\circ$) or negative ($I_0 > 90^\circ$) direction,
-        due to the sign of $\dot{\Omega}$ in the LK EOM\@.
+        due to the sign of $\dot{\Omega}$ in the LK EOM\@. Requiring that
+        $\uv{S}$ precess around $\bm{\Omega}_{\rm eff}^{\rm i}$ in the positive
+        direction shows that $\bm{\Omega}_{\rm eff} = \bm{L}_{\rm out}$ when
+        $I_0 < 90^\circ$ and $\bm{\Omega}_{\rm eff} = -\bm{L}_{\rm out}$ when
+        $I_0 > 90^\circ$.
 
-    \item At the end of the dynamics, $\uv{S}$ precesses around $\bm{L}_{\rm
-        in}$ always in the positive direction.
+        Thus, when $I_0 < 90^\circ$, we have conservation of $\theta_{\rm eff} =
+        \theta_{\rm sb, i} = \theta_{\rm sl, f}$, while when $I_0 > 90^\circ$ we
+        have conservation of $\theta_{\rm eff} = 180 - \theta_{\rm sb, i} =
+        \theta_{\rm sl, f}$.
 \end{itemize}
-As $\uv{\Omega}_{\rm eff}$ must transition smoothly from alignment with
-$\uv{L}_{\rm out}$ to alignment with $\uv{L}_{\rm in}$, the precession direction
-cannot change. As such, when $I_0 > 90^\circ$, $\uv{S}$ initially precesses
-$\bm{L}_{\rm out}$ in the negative direction, or $-\bm{L}_{\rm out}$ in the
-positive direction. Thus, $\bm{\Omega}_{\rm eff}$ must transition from
-$-\bm{L}_{\rm out}$ to $\bm{L}_{\rm in}$, and so $\theta_{\rm sl}^{\rm f} =
-180^\circ - \theta_{\rm sb}^{\rm i}$ wher $I_0 > 90^\circ$. When $I_0 <
-90^\circ$, we get simply $\theta_{\rm sl}^{\rm f} = \theta_{\rm sb}^{\rm i}$.
+This generalizes easily to $I_0 < I_{0,\lim}$ and $I_0 > I_{0, \lim}$ when
+$\eta$ is nonzero.
 
 \end{document}
 
