@@ -549,3 +549,6 @@ def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
 
 def cosd(x):
     return np.cos(np.radians(x))
+
+def get_fn_I(I_deg):
+    return ('%.3f' % I_deg).replace('.', '_')

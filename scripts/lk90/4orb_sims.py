@@ -28,9 +28,6 @@ N_THREADS = 40
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
-def get_fn_I(I_deg):
-    return ('%.3f' % I_deg).replace('.', '_')
-
 def get_kozai(folder, I_deg, getter_kwargs,
               a0=1, e0=1e-3, W0=0, w0=0, tf=np.inf, af=0,
               pkl_template='4sim_lk_%s.pkl', save=True, **kwargs):
@@ -165,6 +162,10 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     a, e, W, I, w = lk_y[:, time_slice]
     t = lk_t[time_slice]
     I0 = np.degrees(I[0])
+    valid_idxs = np.where(np.logical_and(
+        lk_events[0] < t[-1], lk_events[0] > t[0]))[0]
+    lk_events_sliced = [lk_events[0][valid_idxs], lk_events[1]]
+    ret_lk_sliced = [t, [a, e, W, I, w], lk_events_sliced]
 
     K = np.sqrt(1 - e**2) * np.cos(I)
     Lhat = get_hat(W, I)
@@ -222,7 +223,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     lk_p_interp = interp1d(lk_events[0], lk_period)
 
     # computing effective angle to N = 0 axis
-    _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
+    _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
     eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
     t_eff = t[eff_idx]
     Wslx = interp1d(t_lkmids, dWslx)(t_eff)
@@ -386,6 +387,10 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     a, e, W, I, w = lk_y[:, time_slice]
     t = lk_t[time_slice]
     I0 = np.degrees(lk_y[3, 0])
+    valid_idxs = np.where(np.logical_and(
+        lk_events[0] < t[-1], lk_events[0] > t[0]))[0]
+    lk_events_sliced = [lk_events[0][valid_idxs], lk_events[1]]
+    ret_lk_sliced = [t, [a, e, W, I, w], lk_events_sliced]
 
     Lhat = get_hat(W, I)
     Lout_hat = get_hat(0 * I, 0 * I)
@@ -401,7 +406,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     q_eff_bin = np.degrees(np.arccos(ts_dot(W_eff_bin, s_vec)))
 
     # computing effective angle to N = 0 axis
-    dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
+    dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
     eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
     t_eff = t[eff_idx]
     Wslx = interp1d(t_lkmids, dWslx)(t_eff)
@@ -444,7 +449,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
                        (q_eff_pred, q_eff0[-1]))
     except: # time_slice can screw up the above
         pass
-    plt.plot(t, q_eff_bin, 'r', alpha=0.3)
+    # plt.plot(t, q_eff_bin, 'r', alpha=0.3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_qN0', dpi=200)
     plt.close()
@@ -774,7 +779,7 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
     plt.savefig(folder + 'deviations_one', dpi=200)
     plt.close()
 
-def run_close_in(I_deg=80, t_final_mult=0.5):
+def run_close_in(I_deg=80, t_final_mult=0.5, time_slice=None, plotter=plot_all):
     '''
     run spins after running ret_lk to see which times are useful to exmaine
     '''
@@ -789,29 +794,15 @@ def run_close_in(I_deg=80, t_final_mult=0.5):
     s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                                atol=1e-8, rtol=1e-8, t_final=t_final)
     idx_f = np.where(ret_lk[0] < t_final)[0][-1]
-    plot_all(folder, ret_lk, s_vec, getter_kwargs,
-             time_slice=np.s_[:idx_f:100])
+    if time_slice is None:
+        time_slice = np.s_[:idx_f:100]
+    plotter(folder, ret_lk, s_vec, getter_kwargs,
+             time_slice=time_slice)
 
 # try 90.5 simulation over an isotropic grid of ICs
 def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
                  atol=1e-7, rtol=1e-7):
     mkdirp(newfolder)
-    ret_lk = get_kozai('4sims/', I_deg, getter_kwargs,
-                       af=af, atol=atol, rtol=rtol)
-    t, (a, e, W, I, w), _ = ret_lk
-    # compute Weff_hat orientation
-    _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
-    eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
-    t_eff = t[eff_idx]
-    Wslx = interp1d(t_lkmids, dWslx)(t_eff)
-    Wslz = interp1d(t_lkmids, dWslz)(t_eff)
-    Wdot = interp1d(t_lkmids, dWdot)(t_eff)
-    Lhat_f = get_hat(W[-1], I[-1])
-    Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
-    Lhat_xy[2] *= 0
-    Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
-    Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
-    Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
 
     pkl_fn = newfolder + 'devgrid.pkl'
     mus_edges = np.linspace(-1, 1, n_pts + 1)
@@ -821,23 +812,43 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
 
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
+        ret_lk = get_kozai('4sims/', I_deg, getter_kwargs,
+                           af=af, atol=atol, rtol=rtol)
+        t, (a, e, W, I, w), _ = ret_lk
+        # compute Weff_hat orientation
+        _, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk, getter_kwargs)
+        eff_idx = np.where(np.logical_and(t < t_lkmids[-1], t > t_lkmids[0]))[0]
+        t_eff = t[eff_idx]
+        Wslx = interp1d(t_lkmids, dWslx)(t_eff)
+        Wslz = interp1d(t_lkmids, dWslz)(t_eff)
+        Wdot = interp1d(t_lkmids, dWdot)(t_eff)
+        Lhat_f = get_hat(W[-1], I[-1])
+        Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
+        Lhat_xy[2] *= 0
+        Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+        Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
+        Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
+
         res_grid = []
         for q in np.arccos(mus):
             res = []
             for phi in phis:
-                pkl_fn = '4sim_qsl' + ('%d' % np.degrees(q)) + \
+                pkl_template = '4sim_qsl' + ('%d' % np.degrees(q)) + \
                     ('_phi_sb%d' % np.degrees(phi)) + '_%s.pkl'
                 s_vec = get_spins_inertial(
                     newfolder, I_deg, ret_lk, getter_kwargs, atol=atol,
                     rtol=rtol, q_sl0=q, phi_sb=phi,
-                    pkl_template=pkl_fn)
+                    pkl_template=pkl_template)
                 _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
-                q_eff0 = np.degrees(_q_eff0)[0]
+                q_eff0 = np.degrees(_q_eff0)
+                q_eff0_interp = interp1d(t_eff, q_eff0)
+                q_eff_pred = np.mean(q_eff0_interp(
+                    np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
 
                 dot_slf = np.dot(Lhat_f, s_vec[:,-1])
                 q_slf = np.degrees(np.arccos(dot_slf))
-                print('Ran for', q, phi, 'final angs are', q_eff0, q_slf)
-                res.append(q_eff0 - q_slf)
+                print('Ran for', q, phi, 'final angs are', q_eff_pred, q_slf)
+                res.append(q_eff_pred - q_slf)
             res_grid.append(res)
         res_nparr = np.array(res_grid)
         with open(pkl_fn, 'wb') as f:
@@ -846,6 +857,17 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             res_nparr = pickle.load(f)
+
+    phis_grid = np.outer(phis_edges, np.ones_like(mus_edges))
+    mus_grid = np.outer(np.ones_like(phis_edges), mus_edges)
+    plt.pcolormesh(phis_grid, mus_grid, res_nparr, cmap='viridis')
+    plt.colorbar()
+    plt.xlabel(r'$\phi$')
+    plt.ylabel(r'$\cos \theta$')
+    plt.tight_layout()
+    plt.savefig(newfolder + 'devsgrid', dpi=200)
+    plt.close()
+
 
 if __name__ == '__main__':
     # I_deg = 90.5
@@ -872,6 +894,18 @@ if __name__ == '__main__':
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good,
     #              time_slice=np.s_[-45000:-20000])
 
+    # compare plot_good for 90.5 for a few different angular locations
+    # s_fns = ['4sim_qsl87_phi_sb189_%s',
+    #          '4sim_qsl31_phi_sb333_%s',
+    #          '4sim_qsl56_phi_sb63_%s']
+    # ret_lk = get_kozai('4sims/', 90.5, getter_kwargs, af=5e-3)
+    # for s_fn in s_fns:
+    #     pkl_fn = s_fn + '.pkl'
+    #     s_vec = get_spins_inertial('4sims905/', 90.5, ret_lk, getter_kwargs,
+    #                                pkl_template=pkl_fn)
+    #     plot_good('4sims905/', ret_lk, s_vec, getter_kwargs, fn_template=s_fn,
+    #               time_slice=np.s_[-45000:-20000])
+
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # ensemble_dat2 = run_ensemble('4sims_ensemble/',
     #                              I_vals=np.arange(89.99, 89.5999, 0.001),
@@ -885,11 +919,13 @@ if __name__ == '__main__':
     # run_close_in(t_final_mult=0.5)
     # run_close_in(t_final_mult=0.5, I_deg=70)
     # run_close_in(t_final_mult=0.5, I_deg=80.01)
+    # run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
+    #              plotter=plot_good)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)
 
     # plot_deviations_good('4sims_ensemble/')
 
-    run_905_grid()
+    # run_905_grid()
     pass
