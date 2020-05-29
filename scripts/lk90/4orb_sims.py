@@ -371,7 +371,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     plt.close()
 
 def plot_good(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_%s', time_slice=np.s_[::],
+             fn_template='4sim_%s', time_slice=np.s_[::], ylimdy=None,
              **kwargs):
     mkdirp(folder)
     alf = 0.7
@@ -416,7 +416,8 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     Lhat_xy[2] *= 0
     Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
     Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
-    Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
+    Weffmag = np.sqrt(np.sum(Weff**2, axis=0))
+    Weff_hat = Weff / Weffmag
     _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
     q_eff0 = np.degrees(_q_eff0)
     # compute phi as well
@@ -437,22 +438,57 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
         return brenth(Iout_constr, -I, 0)
     Wsl = np.sqrt(Wslx**2 + Wslz**2)
     Iouts = [get_Iout(*args) for args in zip(Wdot, Wsl, I_avg)]
+    Iout_dot = [(Iouts[i + 4] - Iouts[i]) / (t_eff[i + 4] - t_eff[i])
+                for i in range(len(Iouts) - 4)]
 
     # plots
-    plt.plot(t_eff, q_eff0, 'k', alpha=alf)
+    if time_slice == np.s_[::]:
+        # if default time slice, plotting full simulation, use a very long view
+        fig, ax1 = plt.subplots(1, 1, figsize=(12, 5), sharex=True)
+    plt.plot(t_eff, q_eff0, 'k', alpha=0.3, label=r'$\theta_{\rm eff,0}$')
+    end_qeffs = []
+    averaged_qeff = []
+    plotted_ts = []
+    qeffinterp = interp1d(t_eff, q_eff0)
+    # pick an intermediate piece b/c two ends are outside of interp range
+    for start, end in zip(t_lkmids[10:-11], t_lkmids[11:-10]):
+        interpt = np.linspace(start, end, 1000)
+        qeff_interval = qeffinterp(interpt)
+        averaged_qeff.append(np.mean(qeff_interval))
+        end_qeffs.append(qeff_interval[len(interpt) // 2])
+        plotted_ts.append((start + end) / 2)
+    plt.plot(plotted_ts, averaged_qeff, 'ro', ms=1, alpha=0.7,
+             label='LK-avg')
+    plt.plot(plotted_ts, end_qeffs, 'bo', ms=1, alpha=0.7,
+             label='LK-start')
     # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
     try:
         q_eff0_interp = interp1d(t_eff, q_eff0)
         q_eff_pred = np.mean(q_eff0_interp(
             np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
-        plt.ylabel(r'$\theta_{N=0}$ [$\langle %.2f \rangle$--$%.2f$]' %
+        plt.ylabel(r'[$\langle %.2f \rangle$--$%.2f$]' %
                        (q_eff_pred, q_eff0[-1]))
     except: # time_slice can screw up the above
         pass
     # plt.plot(t, q_eff_bin, 'r', alpha=0.3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
+    # estimated amplitude of oscillations: Iout_dot * P_phi * 2 = Iout_dot * pi
+    # / Weff
+    plt.plot(t_eff[2:-2],
+             q_eff0[-1] + np.degrees(Iout_dot) * np.pi / Weffmag[2:-2],
+             'g', lw=1.5, label=r'$N = 0$ Integ.')
+    plt.plot(t_eff[2:-2],
+             q_eff0[-1] - np.degrees(Iout_dot) * np.pi / Weffmag[2:-2],
+             'g', lw=1.5)
+    plt.legend(loc='upper left')
+    if ylimdy is not None:
+        curr_ylim = plt.ylim()
+        ylim_cent = np.sum(curr_ylim) / 2
+        plt.ylim(bottom=ylim_cent - ylimdy, top=ylim_cent + ylimdy)
+    plt.tight_layout()
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_qN0', dpi=200)
     plt.close()
+    return
 
     # plt.plot(t_eff, np.degrees(I_avg), 'r')
     # plt.ylabel(r'$\langle I \rangle_{LK}$')
@@ -460,8 +496,6 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     plt.gca().set_ylabel(r'$I_{\rm out}$')
     plt.gca().set_xlabel(r'$t / t_{\rm LK, 0}$')
     twinIout_ax = plt.gca().twinx()
-    Iout_dot = [(Iouts[i + 4] - Iouts[i]) / (t_eff[i + 4] - t_eff[i])
-                for i in range(len(Iouts) - 4)]
     twinIout_ax.plot(t_eff[2:-2], np.degrees(Iout_dot), 'k', alpha=0.3)
     twinIout_ax.set_ylabel(r'$\dot{I}_{\rm out}$')
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_Iout', dpi=200)
@@ -785,10 +819,10 @@ def run_close_in(I_deg=80, t_final_mult=0.5, time_slice=None, plotter=plot_all):
     '''
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    getter_kwargs['eps_gw'] *= 3
+    # getter_kwargs['eps_gw'] *= 3
     folder = '4inner/'
 
-    ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-7, rtol=1e-7,
+    ret_lk = get_kozai(folder, I_deg, getter_kwargs, atol=1e-8, rtol=1e-8,
                        af=0.9)
     t_final = t_final_mult * ret_lk[0][-1]
     s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
@@ -891,7 +925,9 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, short=True)
     # run_for_Ideg('4sims/', 90.475, short=True)
     # run_for_Ideg('4sims/', 90.3, short=True, plotter=plot_good)
-    # run_for_Ideg('4sims/', 90.5, plotter=plot_good,
+    run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
+                 ylimdy=3)
+    # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
 
     # compare plot_good for 90.5 for a few different angular locations
@@ -919,8 +955,8 @@ if __name__ == '__main__':
     # run_close_in(t_final_mult=0.5)
     # run_close_in(t_final_mult=0.5, I_deg=70)
     # run_close_in(t_final_mult=0.5, I_deg=80.01)
-    run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
-                 plotter=plot_good)
+    # run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
+    #              plotter=plot_good)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)

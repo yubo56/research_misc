@@ -202,55 +202,53 @@ solve Eq.\eqref{eq:eom0} for some initial $\uv{S}$ over $100$--$500$ LK cycles
 using $\uv{L}(t)$, $\Omega_{\rm SL}(t)$, and $\dot{\Omega}(t)$ for a
 \emph{single} LK cycle, ignoring gravitational radiation.
 
-One useful quantity then to measure is $\Delta \theta_{\rm eff}$ for such a
+One useful quantity then to measure is $\Delta \theta_{\rm eff,0}$ for such a
 locally nondissipative system, the difference between the maximum and minimum
-$\theta_{\rm eff}$ (angle is to $\bm{\Omega}_{\rm eff}$, not $\bm{ \Omega}_{\rm
-eff, 0}$, note; maybe this is bad?) attained. We choose to only measure at each
-LK cycle, so
+$\theta_{\rm eff,0}$ attained. We choose to only measure at each LK cycle, so
 \begin{equation}
-    \Delta \theta_{\rm eff} = \max\limits_i \theta_{\rm eff}(\tau_i)
-        - \min\limits_j \theta_{\rm eff}(\tau_j),
+    \Delta \theta_{\rm eff, 0} = \max\limits_i \theta_{\rm eff, 0}(\tau_i)
+        - \min\limits_j \theta_{\rm eff, 0}(\tau_j),
 \end{equation}
 where $\tau_i$ are the times of \emph{minimum} eccentricity in each LK cycle.
-If $\Delta \theta_{\rm eff}$ is small for the entirety of the fiducial Paper
-II simulation, then conservation of $\theta_{\rm eff}$ can easily be
+If $\Delta \theta_{\rm eff, 0}$ is small for the entirety of the fiducial Paper
+II simulation, then conservation of $\theta_{\rm eff, 0}$ can easily be
 understood.
 
 In reality, it turns out not to be so simple. Note that $\Delta \theta_{\rm eff,
 0}$ is in general a function of the $\uv{S}^{\rm i}$. Parameterize $\uv{S}^{\rm
 i}$ by $(\theta, \phi)$ in the coordinate system of Eq.~\eqref{eq:eom0}, then a
-plot of $\Delta \theta_{\rm eff}(\theta, \phi)$ is given in
+plot of $\Delta \theta_{\rm eff, 0}(\theta, \phi)$ is given in
 Fig.~\ref{fig:ampgridt1692}.
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{plots/6_ampgrid_905_t1692_txtind.png}
-    \caption{Plot of $\Delta \theta_{\rm eff}(\theta, \phi)$ for the locally
+    \caption{Plot of $\Delta \theta_{\rm eff, 0}(\theta, \phi)$ for the locally
     nondissipative system of the fiducial Paper II simulation at $t = 1692$
     (Fig.~\ref{fig:905qN0}). While much of parameter space has $\Delta
-    \theta_{\rm eff} = 0$, a clear resonant zone exists. The width of the
+    \theta_{\rm eff, 0} = 0$, a clear resonant zone exists. The width of the
     zone decreases at later times.}\label{fig:ampgridt1692}
 \end{figure}
 
 Comparing to Fig.~\ref{fig:905qN0}, it is clear that the amplitude of
-oscillation of $\theta_{\rm eff}$ from the GW simulation is not consistent
-with the prediction of $\Delta \theta_{\rm eff}$. But Fig.~\ref{fig:905qN0}
+oscillation of $\theta_{\rm eff, 0}$ from the GW simulation is not consistent
+with the prediction of $\Delta \theta_{\rm eff, 0}$. But Fig.~\ref{fig:905qN0}
 is not fine-tuned, choosing a different initial spin for the inspiral simulation
-shows a similar behavior of $\theta_{\rm eff}$. Evaluating $\Delta
-\theta_{\rm eff}$ along the inspiral points seems to underpredict variations
-in $\theta_{\rm eff}$, as shown in Fig.~\ref{fig:6_905real}.
+shows a similar behavior of $\theta_{\rm eff, 0}$. Evaluating $\Delta
+\theta_{\rm eff, 0}$ along the inspiral points seems to underpredict variations
+in $\theta_{\rm eff, 0}$, as shown in Fig.~\ref{fig:6_905real}.
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{plots/6_905_real.png}
-    \caption{$\Delta \theta_{\rm eff}$ evaluated for one realization of the
+    \caption{$\Delta \theta_{\rm eff, 0}$ evaluated for one realization of the
     fiducial simulation, using the $\uv{S}$ at the beginning of each LK cycle as
     initial conditions for the locally nondissipative
-    simulation. Bottom plot shows $\abs{\bm{\Omega}_{\rm eff} }$ in time
+    simulation. Bottom plot shows $\abs{\bm{\Omega}_{\rm eff, 0}}$ in time
     units (LK period is implied by horizontal spacing).}\label{fig:6_905real}
 \end{figure}
 
 This contrasts with the simulation in the Paper I regime, where the amplitude of
 oscillation in $\theta_{\rm eff, 0}$ matches quite well with $\Delta \theta_{\rm
-eff}$, see Figs.~\ref{fig:4_70_qN0} and~\ref{fig:ampgrid_569}.
+eff, 0}$, see Figs.~\ref{fig:4_70_qN0} and~\ref{fig:ampgrid_569}.
 \begin{figure}
     \centering
     \includegraphics[width=0.5\textwidth]{plots/4sim_70_000_qN0.png}
