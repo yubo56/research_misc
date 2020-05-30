@@ -552,3 +552,7 @@ def cosd(x):
 
 def get_fn_I(I_deg):
     return ('%.3f' % I_deg).replace('.', '_')
+
+def get_scinot(f):
+    exponent = np.floor(np.log10(f))
+    return r'%.1f \times 10^{%d}' % (f / 10**exponent, exponent)

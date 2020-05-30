@@ -371,8 +371,8 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     plt.close()
 
 def plot_good(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_%s', time_slice=np.s_[::], ylimdy=None,
-             **kwargs):
+              fn_template='4sim_%s', time_slice=np.s_[::], ylimdy=None,
+              ylim3=None, **kwargs):
     mkdirp(folder)
     alf = 0.7
 
@@ -468,7 +468,9 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
             np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
         plt.ylabel(r'[$\langle %.2f \rangle$--$%.2f$]' %
                        (q_eff_pred, q_eff0[-1]))
+        qeffdiff = np.abs(q_eff_pred - q_eff0[-1])
     except: # time_slice can screw up the above
+        qeffdiff = None
         pass
     # plt.plot(t, q_eff_bin, 'r', alpha=0.3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
@@ -488,7 +490,6 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     plt.tight_layout()
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_qN0', dpi=200)
     plt.close()
-    return
 
     # plt.plot(t_eff, np.degrees(I_avg), 'r')
     # plt.ylabel(r'$\langle I \rangle_{LK}$')
@@ -501,12 +502,25 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_Iout', dpi=200)
     plt.close()
 
-    plt.semilogy(t_lkmids, dWsl, 'g')
-    plt.semilogy(t_lkmids, dWdot, 'r')
-    plt.semilogy(t_lkmids, dWtot, 'k')
-    plt.ylabel(r'$d\phi / dt$')
-    plt.ylim([0.01, 100])
+    plt.semilogy(t_lkmids, dWsl, 'g', label=r'$\Omega_{\rm SL}$',
+                 lw=0.7, alpha=0.5)
+    plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
+                 lw=0.7, alpha=0.5)
+    plt.semilogy(t_lkmids, dWtot, 'k', label=r'$\Omega_{\rm eff,0}$',
+                 lw=2)
+    plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b',
+                 lw=2, label=r'$\dot{I}_{\rm out}$')
+    plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
+    plt.legend()
+    if ylim3 is not None:
+        plt.ylim(ylim3)
+    else:
+        plt.ylim([0.01, 100])
+    if qeffdiff is not None:
+        plt.title(r'$I_0 = %.2f^\circ, \Delta \theta_{\rm eff, 0} = (%s)^\circ$'
+                  % (I0, get_scinot(qeffdiff)))
+    plt.tight_layout()
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_phidots', dpi=200)
     plt.close()
 
@@ -835,7 +849,8 @@ def run_close_in(I_deg=80, t_final_mult=0.5, time_slice=None, plotter=plot_all):
 
 # try 90.5 simulation over an isotropic grid of ICs
 def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
-                 atol=1e-7, rtol=1e-7):
+                 atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs,
+                 orig_folder='4sims/'):
     mkdirp(newfolder)
 
     pkl_fn = newfolder + 'devgrid.pkl'
@@ -846,7 +861,7 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
 
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        ret_lk = get_kozai('4sims/', I_deg, getter_kwargs,
+        ret_lk = get_kozai(orig_folder, I_deg, getter_kwargs,
                            af=af, atol=atol, rtol=rtol)
         t, (a, e, W, I, w), _ = ret_lk
         # compute Weff_hat orientation
@@ -922,11 +937,10 @@ if __name__ == '__main__':
     # plot_all(folder, ret_lk, s_vec, getter_kwargs, fn_template='4shorto_tilt_%s')
 
     # for I_deg in np.arange(90.1, 90.51, 0.05):
-    #     run_for_Ideg('4sims/', I_deg, short=True)
-    # run_for_Ideg('4sims/', 90.475, short=True)
-    # run_for_Ideg('4sims/', 90.3, short=True, plotter=plot_good)
+    #     run_for_Ideg('4sims/', I_deg, short=True, plotter=plot_good)
+    # run_for_Ideg('4sims/', 90.475, short=True, plotter=plot_good)
     run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
-                 ylimdy=3)
+                 ylimdy=2)
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
 
@@ -953,10 +967,7 @@ if __name__ == '__main__':
     # plot_ensemble_phase('4sims_ensemble/', ensemble_phase, phi_sbs)
 
     # run_close_in(t_final_mult=0.5)
-    # run_close_in(t_final_mult=0.5, I_deg=70)
     # run_close_in(t_final_mult=0.5, I_deg=80.01)
-    # run_close_in(t_final_mult=0.5, I_deg=70, time_slice=np.s_[:7000],
-    #              plotter=plot_good)
 
     # ensemble_dat = run_ensemble('4sims_ensemble/')
     # plot_deviations('4sims_ensemble/', ensemble_dat)
@@ -964,4 +975,8 @@ if __name__ == '__main__':
     # plot_deviations_good('4sims_ensemble/')
 
     # run_905_grid()
+    # getter_kwargs_in = get_eps(30, 30, 30, 0.1, 3, 0)
+    # run_905_grid(I_deg=80, newfolder='4sims80/', af=0.9, n_pts=10,
+    #              atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
+    #              orig_folder='4inner/')
     pass
