@@ -8,8 +8,8 @@ from collections import defaultdict
 
 from multiprocessing import Pool
 import numpy as np
-import matplotlib
 try:
+    import matplotlib
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.rc('text', usetex=True)
@@ -24,7 +24,7 @@ from scipy.interpolate import interp1d
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 40
+N_THREADS = 64
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
@@ -847,6 +847,27 @@ def run_close_in(I_deg=80, t_final_mult=0.5, time_slice=None, plotter=plot_all):
     plotter(folder, ret_lk, s_vec, getter_kwargs,
              time_slice=time_slice)
 
+
+def run_for_grid(newfolder, I_deg, ret_lk, getter_kwargs, atol, rtol, q, phi,
+                 t_eff, Weff_hat, t_lkmids, Lhat_f):
+    print('Running for', q, phi)
+    pkl_template = '4sim_qsl' + ('%d' % np.degrees(q)) + \
+        ('_phi_sb%d' % np.degrees(phi)) + '_%s.pkl'
+    s_vec = get_spins_inertial(
+        newfolder, I_deg, ret_lk, getter_kwargs, atol=atol,
+        rtol=rtol, q_sl0=q, phi_sb=phi,
+        pkl_template=pkl_template)
+    _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
+    q_eff0 = np.degrees(_q_eff0)
+    q_eff0_interp = interp1d(t_eff, q_eff0)
+    q_eff_pred = np.mean(q_eff0_interp(
+        np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
+
+    dot_slf = np.dot(Lhat_f, s_vec[:,-1])
+    q_slf = np.degrees(np.arccos(dot_slf))
+    print('Ran for', q, phi, 'final angs are', q_eff_pred, q_slf)
+    return q_eff_pred - qslf
+
 # try 90.5 simulation over an isotropic grid of ICs
 def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
                  atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs,
@@ -878,28 +899,14 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
         Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
         Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
 
-        res_grid = []
+        args = []
         for q in np.arccos(mus):
-            res = []
             for phi in phis:
-                pkl_template = '4sim_qsl' + ('%d' % np.degrees(q)) + \
-                    ('_phi_sb%d' % np.degrees(phi)) + '_%s.pkl'
-                s_vec = get_spins_inertial(
-                    newfolder, I_deg, ret_lk, getter_kwargs, atol=atol,
-                    rtol=rtol, q_sl0=q, phi_sb=phi,
-                    pkl_template=pkl_template)
-                _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
-                q_eff0 = np.degrees(_q_eff0)
-                q_eff0_interp = interp1d(t_eff, q_eff0)
-                q_eff_pred = np.mean(q_eff0_interp(
-                    np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
-
-                dot_slf = np.dot(Lhat_f, s_vec[:,-1])
-                q_slf = np.degrees(np.arccos(dot_slf))
-                print('Ran for', q, phi, 'final angs are', q_eff_pred, q_slf)
-                res.append(q_eff_pred - q_slf)
-            res_grid.append(res)
-        res_nparr = np.array(res_grid)
+                args.append((newfolder, I_deg, ret_lk, getter_kwargs, atol, rtol,
+                             q, phi, t_eff, Weff_hat, t_lkmids, Lhat_f))
+        with Pool(N_THREADS) as p:
+            res = p.starmap(run_for_grid, args)
+        res_nparr = np.reshape(np.array(res_grid), (n_pts, n_pts))
         with open(pkl_fn, 'wb') as f:
             pickle.dump(res_nparr, f)
     else:
@@ -939,8 +946,8 @@ if __name__ == '__main__':
     # for I_deg in np.arange(90.1, 90.51, 0.05):
     #     run_for_Ideg('4sims/', I_deg, short=True, plotter=plot_good)
     # run_for_Ideg('4sims/', 90.475, short=True, plotter=plot_good)
-    run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
-                 ylimdy=2)
+    # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
+    #              ylimdy=2)
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
 
@@ -975,8 +982,8 @@ if __name__ == '__main__':
     # plot_deviations_good('4sims_ensemble/')
 
     # run_905_grid()
-    # getter_kwargs_in = get_eps(30, 30, 30, 0.1, 3, 0)
-    # run_905_grid(I_deg=80, newfolder='4sims80/', af=0.9, n_pts=10,
-    #              atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
-    #              orig_folder='4inner/')
+    getter_kwargs_in = get_eps(30, 30, 30, 0.1, 3, 0)
+    run_905_grid(I_deg=80, newfolder='4sims80/', af=0.5, n_pts=20,
+                 atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
+                 orig_folder='4inner/')
     pass
