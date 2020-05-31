@@ -24,7 +24,8 @@ from scipy.interpolate import interp1d
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 64
+# N_THREADS = 64
+N_THREADS = 35
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
@@ -91,6 +92,7 @@ def get_kozai(folder, I_deg, getter_kwargs,
 
 def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                        q_sl0=0, # NB: for backcompat, but q_sb0 = I - q_sl0
+                       q_sb0=None,
                        phi_sb=0,
                        pkl_template='4sim_s_%s.pkl',
                        save=True,
@@ -126,7 +128,8 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
         t0 = t_lk[0]
 
         # initial spin (for q_sl0=0, phi_sb0=0, equals L[0])
-        q_sb0 = np.radians(I_deg) - q_sl0
+        if q_sb0 is None:
+            q_sb0 = np.radians(I_deg) - q_sl0
         s_rot = [np.sin(q_sb0) * np.cos(phi_sb),
                  np.sin(q_sb0) * np.sin(phi_sb),
                  np.cos(q_sb0)]
@@ -855,7 +858,7 @@ def run_for_grid(newfolder, I_deg, ret_lk, getter_kwargs, atol, rtol, q, phi,
         ('_phi_sb%d' % np.degrees(phi)) + '_%s.pkl'
     s_vec = get_spins_inertial(
         newfolder, I_deg, ret_lk, getter_kwargs, atol=atol,
-        rtol=rtol, q_sl0=q, phi_sb=phi,
+        rtol=rtol, q_sb0=q, phi_sb=phi,
         pkl_template=pkl_template)
     _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
     q_eff0 = np.degrees(_q_eff0)
@@ -983,7 +986,7 @@ if __name__ == '__main__':
 
     # run_905_grid()
     getter_kwargs_in = get_eps(30, 30, 30, 0.1, 3, 0)
-    run_905_grid(I_deg=80, newfolder='4sims80/', af=0.5, n_pts=20,
+    run_905_grid(I_deg=80, newfolder='4sims80/', af=0.5, n_pts=10,
                  atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
                  orig_folder='4inner/')
     pass
