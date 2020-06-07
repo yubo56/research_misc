@@ -380,6 +380,7 @@ def get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice=np.s_[::]):
             [np.zeros_like(lk_t),
              np.zeros_like(lk_t),
              np.ones_like(lk_t)])
+    # print(np.shape(s_vec))
     s_vec = s_vec[:, time_slice]
     sx, sy, sz = s_vec
     a, e, W, I, w = lk_y[:, time_slice]
@@ -438,16 +439,32 @@ def get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice=np.s_[::]):
     Iouts = [get_Iout(*args) for args in zip(Wdot, Wsl, I_avg)]
     Iout_dot = [(Iouts[i + 4] - Iouts[i]) / (t_eff[i + 4] - t_eff[i])
                 for i in range(len(Iouts) - 4)]
+
+    # define gaussian estimate to Iout_dot
+    idxmax = np.argmax(Iout_dot) # teff[2 + idxmax] is the maximum time
+    Iout_dot_max = np.max(Iout_dot)
+    Iout_sigm2 = ((Iouts[-1] - Iouts[0]) / Iout_dot_max)**2 / (2 * np.pi) # sigma^2
+    Iout_dot_gauss = Iout_dot_max * (
+            np.exp(-(t_eff[2:-2] - t_eff[2 + idxmax])**2 / (2 * Iout_sigm2)))
+
     dqeff_max = -1
+    dqeff_gauss = -1
     for phi_offset in np.linspace(0, 2 * np.pi, 8, endpoint=False):
         dts = np.diff(t_eff[1:-2])
         dqeff = np.sum(np.degrees(Iout_dot)
                        * np.cos(Weffmag[2:-2] * t_eff[2:-2] + phi_offset)
                        * dts)
+        dqeff_gauss_curr = np.sum(
+            np.degrees(Iout_dot_gauss)
+            * np.cos(2 * Weffmag[2:-2] * t_eff[2:-2] + phi_offset)
+            * dts)
         dqeff_max = max(dqeff_max, abs(dqeff))
-    print('I0, dqeff_max', I0, dqeff_max)
+        dqeff_gauss = max(dqeff_gauss, abs(dqeff_gauss_curr))
+    print('I0, dqeff_max, dqeff_gauss, Weffmag[2 + idxmax], Weffmag[tleftidx]')
+    tleftidx = np.where(t_eff > t_eff[2 + idxmax] - np.sqrt(Iout_sigm2))[0][0]
+    print(I0, dqeff_max, dqeff_gauss, Weffmag[2 + idxmax], Weffmag[tleftidx])
     return t_lkmids, t_eff, q_eff0, Iouts, Iout_dot, Weffmag, Weff_hat,\
-        dWsl, dWdot, dWtot, dqeff_max
+        dWsl, dWdot, dWtot, dqeff_max, dqeff_gauss, Iout_dot_gauss
 
 def plot_good(folder, ret_lk, s_vec, getter_kwargs,
               fn_template='4sim_%s', time_slice=np.s_[::], ylimdy=None,
@@ -456,7 +473,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     alf = 0.7
     I0 = np.degrees(ret_lk[1][3, 0])
     t_lkmids, t_eff, q_eff0, Iouts, Iout_dot, Weffmag, Weff_hat,\
-        dWsl, dWdot, dWtot, _ = \
+        dWsl, dWdot, dWtot, dqeff, _, Iout_dot_gauss = \
         get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice)
 
     # plots
@@ -492,13 +509,13 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
         pass
     # plt.plot(t, q_eff_bin, 'r', alpha=0.3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    # estimated amplitude of oscillations: Iout_dot * P_phi * 2 = Iout_dot * pi
+    # estimated amplitude of oscillations: Iout_dot / W
     # / Weff
     plt.plot(t_eff[2:-2],
-             q_eff0[-1] + np.degrees(Iout_dot) * np.pi / Weffmag[2:-2],
+             q_eff0[-1] + np.degrees(Iout_dot) / Weffmag[2:-2],
              'g', lw=1.5, label=r'$N = 0$ Integ.')
     plt.plot(t_eff[2:-2],
-             q_eff0[-1] - np.degrees(Iout_dot) * np.pi / Weffmag[2:-2],
+             q_eff0[-1] - np.degrees(Iout_dot) / Weffmag[2:-2],
              'g', lw=1.5)
     plt.legend(loc='upper left')
     if ylimdy is not None:
@@ -519,37 +536,41 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
                       label=r'$\langle\Omega_{\rm e}\rangle$', lw=2)
     l5 = plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b:',
                       lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e}$')
+    ylims = plt.ylim()
+    l6 = plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot_gauss), 'r:',
+                      lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
+    plt.ylim(ylims)
     plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
     twinIout_ax = plt.gca().twinx()
     l4 = twinIout_ax.plot(t_eff, np.degrees(Iouts), 'b', label=r'$I_{\rm e}$')
     twinIout_ax.set_ylabel(r'$I_{\rm e}$')
-    lns = l1 + l2 + l3 + l4 + l5
+    lns = l1 + l2 + l3 + l4 + l5 + l6
     plt.legend(lns, [l.get_label() for l in lns], fontsize=10)
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_Iout', dpi=200)
     plt.close()
 
-    plt.semilogy(t_lkmids, dWsl, 'g', label=r'$\Omega_{\rm SL}$',
-                 lw=0.7, alpha=0.5)
-    plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
-                 lw=0.7, alpha=0.5)
-    plt.semilogy(t_lkmids, dWtot, 'k',
-                 label=r'$\langle\Omega_{\rm e}\rangle$', lw=2)
-    plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b',
-                 lw=2, label=r'$\dot{I}_{\rm e}$')
-    plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    plt.legend()
-    if ylim3 is not None:
-        plt.ylim(ylim3)
-    else:
-        plt.ylim([0.01, 100])
-    if qeffdiff is not None:
-        plt.title(r'$I_0 = %.2f^\circ, \Delta \theta_{\rm eff, 0} = (%s)^\circ$'
-                  % (I0, get_scinot(qeffdiff)))
-    plt.tight_layout()
-    plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_phidots', dpi=200)
-    plt.close()
+    # plt.semilogy(t_lkmids, dWsl, 'g', label=r'$\Omega_{\rm SL}$',
+    #              lw=0.7, alpha=0.5)
+    # plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
+    #              lw=0.7, alpha=0.5)
+    # plt.semilogy(t_lkmids, dWtot, 'k',
+    #              label=r'$\langle\Omega_{\rm e}\rangle$', lw=2)
+    # plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b',
+    #              lw=2, label=r'$\dot{I}_{\rm e}$')
+    # plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
+    # plt.xlabel(r'$t / t_{\rm LK, 0}$')
+    # plt.legend()
+    # if ylim3 is not None:
+    #     plt.ylim(ylim3)
+    # else:
+    #     plt.ylim([0.01, 100])
+    # if qeffdiff is not None:
+    #     plt.title(r'$I_0 = %.2f^\circ, \Delta \theta_{\rm eff, 0} = (%s)^\circ$'
+    #               % (I0, get_scinot(qeffdiff)))
+    # plt.tight_layout()
+    # plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_phidots', dpi=200)
+    # plt.close()
 
 def run_for_Ideg(folder, I_deg, af=5e-3,
                  atol=1e-8, rtol=1e-8, short=False, plotter=plot_all, **kwargs):
@@ -790,6 +811,7 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
         deltas_deg = []
         a_vals = []
         dqeff_maxes = []
+        dqeff_maxes_g = []
         for I_deg in I_vals:
             deltas_per_I = []
             ret_lk = get_kozai(folder, I_deg, getter_kwargs)
@@ -865,14 +887,15 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
                 if q_sl0 == 0:
                     a_vals.append(y0[0, t_lk2])
                     good_quants = get_plot_good_quants(ret_lk, s_vec, getter_kwargs)
-                    dqeff_maxes.append(good_quants[-1])
+                    dqeff_maxes.append(good_quants[-3])
+                    dqeff_maxes_g.append(good_quants[-2]) # gaussest
             deltas_deg.append(deltas_per_I)
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((deltas_deg, a_vals, dqeff_maxes), f)
+            pickle.dump((deltas_deg, a_vals, dqeff_maxes, dqeff_maxes_g), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            deltas_deg, a_vals, dqeff_maxes = pickle.load(f)
+            deltas_deg, a_vals, dqeff_maxes, dqeff_maxes_g = pickle.load(f)
     for I, deltas_per_I in zip(I_vals, deltas_deg):
         plt.loglog(np.full_like(deltas_per_I, I - 90), deltas_per_I,
                    'ko', ms=0.3)
@@ -889,7 +912,17 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
     plt.ylabel(r'$\theta_{\rm i} - \theta_{\rm sl,f}$ (Deg)')
     plt.xlim(left=0.1)
     plt.ylim(bottom=1e-3)
-    plt.plot(I_vals - 90, dqeff_maxes, 'gx')
+    plt.plot(I_vals - 90, dqeff_maxes, 'gx', ms=0.5)
+    plt.plot(I_vals - 90, dqeff_maxes_g, 'bx', ms=0.5)
+
+    Adot = (
+        200 * getter_kwargs['eps_gw'] / getter_kwargs['eps_sl']
+             * (8 * 5 * cosd(I_vals)**2 / 3)**(-3)) * 2
+    dqeff_th = 120 * np.exp(
+        -(30**2 * np.radians(115)**2) / (np.pi * adot**2))
+    print(i_vals[-1], dqeff_th[len(i_vals) // 2], adot[-1])
+    return
+    plt.plot(I_vals, dqeff_th, 'b', lw=2)
 
     # a_ax = plt.gca().twinx()
     # a_ax.loglog(I_vals - 90, a_vals, 'g--', lw=2)
@@ -1014,70 +1047,92 @@ def plot_good_quants():
 
     Figure out whether can de-noise Ioutdot?
     '''
-    dWeff_mids = []
-    dWeff_Imaxes = []
-    Iout_dot_maxes = []
-    Ioutdot_max_gaussest = []
-    dqeff_num = []
-    dqeff_gauss = []
-    tmerges = []
-
     I_degs = np.concatenate((np.arange(90.1, 90.51, 0.05), [90.475]))
-    I_degs_ensemble = np.arange(90.1, 90.4001, 0.01)
+    I_degs_ensemble = np.arange(90.1, 90.4001, 0.005)
     dirs = ['4sims/'] * len(I_degs)
     dirs_ensemble = ['4sims_ensemble/'] * len(I_degs_ensemble)
     all_Is = np.concatenate((I_degs, I_degs_ensemble))
 
-    for folder, I_deg in zip(dirs + dirs_ensemble, all_Is):
-        ret_lk = get_kozai(folder, I_deg, getter_kwargs)
-        _, t_eff, _, Iouts, Iout_dot, Weffmag, _, dWsl, dWdot, _, dqeff =\
-            get_plot_good_quants(ret_lk, None, getter_kwargs)
-        if folder == '4sims/':
-            tmerges.append(ret_lk[0][-1])# don't get too many merger times
-        Iout_min = np.min(Iouts)
-        Iout_max = np.max(Iouts)
-        Iout_mid = (Iout_max + Iout_min) / 2
-        mid_idx = (
-            np.where(Iouts < Iout_mid)[0][-1] +
-            np.where(Iouts > Iout_mid)[0][0]
-        ) // 2 # estimate where transition occurs
-        # TODO do Gaussian fit to Idotout_width
-        dWeff_mids.append(Weffmag[mid_idx])
-        dWeff_Imaxes.append(Weffmag[np.argmax(Iouts)])
-        Iout_dot_maxes.append(Iout_dot[2 + mid_idx])
-        # plt.semilogy(t_eff[2:-2], Iout_dot)
-        # plt.semilogy(t_eff, Weffmag)
-        # plt.axvline(t_eff[mid_idx])
-        # plt.savefig('/tmp/foo', dpi=200)
-        # return
+    pkl_fn = '4sims/good_quants.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        dWeff_mids = []
+        dWeff_Imaxes = []
+        Iout_dot_maxes = []
+        Ioutdot_max_gaussest = []
+        dqeff_num = []
+        dqeff_gauss = []
+        tmerges = []
+        for folder, I_deg in zip(dirs + dirs_ensemble, all_Is):
+            ret_lk = get_kozai(folder, I_deg, getter_kwargs)
+            _, t_eff, _, Iouts, Iout_dot, Weffmag, _, dWsl, dWdot, _,\
+                dqeff, _, _= get_plot_good_quants(ret_lk, None, getter_kwargs)
+            if folder == '4sims/':
+                tmerges.append(ret_lk[0][-1])# don't get too many merger times
+            Iout_min = np.min(Iouts)
+            Iout_max = np.max(Iouts)
+            Iout_mid = (Iout_max + Iout_min) / 2
+            mid_idx = (
+                np.where(Iouts < Iout_mid)[0][-1] +
+                np.where(Iouts > Iout_mid)[0][0]
+            ) // 2 # estimate where transition occurs
+            # TODO do Gaussian fit to Idotout_width
+            dWeff_mids.append(Weffmag[mid_idx])
+            dWeff_Imaxes.append(Weffmag[np.argmax(Iouts)])
+            Iout_dot_maxes.append(Iout_dot[2 + mid_idx])
 
-        # more robust estimate of Iout_dot (34% to 68%, one sigma)
-        left_idx = np.where(Iouts > (0.68 * Iout_min + 0.34 * Iout_max))[0][0]
-        right_idx = np.where(Iouts < (0.34 * Iout_min + 0.68 * Iout_max))[0][-1]
-        sigm_t = (t_eff[right_idx] - t_eff[left_idx]) / 2
-        # Iout_dot ~ I / sqrt(2pi sigma^2) * exp
-        Ioutdot_gaussmax = (Iout_max - Iout_min) / (sigm_t * np.sqrt(2 * np.pi))
-        Ioutdot_max_gaussest.append(Ioutdot_gaussmax)
+            # more robust estimate of Iout_dot (34% to 68%, one sigma)
+            left_idx = np.where(Iouts > (0.68 * Iout_min + 0.34 * Iout_max))[0][0]
+            right_idx = np.where(Iouts < (0.34 * Iout_min + 0.68 * Iout_max))[0][-1]
+            sigm_t = (t_eff[right_idx] - t_eff[left_idx]) / 2
+            # Iout_dot ~ I / sqrt(2pi sigma^2) * exp
+            Ioutdot_gaussmax = (Iout_max - Iout_min) / (sigm_t * np.sqrt(2 * np.pi))
+            Ioutdot_max_gaussest.append(Ioutdot_gaussmax)
 
-        dqeff_num.append(dqeff)
+            dqeff_num.append(dqeff)
 
-        dqeff_max = -1
-        for phi_offset in np.linspace(0, 2 * np.pi, 8, endpoint=False):
-            dts = np.diff(t_eff[1:-2])
-            Ioutdot_gauss = Ioutdot_gaussmax * np.exp(
-                -(t_eff - t_eff[mid_idx])**2 / (2 * sigm_t**2))
-            dqeff = np.sum(np.degrees(Ioutdot_gauss[2:-2])
-                           * np.cos(Weffmag[2:-2] * t_eff[2:-2] + phi_offset)
-                           * dts)
-            dqeff_max = max(dqeff_max, abs(dqeff))
-        dqeff_gauss.append(dqeff_max)
+            dqeff_max = -1
+            for phi_offset in np.linspace(0, 2 * np.pi, 8, endpoint=False):
+                dts = np.diff(t_eff[1:-2])
+                Ioutdot_gauss = Ioutdot_gaussmax * np.exp(
+                    -(t_eff - t_eff[mid_idx])**2 / (2 * sigm_t**2))
+                dqeff = np.sum(np.degrees(Ioutdot_gauss[2:-2])
+                               * np.cos(Weffmag[2:-2] * t_eff[2:-2] + phi_offset)
+                               * dts)
+                dqeff_max = max(dqeff_max, abs(dqeff))
+            dqeff_gauss.append(dqeff_max)
+
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump(
+                (dWeff_mids, dWeff_Imaxes, Iout_dot_maxes, Ioutdot_max_gaussest,
+                 dqeff_num, dqeff_gauss, tmerges), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            dWeff_mids, dWeff_Imaxes, Iout_dot_maxes, Ioutdot_max_gaussest,\
+                dqeff_num, dqeff_gauss, tmerges = pickle.load(f)
+
+    # try estimating Iout_dot scaling
+    f_jmin = 2.2 # (j_cross) / (j_min) [parameterized]
+    I_LK = np.radians(125) # LK-averaged I?
+    jmin = np.sqrt(5 * cosd(all_Is)**2 / 3)
+    Iout_dot_th = (
+        200 * getter_kwargs['eps_gw'] / getter_kwargs['eps_sl']
+             * (f_jmin * jmin)**(-6)) * (-np.tan(I_LK + (np.pi - I_LK) / 2) / 2)
+    Weff_th = (getter_kwargs['eps_sl']**(3/8) / (f_jmin * jmin)**(11/8)) \
+        * 2 * (-np.cos(I_LK))
+    as_idx = np.argsort(all_Is)
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
     ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm eff}$', ms=1)
     # ax1.semilogy(all_Is, dWeff_Imaxes, 'bo',
     #              label=r'$\Omega_{\rm eff}$ (at $\dot{I}_{\rm eff}$ max)')
     ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
-                 label=r'$\dot{I}_{\rm eff}$ (Diff)', ms=1)
+                 label=r'$\dot{I}_{\rm eff}$', ms=1)
+    ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
+                 label=r'$\Omega_{\rm eff}$ (Th)')
+    ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
+                 label=r'$\dot{I}_{\rm eff}$ (Th)')
     # ax1.semilogy(all_Is, Ioutdot_max_gaussest, 'ro',
     #              label=r'$\dot{I}_{\rm eff}$ (Bounds)')
     ax1.legend(fontsize=10)
@@ -1128,9 +1183,11 @@ if __name__ == '__main__':
     # run_for_Ideg('4sims/', 90.475, short=True, plotter=plot_good)
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              ylimdy=2)
+    # run_for_Ideg('4sims/', 90.35, plotter=plot_good, short=True,
+    #              ylimdy=2, time_slice=np.s_[5500:9000])
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
-    # plot_good_quants()
+    plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
     # s_fns = ['4sim_qsl87_phi_sb189_%s',
@@ -1162,8 +1219,9 @@ if __name__ == '__main__':
 
     # plot_deviations_good('4sims_ensemble/')
 
-    run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
-                 atol=1e-8, rtol=1e-8)
+    # run_905_grid()
+    # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
+    #              atol=1e-10, rtol=1e-10, n_pts=30)
     # getter_kwargs_in = get_eps(30, 30, 30, 0.1, 3, 0)
     # run_905_grid(I_deg=80, newfolder='4sims80/', af=0.5, n_pts=10,
     #              atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
