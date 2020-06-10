@@ -17,7 +17,6 @@ except ModuleNotFoundError:
 
 from utils import *
 from scipy import optimize as opt
-from scipy.fft import dct, idct, fft
 from scipy.interpolate import interp1d
 
 # values from LL17
@@ -520,111 +519,6 @@ def Icrit_test():
         jlim = opt.brenth(f, 1e-10, 1 - 1e-10)
         return np.arccos(eta / 2 * (4 * jlim**2 / 5 - 1))
     print(np.degrees(get_Ilim())) # should be 92.16
-
-TOY_FOLDER = '6toy/'
-mkdirp(TOY_FOLDER)
-def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95), intg_pts=int(3e5)):
-    '''
-    for far-out system params, solve toy problem in corotating frame
-    '''
-    eps_sl = getter_kwargs['eps_sl']
-    eps_gr = getter_kwargs['eps_gr']
-    a = 1
-    W0 = 0
-    w0 = 0
-
-    def dydt(t, y):
-        e, W, I, w = y
-        x = 1 - e**2
-        dedt = (
-            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
-                    * np.sin(I)**2 / 8
-        )
-        dWdt = (
-            3 * a**(3/2) * np.cos(I) *
-                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
-                / (4 * np.sqrt(x))
-        )
-        dIdt = (
-            -15 * a**(3/2) * e**2 * np.sin(2 * w)
-                * np.sin(2 * I) / (16 * np.sqrt(x))
-        )
-        dwdt = (
-            3 * a**(3/2)
-                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
-                / (4 * np.sqrt(x))
-            + eps_gr / (a**(5/2) * x)
-        )
-        return (dedt, dWdt, dIdt, dwdt)
-    def start_event(t, y):
-        return y[3] - np.pi / 2
-    def term_event(t, y): # one Kozai cycle, starting from emax
-        return y[3] - 3 * np.pi / 2
-    term_event.terminal = True
-    # use implicit method to ensure symmetry about half-period
-    ret = solve_ivp(dydt, (0, np.inf), [e0, W0, I0, w0],
-                    events=[start_event, term_event], atol=1e-10, rtol=1e-10,
-                    method='Radau', dense_output=True)
-    times = np.linspace(ret.t_events[0][0], ret.t[-1], intg_pts)
-    # symmetrize for exact symmetry, time-shift to drop dominant phase shift
-    def symmetrize(x):
-        return (x + np.flip(x, axis=-1)) / 2
-    e_arr, W_arr, I_arr, w_arr = ret.sol(times)
-    e_arr = symmetrize(e_arr)
-    I_arr = symmetrize(I_arr)
-    x_arr = 1 - e_arr**2
-
-    # compute W0_vec, WSL_vec, Weff_vec
-    W0_vec = np.outer(
-        np.array([0, 0, 1]),
-        (
-            3 * a**(3/2) * np.cos(I_arr) *
-                    (5 * e_arr**2 * np.cos(w_arr)**2 - 4 * e_arr**2 - 1)
-                / (4 * np.sqrt(x_arr))
-        ))
-    WSL_vec = np.array([
-        eps_sl / (a**(5/2) * x_arr) * np.sin(I_arr),
-        np.zeros(intg_pts),
-        eps_sl / (a**(5/2) * x_arr) * np.cos(I_arr)])
-    Weff_vec = WSL_vec - W0_vec
-    return Weff_vec, times
-
-def plot_weff_fft(Weff_vec, times, fn='6_vecfft', plot=True):
-    # cosine transform
-    x_coeffs = dct(Weff_vec[0], type=1)[::2] / (2 * len(times))
-    z_coeffs = dct(Weff_vec[2], type=1)[::2] / (2 * len(times))
-    # print(np.mean(Weff_vec[2]), z_coeffs[0]) # are equal
-    # print(np.mean(Weff_vec[0]), x_coeffs[0]) # are equal
-
-    if plot:
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(9, 7))
-        # fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(9, 7))
-        # ax3.semilogy(times, -Weff_vec[2], 'k', lw=1, label=r'$-z$')
-        # ax3.semilogy(times, Weff_vec[0], 'b', lw=1, label=r'$x$')
-        # ax3.legend(fontsize=12)
-        # ax3.set_ylabel(r'$\Omega_{\rm eff}$')
-
-        N = np.arange(len(z_coeffs))
-        ax1.semilogy(N, x_coeffs, 'bo', ms=1)
-        ax1.semilogy(N, -x_coeffs, 'ro', ms=1)
-        # ax2.semilogy(N, z_coeffs, 'bo', ms=1)
-        ax2.semilogy(N, -z_coeffs, 'ro', ms=1)
-        ax1.set_ylabel(r'$\tilde{\Omega}_{\rm eff, x, N}$ (Rad / $t_{\rm LK,0}$)')
-        ax2.set_ylabel(r'$\tilde{\Omega}_{\rm eff, z, N}$ (Rad / $t_{\rm LK,0}$)')
-        ax2.set_xlabel(r'$N$')
-
-        min_fact = 1e-6
-        Nmax = np.where(abs(z_coeffs) / np.max(abs(z_coeffs)) < min_fact)[0][0]
-        ax1.set_ylim(bottom=np.abs(x_coeffs).max() * min_fact / 3)
-        ax2.set_ylim(bottom=np.abs(z_coeffs).max() * min_fact / 3)
-        ax1.set_xlim((0, Nmax))
-        ax2.set_xlim((0, Nmax))
-
-        plt.tight_layout()
-        plt.savefig(TOY_FOLDER + fn, dpi=200)
-        plt.clf()
-
-    return x_coeffs, z_coeffs
 
 # can set initial s using either (q0, phi0) or just s0
 def get_amp(Weff_vec, t_vals, fn='6_devs', plot=False, q0=np.pi / 2, phi0=0,
