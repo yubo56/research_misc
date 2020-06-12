@@ -33,10 +33,17 @@
     \DeclareMathOperator*{\argmax}{argmax}
     \DeclareMathOperator*{\med}{med}
     \DeclareMathOperator*{\sgn}{sgn}
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
 
-\title[$90^\circ$ LK]{$90^\circ$ Attractor}
+\title[BH Triple Spin-Orbit Dynamics]{Spin-Orbit Dynamics in Hierarchical Black
+Hole Triples: Analytical Theory}
 \author[Authors]{
-Millie Vick$^1$
+Yubo Su$^1$
+Dong Lai$^1$
+Bin Liu$^1$
 \\
 $^1$ Cornell Center for Astrophysics and Planetary Science, Department of
 Astronomy, Cornell University, Ithaca, NY 14853, USA
@@ -60,89 +67,198 @@ keywords % chktex 8
 
 \section{Introduction}
 
-This problem is important as it will be important for self-driving cars, curing
-cancer, and the search for extraterrestrial intelligence.
+This problem is important.
 
-\section{Analytical Results}
+\section{Analytical Setup}
 
 \subsection{Equations of Motion}
 
-We study Lidov-Kozai oscillations due to an external perturber to quadrupole
-order and include precession of pericenter and gravitational wave radiation due
-to general relativity. Consider an inner BH binary with masses $m_1$ and $m_2$
-having total mass $m_{12}$ and reduced mass $\mu$ orbited by a third BH with
-mass $m_3$. Call $a_3$ the orbital semimajor axis of the third BH from the
-center of mass of the inner binary, and $e_3$ the eccentricity of its orbit, and
-define effective semimajor axis
+We study Lidov-Kozai (LK) oscillations due to an external perturber to
+quadrupole order and include precession of pericenter and gravitational wave
+radiation due to general relativity. Consider an inner black hole (BH) binary
+with masses $m_1$ and $m_2$ having total mass $m_{12}$ and reduced mass $\mu$
+orbited by a third BH with mass $m_3$. Call $a_3$ the orbital semimajor axis of
+the third BH from the center of mass of the inner binary, and $e_3$ the
+eccentricity of its orbit, and define effective semimajor axis
 \begin{equation}
     \bar{a}_3 \equiv a_3\sqrt{1 - e_3^2}.
 \end{equation}
 We adopt the test particle approximation such that the orbit of the third mass
-is fixed in space.
+is fixed. Finally, call $\bm{L}_{\rm out} \equiv L_{\rm out} \uv{L}_{\rm out}$
+the fixed angular momentum of the outer BH relative to the center of mass of the
+inner BH binary, and call $\bm{L} \equiv L \uv{L}$ the orbital angular momentum
+of the inner BH binary.
 
 We then consider the motion of the inner binary, described by orbital elements
-$(a, e, \Omega, I, \omega)$. The equations describing the motion of these
-orbital elements is then \citep{storch,bin2,peters1964}
+Keplerian orbital elements $(a, e, \Omega, I, \omega)$. The equations describing
+the motion of these orbital elements is then \citep{peters1964,storch,bin2}
 \begin{align}
-    \rd{a}{t} &= -\frac{a}{t_{GW}},\\
-    \rd{e}{t} &= \frac{15}{8t_{LK}} e\sqrt{1 - e^2}\sin 2\omega
+    \rd{a}{t} &= -\frac{a}{t_{\rm GW}},\\
+    \rd{e}{t} &= \frac{15}{8t_{\rm LK}} e\sqrt{1 - e^2}\sin 2\omega
         \sin^2 I,\\
-    \rd{\Omega}{t} &= \frac{3}{4t_{LK}}
+    \rd{\Omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}}
-        + \Omega_{GR},\\
+        + \Omega_{\rm GR},\\
     \rd{I}{t} &= \frac{15}{16}\frac{e^2\sin 2\omega \sin 2I}{
         \sqrt{1 - e^2}},\\
-    \rd{\omega}{t} &= \frac{3}{4t_{LK}}
+    \rd{\omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{2\p{1 - e^2} + 5\sin^2\omega
             (e^2 - \sin^2 I)}{\sqrt{1 - e^2}}.
 \end{align}
 Here, we have defined
 \begin{align}
-    t_{LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\bar{a}_3}}^3,\\
-    t_{GW}^{-1} &= \frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
+    t_{\rm LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\bar{a}_3}}^3,\\
+    t_{\rm GW}^{-1} &= \frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
         \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
             + \frac{37}{96}e^4},\\
-    \Omega_{GR} &= \frac{3Gnm_{12}}{c^2a\p{1 - e^2}},
+    \Omega_{\rm GR} &= \frac{3Gnm_{12}}{c^2a\p{1 - e^2}},
 \end{align}
 and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary.
 
-We are ultimately interested in the evolution of the spin vector of the inner
-BHs. Neglecting spin-spin interactions, they evolve independently as
+We are ultimately interested in the evolution of the spin angular momentum of
+the inner BHs. Since they evolve independently to leading post-Newtonian order,
+we focus on the dynamics of a single BH spin vector $\bm{S} = S\uv{S}$
+Neglecting spin-spin interactions, $\uv{S}$ undergoes de Sitter precession about
+$\bm{L}$ as
 \begin{align}
-    \rd{\hat{\bm{S}}}{t} &= \Omega_{SL}\hat{\bm{L}} \times \hat{\bm{S}},\\
-    \Omega_{SL} &= \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
+    \rd{\hat{\bm{S}}}{t} &= \Omega_{\rm SL}\hat{\bm{L}} \times \hat{\bm{S}}
+            \label{eq:dsdt},\\
+        \Omega_{\rm SL} &= \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
 \end{align}
 
-\appendix
+We next go to the co-rotating frame with $\uv{L}$ about $\uv{L}_{\rm out}$. Choose
+$\uv{L}_{\rm out} = \uv{z}$, and choose the $\uv{x}$ axis such that $\uv{L}$
+lies in the $x$-$z$ plane. In this coordinate system, Eq.~\eqref{eq:dsdt}
+becomes
+\begin{align}
+    \p{\rd{\bm{S}}{t}}_{\rm rot}
+        &= \p{-\rd{\Omega}{t}\uv{z} + \Omega_{\rm SL}\uv{L}} \times \uv{S},\\
+        &= \bm{\Omega}_{\rm e} \times \uv{S}\label{eq:dsdt_weff},\\
+    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm PL}\uv{z} + \Omega_{\rm SL}
+            \p{\cos I \uv{z} + \sin I \uv{x}},\\
+    \Omega_{\rm PL} &\equiv -\rd{\Omega}{t}.
+\end{align}
 
-\section{Equations of Motion}
+In general, Eq.~\eqref{eq:dsdt_weff} is difficult to analyze, since $\Omega_{\rm
+PL}$, $\Omega_{\rm SL}$ and $I$ all vary significantly within every LK cycle.
+However, since these quantities are all periodic with period $T_{\rm LK}$, the
+LK period, we can rewrite Eq.~\eqref{eq:dsdt_weff} in Fourier components
+\begin{equation}
+    \p{\rd{\uv{S}}{t}}_{\rm rot}
+        = \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
+            \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N t}{T_{\rm LK}}}}
+            \times \uv{S}.\label{eq:dsdt_fullft}
+\end{equation}
+The angle brackets denote an average over an LK cycle. We adopt convention where
+$t = 0$ is the maximum eccentricity phase of the LK cycle.
 
-We follow \citet{kinoshita,storch} and write down Hamiltonian in the frame where
+\subsection{Analysis}
 
-\section{Difference from Chaotic Stellar Spin Dynamics}
-
-\begin{itemize}
-    \item LK is not a perturbation for us (compared to $\uv{S} \cdot \uv{L}$
-        dynamics), it is significantly dominant. This corresponds to the
-        $\mathcal{A} \ll 1$ regime of SL15. They obtain a neat bifurcation due
-        to separatrix crossing, which is not observed in our LK simulations, so
-        this cannot in spirit be a similar mechanism.
-
-    \item SL15 focuses on adiabatically changing $\mathcal{A}$ and seeing how it
-        encounters resonances. In our problem, nothing nontrivial can occur if
-        $\mathcal{A}$ changes slowly.
-
-    \item Our Hamiltonian takes on form $H = \p*{\bm{\Omega}_{SL} - \bm{R}}
-        \cdot \uv{S}$. This will never have any resonances since it's perfectly
-        linear; anything that looks nonlinear is a pure consequence of
-        coordinates (e.g.\ multiplication of $\theta$ and $\phi$ terms).
-\end{itemize}
+Assuming the $N \geq 1$ terms can be dropped (see Appendix~\ref{s:harmonic}),
+our objective becomes the analysis of the equation
+\begin{equation}
+    \p{\rd{\uv{S}}{t}}_{\rm rot}
+        = \ev{\bm{\Omega}_{\rm e}} \times \uv{S}.\label{eq:dsdt_0only}
+\end{equation}
+For the remainder of the main text of the paper, we will omit the angle brackets
+denoting averaging over an LK cycle.
 
 \bibliographystyle{mnras}
 \bibliography{Su_LK90}
 
-% \clearpage
-% \onecolumn
+\clearpage
+\onecolumn
+\appendix
+
+\section{Effect of Harmonic Terms on Evolution: Averaging Revisited
+}\label{s:harmonic}
+
+In order for the harmonic terms in Eq.~\eqref{eq:dsdt_fullft} to be nonzero, the
+system must be in the LK-oscillating regime. Consider the Hamiltonian
+corresponding to Eq.~\eqref{eq:dsdt_fullft} \citep[see
+e.g.][]{kinoshita,storch}:
+\begin{equation}
+    H = \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
+            \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N t}{T_{\rm LK}}}}
+            \cdot \uv{S}.
+\end{equation}
+Assume for simplicity that the system is not evolving, such that all Fourier
+components $\ev{\bm{\Omega}_{\rm e}}, \bm{\Omega}_{\rm e, N}$ are constant in
+time.
+
+The objective is now to average $H$ over a suitable interval of time. Assume
+that $\uv{S}$ is also periodic with some period $T_{\rm S}$, such that
+\begin{equation}
+    \uv{S} = \s{\ev{\uv{S}} + \sum\limits_{M = 1}^\infty
+            \bm{S}_{\rm M}\exp \p{i\frac{2\pi M pt}{T}}}.
+\end{equation}
+Note that $\bm{S}_{\rm M}$ must generally be complex, to ensure that $\uv{S}
+\cdot \uv{S}$ does not vary in time. Note also that $T_{\rm S} / T_{\rm LK}$ is
+generally \emph{irrational}. Nevertheless, consider averaging over some interval
+of time $T$ that is a near-integer multiple of both $T_{\rm S}$ and $T_{\rm
+LK}$:
+\begin{align}
+    T &\approx pT_{\rm S} \approx qT_{\rm LK}\label{eq:T_def},\\
+    \frac{1}{T}\int\limits_0^T H\;\mathrm{d}t
+        &= \frac{1}{T}\int\limits_0^T
+            \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
+            \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N qt}{T}}}
+            \cdot \s{\ev{\uv{S}} + \sum\limits_{M = 1}^\infty
+            \bm{S}_{\rm M}\exp \p{i\frac{2\pi M pt}{T}}}\;\mathrm{d}t,\\
+    \ev{H} &= \ev{\bm{\Omega}_{\rm e}} \cdot \ev{\bm{\uv{S}}}
+            + \frac{1}{2}\sum\limits_{j = 1}^\infty
+                \bm{\Omega}_{\rm e, jp} \cdot \left(\Re\bm{S}_{jq}\right).
+                \label{eq:exp_h}
+\end{align}
+
+Note that $\ev{H}$ is a conserved quantity of the evolution of the system,
+absent GW dissipation. When the summation in this equation can be neglected,
+this implies $\theta_{\rm e}$ is a conserved quantity, as claimed in the main
+text. To understand when the summation can be neglected, we make the following
+observations:
+\begin{itemize}
+    \item The magnitudes of the coefficients $\bm{\Omega}_{\rm e, N}$ fall
+        off exponentially with characteristic scale $N_{\rm scale} \sim
+        \frac{\Delta t}{T_{\rm LK}}$, where $\Delta t$ is the width of the LK
+        eccentricity peak. When $e_{\min} \approx 0$ and $e_{\max} \to 1$, this
+        is $N_\Omega \sim j_{\min}^{1/2}$ \citep{anderson2016formation}. At
+        later times, $N_\Omega$ decreases as $e_{\min}$ is excited and the LK
+        cycle becomes less violent.
+
+    \item In general, $\uv{S}$ tends to precess around $\ev{\bm{\Omega}_{\rm
+        e}}$, albeit not uniformly in time. Therefore, $\ev{\uv{S}}$ is expected
+        to be approximately aligned with $\ev{\bm{\Omega}_{\rm e}}$, while
+        the $\bm{S}_{\rm M}$ are expected to be \emph{perpendicular} to
+        $\ev{\bm{\Omega}_{\rm e}}$.
+
+    \item The degree of misalignment of each of the $\bm{\Omega}_{\rm e, N}$
+        from $\ev{\bm{\Omega}_{\rm e}}$ is related to the amplitude of nutation
+        of $\bm{\Omega}_{\rm e}$ over an LK cycle. In particular, the $x$ and
+        $z$ components of $\bm{\Omega}_{\rm e, N}$ will exhibit order-unity
+        variations in cutoff harmonic $N_{\rm scale}$ when $I_{\rm e}$ is
+        strongly nutating.
+
+    \item Finally, since $\uv{S}$ is driven by $\bm{\Omega}_{\rm e}$, it must
+        have a similar frequency spectrum, implying $M_{\rm scale} \sim N_{\rm
+        scale}q / p$.
+\end{itemize}
+
+Thus, non-negligible contributions from the summation in Eq.~\eqref{eq:exp_h}
+arise when: (i) $\bm{\Omega}_{\rm e}$ is nutating substantially, and (ii) $q, p$
+are sufficiently small that a substantial number of terms $\bm{S}_{jq}$ dot
+against the non-aligned $\bm{\Omega}_{\rm e, jp}$.
+
+Of course, the only astrophysically relevant triples are those that merge within
+a Hubble time, and the systems that best satisfy the assumptions laid out in
+this study are those with well-separated inner binaries $a_{\rm in} \gtrsim
+10\;\mathrm{AU}$. Such systems, which merge within just a few thousands of
+$T_{\rm LK}$, evolve very quickly relative to $T_{\rm LK}$ at early times, and
+exhibit very little $I_{\rm e}$ nutation at later times, and so the contribution
+from such terms in Eq.~\eqref{eq:exp_h} can be neglected.
+
+For systems with more compact binaries, such as those studied in \citep{bin1},
+the contributions from such higher harmonics cannot be neglected. This explains
+the breakdown of conservation of $\theta_{\rm e}$ in these systems.
 
 \bsp
 \label{lastpage} % chktex 24

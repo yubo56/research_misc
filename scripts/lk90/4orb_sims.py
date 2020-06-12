@@ -20,11 +20,12 @@ try:
 except: # let it fail later
     pass
 from scipy.integrate import solve_ivp
-from scipy.interpolate import interp1d
+from scipy.interpolate import interp1d, UnivariateSpline
 from scipy.optimize import brenth
+from scipy.signal import medfilt
 from utils import *
 
-N_THREADS = 64
+N_THREADS = 4
 # N_THREADS = 35
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
@@ -172,6 +173,9 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         lk_events[0] < t[-1], lk_events[0] > t[0]))[0]
     lk_events_sliced = [lk_events[0][valid_idxs], lk_events[1]]
     ret_lk_sliced = [t, [a, e, W, I, w], lk_events_sliced]
+    if not xlim_idxs:
+        xlim_idxs = [0, len(t) - 1]
+    xlim = [t[xlim_idxs[0]], t[xlim_idxs[1]]]
 
     K = np.sqrt(1 - e**2) * np.cos(I)
     Lhat = get_hat(W, I)
@@ -235,19 +239,18 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     Wslx = interp1d(t_lkmids, dWslx)(t_eff)
     Wslz = interp1d(t_lkmids, dWslz)(t_eff)
     Wdot = interp1d(t_lkmids, dWdot)(t_eff)
-    Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
-    Lhat_xy[2] *= 0
-    Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+    Lhat_xy = get_hat(W[eff_idx], np.full_like(W[eff_idx], np.pi / 2))
     Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
     Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
+
     _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
     q_eff0 = np.degrees(_q_eff0)
     # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
     q_eff0_interp = interp1d(t_eff, q_eff0)
     q_eff_pred = np.mean(q_eff0_interp(
         np.linspace(t_lkmids[2], t_lkmids[3], 1000)))
-    # print(Weff_hat[:, 0], Weff_hat[:, -1],
-    #       get_hat(W[eff_idx[-1]], I[eff_idx[-1]]))
+    print(q_eff_pred, q_eff0[-1])
+    return
     # compute phi as well
     yhat = ts_cross(Weff_hat, Lout_hat[:, eff_idx])
     xhat = ts_cross(yhat, Weff_hat)
@@ -262,7 +265,6 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     A = np.abs(dWsl / dWdot)
 
     # Plot averaged I, Iouts
-    I_avg = np.arccos(Wslz / np.sqrt(Wslx**2 + Wslz**2))
     def get_Iout(W, Wsl, I):
         def Iout_constr(_Iout):
             return -W * np.sin(_Iout) + Wsl * np.sin(I + _Iout)
@@ -270,8 +272,13 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         if I0 > 90:
             return brenth(Iout_constr, 0, np.pi - I)
         return brenth(Iout_constr, -I, 0)
-    Wsl = np.sqrt(Wslx**2 + Wslz**2)
-    Iouts = [get_Iout(*args) for args in zip(Wdot, Wsl, I_avg)]
+    dWsl = np.sqrt(dWslx**2 + dWslz**2)
+    dI_avg = np.arccos(dWslz / np.sqrt(dWslx**2 + dWslz**2))
+    _Iouts = [get_Iout(*args) for args in zip(dWdot, dWsl, dI_avg)]
+    Iouts = interp1d(t_lkmids, _Iouts)(t_eff)
+    Iouts = medfilt(Iouts, 1001)
+    I_avg = interp1d(t_lkmids, dI_avg)(t_eff)
+    # smooth
     Iout_dot = [(Iouts[i + 4] - Iouts[i]) / (t_eff[i + 4] - t_eff[i])
                 for i in range(len(Iouts) - 4)]
     e_int = interp1d(t, e)
@@ -385,59 +392,60 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                     lw=1.5, alpha=0.5)
     axs[3].semilogy(t_lkmids, dWtot, 'k',
                     label=r'$\langle\Omega_{\rm e}\rangle$', lw=4)
+    ylims = axs[3].get_ylim()
     axs[3].semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b:',
                     lw=1, alpha=0.3, label=r'$\dot{I}_{\rm e}$')
-    ylims = axs[3].get_ylim()
     # axs[3].semilogy(t_eff[2:-2], np.degrees(Iout_dot_gauss), 'r:',
     #                 lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
     axs[3].legend(fontsize=14)
     axs[3].set_ylim(ylims)
+    axs[3].set_ylim(bottom=0.1)
     axs[3].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
     # axs[3].xlabel(r'$t / t_{\rm LK, 0}$')
-    axs[4].plot(t_eff, np.degrees(Iouts), 'b', label=r'$I_{\rm e}$')
+    axs[4].plot(t_eff, np.degrees(Iouts), 'b', label=r'$-I_{\rm e}$')
     axs[4].set_ylabel(r'$I_{\rm e}$')
     # axs[4].legend(fontsize=10)
     axs[5].plot(t_eff, q_eff0, 'k', alpha=alf)
     axs[5].axhline(q_eff_pred, c='r')
 
-    n_ffts = 100
-    if not xlim_idxs:
-        xlim_idxs = [0, len(t)]
-    t_coeffs = []
-    x_coeffs0_arr = []
-    z_coeffs0_arr = []
-    x_coeffs1_arr = []
-    z_coeffs1_arr = []
-    for idx in np.linspace(xlim_idxs[0], xlim_idxs[1], n_ffts):
-        idx = int(idx)
-        # find idx of emin for LK cycle centered on idx
-        ti = lk_events[0][np.where(lk_events[0] < t[idx])[0][-1]]
-        tf = lk_events[0][np.where(lk_events[0] > t[idx])[0][0]]
-        where_idx = np.where(np.logical_and(
-            t < tf, t > ti))[0]
-        min_idx = np.argmin(e[where_idx])
-        e0 = e[where_idx][min_idx]
-        I0_here = I[where_idx][min_idx]
-        a_here = a[where_idx][min_idx]
-        getter_kwargs_here = get_eps(m1, m2, m3, a_here * a0, a2, e2)
-        Weff_vec, _t_vals = single_cycle_toy(
-            getter_kwargs_here, e0=e0, I0=I0_here, intg_pts=int(1e4))
-        x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, _t_vals, plot=False)
-        x_coeffs0_arr.append(x_coeffs[0])
-        z_coeffs0_arr.append(z_coeffs[0])
-        x_coeffs1_arr.append(x_coeffs[1])
-        z_coeffs1_arr.append(z_coeffs[1])
-        t_coeffs.append(t[where_idx][min_idx])
-    axs[6].semilogy(t_coeffs, np.abs(x_coeffs0_arr), 'bo',
-                    label=r'$\Omega_{\rm e, 0x}$')
-    axs[6].semilogy(t_coeffs, np.abs(x_coeffs1_arr), 'ro',
-                    label=r'$\Omega_{\rm e, 1x}$')
-    axs[6].legend(fontsize=14)
-    axs[7].semilogy(t_coeffs, np.abs(z_coeffs0_arr), 'bo',
-                    label=r'$\Omega_{\rm e, 0z}$')
-    axs[7].semilogy(t_coeffs, np.abs(z_coeffs1_arr), 'ro',
-                    label=r'$\Omega_{\rm e, 1z}$')
-    axs[7].legend(fontsize=14)
+    if False:
+        n_ffts = 100
+        idxs = np.unique([int(idx) for idx in
+                          np.linspace(xlim_idxs[0], xlim_idxs[1], n_ffts)])
+        t_coeffs = []
+        x_coeffs0_arr = []
+        z_coeffs0_arr = []
+        x_coeffs1_arr = []
+        z_coeffs1_arr = []
+        for idx in idxs:
+            # find idx of emin for LK cycle centered on idx
+            ti = lk_events[0][np.where(lk_events[0] < t[idx])[0][-1]]
+            tf = lk_events[0][np.where(lk_events[0] > t[idx])[0][0]]
+            where_idx = np.where(np.logical_and(
+                t < tf, t > ti))[0]
+            min_idx = np.argmin(e[where_idx])
+            e0 = e[where_idx][min_idx]
+            I0_here = I[where_idx][min_idx]
+            a_here = a[where_idx][min_idx]
+            getter_kwargs_here = get_eps(m1, m2, m3, a_here * a0, a2, e2)
+            Weff_vec, _t_vals = single_cycle_toy(
+                getter_kwargs_here, e0=e0, I0=I0_here, intg_pts=int(1e4))
+            x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, _t_vals, plot=False)
+            x_coeffs0_arr.append(x_coeffs[0])
+            z_coeffs0_arr.append(z_coeffs[0])
+            x_coeffs1_arr.append(x_coeffs[1])
+            z_coeffs1_arr.append(z_coeffs[1])
+            t_coeffs.append(t[where_idx][min_idx])
+        axs[6].semilogy(t_coeffs, np.abs(x_coeffs0_arr), 'bo',
+                        label=r'$\Omega_{\rm e, 0x}$')
+        axs[6].semilogy(t_coeffs, np.abs(x_coeffs1_arr), 'ro',
+                        label=r'$\Omega_{\rm e, 1x}$')
+        axs[6].legend(fontsize=14)
+        axs[7].semilogy(t_coeffs, np.abs(z_coeffs0_arr), 'bo',
+                        label=r'$\Omega_{\rm e, 0z}$')
+        axs[7].semilogy(t_coeffs, np.abs(z_coeffs1_arr), 'ro',
+                        label=r'$\Omega_{\rm e, 1z}$')
+        axs[7].legend(fontsize=14)
 
     # set effectively for axs[0-9], label in last
     lk_axf = len(axs) - 1
@@ -446,8 +454,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     for ax in axs[ :lk_axf]:
         ax.set_xticks(xticks)
         ax.set_xticklabels([])
-        if xlim_idxs is not None:
-            ax.set_xlim(left=t[xlim_idxs[0]], right=t[xlim_idxs[1]])
+        ax.set_xlim(xlim)
     axs[lk_axf].set_xlabel(r'$t / t_{LK,0}$')
 
     plt.tight_layout()
@@ -493,12 +500,11 @@ def get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice=np.s_[::]):
     Wslx = interp1d(t_lkmids, dWslx)(t_eff)
     Wslz = interp1d(t_lkmids, dWslz)(t_eff)
     Wdot = interp1d(t_lkmids, dWdot)(t_eff)
-    Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
-    Lhat_xy[2] *= 0
-    Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+    Lhat_xy = get_hat(W[eff_idx], np.full_like(W[eff_idx], np.pi / 2))
     Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
     Weffmag = np.sqrt(np.sum(Weff**2, axis=0))
     Weff_hat = Weff / Weffmag
+
     _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
     q_eff0 = np.degrees(_q_eff0)
     # compute phi as well
@@ -1005,9 +1011,7 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
                 Wslx = interp1d(t_lkmids, dWslx)(t_eff)
                 Wslz = interp1d(t_lkmids, dWslz)(t_eff)
                 Wdot = interp1d(t_lkmids, dWdot)(t_eff)
-                Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
-                Lhat_xy[2] *= 0
-                Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+                Lhat_xy = get_hat(W[eff_idx], np.full_like(W[eff_idx], np.pi / 2))
                 Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
                 Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
                 _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
@@ -1034,18 +1038,19 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
             print('Loading %s' % pkl_fn)
             deltas_deg, a_vals, dqeff_maxes, dqeff_maxes_g = pickle.load(f)
     for I, deltas_per_I in zip(I_vals, deltas_deg):
-        plt.loglog(np.full_like(deltas_per_I, I - 90), deltas_per_I,
-                   'ko', ms=0.3)
-        plt.loglog(np.full_like(deltas_per_I, I - 90), -np.array(deltas_per_I),
-                   'ro', ms=0.3)
+        if I == I_vals[0]:
+            plt.loglog(np.full_like(deltas_per_I, I - 90), np.abs(deltas_per_I),
+                       'ko', ms=0.3, label='Sim')
+        else:
+            plt.loglog(np.full_like(deltas_per_I, I - 90), np.abs(deltas_per_I),
+                       'ko', ms=0.3)
     ylims = plt.ylim()
     plt.ylim(ylims)
     plt.xlabel(r'$I - 90^\circ$ (Deg)')
-    plt.ylabel(r'$\Delta \theta_{\rm e}$ (Deg)')
+    plt.ylabel(r'$\left|\Delta \theta_{\rm e}\right|$ (Deg)')
     plt.xlim(left=0.1)
     plt.ylim(bottom=1e-3)
-    # plt.plot(I_vals - 90, dqeff_maxes, 'gx', ms=0.5)
-    plt.plot(I_vals - 90, dqeff_maxes_g, 'bx', ms=0.5)
+    # plt.plot(I_vals - 90, dqeff_maxes_g, 'bx', ms=0.5)
 
     jmin = np.sqrt(5 * cosd(I_vals)**2 / 3)
     Iout_dot_th = (
@@ -1057,7 +1062,10 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
     sigm_iout = dIout_tot / (Iout_dot_th * np.sqrt(2 * np.pi))
     dqeff_th = np.degrees(dIout_tot) * np.exp(
         -(Weff_th**2 * sigm_iout**2) / 2)
-    plt.plot(I_vals - 90, dqeff_th, 'b', lw=2)
+    plt.plot(I_vals - 90, dqeff_th, 'b', lw=2,
+             label=r'$\Omega_{\rm e}$ Constant')
+    plt.plot(I_vals - 90, np.degrees(Iout_dot_th / Weff_th), 'r',
+             label=r'$(\dot{I}_{\rm e} / \Omega_{\rm e})_{\max}$')
 
     # try second scaling?
     Weff_ratio = 1/8
@@ -1065,12 +1073,13 @@ def plot_deviations_good(folder, I_vals=np.arange(90.01, 90.4001, 0.001)):
         np.sqrt(2 * sigm_iout * Weff_th * Weff_ratio)) * np.exp(
             -1 / (8 * Weff_ratio**2))
     lenhalf = len(I_vals) // 2
-    plt.plot(I_vals - 90, dqeff_new, 'c', lw=2)
+    # plt.plot(I_vals - 90, dqeff_new, 'c', lw=2)
 
     # a_ax = plt.gca().twinx()
     # a_ax.loglog(I_vals - 90, a_vals, 'g--', lw=2)
     # a_ax.set_ylim(0.01, 1)
     # a_ax.set_ylabel(r'$a$ at Time of Averaging')
+    plt.legend(fontsize=14, loc='upper right')
     plt.tight_layout()
     plt.savefig(folder + 'deviations_one', dpi=200)
     plt.close()
@@ -1140,9 +1149,7 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
         Wslz = interp1d(t_lkmids, dWslz)(t_eff)
         Wdot = interp1d(t_lkmids, dWdot)(t_eff)
         Lhat_f = get_hat(W[-1], I[-1])
-        Lhat_xy = get_hat(W[eff_idx], I[eff_idx])
-        Lhat_xy[2] *= 0
-        Lhat_xy /= np.sqrt(np.sum(Lhat_xy**2, axis=0))
+        Lhat_xy = get_hat(W[eff_idx], np.full_like(W[eff_idx], np.pi / 2))
         Weff = np.outer(np.array([0, 0, 1]), -Wdot + Wslz) + Wslx * Lhat_xy
         Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
 
@@ -1331,15 +1338,16 @@ if __name__ == '__main__':
     # run_for_Ideg('4sims/', 90.2, plotter=plot_good, short=True,
     #              ylimdy=2, time_slice=np.s_[300::])
     # run_for_Ideg('4sims/', 90.35, plotter=plot_good, short=True,
-    #              ylimdy=2, time_slice=np.s_[5500:12500])
+    #              ylimdy=2, time_slice=np.s_[5500:10500])
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
-    run_for_Ideg('4sims/', 90.2, plotter=plot_all, short=True,
-                 ylimdy=2, xlim_idxs=[300, 1200])
+
+    # run_for_Ideg('4sims/', 90.2, plotter=plot_all, short=True,
+    #              ylimdy=2, xlim_idxs=[300, 1200])
     run_for_Ideg('4sims/', 90.35, plotter=plot_all, short=True,
                  ylimdy=2, xlim_idxs=[5500, 12500])
-    run_for_Ideg('4sims/', 90.5, plotter=plot_all, short=True,
-                 xlim_idxs=[-45000, -20000])
+    # run_for_Ideg('4sims/', 90.5, plotter=plot_all, short=True,
+    #              xlim_idxs=[-45000, -20000])
     # plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
