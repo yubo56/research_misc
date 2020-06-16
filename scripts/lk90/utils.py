@@ -662,3 +662,12 @@ def get_fn_I(I_deg):
 def get_scinot(f):
     exponent = np.floor(np.log10(f))
     return r'%.1f \times 10^{%d}' % (f / 10**exponent, exponent)
+
+def smooth(f, len_sm):
+    _kernel = np.exp(-(np.arange(len_sm) - (len_sm // 2))**2 /
+                     (2 * (len_sm // 4)**2))
+    kernel = _kernel / sum(_kernel)
+    f_padded = np.concatenate(([f[0]] * (len(kernel) // 2),
+                               f,
+                               [f[-1]] * (len(kernel) // 2)))
+    return np.convolve(f_padded, kernel, mode='valid')

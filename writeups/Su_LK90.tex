@@ -115,6 +115,21 @@ Here, we have defined
 \end{align}
 and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary.
 
+The evolution of these orbital elements has been well characterized in previous
+studies \citep{anderson2016formation,bin1}. We focus on the evolution with LK
+oscillations, in which case the evolution is approximately broken into two
+phases:
+\begin{itemize}
+    \item In the first phase, $a$ and $e_{\max}$ change very slowly, while
+        $e_{\min}$ increases to $e_{\max}$ due to the effect of pericenter
+        precession.
+
+    \item In the second phase, $e_{\min} \approx e_{\max}$, and $a$ and $e =
+        e_{\min} = e_{\max}$ decay together due to GW radiation.
+\end{itemize}
+
+\subsection{Spin Dynamics}
+
 We are ultimately interested in the evolution of the spin angular momentum of
 the inner BHs. Since they evolve independently to leading post-Newtonian order,
 we focus on the dynamics of a single BH spin vector $\bm{S} = S\uv{S}$
@@ -141,8 +156,8 @@ becomes
 
 In general, Eq.~\eqref{eq:dsdt_weff} is difficult to analyze, since $\Omega_{\rm
 PL}$, $\Omega_{\rm SL}$ and $I$ all vary significantly within every LK cycle.
-However, since these quantities are all periodic with period $T_{\rm LK}$, the
-LK period, we can rewrite Eq.~\eqref{eq:dsdt_weff} in Fourier components
+However, since these quantities are all periodic with period $T_{\rm LK}$, we
+can rewrite Eq.~\eqref{eq:dsdt_weff} in Fourier components
 \begin{equation}
     \p{\rd{\uv{S}}{t}}_{\rm rot}
         = \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
@@ -152,16 +167,39 @@ LK period, we can rewrite Eq.~\eqref{eq:dsdt_weff} in Fourier components
 The angle brackets denote an average over an LK cycle. We adopt convention where
 $t = 0$ is the maximum eccentricity phase of the LK cycle.
 
-\subsection{Analysis}
-
-Assuming the $N \geq 1$ terms can be dropped (see Appendix~\ref{s:harmonic}),
-our objective becomes the analysis of the equation
+To simplify, we assume the $N \geq 1$ terms have no significant contribution to
+the dynamics (see Appendix~\ref{s:harmonic}). We thus analyze.
 \begin{equation}
     \p{\rd{\uv{S}}{t}}_{\rm rot}
         = \ev{\bm{\Omega}_{\rm e}} \times \uv{S}.\label{eq:dsdt_0only}
 \end{equation}
-For the remainder of the main text of the paper, we will omit the angle brackets
-denoting averaging over an LK cycle.
+We accordingly define angle
+\begin{equation}
+    \uv{S} \cdot \ev{\uv{\Omega}_{\rm e}} \equiv \cos \theta_{\rm e}.
+\end{equation}
+Intuitively, Eq.~\eqref{eq:dsdt_0only} suggests that $\theta_{\rm e}$ should be
+a conserved quantity when $\bm{\Omega}_{\rm e}$ varies adiabatically. The
+adiabaticity condition requires the precession axis evolve slowly compared to
+the precession frequency, or
+\begin{equation}
+    \abs{\rd{\ev{\uv{\Omega}_{\rm e}}}{t}} \ll
+        \abs{\ev{\bm{\Omega}_{\rm e}}}. \label{eq:ad_constr}
+\end{equation}
+
+Of course, over timescales $\lesssim T_{\rm LK}$, $\uv{S}$ will vary under the
+influence of the $N \geq 1$ harmonics. Thus, we expect that the quantity that
+will be well-conserved under adiabatic evolution is actually the LK-averaged
+$\ev{\theta_{\rm e}}$. A more careful analysis (Appendix~\ref{s:harmonic})
+indicates that the correct averaging interval to use is generally be an integer
+multiple of $T_{\rm LK}$.
+
+\subsection{Analysis: Deviation from Adiabaticity}
+
+In real systems, the particular extent to which $\ev{\theta_{\rm e}}$ is
+conserved depends on how well Eq.~\eqref{eq:ad_constr} is satisfied. We will
+derive analytical expressions for the relevant frequencies in the problem, then
+use these to estimate $\Delta \ev{\theta_{\rm e}}$, the change in
+$\ev{\theta_{\rm e}}$ over the full inspiral, a purely non-adiabatic effect.
 
 \bibliographystyle{mnras}
 \bibliography{Su_LK90}
