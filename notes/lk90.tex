@@ -1734,5 +1734,97 @@ timescales).
 It seems plausible that (i) the Paper II regime system is adiabatic at the very
 end, but it's not obvious why precession cuts off.
 
+\section{Floquet Theory}
+
+\subsection{Formal Results}
+
+Consider that we have EOM
+\begin{equation}
+    \rd{\bm{S}}{t} = \bm{\Omega}_{\rm e} \times \bm{S}.
+\end{equation}
+Note that we solve for $\bm{S} \in \mathbb{R}^3$, not $\uv{S} \in
+\mathcal{S}^2$, so the EOM is guaranteed to be linear (translations/rotations in
+$\mathcal{S}^2$ do not commute, but translations commute in $\mathbb{R}^3$).
+
+For a linear, periodic EOM of form
+\begin{equation}
+    \dot{x} = A(t)x,
+\end{equation}
+where $x$ is a $N$-vector and $A$ is an $N \times N$ matrix, we can apply
+Floquet theory. In our problem, $N = 3$ and $A_{ij} = \epsilon_{ijk}
+\s{\Omega_{\rm e}}_k$ is the antisymmetric $3 \times 3$ matrix.
+
+Floquet theory also requires $N$ linearly independent solutions, to form the
+\emph{fundamental matrix solution} $\phi(t)$, the matrix whose columns are
+linearly independent solutions. More convenient to use is $\Phi(t)$, the
+principal fundamental matrix solution, which satisfies $\Phi(0) = \mathbb{I}_N$.
+In our problem, this is very easy to construct: since the cross product is
+guaranteed to be non-degenerate, we simply evolve the three unit vectors
+forwards in time. Linearity guarantees they remain orthogonal.
+
+The fundamental matrix solution is used to write down formal solution
+\begin{equation}
+    x(t) = \Phi(t) \Phi^{-1}(0) x(0) = \Phi(t) x(0).
+\end{equation}
+In the Floquet problem, $\Phi$ has the further property
+\begin{equation}
+    \Phi(t + T) = \Phi(t) \Phi^{-1}(0) \Phi(T) = \Phi(t) \Phi(T).
+\end{equation}
+Generally, $M \equiv \phi^{-1}(0) \phi(T)$ is known as the \emph{monodromy
+matrix}, particularly simple for the principal fundamental matrix solution.
+Thus, we can notice that
+\begin{equation}
+    x(nT) = \Phi(nT) x(0) = \s{\Phi(T)}^{n} x(0).\label{eq:phin}
+\end{equation}
+Recall that $\Phi(0) = [\uv{x}, \uv{y}, \uv{z}]$, while $\Phi(T)$ propagates
+these forward in time by $T$. But note that the columns of $\Phi(T)$ must still
+be unit vectors (our particular case; $\abs{\bm{S}}$ is conserved by EOM),
+therefore $M$ must be an orthogonal $3 \times 3$ matrix, or a rotation matrix.
+Furthermore, since $M$ is built of many infinitesimal \emph{proper} rotations,
+we argue $M$ must be a proper rotation matrix as well. Thus, its eigenvalues are
+$1, (a \pm bi)$ satisfying $a^2 + b^2 = 1$, and $M$ is a rotation matrix about
+its eigenvector with eigenvalue $1$. Numerically, Eq.~\eqref{eq:phin} seems to
+hold to numerical precision, and so $[x \cdot \uv{v}_1](nT)$ are constant, where
+$\uv{v}_1$ is the rotation axis.
+
+Now, let's try to write down the coordinate transform into a time-independent
+ODE\@. Define complex matrix $\bm{B}$ such that $e^{T \bm{B}} = \bm{M}$. In the
+eigenbasis of $\bm{M}$, it is clear $\bm{B}$ will take on form $[[0, i\theta],
+[-i\theta, 0]] \otimes 0$, a rotation generator and a constant. We then know
+that
+\begin{align}
+    \Phi(t) &= P(t) e^{tB},\\
+        &\equiv Q(t) e^{tR}.
+\end{align}
+Here, $P(t)$ is complex with period $T$ while $Q$ is real with period $2T$, and
+$R, B$ are constant. With this construction, we can use
+\begin{align}
+    y &= Q^{-1}(t) x,\\
+    \dot{y} &= Ry.
+\end{align}
+This is obvious since $y = y_0e^{tR}$ and $x = Q(t)y = Q(t)e^{tR}(Q^{-1}(0)y_0
+)$ or $x(t) = \Phi(t) x_0$.
+
+The primary advantages of this Floquet formulation are two-fold:
+\begin{itemize}
+    \item Proves that evolution is periodic, and cannot exhibit chaos.
+
+    \item Proves that a characteristic period (I think $2 T_{\rm LK}$, but might
+        be $T_{\rm LK}$) can be used to generate an iterative map, over which
+        evolution looks just like a rotation in $\mathbb{R}^3$. This bypasses
+        all the complex harmonic terms, and boils all the dynamics down to
+        the monodromy matrix (a rotation matrix).
+\end{itemize}
+The rotation axis $\bm{R}$ is of key importance, as it plays the role of our
+current $\bar{\bm{\Omega}}_{\rm e}$, and satisfies
+\begin{align}
+    \bm{S}\p{t = 0} &= \bm{R} \\
+    0 &= \int\limits_0^{T_{\rm LK}}
+        \bm{\Omega}_{\rm e} \times \bm{S}\;\mathrm{d}t.
+\end{align}
+We generally would expect this to $\approx \bar{\bm{\Omega}}_{\rm e}$, but it
+can differ. Plots (\lstinline{4sims}) show the location of this rotation axis
+compared to $\bar{\bm{\Omega}}_{\rm e}$.
+
 \end{document}
 

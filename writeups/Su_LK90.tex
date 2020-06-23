@@ -71,7 +71,7 @@ This problem is important.
 
 \section{Analytical Setup}
 
-\subsection{Equations of Motion}
+\subsection{Orbital Evolution}
 
 We study Lidov-Kozai (LK) oscillations due to an external perturber to
 quadrupole order and include precession of pericenter and gravitational wave
@@ -81,7 +81,7 @@ orbited by a third BH with mass $m_3$. Call $a_3$ the orbital semimajor axis of
 the third BH from the center of mass of the inner binary, and $e_3$ the
 eccentricity of its orbit, and define effective semimajor axis
 \begin{equation}
-    \bar{a}_3 \equiv a_3\sqrt{1 - e_3^2}.
+    \tilde{a}_3 \equiv a_3\sqrt{1 - e_3^2}.
 \end{equation}
 We adopt the test particle approximation such that the orbit of the third mass
 is fixed. Finally, call $\bm{L}_{\rm out} \equiv L_{\rm out} \uv{L}_{\rm out}$
@@ -91,11 +91,11 @@ of the inner BH binary.
 
 We then consider the motion of the inner binary, described by orbital elements
 Keplerian orbital elements $(a, e, \Omega, I, \omega)$. The equations describing
-the motion of these orbital elements is then \citep{peters1964,storch,bin2}
+the motion of these orbital elements are then \citep{peters1964,storch,bin2}
 \begin{align}
-    \rd{a}{t} &= -\frac{a}{t_{\rm GW}},\\
+    \rd{a}{t} &= \p{\rd{a}{t}}_{\rm GW},\\
     \rd{e}{t} &= \frac{15}{8t_{\rm LK}} e\sqrt{1 - e^2}\sin 2\omega
-        \sin^2 I,\\
+        \sin^2 I + \p{\rd{e}{t}}_{\rm GW},\\
     \rd{\Omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}}
         + \Omega_{\rm GR},\\
@@ -103,103 +103,294 @@ the motion of these orbital elements is then \citep{peters1964,storch,bin2}
         \sqrt{1 - e^2}},\\
     \rd{\omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{2\p{1 - e^2} + 5\sin^2\omega
-            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}}.
+            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}},
 \end{align}
-Here, we have defined
+where we define
 \begin{align}
-    t_{\rm LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\bar{a}_3}}^3,\\
-    t_{\rm GW}^{-1} &= \frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
-        \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
-            + \frac{37}{96}e^4},\\
+    t_{\rm LK}^{-1} &= n\p{\frac{m_3}{m_{12}}}\p{\frac{a}{\tilde{a}_3}}^3,\\
+    \p{\rd{a}{t}}_{\rm GW} &= -\frac{a}{t_{\rm GW}},\\
+         &= \frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^3}
+            \frac{1}{\p{1 - e^2}^{7/2}}\p{1 + \frac{73}{24}e^2
+                + \frac{37}{96}e^4},\label{eq:dadt_gw}\\
+    \p{\rd{e}{t}}_{\rm GW} &= -\frac{304}{15}\frac{G^3 \mu m_{12}^2}{c^5a^4}
+        \frac{1}{\p{1 - e^2}^{5/2}}\p{1 + \frac{121}{304}e^2}\label{eq:dedt_gw}
+            ,\\
     \Omega_{\rm GR} &= \frac{3Gnm_{12}}{c^2a\p{1 - e^2}},
 \end{align}
-and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary.
+and $n = \sqrt{Gm_{12}/a^3}$ is the mean motion of the inner binary. We will
+also sometimes notate $j \equiv \sqrt{1 - e^2}$.
 
 The evolution of these orbital elements has been well characterized in previous
 studies \citep{anderson2016formation,bin1}. We focus on the evolution with LK
 oscillations, in which case the evolution is approximately broken into two
-phases:
+phases [see panels (a) and (b) on both plots in Fig.~\ref{fig:4sim_90_350} for
+reference]:
 \begin{itemize}
-    \item In the first phase, $a$ and $e_{\max}$ change very slowly, while
-        $e_{\min}$ increases to $e_{\max}$ due to the effect of pericenter
-        precession.
+    \item In the first phase, $e$ and $I$ vary significantly within each LK
+        period. If $e_{\min} \ll e_{\max}$, where $e_{\min}$ and $e_{\max}$
+        refer to the minimum and maximum $e$ within a LK period, then the system
+        spends a fraction $\sqrt{1 - e_{\max}^{2}}$ of the LK period at $e
+        \simeq e_{\max}$ \citep{anderson2016formation}.
 
-    \item In the second phase, $e_{\min} \approx e_{\max}$, and $a$ and $e =
-        e_{\min} = e_{\max}$ decay together due to GW radiation.
+        During this phase, $e_{\min}$ is excited to larger values under the dual
+        GR effects of gravitational wave radiation and pericenter advance, while
+        $a$ and $e_{\max}$ evolve comparatively little .
+
+    \item In the second phase, $e_{\min} \approx e_{\max}$, and the system
+        coalesces under gravitational wave radiation with little variation over
+        each LK period.
 \end{itemize}
 
 \subsection{Spin Dynamics}
 
-We are ultimately interested in the evolution of the spin angular momentum of
-the inner BHs. Since they evolve independently to leading post-Newtonian order,
-we focus on the dynamics of a single BH spin vector $\bm{S} = S\uv{S}$
-Neglecting spin-spin interactions, $\uv{S}$ undergoes de Sitter precession about
-$\bm{L}$ as
+We are ultimately interested in the spin orientations of the inner BHs at merger
+as a function of initial conditions. Since they evolve independently to leading
+post-Newtonian order, we focus on the dynamics of a single BH spin vector
+$\bm{S} = S\uv{S}$ Neglecting spin-spin interactions, $\uv{S}$ undergoes de
+Sitter precession about $\bm{L}$ as
 \begin{align}
     \rd{\hat{\bm{S}}}{t} &= \Omega_{\rm SL}\hat{\bm{L}} \times \hat{\bm{S}}
             \label{eq:dsdt},\\
         \Omega_{\rm SL} &= \frac{3Gn\p{m_2 + \mu/3}}{2c^2a\p{1 - e^2}}.
 \end{align}
 
-We next go to the co-rotating frame with $\uv{L}$ about $\uv{L}_{\rm out}$. Choose
-$\uv{L}_{\rm out} = \uv{z}$, and choose the $\uv{x}$ axis such that $\uv{L}$
-lies in the $x$-$z$ plane. In this coordinate system, Eq.~\eqref{eq:dsdt}
-becomes
+To analyze the dynamics of the spin vector, we go to co-rotating frame with
+$\uv{L}$ about $\uv{L}_{\rm out}$. Choose $\uv{L}_{\rm out} = \uv{z}$, and
+choose the $\uv{x}$ axis such that $\uv{L}$ lies in the $x$-$z$ plane. In this
+0oordinate system, Eq.~\eqref{eq:dsdt} becomes
 \begin{align}
     \p{\rd{\bm{S}}{t}}_{\rm rot}
         &= \p{-\rd{\Omega}{t}\uv{z} + \Omega_{\rm SL}\uv{L}} \times \uv{S},\\
         &= \bm{\Omega}_{\rm e} \times \uv{S}\label{eq:dsdt_weff},\\
-    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm PL}\uv{z} + \Omega_{\rm SL}
-            \p{\cos I \uv{z} + \sin I \uv{x}},\\
-    \Omega_{\rm PL} &\equiv -\rd{\Omega}{t}.
+    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm L}\uv{z} + \Omega_{\rm SL}
+            \p{\cos I \uv{z} + \sin I \uv{x}},\label{eq:weff_def}\\
+    \Omega_{\rm L} &\equiv -\rd{\Omega}{t}.
 \end{align}
 
 In general, Eq.~\eqref{eq:dsdt_weff} is difficult to analyze, since $\Omega_{\rm
-PL}$, $\Omega_{\rm SL}$ and $I$ all vary significantly within every LK cycle.
-However, since these quantities are all periodic with period $T_{\rm LK}$, we
-can rewrite Eq.~\eqref{eq:dsdt_weff} in Fourier components
+L}$, $\Omega_{\rm SL}$ and $I$ all vary significantly within each LK period,
+and we are interested in the final outcome after many LK periods. However, if we
+assume $t_{\rm GW} \gg t_{\rm LK}$, then the system can be treated as nearly
+periodic within each LK cycle. We can then rewrite Eq.~\eqref{eq:dsdt_weff} in
+Fourier components
 \begin{equation}
     \p{\rd{\uv{S}}{t}}_{\rm rot}
-        = \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
+        = \s{\bm{\overline{\Omega}}_{\rm e} + \sum\limits_{N = 1}^\infty
             \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N t}{T_{\rm LK}}}}
             \times \uv{S}.\label{eq:dsdt_fullft}
 \end{equation}
-The angle brackets denote an average over an LK cycle. We adopt convention where
-$t = 0$ is the maximum eccentricity phase of the LK cycle.
+The bar denotes an average over an LK cycle. We adopt convention where $t = 0$
+is the maximum eccentricity phase of the LK cycle.
 
-To simplify, we assume the $N \geq 1$ terms have no significant contribution to
-the dynamics (see Appendix~\ref{s:harmonic}). We thus analyze.
+We next assume that the $N \geq 1$ harmonics vanish when the equation of motion
+is averaged over an LK cycle\footnote{While this is not strictly accurate and
+gives incorrect results for certain parameters, it is an intuitively clear
+picture and makes correct predictions for many physically relevant
+configurations. A more rigorous discussion is provided in
+Appendix~\ref{s:harmonic}.}, which gives
 \begin{equation}
-    \p{\rd{\uv{S}}{t}}_{\rm rot}
-        = \ev{\bm{\Omega}_{\rm e}} \times \uv{S}.\label{eq:dsdt_0only}
+    \p{\rd{\uv{\overline{S}}}{t}}_{\rm rot}
+        = \bm{\overline{\Omega}}_{\rm e}
+            \times \uv{\overline{S}}.\label{eq:dsdt_0only}
 \end{equation}
 We accordingly define angle
 \begin{equation}
-    \uv{S} \cdot \ev{\uv{\Omega}_{\rm e}} \equiv \cos \theta_{\rm e}.
+    \cos \theta_{\rm e} \equiv
+        \uv{\overline{S}} \cdot \uv{\overline{\Omega}}_{\rm e}.
+        \label{eq:q_eff}
 \end{equation}
-Intuitively, Eq.~\eqref{eq:dsdt_0only} suggests that $\theta_{\rm e}$ should be
-a conserved quantity when $\bm{\Omega}_{\rm e}$ varies adiabatically. The
-adiabaticity condition requires the precession axis evolve slowly compared to
-the precession frequency, or
+Eq.~\eqref{eq:dsdt_0only} suggests that $\theta_{\rm e}$ should be a conserved
+quantity when $\bm{\Omega}_{\rm e}$ varies adiabatically. The adiabaticity
+condition requires the precession axis evolve slowly compared to the precession
+frequency at all times:
 \begin{equation}
-    \abs{\rd{\ev{\uv{\Omega}_{\rm e}}}{t}} \ll
-        \abs{\ev{\bm{\Omega}_{\rm e}}}. \label{eq:ad_constr}
+    \abs{\rd{\uv{\overline{\Omega}}_{\rm e}}{t}} \ll
+        \abs{\bm{\overline{\Omega}_{\rm e}}}. \label{eq:ad_constr}
+\end{equation}
+Since the orientation of $\bm{\overline{\Omega}}_{\rm e}$ changes on timescale
+$t_{\rm GW}$, we see that the adiabatic assumption is roughly equivalent to
+assuming the Fourier decomposition [Eq.~\eqref{eq:dsdt_fullft}] within each LK
+period is valid.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/4sim_90_350.png}
+    \includegraphics[width=\columnwidth]{LK90_plots/4sim_90_350_zoom.png}
+    \caption{Plot.}\label{fig:4sim_90_350}
+\end{figure}
+
+To be more precise, we define an inclination angle $I_{\rm e}$ for
+$\bm{\overline{\Omega}}_{\rm e}$ as shown in Fig.~\ref{fig:3vec}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{LK90_plots/7_3vec_cropped.png}
+    \caption{Definition of angles, shown in plane of the two angular momenta
+    $\bm{L}_{\rm out}$ and $\bm{L}$, or the $\uv{x}$--$\uv{z}$ plane in the
+    corotating frame. Note that for $I > 90^\circ$, $I_{\rm e} <
+    0$.}\label{fig:3vec}
+\end{figure}
+Denoting also $\overline{\Omega}_{\rm e} \equiv \abs{\bm{\overline{\Omega}}_{\rm
+e}}$, the adiabaticity condition can be expressed as
+\begin{equation}
+    \rd{I_{\rm e}}{t} \ll \overline{\Omega}_{\rm e}.\label{eq:ad_constr_idot}
 \end{equation}
 
-Of course, over timescales $\lesssim T_{\rm LK}$, $\uv{S}$ will vary under the
-influence of the $N \geq 1$ harmonics. Thus, we expect that the quantity that
-will be well-conserved under adiabatic evolution is actually the LK-averaged
-$\ev{\theta_{\rm e}}$. A more careful analysis (Appendix~\ref{s:harmonic})
-indicates that the correct averaging interval to use is generally be an integer
-multiple of $T_{\rm LK}$.
+Next, we express $I_{\rm e}$ can be expressed in closed form. When the LK
+oscillations are strong (``phase one''), we define averaged quantities
+\begin{align}
+    \overline{\Omega_{\rm SL} \sin I} &\equiv
+            \overline{\Omega}_{\rm SL} \sin \bar{I},\\
+    \overline{\Omega_{\rm SL} \cos I} &\equiv
+            \overline{\Omega}_{\rm SL} \cos \bar{I}.
+\end{align}
+Then, using Eq.\eqref{eq:weff_def}, we can see that
+\begin{equation}
+    \tan I_{\rm e} = \frac{\overline{\mathcal{A}}\sin \bar{I}}{
+        1 + \overline{\mathcal{A}}\cos \bar{I}},\label{eq:ie_def}
+\end{equation}
+where
+\begin{equation}
+    \overline{\mathcal{A}} \equiv \frac{\overline{\Omega}_{\rm SL}}{
+        \overline{\Omega}_{\rm L}}.
+\end{equation}
+When LK oscillations are suppressed (``phase two''), we just have
+$\overline{\Omega}_{\rm SL} = \Omega_{\rm SL}$, $\overline{\Omega}_{\rm L} =
+\Omega_{\rm L}$, and $\bar{I} = I$.
 
-\subsection{Analysis: Deviation from Adiabaticity}
+\section{Analysis: Deviation from Adiabaticity}
 
-In real systems, the particular extent to which $\ev{\theta_{\rm e}}$ is
+In real systems, the particular extent to which $\overline{\theta}_{\rm e}$ is
 conserved depends on how well Eq.~\eqref{eq:ad_constr} is satisfied. We will
-derive analytical expressions for the relevant frequencies in the problem, then
-use these to estimate $\Delta \ev{\theta_{\rm e}}$, the change in
-$\ev{\theta_{\rm e}}$ over the full inspiral, a purely non-adiabatic effect.
+first present equations of motion for $\overline{\theta}_{\rm e}$. We will then
+derive accurate estimates for important quantities in these equations of motion,
+and use these estimates to derive upper bounds on $\Delta \overline{\theta}_{\rm
+e}$, the change in $\overline{\theta}_{\rm e}$ over the entire inspiral. Taken
+together, this calculation estimates the deviation from adiabaticity as a
+function of initial conditions.
+
+\subsection{Equations of Motion}
+
+From the corotating frame [Eq.~\eqref{eq:dsdt_0only}], consider going to the
+reference frame where $\uv{z} = \uv{\overline{\Omega}}_{\rm e} $ by rotation
+$-\dot{I}_{\rm e}\uv{y}$. In this reference frame, the polar coordinate is just
+$\theta_{\rm e}$ as defined above in Eq.~\eqref{eq:q_eff}, and we call the
+azimuthal coordinate $\phi_{\rm e}$. In this reference frame, the equation of
+motion becomes
+\begin{align}
+    \p{\rd{\uv{S}}{t}}' &= \uv{\overline{\Omega}}_{\rm e} \times \uv{S}
+        - \dot{I}_{\rm e} \uv{y} \times \uv{S}\label{eq:eom_prime}.
+\end{align}
+If we break $\uv{S}$ into components $\uv{S} = S_x\uv{x} + S_y \uv{y} + \cos
+\theta_{\rm e} \uv{z}$ and define complex variable
+\begin{equation}
+    S_\perp \equiv S_x + iS_y = \sin\theta e^{i\phi_{\rm e}},
+\end{equation}
+we can rewrite Eq.~\ref{eq:eom_prime} as
+\begin{equation}
+    \rd{S_\perp}{t} = i\p{\overline{\Omega}_{\rm e}} S_\perp
+        - \dot{I}_{\rm e} \cos \theta_{\rm e}.
+\end{equation}
+Defining
+\begin{equation}
+    \Phi(t) = \int\limits^t \overline{\Omega}_{\rm e}\;\mathrm{d}t,
+\end{equation}
+we obtain formal solution
+\begin{equation}
+    e^{-i\Phi}\s{S_{\perp}(t = \infty) - S_{\perp}(t = -\infty)}
+        = -\int\limits_{-\infty}^\infty
+            e^{-i\Phi(\tau)}\dot{I}_{\rm e} \cos \theta\;\mathrm{d}\tau.
+\end{equation}
+It can be seen that, in the adiabatic limit [Eq.~\eqref{eq:ad_constr_idot}],
+$\abs{S_\perp}$ (and therefore $\theta_{\rm e}$) is conserved, as the phase of
+the integrand in the right hand side varies much faster than the magnitude.
+Furthermore, the deviation from exact conservation of $\abs{S_{\perp}}$ cannot
+exceed $\dot{I}_{\rm e} / \overline{\Omega}_{\rm
+e}$ so long as $\dot{I}_{\rm e} \lesssim \overline{\Omega}_{\rm
+e}$\footnote{Given the complicated evolution of $\overline{\Omega}_{\rm e}$ and
+$\dot{I}_{\rm e}$, it is difficult to give a more exact bound on the deviation
+from adiabaticity. In practice, deviations $\lesssim 1^\circ$ are
+astrophysically negligible, so the exact scaling in this regime is of little
+consequence.}. In the following section, we show that this maximum value can be
+calculated to good accuracy from initial conditions.
+
+\subsection{Estimate of Deviation from Adiabaticity}
+
+Towards estimating $\max \dot{I}_{\rm e} / \overline{\Omega}_{\rm e}$, we first
+differentiate Eq.~\eqref{eq:ie_def},
+\begin{equation}
+    \dot{\overline{I}}_{\rm e} = \p{\frac{\dot{\overline{\mathcal{A}}}}{
+            \overline{\mathcal{A}}}}
+        \frac{\overline{\mathcal{A}} \sin \overline{I}}{
+            1 + 2\overline{\mathcal{A}}\cos \overline{I}
+                + \overline{\mathcal{A}}^2}.
+\end{equation}
+It can be easily hown from Eq.~\eqref{eq:weff_def} that
+\begin{equation}
+    \overline{\Omega}_{\rm e} = \overline{\Omega}_{\rm L}
+        \p{1 + 2\overline{\mathcal{A}}\cos \overline{I}
+            + \overline{A}^2}^{1/2},
+\end{equation}
+from which we obtain
+\begin{equation}
+    \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}
+        = \abs{\frac{\dot{\overline{\mathcal{A}}}}{
+            \overline{\mathcal{A}}}}
+        \frac{1}{\abs{\overline{\Omega}_{\rm L}}}
+        \frac{\overline{\mathcal{A}} \sin \overline{I}}{
+            \p{1 + 2\overline{\mathcal{A}}\cos \overline{I}
+                + \overline{\mathcal{A}}}^{3/2}}.
+\end{equation}
+This is maximized when $\overline{\mathcal{A}} \simeq 1$, and so we obtain that
+the maximum deviation should be bounded by
+\begin{equation}
+    \abs{\frac{\dot{I}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
+        \simeq \abs{\frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}}
+            \frac{1}{\abs{\overline{\Omega}_{\rm L}}}
+            \frac{\sin \overline{I}}{\p{2 + 2\cos \overline{I}}^{3/2}}.
+            \label{eq:idot_over_W}
+\end{equation}
+
+To evaluate this, we make two assumptions: (i) $\overline{I}$ is approximately
+constant, and (ii) $j_{\min} = \sqrt{1 - e_{\max}^2}$ evaluated at
+$\overline{\mathcal{A}} \simeq 1$ is some constant multiple of the initial
+$j_{\min}$, so that
+\begin{equation}
+    \p{j_{\min}}_{\overline{\mathcal{A}} \simeq 1} = f \sqrt{\frac{5}{3}\cos^2
+        I_0},
+\end{equation}
+for some unknown factor $f > 1$. $f$ turns out to be relatively insensitive to
+$I_0$, which is unsurprising, as systems with lower $e_{\max}$ values take more
+cycles to attain $\overline{\mathcal{A}} \simeq 1$ and thus experience a similar
+amount of decay due to GW radiation.
+
+For simplicity, let's first assume $\overline{\mathcal{A}} \simeq 1$ is
+satisfied when the LK oscillations are mostly suppressed, and $e \approx
+e_{\max}$ throughout the LK cycle (we will later see that the scalings are the
+same in the LK-oscillating regime). Then we can write
+\begin{align}
+    \overline{\mathcal{A}} &= \frac{\overline{\Omega}_{\rm SL}}{
+        \overline{\Omega}_{\rm L}}\\
+        &\simeq \frac{3n\p{m_2 + \mu/3}}{2aj^2}\s{\frac{3\cos \overline{I}}{
+            4t_{\rm LK}} \frac{1 + 3e^2/2}{j}}^{-1},\\
+        &\propto \frac{a^{-4}}{j},\\
+    \frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}
+        &= -4\p{\frac{\dot{a}}{a}}_{\rm GW}
+            + \frac{e}{j^2}\p{\rd{e}{t}}_{\rm GW}.
+\end{align}
+Approximating $e \lesssim 1$ in Eqs.~\eqref{eq:dadt_gw} and~\eqref{eq:dedt_gw}
+gives
+\begin{align}
+    \frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}
+        &\simeq \frac{64\mu_{12}^2}{5a^4j^7}15,\\
+    \overline{\Omega}_{\rm L}
+        &\approx \frac{3\cos \overline{I}}{2t_{\rm LK}j},\\
+    \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}
+        &\approx \frac{128\mu_{12}^2}{a^4j^7}
+            \frac{t_{\rm LK}}{\cos \overline{I}}
+            \frac{\sin \overline{I}}{\p{2 + 2\cos \overline{I}}^{3/2}}.
+\end{align}
+$a$ and $j$ are evaluated when $\overline{\mathcal{A}} \simeq 1$, providing a
+further constraint:
 
 \bibliographystyle{mnras}
 \bibliography{Su_LK90}
@@ -211,92 +402,9 @@ $\ev{\theta_{\rm e}}$ over the full inspiral, a purely non-adiabatic effect.
 \section{Effect of Harmonic Terms on Evolution: Averaging Revisited
 }\label{s:harmonic}
 
-In order for the harmonic terms in Eq.~\eqref{eq:dsdt_fullft} to be nonzero, the
-system must be in the LK-oscillating regime. Consider the Hamiltonian
-corresponding to Eq.~\eqref{eq:dsdt_fullft} \citep[see
-e.g.][]{kinoshita,storch}:
-\begin{equation}
-    H = \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
-            \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N t}{T_{\rm LK}}}}
-            \cdot \uv{S}.
-\end{equation}
-Assume for simplicity that the system is not evolving, such that all Fourier
-components $\ev{\bm{\Omega}_{\rm e}}, \bm{\Omega}_{\rm e, N}$ are constant in
-time.
+Floquet!
 
-The objective is now to average $H$ over a suitable interval of time. Assume
-that $\uv{S}$ is also periodic with some period $T_{\rm S}$, such that
-\begin{equation}
-    \uv{S} = \s{\ev{\uv{S}} + \sum\limits_{M = 1}^\infty
-            \bm{S}_{\rm M}\exp \p{i\frac{2\pi M pt}{T}}}.
-\end{equation}
-Note that $\bm{S}_{\rm M}$ must generally be complex, to ensure that $\uv{S}
-\cdot \uv{S}$ does not vary in time. Note also that $T_{\rm S} / T_{\rm LK}$ is
-generally \emph{irrational}. Nevertheless, consider averaging over some interval
-of time $T$ that is a near-integer multiple of both $T_{\rm S}$ and $T_{\rm
-LK}$:
-\begin{align}
-    T &\approx pT_{\rm S} \approx qT_{\rm LK}\label{eq:T_def},\\
-    \frac{1}{T}\int\limits_0^T H\;\mathrm{d}t
-        &= \frac{1}{T}\int\limits_0^T
-            \s{\ev{\bm{\Omega}_{\rm e}} + \sum\limits_{N = 1}^\infty
-            \bm{\Omega}_{\rm e, N}\cos \p{\frac{2\pi N qt}{T}}}
-            \cdot \s{\ev{\uv{S}} + \sum\limits_{M = 1}^\infty
-            \bm{S}_{\rm M}\exp \p{i\frac{2\pi M pt}{T}}}\;\mathrm{d}t,\\
-    \ev{H} &= \ev{\bm{\Omega}_{\rm e}} \cdot \ev{\bm{\uv{S}}}
-            + \frac{1}{2}\sum\limits_{j = 1}^\infty
-                \bm{\Omega}_{\rm e, jp} \cdot \left(\Re\bm{S}_{jq}\right).
-                \label{eq:exp_h}
-\end{align}
-
-Note that $\ev{H}$ is a conserved quantity of the evolution of the system,
-absent GW dissipation. When the summation in this equation can be neglected,
-this implies $\theta_{\rm e}$ is a conserved quantity, as claimed in the main
-text. To understand when the summation can be neglected, we make the following
-observations:
-\begin{itemize}
-    \item The magnitudes of the coefficients $\bm{\Omega}_{\rm e, N}$ fall
-        off exponentially with characteristic scale $N_{\rm scale} \sim
-        \frac{\Delta t}{T_{\rm LK}}$, where $\Delta t$ is the width of the LK
-        eccentricity peak. When $e_{\min} \approx 0$ and $e_{\max} \to 1$, this
-        is $N_\Omega \sim j_{\min}^{1/2}$ \citep{anderson2016formation}. At
-        later times, $N_\Omega$ decreases as $e_{\min}$ is excited and the LK
-        cycle becomes less violent.
-
-    \item In general, $\uv{S}$ tends to precess around $\ev{\bm{\Omega}_{\rm
-        e}}$, albeit not uniformly in time. Therefore, $\ev{\uv{S}}$ is expected
-        to be approximately aligned with $\ev{\bm{\Omega}_{\rm e}}$, while
-        the $\bm{S}_{\rm M}$ are expected to be \emph{perpendicular} to
-        $\ev{\bm{\Omega}_{\rm e}}$.
-
-    \item The degree of misalignment of each of the $\bm{\Omega}_{\rm e, N}$
-        from $\ev{\bm{\Omega}_{\rm e}}$ is related to the amplitude of nutation
-        of $\bm{\Omega}_{\rm e}$ over an LK cycle. In particular, the $x$ and
-        $z$ components of $\bm{\Omega}_{\rm e, N}$ will exhibit order-unity
-        variations in cutoff harmonic $N_{\rm scale}$ when $I_{\rm e}$ is
-        strongly nutating.
-
-    \item Finally, since $\uv{S}$ is driven by $\bm{\Omega}_{\rm e}$, it must
-        have a similar frequency spectrum, implying $M_{\rm scale} \sim N_{\rm
-        scale}q / p$.
-\end{itemize}
-
-Thus, non-negligible contributions from the summation in Eq.~\eqref{eq:exp_h}
-arise when: (i) $\bm{\Omega}_{\rm e}$ is nutating substantially, and (ii) $q, p$
-are sufficiently small that a substantial number of terms $\bm{S}_{jq}$ dot
-against the non-aligned $\bm{\Omega}_{\rm e, jp}$.
-
-Of course, the only astrophysically relevant triples are those that merge within
-a Hubble time, and the systems that best satisfy the assumptions laid out in
-this study are those with well-separated inner binaries $a_{\rm in} \gtrsim
-10\;\mathrm{AU}$. Such systems, which merge within just a few thousands of
-$T_{\rm LK}$, evolve very quickly relative to $T_{\rm LK}$ at early times, and
-exhibit very little $I_{\rm e}$ nutation at later times, and so the contribution
-from such terms in Eq.~\eqref{eq:exp_h} can be neglected.
-
-For systems with more compact binaries, such as those studied in \citep{bin1},
-the contributions from such higher harmonics cannot be neglected. This explains
-the breakdown of conservation of $\theta_{\rm e}$ in these systems.
+\section{Deviation from Adiabaticity: Simplified Models}\label{s:ad_dev_toy}
 
 \bsp
 \label{lastpage} % chktex 24

@@ -46,6 +46,14 @@ def mkdirp(path):
     if not os.path.exists(path):
         os.mkdir(path)
 
+def to_ang(vec):
+    x, y, z = vec[0], vec[1], vec[2]
+    r = np.sqrt(x**2 + y**2 + z**2)
+    q = np.degrees(np.arccos(z / r))
+    pi2 = 2 * np.pi
+    phi = (np.arctan2(y / np.sin(q), x / np.sin(q)) + pi2) % pi2
+    return q, phi
+
 def get_vals(m1, m2, m3, a0, a2, e2, I):
     ''' calculates a bunch of physically relevant values '''
     m12 = m1 + m2
@@ -119,14 +127,6 @@ def ts_cross(x, y):
 def plot_traj_vecs(ret, fn, *args,
                    num_pts=1000, getter_kwargs={},
                    plot_slice=np.s_[::]):
-    def to_ang(vec):
-        x, y, z = vec[0], vec[1], vec[2]
-        r = np.sqrt(x**2 + y**2 + z**2)
-        q = np.degrees(np.arccos(z / r))
-        pi2 = 2 * np.pi
-        phi = (np.arctan2(y / np.sin(q), x / np.sin(q)) + pi2) % pi2
-        return q, phi
-
     t = ret.t[plot_slice]
     L, e, s = to_vars(ret.y)
     fig, ((ax1, ax2),
@@ -671,3 +671,39 @@ def smooth(f, len_sm):
                                f,
                                [f[-1]] * (len(kernel) // 2)))
     return np.convolve(f_padded, kernel, mode='valid')
+
+
+# Recall that the sign of the eigenvector is random
+def get_monodromy(params, tol=1e-9, num_periods=1, **kwargs):
+    getter_kwargs = get_eps(*params)
+    Weff_vec, t_vals = single_cycle_toy(getter_kwargs, **kwargs)
+
+    t0 = t_vals[0]
+    tf = t_vals[-1]
+    period = tf - t0
+    Weff_x_interp = interp1d(t_vals, Weff_vec[0])
+    Weff_z_interp = interp1d(t_vals, Weff_vec[2])
+    Weff_x_mean = np.mean(Weff_vec[0])
+    Weff_z_mean = np.mean(Weff_vec[2])
+    def dydt(t, s):
+        t_curr = (t - t0) % period + t0
+        return np.cross(
+            [Weff_x_interp(t_curr), 0, Weff_z_interp(t_curr)],
+            s)
+
+    sf_arr = []
+    # mat_init = [[1, 0, 0], [0, 1 / np.sqrt(2), 1 / np.sqrt(2)],
+    #             [0, -1 / np.sqrt(2), 1 / np.sqrt(2)]]
+    mat_init = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
+    for s0 in mat_init:
+        ret = solve_ivp(dydt, (t0, t0 + num_periods * period),
+                        s0, atol=tol, rtol=tol, method='Radau')
+        sf_arr.append(ret.y[:, -1])
+
+    mono_mat = np.array(sf_arr).T
+    eigs, eigv = np.linalg.eig(np.matmul(np.linalg.inv(mat_init), mono_mat))
+    one_eig_idx = np.where(abs(np.imag(eigs)) < tol)[0][0]
+    mono_eig = np.real(eigv[:, one_eig_idx])
+    Weff_mean = np.array([Weff_x_mean, 0, Weff_z_mean])
+    Weff_hat = Weff_mean / np.sqrt(np.sum(Weff_mean**2))
+    return mono_mat, mono_eig, Weff_mean
