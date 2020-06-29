@@ -1,3 +1,4 @@
+% for i in ../scripts/lk90/4sims_scan/deviations_one.png ../scripts/lk90/4sims/4sim_90_350.png ../scripts/lk90/4sims/4sim_90_350.png ../scripts/lk90/7_3vec_cropped.png ../scripts/lk90/4sims/good_quants.png; do cp $i LK90_plots; done
     \documentclass[
         fleqn,
         usenatbib,
@@ -125,6 +126,7 @@ studies \citep{anderson2016formation,bin1}. We focus on the evolution with LK
 oscillations, in which case the evolution is approximately broken into two
 phases [see panels (a) and (b) on both plots in Fig.~\ref{fig:4sim_90_350} for
 reference]:
+% TODO remove?
 \begin{itemize}
     \item In the first phase, $e$ and $I$ vary significantly within each LK
         period. If $e_{\min} \ll e_{\max}$, where $e_{\min}$ and $e_{\max}$
@@ -245,12 +247,12 @@ oscillations are strong (``phase one''), we define averaged quantities
 \end{align}
 Then, using Eq.\eqref{eq:weff_def}, we can see that
 \begin{equation}
-    \tan I_{\rm e} = \frac{\overline{\mathcal{A}}\sin \bar{I}}{
-        1 + \overline{\mathcal{A}}\cos \bar{I}},\label{eq:ie_def}
+    \tan I_{\rm e} = \frac{\bar{\mathcal{A}}\sin \bar{I}}{
+        1 + \bar{\mathcal{A}}\cos \bar{I}},\label{eq:ie_def}
 \end{equation}
 where
 \begin{equation}
-    \overline{\mathcal{A}} \equiv \frac{\overline{\Omega}_{\rm SL}}{
+    \bar{\mathcal{A}} \equiv \frac{\overline{\Omega}_{\rm SL}}{
         \overline{\Omega}_{\rm L}}.
 \end{equation}
 When LK oscillations are suppressed (``phase two''), we just have
@@ -268,7 +270,7 @@ e}$, the change in $\overline{\theta}_{\rm e}$ over the entire inspiral. Taken
 together, this calculation estimates the deviation from adiabaticity as a
 function of initial conditions.
 
-\subsection{Equations of Motion}
+\subsection{Equations of Motion}\label{ss:eom_0}
 
 From the corotating frame [Eq.~\eqref{eq:dsdt_0only}], consider going to the
 reference frame where $\uv{z} = \uv{\overline{\Omega}}_{\rm e} $ by rotation
@@ -299,6 +301,7 @@ we obtain formal solution
     e^{-i\Phi}\s{S_{\perp}(t = \infty) - S_{\perp}(t = -\infty)}
         = -\int\limits_{-\infty}^\infty
             e^{-i\Phi(\tau)}\dot{I}_{\rm e} \cos \theta\;\mathrm{d}\tau.
+            \label{eq:formal_sol_0}
 \end{equation}
 It can be seen that, in the adiabatic limit [Eq.~\eqref{eq:ad_constr_idot}],
 $\abs{S_\perp}$ (and therefore $\theta_{\rm e}$) is conserved, as the phase of
@@ -318,33 +321,33 @@ calculated to good accuracy from initial conditions.
 Towards estimating $\max \dot{I}_{\rm e} / \overline{\Omega}_{\rm e}$, we first
 differentiate Eq.~\eqref{eq:ie_def},
 \begin{equation}
-    \dot{\overline{I}}_{\rm e} = \p{\frac{\dot{\overline{\mathcal{A}}}}{
-            \overline{\mathcal{A}}}}
-        \frac{\overline{\mathcal{A}} \sin \overline{I}}{
-            1 + 2\overline{\mathcal{A}}\cos \overline{I}
-                + \overline{\mathcal{A}}^2}.
+    \dot{\overline{I}}_{\rm e} = \p{\frac{\dot{\bar{\mathcal{A}}}}{
+            \bar{\mathcal{A}}}}
+        \frac{\bar{\mathcal{A}} \sin \overline{I}}{
+            1 + 2\bar{\mathcal{A}}\cos \overline{I}
+                + \bar{\mathcal{A}}^2}.
 \end{equation}
-It can be easily hown from Eq.~\eqref{eq:weff_def} that
+It can be easily shown from Eq.~\eqref{eq:weff_def} that
 \begin{equation}
     \overline{\Omega}_{\rm e} = \overline{\Omega}_{\rm L}
-        \p{1 + 2\overline{\mathcal{A}}\cos \overline{I}
+        \p{1 + 2\bar{\mathcal{A}}\cos \overline{I}
             + \overline{A}^2}^{1/2},
 \end{equation}
 from which we obtain
 \begin{equation}
     \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}
-        = \abs{\frac{\dot{\overline{\mathcal{A}}}}{
-            \overline{\mathcal{A}}}}
+        = \abs{\frac{\dot{\bar{\mathcal{A}}}}{
+            \bar{\mathcal{A}}}}
         \frac{1}{\abs{\overline{\Omega}_{\rm L}}}
-        \frac{\overline{\mathcal{A}} \sin \overline{I}}{
-            \p{1 + 2\overline{\mathcal{A}}\cos \overline{I}
-                + \overline{\mathcal{A}}}^{3/2}}.
+        \frac{\bar{\mathcal{A}} \sin \overline{I}}{
+            \p{1 + 2\bar{\mathcal{A}}\cos \overline{I}
+                + \bar{\mathcal{A}}}^{3/2}}.
 \end{equation}
-This is maximized when $\overline{\mathcal{A}} \simeq 1$, and so we obtain that
+This is maximized when $\bar{\mathcal{A}} \simeq 1$, and so we obtain that
 the maximum deviation should be bounded by
 \begin{equation}
     \abs{\frac{\dot{I}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
-        \simeq \abs{\frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}}
+        \simeq \abs{\frac{\dot{\bar{\mathcal{A}}}}{\bar{\mathcal{A}}}}
             \frac{1}{\abs{\overline{\Omega}_{\rm L}}}
             \frac{\sin \overline{I}}{\p{2 + 2\cos \overline{I}}^{3/2}}.
             \label{eq:idot_over_W}
@@ -352,45 +355,172 @@ the maximum deviation should be bounded by
 
 To evaluate this, we make two assumptions: (i) $\overline{I}$ is approximately
 constant, and (ii) $j_{\min} = \sqrt{1 - e_{\max}^2}$ evaluated at
-$\overline{\mathcal{A}} \simeq 1$ is some constant multiple of the initial
+$\bar{\mathcal{A}} \simeq 1$ is some constant multiple of the initial
 $j_{\min}$, so that
 \begin{equation}
-    \p{j_{\min}}_{\overline{\mathcal{A}} \simeq 1} = f \sqrt{\frac{5}{3}\cos^2
-        I_0},
+    j_{\star} \equiv (j)_{\bar{\mathcal{A}} \simeq 1} = f
+        \sqrt{\frac{5}{3}\cos^2 I_0},\label{eq:jstar_ansatz}
 \end{equation}
-for some unknown factor $f > 1$. $f$ turns out to be relatively insensitive to
+for some unknown factor $f > 1$; we use star subscripts to denote evaluation at
+$\bar{\mathcal{A}} \simeq 1$. $f$ turns out to be relatively insensitive to
 $I_0$, which is unsurprising, as systems with lower $e_{\max}$ values take more
-cycles to attain $\overline{\mathcal{A}} \simeq 1$ and thus experience a similar
+cycles to attain $\bar{\mathcal{A}} \simeq 1$ and thus experience a similar
 amount of decay due to GW radiation.
 
-For simplicity, let's first assume $\overline{\mathcal{A}} \simeq 1$ is
-satisfied when the LK oscillations are mostly suppressed, and $e \approx
-e_{\max}$ throughout the LK cycle (we will later see that the scalings are the
-same in the LK-oscillating regime). Then we can write
+For simplicity, let's first assume $\bar{\mathcal{A}} \simeq 1$ is
+satisfied when the LK oscillations are mostly suppressed, and $e_\star \approx
+1$ throughout the LK cycle (we will later see that the scalings are the same in
+the LK-oscillating regime). Then we can write
 \begin{align}
-    \overline{\mathcal{A}} &= \frac{\overline{\Omega}_{\rm SL}}{
-        \overline{\Omega}_{\rm L}}\\
-        &\simeq \frac{3n\p{m_2 + \mu/3}}{2aj^2}\s{\frac{3\cos \overline{I}}{
-            4t_{\rm LK}} \frac{1 + 3e^2/2}{j}}^{-1},\\
-        &\propto \frac{a^{-4}}{j},\\
-    \frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}
+    \bar{\mathcal{A}} &\simeq \frac{3Gn\p{m_2 + \mu/3}}{
+        2c^2a j^2}
+            \s{\frac{3\cos \overline{I}}{
+                4t_{\rm LK}} \frac{1 + 3e^2/2}{j}}^{-1},\\
+        &\simeq \frac{G(m_2 + \mu/3) m_{12}\tilde{a}_3^3}{
+            c^2m_3a^4 j \cos \overline{I}},\label{eq:abar_eq1}\\
+        &\propto \frac{1}{a^4j},\\
+    \frac{\dot{\bar{\mathcal{A}}}}{\bar{\mathcal{A}}}
         &= -4\p{\frac{\dot{a}}{a}}_{\rm GW}
             + \frac{e}{j^2}\p{\rd{e}{t}}_{\rm GW}.
 \end{align}
-Approximating $e \lesssim 1$ in Eqs.~\eqref{eq:dadt_gw} and~\eqref{eq:dedt_gw}
+Approximating $e_\star \approx 1$ in Eqs.~\eqref{eq:dadt_gw} and~\eqref{eq:dedt_gw}
 gives
 \begin{align}
-    \frac{\dot{\overline{\mathcal{A}}}}{\overline{\mathcal{A}}}
-        &\simeq \frac{64\mu_{12}^2}{5a^4j^7}15,\\
-    \overline{\Omega}_{\rm L}
-        &\approx \frac{3\cos \overline{I}}{2t_{\rm LK}j},\\
-    \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}
-        &\approx \frac{128\mu_{12}^2}{a^4j^7}
+    \s{\frac{\dot{\bar{\mathcal{A}}}}{\bar{\mathcal{A}}}}_{
+        \bar{\mathcal{A}} = 1}
+        &\simeq \frac{64G^3 \mu m_{12}^2}{5c^5a_\star^4j_\star^7} \times 15,\\
+    \overline{\Omega}_{\rm L, \star}
+        &\approx \frac{3\cos \overline{I}}{2t_{\rm LK}j_\star},\\
+    \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
+        &\approx \frac{128G^3 \mu m_{12}^2}{c^5 a_\star^4j_\star^6}
             \frac{t_{\rm LK}}{\cos \overline{I}}
             \frac{\sin \overline{I}}{\p{2 + 2\cos \overline{I}}^{3/2}}.
 \end{align}
-$a$ and $j$ are evaluated when $\overline{\mathcal{A}} \simeq 1$, providing a
-further constraint:
+With the ansatz for $j_\star$ given by Eq.~\eqref{eq:jstar_ansatz} and requiring
+Eq.~\eqref{eq:abar_eq1} equal $1$ for a given $j_\star$ and $a_\star$ gives us
+the final expression
+\begin{align}
+    \abs{\frac{\dot{\overline{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
+        \approx{}& \frac{128 G^3 \mu m_{12}^3 \tilde{a}_3^3}{c^5
+        \sqrt{Gm_{12}} m_3}
+            \p{\frac{c^2 m_3 \cos \overline{I}}{G(m_2 + \mu / 3) m_{12}
+                \tilde{a}_3^3}}^{11/8}\nonumber\\
+        &\times \p{j_\star}^{-37/8}
+            \frac{\tan \overline{I}}{
+            \p{2 + 2 \cos \overline{I}}^{3/2}}.\label{eq:prediction}
+\end{align}
+% note this is equal to our I/\Omega_e to some small factor, a few percent?
+The agreement of Eq.~\eqref{eq:prediction} with numerical simulation is
+remarkable, as shown in Fig.~\ref{fig:good_quants}.
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/good_quants.png}
+    \caption{Comparison of $\abs{\frac{\dot{\overline{I}}_{\rm
+    e}}{\overline{\Omega}_{\rm e}}}_{\max}$ extracted from simulations and using
+    Eq.~\eqref{eq:prediction}, where we take $f = 2.6$ [see
+    Eq.~\eqref{eq:jstar_ansatz}]. The merger time $T_{\rm m}$ is shown along the
+    top axis of the plot in units of the characteristic LK timescale at the
+    start of inspiral $t_{\rm LK, 0}$; the LK period is initially of order a few
+    $t_{\rm LK, 0}$. The agreement is remarkable for mergers that are more
+    adiabatic (towards the right).}\label{fig:good_quants}
+\end{figure}
+
+Above, we assumed that $\bar{\mathcal{A}} \simeq 1$ is satisfied when the
+eccentricity is mostly constant (see Fig.~\ref{fig:4sim_90_350} for an
+indication of how accurate this is for the parameter space explored in
+Fig.~\ref{fig:good_quants}). It is also possible that $\bar{\mathcal{A}}
+\simeq 1$ occurs when the eccentricity is still undergoing substantial
+oscillations. In this limit, the binary spends a fraction $\sim j_{\min}$ of the
+LK cycle near $e \simeq e_{\max}$ \citep{anderson2016formation}. This fraction
+of the LK cycle dominates both GW dissipation and $\overline{\Omega}_{\rm L}$
+precession. Thus, both $\dot{\bar{\mathcal{A}}}$ and
+$\overline{\Omega}_{\rm L}$ in Eq.~\eqref{eq:idot_over_W} are evaluated at $e
+\approx e_{\max}$ and are suppressed by factor $j_{\min}$. The $j_{\min}$
+suppression factor cancels out however. In summary, when the eccentricity is
+still substantially oscillating, Eq.~\eqref{eq:prediction} remains accurate when
+$e$ is replaced with $e_{\max}$, its maximum value over the LK cycle.
+
+The accuracy of Eq.~\eqref{eq:prediction} in bounding the total change in
+$\Delta \bar{\theta}_{\rm e}$ over inspiral is shown in
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/deviations_one.png}
+    \caption{Change in $\theta_{\rm e}$ over inspiral as a function of initial
+    inclination $I_0$. Plotted for comparison is the bound $\Delta \theta_{\rm
+    e} \lesssim \abs{\frac{\dot{\overline{I}}_{\rm
+    e}}{\overline{\Omega}_{\rm e}}}_{\max}$, given by Eq.~\eqref{eq:prediction}.
+    It is clear that the given bound is not tight but provides an upper bound
+    for non-conservation of $\theta_{\rm e}$ due to nonadiabatic effects. The
+    leftmost portion of this plot is less reliable as the quasi-periodic
+    assumption within each LK cycle breaks down as GW dissipation within each LK
+    cycle is substantial.}\label{fig:deviations}
+\end{figure}
+
+\section{Analysis: Resonances and Breakdown of $\theta_{\rm e}$ Conservation}
+
+In the previous section, we assumed the $N \geq 1$ Fourier harmonics in
+Eq.~\eqref{eq:dsdt_fullft} are negligible when averaging over an LK period.
+However, when certain resonant conditions are fulfilled, this assumption breaks
+down. For simplicity, we ignore the effects of GW dissipation, in which case the
+system is exactly periodic. We rewrite Eq.~\eqref{eq:dsdt_fullft} in component
+form in the reference frame where $\uv{z}' \propto \bm{\overline{\Omega}}_{\rm
+e}$ (primes are omitted for brevity):
+\begin{align}
+    \p{\rd{\uv{S}}{t}}
+        &= \s{\overline{\Omega}_{\rm e}\uv{z}
+            + \sum\limits_{N = 1}^\infty
+            \Omega_{\rm e N}\p{\cos I_N \uv{z} + \sin I_N \uv{x}}} \cos
+            \p{N\Omega t}
+            \times \uv{S},
+\end{align}
+where $I_n$ is the angle between $\bm{\Omega}_{\rm e N}$ and the $\uv{z}$
+axis, and $\Omega = 2\pi / T_{\rm LK}$ is the LK angular frequency. Following a
+similar procedure to Section~\ref{ss:eom_0}, we obtain a more general form of
+Eq.~\eqref{eq:formal_sol_0}:
+\begin{align}
+    \rd{S_{\perp}}{t} ={}& i\p{\overline{\Omega}_{\rm e} + \Omega_{\rm eN}
+        \cos I_N\cos N \Omega t} S_\perp\nonumber\\
+        &- i\cos \theta \sin I_N \Omega_{\rm eN} \cos N\Omega t.
+\end{align}
+Examining just the second term, we see potential resonances when
+$\overline{\Omega}_{\rm e} = N\Omega$. In practice, $\Omega_{\rm e} \lesssim
+\Omega$ for relevant regions of parameter space
+%TODO
+, so only the $N = 1$ resonance is accessible.
+
+An exact calculation of the resonance dynamics is beyond the scope of this
+paper, but in Appendix~\ref{app:width} we analyze a simpler toy model and find
+a resonance width
+\begin{equation}
+    \Delta \Omega \sim \Omega_{\rm e1}\sin I_1.\label{eq:width}
+\end{equation}
+By resonance width, we mean that $\theta_{\rm e}$ conservation is broken when
+$\abs{\overline{\Omega}_{\rm e} - \Omega} \lesssim \Delta \Omega$. Quantitative
+agreement with this is shown in %TODO
+
+Eq.~\eqref{eq:width} implies the following physical parameters encourage
+breakdown of $\theta_{\rm e}$ conservation:
+\begin{itemize}
+    \item $\bar{\mathcal{A}} \simeq 1$. Otherwise, $\bm{\Omega}_{\rm
+        e}$ does not nutate within an LK cycle, and all the $\bm{\Omega}_{\rm
+        eN}$ must be aligned with $\overline{\Omega}_{\rm e}$, and $I_1 \approx
+        0$.
+
+    \item $e_{\min} \ll e_{\max}$. The importance of this is twofold: (i)
+        increased amplitude of nutation in $\bm{\Omega}_{\rm e}$ and therefore
+        larger $I_1$, and (ii) larger $\overline{\Omega}_{\rm e}$ which is
+        closer to fulfilling the resonant condition.
+\end{itemize}
+
+\section{Discussion}
+
+Relation between $\theta_{\rm e}$ and $\theta_{\rm sl}^{\rm (f)}$, as a function
+of $I$.
+
+The ``chaotic'' behavior in Paper I is due to the choice of random initial
+$\omega$, which can change the magnitude of $\overline{\Omega}_{\rm e}$ by
+around $15$--$20\%$. In the resonant scenario, this can greatly change the final
+outcomes.
 
 \bibliographystyle{mnras}
 \bibliography{Su_LK90}
@@ -404,7 +534,16 @@ further constraint:
 
 Floquet!
 
-\section{Deviation from Adiabaticity: Simplified Models}\label{s:ad_dev_toy}
+% The picture must be as follows: the net precession is about Weff, but the
+% Poincare section is about R. Thus, when the two become strongly misaligned,
+% the fluctuations are larger. This explains why qeff is the correct angle to
+% average to get the qslf prediction.
+
+% but then why ''chaos'' in Paper I regime? Sensitive dependence of Weff, T_lk
+% on w? Also, I don't think there's a conservation law that drags qeff
+% oscillating to <qeff>.
+
+\section{Precession Resonance Toy Model: Resonance Width}\label{app:width}
 
 \bsp
 \label{lastpage} % chktex 24

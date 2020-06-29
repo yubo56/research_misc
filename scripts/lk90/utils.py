@@ -587,7 +587,8 @@ def plot_weff_fft(Weff_vec, times, fn='6_vecfft', plot=True):
 
 TOY_FOLDER = '6toy/'
 mkdirp(TOY_FOLDER)
-def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95), intg_pts=int(3e5)):
+def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95),
+                     w0=0, intg_pts=int(3e4), tf=50, **_kwargs):
     '''
     for far-out system params, solve toy problem in corotating frame
     '''
@@ -595,7 +596,6 @@ def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95), intg_pts=int(3e5
     eps_gr = getter_kwargs['eps_gr']
     a = 1
     W0 = 0
-    w0 = 0
 
     def dydt(t, y):
         e, W, I, w = y
@@ -621,16 +621,15 @@ def single_cycle_toy(getter_kwargs, e0=1e-3, I0=np.radians(95), intg_pts=int(3e5
         )
         return (dedt, dWdt, dIdt, dwdt)
     def start_event(t, y):
-        return y[3] - np.pi / 2
-    def term_event(t, y): # one Kozai cycle, starting from emax
-        return y[3] - 3 * np.pi / 2
-    term_event.terminal = True
+        return (y[3] % np.pi) - np.pi / 2
+    start_event.direction = +1
+
     # use implicit method to ensure symmetry about half-period
-    ret = solve_ivp(dydt, (0, np.inf), [e0, W0, I0, w0],
-                    events=[start_event, term_event], atol=1e-10, rtol=1e-10,
+    ret = solve_ivp(dydt, (0, tf), [e0, W0, I0, w0],
+                    events=[start_event],
+                    atol=1e-10, rtol=1e-10,
                     method='Radau', dense_output=True)
-    times = np.linspace(ret.t_events[0][0], ret.t[-1], intg_pts)
-    # symmetrize for exact symmetry, time-shift to drop dominant phase shift
+    times = np.linspace(ret.t_events[0][0], ret.t_events[0][1], intg_pts)
     def symmetrize(x):
         return (x + np.flip(x, axis=-1)) / 2
     e_arr, W_arr, I_arr, w_arr = ret.sol(times)
@@ -674,7 +673,7 @@ def smooth(f, len_sm):
 
 
 # Recall that the sign of the eigenvector is random
-def get_monodromy(params, tol=1e-9, num_periods=1, **kwargs):
+def get_monodromy(params, tol=1e-8, num_periods=1, **kwargs):
     getter_kwargs = get_eps(*params)
     Weff_vec, t_vals = single_cycle_toy(getter_kwargs, **kwargs)
 
@@ -692,11 +691,10 @@ def get_monodromy(params, tol=1e-9, num_periods=1, **kwargs):
             s)
 
     sf_arr = []
-    # mat_init = [[1, 0, 0], [0, 1 / np.sqrt(2), 1 / np.sqrt(2)],
-    #             [0, -1 / np.sqrt(2), 1 / np.sqrt(2)]]
+    t_init = t0
     mat_init = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     for s0 in mat_init:
-        ret = solve_ivp(dydt, (t0, t0 + num_periods * period),
+        ret = solve_ivp(dydt, (t_init, t_init + num_periods * period),
                         s0, atol=tol, rtol=tol, method='Radau')
         sf_arr.append(ret.y[:, -1])
 
@@ -707,3 +705,66 @@ def get_monodromy(params, tol=1e-9, num_periods=1, **kwargs):
     Weff_mean = np.array([Weff_x_mean, 0, Weff_z_mean])
     Weff_hat = Weff_mean / np.sqrt(np.sum(Weff_mean**2))
     return mono_mat, mono_eig, Weff_mean
+
+# Recall that the sign of the eigenvector is random
+def get_monodromy_fast(params, tol=1e-8, num_periods=1,
+                       e0=1e-3, I0=np.radians(95), **kwargs):
+    getter_kwargs = get_eps(*params)
+    eps_sl = getter_kwargs['eps_sl']
+    eps_gr = getter_kwargs['eps_gr']
+    a = 1
+    w0 = 0
+
+    def dydt(t, y):
+        e, I, w, *svecs = y
+        x = 1 - e**2
+        dedt = (
+            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                    * np.sin(I)**2 / 8
+        )
+        dIdt = (
+            -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                * np.sin(2 * I) / (16 * np.sqrt(x))
+        )
+        dwdt = (
+            3 * a**(3/2)
+                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
+                / (4 * np.sqrt(x))
+            + eps_gr / (a**(5/2) * x)
+        )
+
+        # dW/dt only impacts svecs
+        dWdt = (
+            3 * a**(3/2) * np.cos(I) *
+                (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+            / (4 * np.sqrt(x))
+        )
+
+        Weff_vec = np.array([
+            eps_sl / (a**(5/2) * x) * np.sin(I),
+            0,
+            eps_sl / (a**(5/2) * x) * np.cos(I) - dWdt])
+        s1, s2, s3 = np.reshape(svecs, (3, 3))
+        ds_dt = np.concatenate((
+            np.cross(Weff_vec, s1),
+            np.cross(Weff_vec, s2),
+            np.cross(Weff_vec, s3),
+        ))
+        return (dedt, dIdt, dwdt, *ds_dt)
+    def term_event(t, y): # one Kozai cycle, starting from emax
+        return y[2] - np.pi
+    term_event.terminal = True
+    mat_init = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
+    # use implicit method to ensure symmetry about half-period
+    ret = solve_ivp(dydt, (0, np.inf), [e0, I0, w0, *mat_init.flatten()],
+                    events=[term_event], atol=tol, rtol=tol,
+                    method='Radau', dense_output=True)
+
+    sf_arr = np.reshape(ret.y[3: ,-1], (3, 3))
+
+    mono_mat = np.array(sf_arr).T
+    eigs, eigv = np.linalg.eig(np.matmul(np.linalg.inv(mat_init), mono_mat))
+    one_eig_idx = np.where(abs(np.imag(eigs)) < tol)[0][0]
+    mono_eig = np.real(eigv[:, one_eig_idx])
+
+    return mono_mat, mono_eig

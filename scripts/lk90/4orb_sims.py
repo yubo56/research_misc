@@ -88,6 +88,8 @@ def get_kozai(folder, I_deg, getter_kwargs,
         if save:
             with open(pkl_fn, 'wb') as f:
                 pickle.dump((t, y, t_events), f)
+        else:
+            return ret
     else:
         print('Loading %s' % pkl_fn)
         with open(pkl_fn, 'rb') as f:
@@ -146,6 +148,8 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
         if save:
             with open(pkl_fn, 'wb') as f:
                 pickle.dump(y, f)
+        else:
+            return ret
     else:
         print('Loading %s' % pkl_fn)
         with open(pkl_fn, 'rb') as f:
@@ -172,6 +176,12 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     lk_events_sliced = [lk_events[0][valid_idxs], lk_events[1]]
     ret_lk_sliced = [t, [a, e, W, I, w], lk_events_sliced]
     lk_times = lk_events_sliced[0]
+
+    a_interp = interp1d(t, a)
+    e_interp = interp1d(t, e)
+    I_interp = interp1d(t, I)
+    W_interp = interp1d(t, W)
+    sinterp = interp1d(t, s_vec)
 
     K = np.sqrt(1 - e**2) * np.cos(I)
     Lhat = get_hat(W, I)
@@ -227,6 +237,10 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     dphi_sb_dt = np.gradient(phi_sb) / np.gradient(t)
     lk_period = np.gradient(lk_events[0])
     lk_p_interp = interp1d(lk_events[0], lk_period)
+
+    Lhat_lks = get_hat(W_interp(lk_times), I_interp(lk_times))
+    svec_lks = sinterp(lk_times)
+    q_sl_lks = np.arccos(ts_dot(Lhat_lks, svec_lks))
 
     # computing effective angle to N = 0 axis
     dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
@@ -314,44 +328,53 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         200 * getter_kwargs['eps_gw'] / getter_kwargs['eps_sl']
              * (f_jmin * jmin)**(-6)) * (-np.tan(I_LK + (np.pi - I_LK) / 2) / 2)
     sigm_iout = dIout_tot / (Iout_dot_th * np.sqrt(2 * np.pi))
-    tleftidx = np.where(t > t_Iout_smoothed[2 + idxmax] - 5 * sigm_iout)[0][0]
-    trightidx = np.where(t < t_Iout_smoothed[2 + idxmax] + 5 * sigm_iout)[0][-1]
+    try:
+        tleftidx = np.where(t > t_Iout_smoothed[2 + idxmax] - 5 * sigm_iout)[0][0]
+        trightidx = np.where(t < t_Iout_smoothed[2 + idxmax] + 5 * sigm_iout)[0][-1]
+    except:
+        tleftidx = 0
+        trightidx = len(t) - 1
     xlim_idxs = [tleftidx, min(trightidx, len(t) - 1)]
 
     # get monodromy precession axis for just a few points
     t_monodromy_idxs = []
-    for target_time in np.linspace(lk_times[0], lk_times[-1], 10,
+    for target_time in np.linspace(lk_times[0], lk_times[-1], 30,
                                    endpoint=False):
         t_monodromy_idxs.append(
             np.where(lk_times >= target_time)[0][0])
-    for target_time in np.linspace(t[tleftidx], t[trightidx], 10,
+    for target_time in np.linspace(t[tleftidx], t[trightidx], 30,
                                    endpoint=False):
         t_monodromy_idxs.append(
             np.where(lk_times >= target_time)[0][0])
-    a_interp = interp1d(t, a)
-    e_interp = interp1d(t, e)
-    I_interp = interp1d(t, I)
-    W_interp = interp1d(t, W)
-    sinterp = interp1d(t, s_vec)
+    # t_monodromy_idxs = []
     print('Calculating monodromy')
-    q_monodromy = []
     I_monodromy = []
+    q_mono_pred = None
     for t_idx in t_monodromy_idxs:
         t_curr = lk_times[t_idx]
-        _, mono_vec, _ = get_monodromy(
+        _, mono_vec = get_monodromy_fast(
             params=(m1, m2, m3, a0 * a_interp(t_curr), a2, e2),
             e0=e_interp(t_curr),
             I0=I_interp(t_curr))
+        mono_vec *= np.sign(mono_vec[2])
+        # use mono_vec.z > 0 for I_M, but mono_vec.z < 0 for dot products
+
+        if q_mono_pred is None:
+            t_next = lk_times[t_idx + 1]
+            times = np.linspace(t_curr, t_next, 1000)
+            Lhat_xy = get_hat(W_interp(times), np.full_like(times, np.pi / 2))
+            mono_vec_inertial = mono_vec[0] * Lhat_xy\
+                + np.outer([0, 0, 1], mono_vec[2])
+
+            svec_period = interp1d(t, s_vec)(times)
+            q_mono_period = np.degrees(np.arccos(
+                ts_dot(svec_period, -mono_vec_inertial)))
+            q_mono_pred = np.mean(q_mono_period)
+            print('mono/eff/qslf values',
+                  q_mono_pred, q_eff_pred, np.degrees(q_sl[-1]))
         I_mono = np.degrees(np.arccos(mono_vec[2]))
-
-        Lhat_xy = get_hat(W_interp(t_curr), np.pi / 2)
-        mono_vec_inertial = mono_vec[0] * Lhat_xy + np.array([0, 0, mono_vec[2]])
-
-        q_curr = np.degrees(np.arccos(
-            np.dot(sinterp(t_curr), mono_vec_inertial)))
         I_monodromy.append(I_mono)
-        # q_monodromy.append(q_curr)
-        # print(t_curr, I_monodromy[-1], q_monodromy[-1])
+        print(t_curr, I_monodromy[-1])
     print('Calculated monodromy')
 
     alf=0.7
@@ -482,12 +505,14 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     # axs[3].xlabel(r'$t / t_{\rm LK, 0}$')
     axs[4].plot(t_eff, np.degrees(Iouts), 'r',
                 label=r'$-\bar{I}_{\rm e}$')
-    axs[4].plot(lk_times[t_monodromy_idxs], I_monodromy, 'ko',
+    axs[4].plot(lk_times[t_monodromy_idxs], I_monodromy, 'k--',
                 label=r'$-I_{\rm M}$')
     # axs[4].plot(t, np.degrees(Iouts_exact), 'k',
     #             label=r'$-I_{\rm e}$', alpha=0.3)
-    # axs[4].set_ylabel(r'$I_{\rm e}$')
+    axs[4].set_ylabel(r'$I_{\rm e}$')
     axs[4].legend(fontsize=14)
+    # axs[4].plot(lk_times, np.degrees(q_sl_lks), 'ko')
+    # axs[4].plot(t, np.degrees(q_sl), 'r-', alpha=alf, lw=0.5)
     axs[5].plot(t_lkmids[2 + avg_len // 2:-2 - avg_len // 2],
                 np.abs(averaged_qeff - q_eff_pred), 'ro', ms=0.7, alpha=0.7,
                 label=r'$\left|\Delta \langle\theta_{\rm e}\rangle\right|$')
@@ -797,13 +822,13 @@ def plot_good_quants():
         Ioutdot_max_gaussest = []
         dqeff_num = []
         dqeff_gauss = []
+        dq_dl_maxes = []
         tmerges = []
         for folder, I_deg in zip(dirs + dirs_ensemble, all_Is):
             ret_lk = get_kozai(folder, I_deg, getter_kwargs)
             _, t_eff, _, Iouts, Iout_dot, Weffmag, _, dWsl, dWdot, _,\
                 dqeff, _, _= get_plot_good_quants(ret_lk, None, getter_kwargs)
-            if folder == '4sims/':
-                tmerges.append(ret_lk[0][-1])# don't get too many merger times
+            tmerges.append(ret_lk[0][-1])
             Iout_min = np.min(Iouts)
             Iout_max = np.max(Iouts)
             Iout_mid = (Iout_max + Iout_min) / 2
@@ -814,7 +839,9 @@ def plot_good_quants():
             # TODO do Gaussian fit to Idotout_width
             dWeff_mids.append(Weffmag[mid_idx])
             dWeff_Imaxes.append(Weffmag[np.argmax(Iouts)])
-            Iout_dot_maxes.append(Iout_dot[2 + mid_idx])
+            Iout_dot_maxes.append(Iout_dot[mid_idx - 2])
+
+            dq_dl_maxes.append(np.max(np.abs(Iout_dot) / np.abs(Weffmag[2:-2])))
 
             # more robust estimate of Iout_dot (34% to 68%, one sigma)
             left_idx = np.where(Iouts > (0.68 * Iout_min + 0.34 * Iout_max))[0][0]
@@ -840,15 +867,15 @@ def plot_good_quants():
         with open(pkl_fn, 'wb') as f:
             pickle.dump(
                 (dWeff_mids, dWeff_Imaxes, Iout_dot_maxes, Ioutdot_max_gaussest,
-                 dqeff_num, dqeff_gauss, tmerges), f)
+                 dqeff_num, dqeff_gauss, tmerges, dq_dl_maxes), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             dWeff_mids, dWeff_Imaxes, Iout_dot_maxes, Ioutdot_max_gaussest,\
-                dqeff_num, dqeff_gauss, tmerges = pickle.load(f)
+                dqeff_num, dqeff_gauss, tmerges, dq_dl_maxes = pickle.load(f)
 
     # try estimating Iout_dot scaling
-    f_jmin = 2.3
+    f_jmin = 2.6
     jmin = np.sqrt(5 * cosd(all_Is)**2 / 3)
     Iout_dot_th = 1.5 * (
         200 * getter_kwargs['eps_gw'] / getter_kwargs['eps_sl']
@@ -866,21 +893,26 @@ def plot_good_quants():
     # ax2.set_xlabel(r'$I$ (Deg)')
 
     fig, ax1 = plt.subplots(1, 1, figsize=(6, 6), sharex=True)
-    ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm e}$', ms=1)
+    # ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm e}$', ms=1)
     # ax1.semilogy(all_Is, dWeff_Imaxes, 'bo',
     #              label=r'$\Omega_{\rm e}$ (at $\dot{I}_{\rm e}$ max)')
-    ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
-                 label=r'$\dot{I}_{\rm e}$', ms=1)
-    ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
-                 label=r'$\Omega_{\rm e}$ (Th)')
-    ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
-                 label=r'$\dot{I}_{\rm e}$ (Th)')
+    # ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
+    #              label=r'$\dot{I}_{\rm e}$', ms=1)
+    # ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
+    #              label=r'$\Omega_{\rm e}$ (Th)')
+    # ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
+    #              label=r'$\dot{I}_{\rm e}$ (Th)')
     # ax1.semilogy(all_Is, Ioutdot_max_gaussest, 'ro',
     #              label=r'$\dot{I}_{\rm e}$ (Bounds)')
+    # ax1.legend(fontsize=10)
+    # ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
+    # ax1.set_yticks([0.01, 0.1, 1, 10, 100])
+    # ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
+
+    ax1.semilogy(all_Is, dq_dl_maxes, 'ko', label=r'Numeric')
+    ax1.plot(all_Is[as_idx], (Iout_dot_th / Weff_th)[as_idx],
+             'r', label=r'Analytic')
     ax1.legend(fontsize=10)
-    ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    ax1.set_yticks([0.01, 0.1, 1, 10, 100])
-    ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
 
     tmerge_ax = ax1.twiny()
     tmerge_ax.set_xlim(ax1.get_xlim())
@@ -1246,6 +1278,56 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
     plt.savefig(newfolder + 'devshist' + suffix, dpi=200)
     plt.close()
 
+def bifurcation(m_t=60, num_ratios=10, num_cycles=50, I_deg=70,
+                folder='4_bifurcation/', tol=1e-10):
+    mkdirp(folder)
+    mass_ratios = np.linspace(0, 1, num_ratios + 2)[1:-1]
+    # mass_ratios = [0.5]
+    pkl_fn = folder + 'bifurcation.pkl'
+    m3, a0, a2, e2 = 30, 0.1, 3, 0
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        qsl_arrs = []
+        qeff_arrs = []
+        for mass_ratio in mass_ratios:
+            m1 = mass_ratio * m_t
+            m2 = (1 - mass_ratio) * m_t
+            getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+            getter_kwargs['eps_gw'] = 0
+            # just run to fixed tf, idk how to count periods
+            tf = num_cycles * 10 # probably approximately right idk
+            ret_lk = get_kozai(folder, I_deg, getter_kwargs, tf=tf,
+                               atol=tol, rtol=tol, dense_output=True,
+                               save=False)
+            t, y, lk_events = ret_lk.t, ret_lk.y, ret_lk.t_events
+            ret_s = get_spins_inertial(folder, I_deg, [t, y, lk_events],
+                                       getter_kwargs, save=False,
+                                       atol=tol, rtol=tol)
+
+            # evaluate qsl, qeff
+            a, e, W, I, w = ret_lk.sol(lk_events[0])
+            Lhat_arr = get_hat(W, I)
+            s_arr = ret_s.sol(lk_events[0])
+            qsl = np.degrees(np.arccos(ts_dot(Lhat_arr, s_arr)))
+            print(mass_ratio, qsl.min(), qsl.max())
+            qsl_arrs.append(qsl)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((qsl_arrs, qeff_arrs), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            qsl_arrs, qeff_arrs = pickle.load(f)
+    for mass_ratio, qsl_arr in zip(mass_ratios, qsl_arrs):
+        plt.plot(np.full_like(qsl_arr, mass_ratio), qsl_arr, 'bo', ms=1)
+    plt.xlabel(r'$m_1 / m_{12}$')
+    plt.ylabel(r'$\theta_{\rm SL}$ (eccentricity maxima)')
+    plt.title(r'$(m_{12}, m_3, a_0, a_2, e_0, e_2) ='
+              '(%d M_{\odot}, %d M_{\odot}, %.1f \;\mathrm{AU},'
+              '%d\;\mathrm{AU}, %.3f, %d)$'
+              % (m_t, m3, a0, a2, 1e-3, e2), fontsize=12)
+    plt.savefig(folder + 'bifurcation', dpi=150)
+    plt.close()
+
 if __name__ == '__main__':
     # I_deg = 90.5
     # folder = './'
@@ -1276,11 +1358,11 @@ if __name__ == '__main__':
     # run_for_Ideg('4sims/', 90.5, plotter=plot_good, short=True,
     #              time_slice=np.s_[-45000:-20000])
 
-    for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    # for I_deg in [90.3]:
-        run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
-                     atol=1e-10, rtol=1e-10)
-    # plot_good_quants()
+    # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
+    # # for I_deg in [90.35]:
+    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
+    #                  atol=1e-10, rtol=1e-10)
+    plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
     # s_fns = ['4sim_qsl87_phi_sb189_%s',
@@ -1307,4 +1389,6 @@ if __name__ == '__main__':
     # run_905_grid(I_deg=80, newfolder='4sims80/', af=0.5, n_pts=10,
     #              atol=1e-7, rtol=1e-7, getter_kwargs=getter_kwargs_in,
     #              orig_folder='4inner/')
+    # bifurcation(num_cycles=200, num_ratios=10)
+    # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
     pass

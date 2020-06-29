@@ -667,7 +667,7 @@ def Iscan(getter_kwargs, intg_pts=int(1e5), fn='6_Iscan',
     plt.close()
 
 def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1',
-                      I_vals=np.radians(np.linspace(95, 135, 40)), **kwargs):
+                      I_vals=np.radians(np.linspace(95, 135, 20)), **kwargs):
     ratios = []
     angles = []
     dWs = []
@@ -1138,19 +1138,26 @@ def poincare_runner(params=(30, 30, 30, 0.1, 3, 0), tol=1e-8, I0=np.radians(70),
             [Weff_x_interp(t_curr), 0, Weff_z_interp(t_curr)],
             s)
 
+    t_init = t0 + period / 2
+    # cycle starts at e minimum, t0 is an eccentricity maximum, so events at t
+    # = t0
     def period_event(t, y):
-        # want to transition continuously across (t - t0) % period = 0
         return (t - t0 + period / 2) % period - period / 2
     period_event.direction = +1
     s0 = [np.sin(I0), 0, np.cos(I0)]
-    ret = solve_ivp(dydt, (t0, t0 + num_periods * period), s0,
+    ret = solve_ivp(dydt, (t_init, t_init + num_periods * period), s0,
                     events=[period_event], dense_output=True,
                     atol=tol, rtol=tol, method='Radau')
 
     times = ret.t_events[0]
+    t_this = (times - t0) % period + t0
+    t2_this = (ret.t - t0) % period + t0
     s_lks = ret.sol(times)
     weff_ts = np.outer(Weff_hat, np.ones_like(times))
     q_eff_arr = np.degrees(np.arccos(ts_dot(s_lks, weff_ts)))
+
+    Lin_ts = np.outer(s0, np.ones_like(times)) # s0 = Lin
+    qsl_arr = np.degrees(np.arccos(ts_dot(s_lks, Lin_ts)))
     if fn is not None:
         plt.plot(ret.y[0,:], ret.y[2,:], 'ro', ms=0.5, alpha=0.5)
         plt.plot(s_lks[0,:], s_lks[2,:], 'ko', ms=0.5, alpha=0.7)
@@ -1165,7 +1172,6 @@ def poincare_runner(params=(30, 30, 30, 0.1, 3, 0), tol=1e-8, I0=np.radians(70),
         s_lk_mean = np.mean(s_lks, axis=1)
         plt.plot([0, s_lk_mean[0]], [0, s_lk_mean[2]],
                  'k--', lw=1)
-        print(Weff_hat, mono_eig, s_lk_mean)
         plt.xlim(xlims)
         plt.ylim(ylims)
         plt.xlabel(r'$x$')
@@ -1173,10 +1179,11 @@ def poincare_runner(params=(30, 30, 30, 0.1, 3, 0), tol=1e-8, I0=np.radians(70),
         plt.savefig(fn, dpi=200)
         print('Saved', fn)
         plt.close()
-    return q_eff_arr
+    return q_eff_arr, qsl_arr
 
-def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60, fn='6_poincarescan.png',
-                  n_ratios=100, title=None, **kwargs):
+def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
+                  fn='6toy/6_poincarescan.png',
+                  n_ratios=100, title=None, n_components=5, **kwargs):
     ms = 1.0
     mass_ratios = np.linspace(0, 1, n_ratios + 2)[1:-1] # m1 / m_t
 
@@ -1184,24 +1191,123 @@ def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60, fn='6_poincarescan.png',
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         q_eff_arrs = []
+        qsl_arrs = []
+        freq_ratios = []
+        weff_mags = []
+        weff_angs = []
         for ratio in mass_ratios:
             print('Running for', ratio)
             m1 = m_t * ratio
             m2 = m_t * (1 - ratio)
-            q_eff_arr = poincare_runner(params=(m1, m2, *other_params), **kwargs)
+            q_eff_arr, qsl_arr = poincare_runner(
+                params=(m1, m2, *other_params),
+                **kwargs)
             q_eff_arrs.append(q_eff_arr)
+            qsl_arrs.append(qsl_arr)
+
+            getter_kwargs = get_eps(m1, m2, *other_params)
+            Weff_vec, t_vals = single_cycle_toy(getter_kwargs, **kwargs)
+            period = t_vals[-1] - t_vals[0]
+            Weff_x_mean = np.mean(Weff_vec[0])
+            Weff_z_mean = np.mean(Weff_vec[2])
+            freq_ratios.append(np.sqrt(Weff_x_mean**2 + Weff_z_mean**2)\
+                * period / (2 * np.pi))
+
+            x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, t_vals, plot=False)
+            W0_vec = np.array([x_coeffs[0], z_coeffs[0]])
+            W0_mag = np.sqrt(np.sum(W0_vec**2))
+            W0_hat = W0_vec / W0_mag
+            mags = []
+            angs = []
+            for idx in range(n_components):
+                W_vec = np.array([x_coeffs[idx + 1], z_coeffs[idx + 1]])
+                W_mag = np.sqrt(np.sum(W_vec**2))
+                W_hat = W_vec / W_mag
+                mags.append(W_mag / W0_mag)
+                angs.append(np.degrees(np.arccos(abs(
+                    reg(np.dot(W_hat, W0_hat))))))
+            weff_mags.append(mags)
+            weff_angs.append(angs)
+        weff_mags_byN = np.array(weff_mags).T
+        weff_angs_byN = np.array(weff_angs).T
         with open(pkl_fn, 'wb') as f:
-            pickle.dump(q_eff_arrs, f)
+            pickle.dump((q_eff_arrs, qsl_arrs, freq_ratios,
+                         weff_mags_byN, weff_angs_byN), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            q_eff_arrs = pickle.load(f)
-    for q_eff_arr, ratio in zip(q_eff_arrs, mass_ratios):
-        plt.plot(np.full_like(q_eff_arr, ratio), q_eff_arr, 'bo', ms=ms)
-    plt.xlabel(r'$m_1 / m_{12}$')
-    plt.ylabel(r'$\theta_{\rm e}$ (Deg)')
+            (q_eff_arrs, qsl_arrs, freq_ratios,
+             weff_mags_byN, weff_angs_byN) = pickle.load(f)
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+        2, 2, figsize=(12, 8), sharex=True)
+    for q_eff_arr, qsl_arr, ratio in zip(q_eff_arrs, qsl_arrs, mass_ratios):
+        ax1.plot(np.full_like(q_eff_arr, ratio), q_eff_arr, 'bo', ms=ms)
+        # ax2.plot(np.full_like(q_eff_arr, ratio), qsl_arr, 'bo', ms=ms)
+    ax2.plot(mass_ratios, freq_ratios)
+    for idx, (mags, angs) in enumerate(zip(weff_mags_byN, weff_angs_byN)):
+        ax3.plot(mass_ratios, mags)
+        ax4.plot(mass_ratios, angs, label=r'$N=%d$' % (idx + 1))
+    ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
+    # ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
+    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} T_{\rm LK} / 2\pi$')
+    ax3.set_ylabel(r'$\Omega_{\rm e,N} / \bar{\Omega}_{\rm e}$')
+    ax4.set_ylabel(r'$\Delta I_N$ (Degrees)')
+    ax4.set_xlabel(r'$m_1 / m_{12}$')
+    ax4.legend()
     if title:
-        plt.title(title)
+        ax1.set_title(title)
+    plt.tight_layout()
+    plt.savefig(fn, dpi=200)
+    plt.close()
+
+def poincare_w_scan(params=(30, 30, 30, 0.1, 3, 0),
+                    fn='6toy/6_poincarewscan.png',
+                    n_ws=100, title=None, **kwargs):
+    ms = 1.0
+    w_inits = np.linspace(0, np.pi, n_ws, endpoint=False)
+
+    pkl_fn = fn.replace('png', 'pkl')
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        q_eff_arrs = []
+        qsl_arrs = []
+        freq_ratios = []
+        periods = []
+        for w0 in w_inits:
+            q_eff_arr, qsl_arr = poincare_runner(
+                params=params,
+                w0=w0,
+                **kwargs)
+            q_eff_arrs.append(q_eff_arr)
+            qsl_arrs.append(qsl_arr)
+
+            getter_kwargs = get_eps(*params)
+            Weff_vec, t_vals = single_cycle_toy(getter_kwargs, w0=w0, **kwargs)
+            period = t_vals[-1] - t_vals[0]
+            print('Ran for', w0, 'period was', period)
+            Weff_x_mean = np.mean(Weff_vec[0])
+            Weff_z_mean = np.mean(Weff_vec[2])
+            freq_ratios.append(np.sqrt(Weff_x_mean**2 + Weff_z_mean**2)\
+                * period / (2 * np.pi))
+            periods.append(period)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((q_eff_arrs, qsl_arrs, freq_ratios, periods), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            q_eff_arrs, qsl_arrs, freq_ratios, periods = pickle.load(f)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(12, 8), sharex=True)
+    for q_eff_arr, qsl_arr, w0 in zip(q_eff_arrs, qsl_arrs, w_inits):
+        ax1.plot(np.full_like(q_eff_arr, w0), q_eff_arr, 'bo', ms=ms)
+        ax2.plot(np.full_like(q_eff_arr, w0), qsl_arr, 'bo', ms=ms)
+    ax3.plot(w_inits, freq_ratios)
+    ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
+    ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
+    ax3.set_ylabel(r'$\bar{\Omega}_{\rm e} T_{\rm LK} / 2\pi$')
+    ax3.set_xlabel(r'$m_1 / m_{12}$')
+    if title:
+        ax1.set_title(title)
+    plt.tight_layout()
     plt.savefig(fn, dpi=200)
     plt.close()
 
@@ -1218,22 +1324,67 @@ def poincare_monodromy_scan(
         m2 = m_t * (1 - ratio)
         mono_mat, mono_eig, Weff_mean = \
             get_monodromy(params=(m1, m2, *other_params), **kwargs)
-        # Weff_hat = Weff_mean / np.sqrt(np.sum(Weff_mean**2))
-        # misalignment_angs.append(np.degrees(np.arccos(abs(
-        #     np.dot(mono_eig, Weff_hat)))))
-
-        eigs, _ = np.linalg.eig(mono_mat)
-        misalignment_angs.append(np.max(np.imag(eigs)))
+        Weff_hat = Weff_mean / np.sqrt(np.sum(Weff_mean**2))
+        misalignment_angs.append(np.degrees(np.arccos(abs(
+            np.dot(mono_eig, Weff_hat)))))
     plt.plot(mass_ratios, misalignment_angs, 'ko', ms=ms)
     plt.xlabel(r'$m_1 / m_{12}$')
-    plt.ylabel(r'$\theta_{\rm e}$ (Deg)')
+    plt.ylabel(r'$\cos^{-1} (\bar{\mathbf{\Omega}}_{\rm e} \cdot'
+               r'\mathbf{R})$ (Deg)')
     if title:
         plt.title(title)
     plt.savefig(fn, dpi=200)
     plt.close()
 
+# plot Fourier decomposition components of Weff by scanning over mass ratio
+def A_In_scan(other_params=(30, 0.1, 3, 0),
+              m_t=60, n_components = 4,
+              fn='6toy/6_poincare_In_scan.png',
+              n_ratios=100, title=None, **kwargs):
+    mass_ratios = np.linspace(0, 1, n_ratios + 2)[1:-1] # m1 / m_t
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
+
+    weff_mags = [] # normalized to Weff0
+    weff_angs = [] # relative to Weff0
+    for ratio in mass_ratios:
+        m1 = m_t * ratio
+        m2 = m_t * (1 - ratio)
+        getter_kwargs = get_eps(m1, m2, *other_params)
+        Weff_vec, t_vals = single_cycle_toy(getter_kwargs, **kwargs)
+        print('Ran for', ratio)
+        x_coeffs, z_coeffs = plot_weff_fft(Weff_vec, t_vals, plot=False)
+
+        W0_vec = np.array([x_coeffs[0], z_coeffs[0]])
+        W0_mag = np.sqrt(np.sum(W0_vec**2))
+        W0_hat = W0_vec / W0_mag
+        mags = []
+        angs = []
+        for idx in range(n_components):
+            W_vec = np.array([x_coeffs[idx + 1], z_coeffs[idx + 1]])
+            W_mag = np.sqrt(np.sum(W_vec**2))
+            W_hat = W_vec / W_mag
+            mags.append(W_mag / W0_mag)
+            angs.append(np.degrees(np.arccos(abs(
+                reg(np.dot(W_hat, W0_hat))))))
+        weff_mags.append(mags)
+        weff_angs.append(angs)
+
+    weff_mags_byN = np.array(weff_mags).T
+    weff_angs_byN = np.array(weff_angs).T
+    for idx, (mags, angs) in enumerate(zip(weff_mags_byN, weff_angs_byN)):
+        ax1.plot(mass_ratios, mags)
+        ax2.plot(mass_ratios, angs, label=r'$N=%d$' % (idx + 1))
+
+    ax1.set_ylabel(r'$\Omega_{\rm e,N} / \bar{\Omega}_{\rm e}$')
+    ax2.set_ylabel(r'$\Delta I_N$ (Degrees)')
+    ax2.set_xlabel(r'$m_1 / m_{12}$')
+    ax2.legend()
+    plt.tight_layout()
+    plt.savefig(fn, dpi=200)
+    plt.close()
+
 # e0, I0 kwargs
-def monodromy(params=(30, 20, 30, 100, 4500, 0), tol=1e-8, **kwargs):
+def monodromy_test(params=(30, 20, 30, 100, 4500, 0), tol=1e-8, **kwargs):
     '''
     tries to build monodromy matrix from xhat, yhat, zhat initial conditions
     compares to explicit grid integration?
@@ -1255,9 +1406,12 @@ def monodromy(params=(30, 20, 30, 100, 4500, 0), tol=1e-8, **kwargs):
             s)
 
     mono_mat, mono_eig, _ = get_monodromy(params, tol=tol)
+    # much faster
+    mono_mat2, mono_eig2 = get_monodromy_fast(params, tol=tol)
     Weff_mean = np.array([Weff_x_mean, 0, Weff_z_mean])
     Weff_hat = Weff_mean / np.sqrt(np.sum(Weff_mean**2))
-    print(mono_eig, Weff_hat)
+    print(mono_eig, mono_eig2, Weff_hat)
+    return
     num_periods = 5
     for q0 in np.linspace(0, np.pi, 5)[1:-1]:
         for phi0 in np.linspace(0, 2 * np.pi, 5)[1:-1]:
@@ -1456,35 +1610,51 @@ if __name__ == '__main__':
     # search(params_in, '4inner/4sim_lk_80_000.pkl', '6toy/search', 0.5, 20000,
     #        t_opt=2007.9041936525675)
 
-    poincare_runner(I0=np.radians(88), num_periods=100,
-                    fn='6toy/6_poincare_inner88')
-    poincare_runner(I0=np.radians(70), num_periods=100,
-                    fn='6toy/6_poincare_inner')
-    poincare_runner(I0=np.radians(90.5), num_periods=100,
-                    params=(25, 25, 30, 100, 4500, 0),
-                    fn='6toy/6_poincare_outer')
-    # poincare_scan(num_periods=200, fn='6_poincare_inner.png',
-    #               n_ratios=50,
-    #               title=r'Paper I, $I_0 = 70^\circ$')
-    # poincare_scan(num_periods=200, I0=np.radians(88),
-    #               fn='6_poincare_inner88.png',
-    #               n_ratios=50,
-    #               title=r'Paper I, $I_0 = 88^\circ$')
-    # poincare_scan(other_params=(30, 45, 1000, 0), m_t=50,
-    #               I0=np.radians(90.5),
-    #               num_periods=200, fn='6_poincarescan.png',
-    #               n_ratios=50,
-    #               title=r'Paper II, $I_0 = 90.5^\circ$')
+    # poincare_runner(I0=np.radians(88), num_periods=100,
+    #                 fn='6toy/6_poincare_inner88_single')
+    # poincare_runner(I0=np.radians(90.5), num_periods=100,
+    #                 params=(25, 25, 30, 100, 4500, 0),
+    #                 fn='6toy/6_poincare_outer_single')
+    # poincare_runner(I0=np.radians(70), num_periods=100,
+    #                 fn='6toy/6_poincare_inner_single')
 
-    # poincare_monodromy_scan(fn='6_pmonodromy_inner.png',
+    # poincare_runner(params=(15, 45, 30, 0.1, 3, 0),
+    #                 I0=np.radians(70), num_periods=100,
+    #                 fn='6toy/6_poincare_inner_single_p25')
+    # poincare_runner(params=(20, 40, 30, 0.1, 3, 0),
+    #                 I0=np.radians(70), num_periods=100,
+    #                 fn='6toy/6_poincare_inner_single_p33')
+    # poincare_runner(params=(24, 36, 30, 0.1, 3, 0),
+    #                 I0=np.radians(70), num_periods=100,
+    #                 fn='6toy/6_poincare_inner_single_p4')
+
+    poincare_scan(fn='6toy/6_poincare_inner.png',
+                  num_periods=200,
+                  # num_periods=20, n_ratios=10,
+                  title=r'Paper I, $I_0 = 70^\circ$')
+    poincare_scan(I0=np.radians(88),
+                  num_periods=200,
+                  # num_periods=20, n_ratios=10,
+                  fn='6toy/6_poincare_inner88.png',
+                  title=r'Paper I, $I_0 = 88^\circ$')
+    # poincare_w_scan(I0=np.radians(70),
+    #                 num_periods=200, n_ws=50,
+    #                 fn='6toy/6_poincare_inner_wscan.png',
+    #                 title=r'Paper I, $I_0 = 70^\circ$')
+
+    # poincare_monodromy_scan(fn='6toy/6_pmonodromy_inner.png',
+    #                         I0=np.radians(70),
     #                         title=r'Paper I, $I_0 = 70^\circ$',
-    #                         n_ratios=20)
-    # poincare_monodromy_scan(fn='6_pmonodromy_inner88.png',
+    #                         n_ratios=50)
+    # poincare_monodromy_scan(fn='6toy/6_pmonodromy_inner88.png',
     #                         I0=np.radians(88),
     #                         title=r'Paper I, $I_0 = 88^\circ$',
-    #                         n_ratios=20)
+    #                         n_ratios=50)
+
+    # A_In_scan(I0=np.radians(70), fn='6toy/6_A_In_scan_inner_70.png')
+    # A_In_scan(I0=np.radians(88), fn='6toy/6_A_In_scan_inner_88.png')
 
     # params_in = (30, 30, 30, 0.1, 3, 0)
-    # monodromy()
-    # monodromy(params=params_in)
+    # monodromy_test()
+    # monodromy_test(params=params_in)
     pass
