@@ -338,16 +338,15 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
 
     # get monodromy precession axis for just a few points
     t_monodromy_idxs = []
-    for target_time in np.linspace(lk_times[0], lk_times[-1], 30,
-                                   endpoint=False):
-        t_monodromy_idxs.append(
-            np.where(lk_times >= target_time)[0][0])
-    for target_time in np.linspace(t[tleftidx], t[trightidx], 30,
-                                   endpoint=False):
-        t_monodromy_idxs.append(
-            np.where(lk_times >= target_time)[0][0])
-    # t_monodromy_idxs = []
-    print('Calculating monodromy')
+    # for target_time in np.linspace(lk_times[0], lk_times[-1], 30,
+    #                                endpoint=False):
+    #     t_monodromy_idxs.append(
+    #         np.where(lk_times >= target_time)[0][0])
+    # for target_time in np.linspace(t[tleftidx], t[trightidx], 30,
+    #                                endpoint=False):
+    #     t_monodromy_idxs.append(
+    #         np.where(lk_times >= target_time)[0][0])
+    # print('Calculating monodromy')
     I_monodromy = []
     q_mono_pred = None
     for t_idx in t_monodromy_idxs:
@@ -875,7 +874,7 @@ def plot_good_quants():
                 dqeff_num, dqeff_gauss, tmerges, dq_dl_maxes = pickle.load(f)
 
     # try estimating Iout_dot scaling
-    f_jmin = 2.6
+    f_jmin = 2.3
     jmin = np.sqrt(5 * cosd(all_Is)**2 / 3)
     Iout_dot_th = 1.5 * (
         200 * getter_kwargs['eps_gw'] / getter_kwargs['eps_sl']
@@ -893,26 +892,21 @@ def plot_good_quants():
     # ax2.set_xlabel(r'$I$ (Deg)')
 
     fig, ax1 = plt.subplots(1, 1, figsize=(6, 6), sharex=True)
-    # ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm e}$', ms=1)
+    ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm e}$', ms=1)
     # ax1.semilogy(all_Is, dWeff_Imaxes, 'bo',
     #              label=r'$\Omega_{\rm e}$ (at $\dot{I}_{\rm e}$ max)')
-    # ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
-    #              label=r'$\dot{I}_{\rm e}$', ms=1)
-    # ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
-    #              label=r'$\Omega_{\rm e}$ (Th)')
-    # ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
-    #              label=r'$\dot{I}_{\rm e}$ (Th)')
+    ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
+                 label=r'$\dot{I}_{\rm e}$', ms=1)
+    ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
+                 label=r'$\Omega_{\rm e}$ (Th)')
+    ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
+                 label=r'$\dot{I}_{\rm e}$ (Th)')
     # ax1.semilogy(all_Is, Ioutdot_max_gaussest, 'ro',
     #              label=r'$\dot{I}_{\rm e}$ (Bounds)')
-    # ax1.legend(fontsize=10)
-    # ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    # ax1.set_yticks([0.01, 0.1, 1, 10, 100])
-    # ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
-
-    ax1.semilogy(all_Is, dq_dl_maxes, 'ko', label=r'Numeric')
-    ax1.plot(all_Is[as_idx], (Iout_dot_th / Weff_th)[as_idx],
-             'r', label=r'Analytic')
     ax1.legend(fontsize=10)
+    ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
+    ax1.set_yticks([0.01, 0.1, 1, 10, 100])
+    ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
 
     tmerge_ax = ax1.twiny()
     tmerge_ax.set_xlim(ax1.get_xlim())
@@ -1109,12 +1103,10 @@ def plot_deviations_good(folder):
         else:
             plt.loglog(np.full_like(deltas_per_I, I - 90), np.abs(deltas_per_I),
                        'ko', ms=0.3)
-    ylims = plt.ylim()
-    plt.ylim(ylims)
     plt.xlabel(r'$I - 90^\circ$ (Deg)')
     plt.ylabel(r'$\left|\Delta \theta_{\rm e}\right|$ (Deg)')
     plt.xlim(left=0.15)
-    # plt.ylim(bottom=1e-3)
+    plt.ylim(bottom=1e-3, top=10)
 
     jmin = np.sqrt(5 * cosd(I_vals)**2 / 3)
     Iout_dot_th = (
@@ -1359,10 +1351,10 @@ if __name__ == '__main__':
     #              time_slice=np.s_[-45000:-20000])
 
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    # # for I_deg in [90.35]:
+    # for I_deg in [90.35]:
     #     run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
     #                  atol=1e-10, rtol=1e-10)
-    plot_good_quants()
+    # plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
     # s_fns = ['4sim_qsl87_phi_sb189_%s',
@@ -1377,7 +1369,7 @@ if __name__ == '__main__':
     #               time_slice=np.s_[-45000:-20000])
 
     # run_ensemble('4sims_scan/')
-    # plot_deviations_good('4sims_scan/')
+    plot_deviations_good('4sims_scan/')
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',

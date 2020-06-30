@@ -1183,7 +1183,7 @@ def poincare_runner(params=(30, 30, 30, 0.1, 3, 0), tol=1e-8, I0=np.radians(70),
 
 def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
                   fn='6toy/6_poincarescan.png',
-                  n_ratios=100, title=None, n_components=5, **kwargs):
+                  n_ratios=100, title=None, n_components=2, **kwargs):
     ms = 1.0
     mass_ratios = np.linspace(0, 1, n_ratios + 2)[1:-1] # m1 / m_t
 
@@ -1244,14 +1244,19 @@ def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
         ax1.plot(np.full_like(q_eff_arr, ratio), q_eff_arr, 'bo', ms=ms)
         # ax2.plot(np.full_like(q_eff_arr, ratio), qsl_arr, 'bo', ms=ms)
     ax2.plot(mass_ratios, freq_ratios)
-    for idx, (mags, angs) in enumerate(zip(weff_mags_byN, weff_angs_byN)):
+    zipped = list(zip(weff_mags_byN, weff_angs_byN))[ :n_components]
+    for idx, (mags, angs) in enumerate(zipped):
         ax3.plot(mass_ratios, mags)
         ax4.plot(mass_ratios, angs, label=r'$N=%d$' % (idx + 1))
+
+    widths = weff_mags_byN[0] * np.sin(np.radians(weff_angs_byN[0]))
+    ax2.plot(mass_ratios, 1 - 3 * widths, 'r--')
     ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
     # ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
     ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} T_{\rm LK} / 2\pi$')
+    ax2.set_ylim(top=1)
     ax3.set_ylabel(r'$\Omega_{\rm e,N} / \bar{\Omega}_{\rm e}$')
-    ax4.set_ylabel(r'$\Delta I_N$ (Degrees)')
+    ax4.set_ylabel(r'$I_N$ (Degrees)')
     ax4.set_xlabel(r'$m_1 / m_{12}$')
     ax4.legend()
     if title:
@@ -1628,15 +1633,19 @@ if __name__ == '__main__':
     #                 I0=np.radians(70), num_periods=100,
     #                 fn='6toy/6_poincare_inner_single_p4')
 
-    poincare_scan(fn='6toy/6_poincare_inner.png',
+    # poincare_scan(fn='6toy/6_poincare_inner.png',
+    #               num_periods=200)
+    # poincare_scan(I0=np.radians(88),
+    #               num_periods=200,
+    #               fn='6toy/6_poincare_inner88.png')
+    poincare_scan(other_params=(30, 60, 4500, 0),
+                  m_t=50,
+                  n_components=5,
                   num_periods=200,
-                  # num_periods=20, n_ratios=10,
-                  title=r'Paper I, $I_0 = 70^\circ$')
-    poincare_scan(I0=np.radians(88),
-                  num_periods=200,
-                  # num_periods=20, n_ratios=10,
-                  fn='6toy/6_poincare_inner88.png',
-                  title=r'Paper I, $I_0 = 88^\circ$')
+                  fn='6toy/6_poincare_outer.png',
+                  I0=np.radians(101),
+                  e0=9e-4,
+                  )
     # poincare_w_scan(I0=np.radians(70),
     #                 num_periods=200, n_ws=50,
     #                 fn='6toy/6_poincare_inner_wscan.png',

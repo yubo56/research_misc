@@ -57,7 +57,7 @@ def plot_3vec():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\hat{\mathbf{L}}$',
+            r'$\overline{\mathbf{\Omega}_{\rm SL}}$',
             fontdict={'c': s_c})
 
     # draw arcs
@@ -82,7 +82,7 @@ def plot_3vec():
                 arrowprops=arrowprops(ld_c))
     ax.text(np.sin(np.radians(0.8 * s_q)) * 0.4 + offset,
             np.cos(np.radians(0.8 * s_q)) * 0.4 + 2 * offset,
-            r'$I$',
+            r'$\bar{I}$',
             fontdict={'c': s_c})
     xy_s_tip = (
         0.4 * np.sin(np.radians(s_q)),
