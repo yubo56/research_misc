@@ -327,7 +327,7 @@ def solver(I, e, tf=50, atol=1e-9, rtol=1e-9,
     return ret
 
 # get dWs from an actual ret_lk simulation
-def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4)):
+def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4), get_comps=False):
     t, (a, e, W, I, w), [t_lks, _] = ret_lk
     a_int = interp1d(t, a)
     e_int = interp1d(t, e)
@@ -339,6 +339,7 @@ def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4)):
     dWslz = []
     dWdot_mags = []
     times = []
+    comps = []
 
     # # test, plot Wdot/Wsl over a single "period"
     # start, end = t_lks[1000:1002]
@@ -375,9 +376,23 @@ def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4)):
         dWslz.append(np.mean(W_sl * np.cos(I_int(ts))))
         dWdot_mags.append(np.mean(dWdt))
         times.append((end + start) / 2)
+        if get_comps:
+            comps.append((
+                dct(W_sl * np.sin(I_int(ts)), type=1)[::2] / (2 * size),
+                dct(W_sl * np.cos(I_int(ts)) - dWdt, type=1)[::2] / (2 * size),
+            ))
     dWslx = np.array(dWslx)
     dWslz = np.array(dWslz)
     dWsl_mags = np.sqrt(dWslx**2 + dWslz**2)
+    if get_comps:
+        return (
+            np.array(dWeff_mags),
+            dWsl_mags,
+            np.array(dWdot_mags),
+            np.array(times),
+            dWslx,
+            dWslz,
+            comps)
     return (
         np.array(dWeff_mags),
         dWsl_mags,
@@ -670,7 +685,6 @@ def smooth(f, len_sm):
                                f,
                                [f[-1]] * (len(kernel) // 2)))
     return np.convolve(f_padded, kernel, mode='valid')
-
 
 # Recall that the sign of the eigenvector is random
 def get_monodromy(params, tol=1e-8, num_periods=1, **kwargs):

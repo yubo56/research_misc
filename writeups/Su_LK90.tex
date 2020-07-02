@@ -1,4 +1,4 @@
-% for i in ../scripts/lk90/5_dWs_inner.png ../scripts/lk90/5_dWs.png ../scripts/lk90/6toy/6_poincare_inner88.png ../scripts/lk90/6toy/6_poincare_inner.png ../scripts/lk90/4sims_scan/deviations_one.png ../scripts/lk90/4sims/4sim_90_350.png ../scripts/lk90/4sims/4sim_90_350.png ../scripts/lk90/7_3vec_cropped.png ../scripts/lk90/4sims/good_quants.png; do cp $i LK90_plots; done
+% for i in ../scripts/lk90/6toy/6_poincare_outer.png ../scripts/lk90/5_dWs_inner.png ../scripts/lk90/5_dWs.png ../scripts/lk90/6toy/6_poincare_inner88.png ../scripts/lk90/6toy/6_poincare_inner.png ../scripts/lk90/4sims_scan/deviations_one.png ../scripts/lk90/4sims/4sim_90_350_zoom.png ../scripts/lk90/4sims/4sim_90_350.png ../scripts/lk90/7_3vec_cropped.png ../scripts/lk90/4sims/good_quants.png; do cp $i LK90_plots; done
     \documentclass[
         twocolumn,
         twocolappendix
@@ -500,14 +500,21 @@ Eq.~\eqref{eq:formal_sol_0}:
 \end{align}
 Examining just the second term, we see potential resonances when
 $\overline{\Omega}_{\rm e} = N\Omega$. Since, $\overline{\Omega}_{\rm e}
-\lesssim \Omega$ for most regions of parameter space, we restrict our analysis
-to resonances with the $N = 1$ component.
-% \begin{figure}
-%     \centering
-%     \includegraphics[width=0.8\columnwidth]{LK90_plots/5_dWs.png}
-%     \caption{Ratio $\Omega_{\rm e} / \Omega$ for the two parameter
-%     regimes.}\label{fig:dWs}
-% \end{figure}
+\lesssim \Omega$ for most regions of parameter space (Fig.~\ref{fig:dWsinner}
+and~\ref{fig:dWs}), we
+restrict our analysis to resonances with the $N = 1$ component.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\columnwidth]{LK90_plots/5_dWs_inner.png}
+    \caption{Ratio $\Omega_{\rm e} / \Omega$ as a function of $I_0$ (changing
+    $e_{\max}$) for the close-in regime.}\label{fig:dWsinner}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\columnwidth]{LK90_plots/5_dWs.png}
+    \caption{Same as Fig.~\ref{fig:dWsinner} for the far-out
+    regime.}\label{fig:dWs}
+\end{figure}
 
 A useful measure of the effect of resonances on $\theta_{\rm e}$ conservation is
 to consider, in the absence of GW dissipation, the Poincar\'e section of
@@ -516,23 +523,24 @@ across a range of parameters, this shows the ranges of parameter space where
 $\theta_{\rm e}$ can have substantial oscillations. We choose to vary
 $m_1$ and $m_2$ while holding $m_{12}$ constant, which changes $\Omega_{\rm SL}$
 but does not change the orbital evolution. The results of this experiment are
-shown in Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2}.
+shown in Figs.~\ref{fig:poincare1}--\ref{fig:poincare_out}.
 
 An exact calculation of how the resonance produces the $\theta_{\rm e}$
-oscillations in Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2} is beyond the scope of this paper, but
-in Appendix~\ref{app:width} we analyze a simpler toy model. There, we find
-support for broken $\theta_{\rm e}$ conservation when
-$\abs{\overline{\Omega}_{\rm e} - \Omega} \lesssim \Delta \Omega$ where $\Delta
-\Omega$ is a resonance width that scales like
+oscillations in Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2} is beyond the
+scope of this paper. Instead, we analyze a simpler toy model in
+Appendix~\ref{app:width} that suggests $\theta_{\rm e}$ conservation can break
+when $\abs{\overline{\Omega}_{\rm e} - \Omega} \lesssim \Delta \Omega$ for some
+resonance width $\Delta \Omega$. If we assume the resonance dynamics in the full
+problem are similar to those in the toy model, we expect a resonance width that
+scales like
 \begin{equation}
     \Delta \Omega \propto \Omega_{\rm e1}\sin I_1.\label{eq:width}
 \end{equation}
-The true resonance dynamics are likely complex than the considered toy model,
-but the qualitative scaling appears correct as shown in the top right panels of
-Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2}.
+This assumption seems to produce the correct qualitative scaling when examining
+the top right panels of Figs.~\ref{fig:poincare1}--\ref{fig:poincare_out}.
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\columnwidth]{LK90_plots/6_poincare_inner.png}
+    \includegraphics[width=\columnwidth]{LK90_plots/6_poincare_inner.png}
     \caption{Plots illustrating the effect of the $N = 1$ resonant term on
     $\theta_{\rm e}$ non-conservation when GW dissipation is ignored. In all
     plots, $m_1$ and $m_2$ are varied while holding their sum $m_{12}$ constant,
@@ -542,7 +550,8 @@ Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2}.
     around $m_1 / m_{12} \approx 0.3$. Top right: (blue) the ratio of
     $\overline{\Omega}_{\rm e} / \Omega$ is shown, where $\Omega$ is the LK
     angular frequency, where $\overline{\Omega}_{\rm e} / \Omega = 1$ is the
-    expected resonance location; and (red) the heuristic resonance width given
+    expected resonance location [Eq.~\eqref{eq:width}, assuming a
+    proportionality factor of $3$]; and (red) the heuristic resonance width given
     by Eq.~\eqref{eq:width}. Comparing to Fig.~\ref{fig:poincare2}, we see that
     proximity to the resonance is a necessary condition for $\theta_{\rm e}$
     excitation. Bottom panels: magnitude and orientation of the first two
@@ -552,13 +561,21 @@ Figs.~\ref{fig:poincare1} and~\ref{fig:poincare2}.
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics[width=0.8\columnwidth]{LK90_plots/6_poincare_inner88.png}
+    \includegraphics[width=\columnwidth]{LK90_plots/6_poincare_inner88.png}
     \caption{Same as Fig.~\ref{fig:poincare1} but for $I_0 = 88^\circ$, which
     corresponds to a larger $e_{\max}$. We see that
     $\overline{\Omega}_{\rm e}$ is significantly farther from the resonance (top
     left panel) because the $N = 1$ Fourier component is much less misaligned
     (bottom right panel) which results in much smaller amplitude oscillations in
     $\theta_{\rm e}$ (top left panel).}\label{fig:poincare2}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/6_poincare_outer.png}
+    \caption{Same as Fig.~\ref{fig:poincare1} but for parameters where
+    $\bar{\mathcal{A}} = 1$ in Fig.~\ref{fig:4sim_90_350} ($1 - e_0 = 0.0009$,
+    $I_0 = 101^\circ$, $a_0 = 60$ AU). It is clear that again the system is far
+    from resonance.}\label{fig:poincare_out}
 \end{figure}
 
 Eq.~\eqref{eq:width} implies the following physical parameters encourage

@@ -1179,7 +1179,7 @@ def poincare_runner(params=(30, 30, 30, 0.1, 3, 0), tol=1e-8, I0=np.radians(70),
         plt.savefig(fn, dpi=200)
         print('Saved', fn)
         plt.close()
-    return q_eff_arr, qsl_arr
+    return q_eff_arr, qsl_arr, Weff_vec, t_vals
 
 def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
                   fn='6toy/6_poincarescan.png',
@@ -1199,7 +1199,7 @@ def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
             print('Running for', ratio)
             m1 = m_t * ratio
             m2 = m_t * (1 - ratio)
-            q_eff_arr, qsl_arr = poincare_runner(
+            q_eff_arr, qsl_arr, Weff_vec, t_vals = poincare_runner(
                 params=(m1, m2, *other_params),
                 **kwargs)
             q_eff_arrs.append(q_eff_arr)
@@ -1253,7 +1253,7 @@ def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
     ax2.plot(mass_ratios, 1 - 3 * widths, 'r--')
     ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
     # ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
-    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} T_{\rm LK} / 2\pi$')
+    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega$')
     ax2.set_ylim(top=1)
     ax3.set_ylabel(r'$\Omega_{\rm e,N} / \bar{\Omega}_{\rm e}$')
     ax4.set_ylabel(r'$I_N$ (Degrees)')
@@ -1279,7 +1279,7 @@ def poincare_w_scan(params=(30, 30, 30, 0.1, 3, 0),
         freq_ratios = []
         periods = []
         for w0 in w_inits:
-            q_eff_arr, qsl_arr = poincare_runner(
+            q_eff_arr, qsl_arr, Weff_vec, t_vals = poincare_runner(
                 params=params,
                 w0=w0,
                 **kwargs)
@@ -1287,7 +1287,6 @@ def poincare_w_scan(params=(30, 30, 30, 0.1, 3, 0),
             qsl_arrs.append(qsl_arr)
 
             getter_kwargs = get_eps(*params)
-            Weff_vec, t_vals = single_cycle_toy(getter_kwargs, w0=w0, **kwargs)
             period = t_vals[-1] - t_vals[0]
             print('Ran for', w0, 'period was', period)
             Weff_x_mean = np.mean(Weff_vec[0])
@@ -1633,18 +1632,19 @@ if __name__ == '__main__':
     #                 I0=np.radians(70), num_periods=100,
     #                 fn='6toy/6_poincare_inner_single_p4')
 
-    # poincare_scan(fn='6toy/6_poincare_inner.png',
-    #               num_periods=200)
-    # poincare_scan(I0=np.radians(88),
-    #               num_periods=200,
-    #               fn='6toy/6_poincare_inner88.png')
+    poincare_scan(fn='6toy/6_poincare_inner.png',
+                  num_periods=200)
+    poincare_scan(I0=np.radians(88),
+                  num_periods=200,
+                  fn='6toy/6_poincare_inner88.png')
     poincare_scan(other_params=(30, 60, 4500, 0),
                   m_t=50,
-                  n_components=5,
+                  # n_components=5,
                   num_periods=200,
                   fn='6toy/6_poincare_outer.png',
                   I0=np.radians(101),
-                  e0=9e-4,
+                  e0=1 - 9e-4,
+                  tf=2,
                   )
     # poincare_w_scan(I0=np.radians(70),
     #                 num_periods=200, n_ws=50,
