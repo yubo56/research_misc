@@ -28,11 +28,11 @@ def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
 def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
     ''' useful when eps_gr not << 1, significant corrections '''
     I0_max = np.pi - np.arccos(np.sqrt(3/5))
-    I0s = np.linspace(np.pi / 2 + 0.001, I0_max, num_Is)
+    I0s = np.linspace(np.pi / 2, I0_max, 2 * num_Is)[1::2]
     I0s_d = np.degrees(I0s)
 
-    e0_labels = ['1e-3', '0.003', '0.03', '0.2', '0.9']
-    e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
+    e0_labels = ['0.9', '1e-3', '0.01', '0.1', '0.3']
+    e0s = [0.9, 1e-3, 0.01, 0.1, 0.3]
     colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
 
     pkl_fn = fn + '.pkl'
@@ -44,9 +44,10 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
             dWs = []
             dWs_anal = []
             for I0 in I0s:
-                print(e0, I0)
                 dW_num, (dWSLz_num, dWSLx_num) = get_dW(e0, I0, **kwargs)
-                dWs.append(np.sqrt((abs(dW_num) + dWSLz_num)**2 + dWSLx_num**2))
+                dW_val = np.sqrt((abs(dW_num) + dWSLz_num)**2 + dWSLx_num**2)
+                dWs.append(dW_val)
+                print(e0, np.degrees(I0), dW_val)
 
                 dW_anl, (dWSLz_anl, dWSLx_anl) = get_dW_anal(e0, I0)
                 dWs_anal.append(np.sqrt(
@@ -60,19 +61,35 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             (dWs_lst, dWs_anal_lst) = pickle.load(f)
-    I0s_d_flip = 180 - I0s_d
     for e0, lbl, c, dWs, dWs_anal in\
             zip(e0s, e0_labels, colors, dWs_lst, dWs_anal_lst):
-        plt.plot(I0s_d, np.array(dWs) / (2 * np.pi),
-                 ls='', marker='o', c=c, label=lbl, ms=1.0)
-        plt.plot(I0s_d_flip, np.array(dWs) / (2 * np.pi),
-                 ls='', marker='o', c=c, ms=1.0)
+        plot_idx = np.where(np.sqrt(np.maximum(
+            1 - 5 * cosd(I0s_d)**2 / 3, 0)) > e0)[0]
+        I0s_curr = I0s_d[plot_idx]
+        dWs_curr = np.array(dWs)[plot_idx]
+        I_plot = np.concatenate((180 - I0s_curr[ ::-1], I0s_curr))
+        dW_plot = np.concatenate((dWs_curr[ ::-1], dWs_curr))
+        plt.plot(I_plot, np.array(dW_plot) / (2 * np.pi),
+                 c=c, label=lbl, lw=1.0)
         # plt.plot(I0s_d, dWs_anal / (2 * np.pi),
         #          c=c, ls=':', lw=1.0)
     plt.xlabel(r'$I_0$')
     plt.ylabel(r'$\bar{\Omega}_{\rm e} / \Omega$')
     plt.ylim(bottom=0, top=1.5)
     plt.legend(fontsize=10, ncol=3)
+
+    axes = plt.gca()
+    axes.set_xticks([40, 60, 80, 100, 120, 140])
+    ax2 = axes.twiny()
+    ax2.set_xlim(axes.get_xlim())
+    I_ticks = axes.get_xticks()
+    ax2.set_xticks(I_ticks)
+    ax2.set_xticklabels([
+        "%.2f" % np.sqrt(1 - 5 * cosd(I_tick)**2 / 3)
+        for I_tick in I_ticks])
+    plt.setp(ax2.get_xticklabels(), rotation=45, fontsize=14)
+    ax2.set_xlabel(r'$e_{\max}$')
+
     plt.tight_layout()
     plt.savefig(fn, dpi=200)
     plt.close()
@@ -315,14 +332,16 @@ def plot_resonance_rates():
     pass
 
 if __name__ == '__main__':
-    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    plot_dWs(**getter_kwargs, intg_pts=int(3e5))
+    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    # plot_dWs(**getter_kwargs, intg_pts=int(3e5), num_Is=400,
+    #          method='BDF', atol=1e-12, rtol=1e-12)
 
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     plot_dWs(fn='5_dWs_inner', intg_pts=int(3e5),
-             **getter_kwargs)
+             **getter_kwargs, num_Is=400,
+             method='BDF', atol=1e-12, rtol=1e-12)
 
     # print('No GR limit')
     # check_anal_dWs()

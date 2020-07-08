@@ -403,7 +403,7 @@ def get_dWs(ret_lk, getter_kwargs, stride=1, size=int(1e4), get_comps=False):
 
 # get the dWs for a given parameter set (fresh simulation)
 def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
-           atol=1e-9, rtol=1e-9, intg_pts=int(1e5)):
+           atol=1e-9, rtol=1e-9, intg_pts=int(1e5), **kwargs):
     '''
     total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
     eps_gw
@@ -446,7 +446,7 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
     term_event.terminal = True
     ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
                     events=[term_event], atol=atol, rtol=rtol,
-                    dense_output=True)
+                    dense_output=True, **kwargs)
     times = np.linspace(0, ret.t[-1], intg_pts)
     a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
     dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / (1 - e_arr**2)

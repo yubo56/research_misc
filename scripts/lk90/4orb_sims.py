@@ -159,7 +159,9 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
 def plot_all(folder, ret_lk, s_vec, getter_kwargs,
              fn_template='4sim_%s', time_slice=np.s_[::],
              **kwargs):
+    alf=0.8
     mkdirp(folder)
+
     lk_t, lk_y, lk_events = ret_lk
     if s_vec is None:
         s_vec = np.array(
@@ -271,27 +273,10 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     q_eff_pred = np.mean(q_eff0_interp(
         np.linspace(t_lkmids[2], t_lkmids[4], 1000)))
 
-    # average mu_eff d phi_eff over a precession cycle
-    # phi_Weff_uw = np.unwrap(phi_Weff)
-    # pred_t_vals = np.linspace(t_lkmids[2], t_lkmids[4], 1000)
-    # mu_eff0_interp = interp1d(t_eff, mu_eff0)(pred_t_vals)
-    # phi_Weffinterp = interp1d(t_eff, phi_Weff_uw)(pred_t_vals)
-    # mu_eff0_avg = np.sum(mu_eff0_interp * np.gradient(phi_Weffinterp)) / (
-    #     phi_Weffinterp[-1] - phi_Weffinterp[0])
-    # q_eff_pred = np.degrees(np.arccos(mu_eff0_avg))
-
-    def get_Iout(W, _Wsl, I):
-        def Iout_constr(_Iout):
-            return -W * np.sin(_Iout) + _Wsl * np.sin(I + _Iout)
-
-        if I0 > 90:
-            return brenth(Iout_constr, 0, np.pi - I)
-        return brenth(Iout_constr, -I, 0)
     dWsl = np.sqrt(dWslx**2 + dWslz**2)
     dI_avg = np.arccos(dWslz / np.sqrt(dWslx**2 + dWslz**2))
     I_avg = interp1d(t_lkmids, dI_avg)(t_eff)
 
-    # _Ioutsold = [get_Iout(*args) for args in zip(dWdot, dWsl, dI_avg)]
     _Iouts = []
     I1s = []
     W1mags = []
@@ -313,17 +298,20 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         return smooth(interp1d(t_lkmids, vec)(t_Iout_smoothed), sm_len)
     Iout_smoothed = get_smoothed(_Iouts)
     I1_smoothed = get_smoothed(I1s)
+    offset_idx = 1
     Iout_dot_smoothed = [(Iout_smoothed[i + 1] - Iout_smoothed[i]) /
                              (t_Iout_smoothed[i + 1] - t_Iout_smoothed[i])
-                         for i in range(2, len(Iout_smoothed) - 2)]
+                         for i in range(offset_idx, len(Iout_smoothed) -
+                                        offset_idx)]
 
     # plot averaged theta_e
     averaged_qeff = []
     plot_ts = []
     qeffinterp = interp1d(t_eff, q_eff0)
     # pick an intermediate piece b/c two ends are outside of interp range
-    avg_len = 4
-    for start, end in zip(t_lkmids[2:-2 - avg_len], t_lkmids[2 + avg_len:-2]):
+    avg_len = 1
+    for start, end in zip(t_lkmids[offset_idx:-offset_idx - avg_len],
+                          t_lkmids[offset_idx + avg_len:-offset_idx]):
         interpt = np.linspace(start, end, 1000)
         qeff_interval = qeffinterp(interpt)
         averaged_qeff.append(np.mean(qeff_interval))
@@ -338,217 +326,64 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
              * (f_jmin * jmin)**(-6)) * (-np.tan(I_LK + (np.pi - I_LK) / 2) / 2)
     sigm_iout = dIout_tot / (Iout_dot_th * np.sqrt(2 * np.pi))
     try:
-        tleftidx = np.where(t > t_Iout_smoothed[2 + idxmax] - 5 * sigm_iout)[0][0]
-        trightidx = np.where(t < t_Iout_smoothed[2 + idxmax] + 5 * sigm_iout)[0][-1]
+        tleftidx = np.where(t > t_Iout_smoothed[offset_idx + idxmax]
+                            - 8 * sigm_iout)[0][0]
+        trightidx = np.where(t < t_Iout_smoothed[offset_idx + idxmax]
+                             + 5 * sigm_iout)[0][-1]
     except:
         tleftidx = 0
         trightidx = len(t) - 1
     xlim_idxs = [tleftidx, min(trightidx, len(t) - 1)]
 
-    # get monodromy precession axis for just a few points
-    t_monodromy_idxs = []
-    # for target_time in np.linspace(lk_times[0], lk_times[-1], 30,
-    #                                endpoint=False):
-    #     t_monodromy_idxs.append(
-    #         np.where(lk_times >= target_time)[0][0])
-    # for target_time in np.linspace(t[tleftidx], t[trightidx], 30,
-    #                                endpoint=False):
-    #     t_monodromy_idxs.append(
-    #         np.where(lk_times >= target_time)[0][0])
-    # print('Calculating monodromy')
-    # I_monodromy = []
-    # q_mono_pred = None
-    # for t_idx in t_monodromy_idxs:
-    #     t_curr = lk_times[t_idx]
-    #     _, mono_vec = get_monodromy_fast(
-    #         params=(m1, m2, m3, a0 * a_interp(t_curr), a2, e2),
-    #         e0=e_interp(t_curr),
-    #         I0=I_interp(t_curr))
-    #     mono_vec *= np.sign(mono_vec[2])
-    #     # use mono_vec.z > 0 for I_M, but mono_vec.z < 0 for dot products
-
-    #     if q_mono_pred is None:
-    #         t_next = lk_times[t_idx + 1]
-    #         times = np.linspace(t_curr, t_next, 1000)
-    #         Lhat_xy = get_hat(W_interp(times), np.full_like(times, np.pi / 2))
-    #         mono_vec_inertial = mono_vec[0] * Lhat_xy\
-    #             + np.outer([0, 0, 1], mono_vec[2])
-
-    #         svec_period = interp1d(t, s_vec)(times)
-    #         q_mono_period = np.degrees(np.arccos(
-    #             ts_dot(svec_period, -mono_vec_inertial)))
-    #         q_mono_pred = np.mean(q_mono_period)
-    #         print('mono/eff/qslf values',
-    #               q_mono_pred, q_eff_pred, np.degrees(q_sl[-1]))
-    #     I_mono = np.degrees(np.arccos(mono_vec[2]))
-    #     I_monodromy.append(I_mono)
-    #     print(t_curr, I_monodromy[-1])
-    # print('Calculated monodromy')
-
-    alf=0.8
-    # axs[0].semilogy(t, a, 'r', alpha=alf)
-    # axs[0].set_ylabel(r'$a$')
-    # axs[1].semilogy(t, 1 - e, 'r', alpha=0.3, lw=0.7, label=r'$1 - e$')
-    # axs[1].legend(fontsize=14)
-    # axs[1].set_ylabel(r'$1 - e$')
-    # axs[2].plot(t, W % (2 * np.pi), 'r,', alpha=alf)
-    # axs[2].set_ylabel(r'$\Omega$')
-    # axs[2].plot(t, np.degrees(I), 'r', alpha=0.3, lw=0.7, label=r'$I$')
-    # axs[2].plot(t_eff, np.degrees(I_avg), 'k', alpha=1, lw=2,
-    #             label=r'$\bar{I}$')
-    # axs[2].legend(fontsize=14)
-    # axs[2].set_ylabel(r'$I$')
-    # axs[4].plot(t, w % (2 * np.pi), 'r,', alpha=alf)
-    # axs[4].set_ylabel(r'$\omega$')
-    # axs[5].set_ylim([2 * K[0], 0])
-    # axs[5].plot(t, K, 'r', alpha=alf)
-    # axs[5].set_ylabel(r'$K$')
-    # axs[5].semilogy(t_lkmids, A, 'r', alpha=alf)
-    # axs[5].set_ylabel(r'$\Omega_{\rm SL,N=0} / \dot{\Omega}_{\rm N=0}$')
-    # axs[5].axhline(1, c='k', lw=1)
-    # axs[6].plot(t, np.degrees(q_sl), 'r', alpha=alf)
-    # axs[6].set_ylabel(r'$\theta_{\rm sl}$ ($\theta_{\rm sl,f} = %.2f$)'
-    #                   % np.degrees(q_sl)[-1])
-    # axs[7].plot(t[phi_idxs], phi_sl % (2 * np.pi), 'r,', alpha=alf)
-    # axs[7].set_ylabel(r'$\phi_{\rm sl}$')
-    # axs[8].plot(t, q_eff_me, 'r', alpha=alf)
-    # axs[8].plot(t, q_eff_bin, 'k', alpha=alf)
-    # axs[8].set_ylabel(r'$\left<\theta_{\rm eff, S}\right>$' +
-    #                   r'($\left<\theta_{\rm eff, S, f}\right> = %.2f$)'
-    #                   % q_eff_bin[-1])
-    # axs[8].plot(t, np.degrees(q_sb), 'r', alpha=alf)
-    # axs[8].set_ylabel(r'$\theta_{\rm sb}$ ($\theta_{\rm sb,i} = %.2f$)'
-    #                   % np.degrees(q_sb)[0])
-    # axs[9].plot(t[phi_idxs], (phi_sl - 2 * w[phi_idxs]) % (2 * np.pi), 'r,', alpha=alf)
-    # axs[9].set_ylabel(r'$\phi_{\rm sl} - 2 \omega$')
-    # interp_idx = np.where(np.logical_and(
-    #     t > min(lk_events[0]), A < 1))[0]
-    # axs[9].plot(t[interp_idx],
-    #              dphi_sb_dt[interp_idx] / lk_p_interp(t[interp_idx]),
-    #              'r',
-    #              alpha=alf,
-    #              lw=0.5
-    #              )
-    # axs[9].set_ylabel(r'$\dot{\phi}_{\rm sb} / t_{LK}$')
-    # axs[9].set_ylim((-5, 1))
-    # axs[9].plot(t, phi_sb, 'r,', alpha=alf)
-    # axs[9].set_ylabel(r'$\phi_{\rm sb}$')
-
-    # axs[10].plot(t_eff, q_eff0, 'k', alpha=alf)
-    # axs[10].set_ylabel(r'$\theta_{N=0}$ [$%.2f (%.2f)$--$%.2f$]' %
-    #                    (q_eff0[0], q_eff_pred, q_eff0[-1]))
-    # axs[10].plot(t, q_eff_bin, 'r', alpha=0.3)
-    # axs[11].plot(t_eff, phi_Weff, 'r,', alpha=alf)
-    # axs[11].set_ylabel(r'$\phi_{N=0}$')
-    # lk_axf = 11 # so it's hard to forget lol
-
-    # axs[12].plot(t_eff, np.degrees(I_avg), 'r')
-    # axs[12].set_ylabel(r'$\langle I \rangle_{LK}$')
-    # axs[13].plot(t_eff, np.degrees(Iout_smoothed), 'r')
-    # twinIout_ax = axs[13].twinx()
-    # twinIout_ax.plot(t_eff[2:-2], Iout_dot, 'k', alpha=0.2)
-    # twinIout_ax.set_yticks([])
-    # print('max Iout_dot', np.max(Iout_dot))
-    # axs[13].set_ylabel(r'$I_{\rm out}$')
-    # axs[14].semilogy(t_lkmids, dWsl, 'g')
-    # axs[14].semilogy(t_lkmids, dWdot, 'k')
-    # axs[14].set_ylabel(r'$d\phi / dt$')
-    # axs[14].loglog(t_lkmids[-1] - t_lkmids, dWsl * np.diff(lk_events[0]), 'g')
-    # axs[14].loglog(t_lkmids[-1] - t_lkmids, dWdot * np.diff(lk_events[0]), 'k')
-    # axs[14].set_ylabel(r'$\Delta \phi$')
-    # axs[14].set_ylim([0.01, 100])
-    # NB: dtheta theory for 90.2 ~ 6.12 degrees
-    # for dphi in np.linspace(0, 2 * np.pi, 10):
-    #     print('Idot_num_integ', np.degrees(np.sum(
-    #         Iout_dot * np.cos(dphi + phi_Weff[2:-2]) * np.gradient(t_eff[2:-2]))))
-    # for ax in axs[lk_axf + 1: ]:
-    #     ax.set_xlim(left=0.9 * t[-1])
-    #     ax.set_xlim(220, 225)
-
-    # scatter plots in LK phase space
-    # final_idx = np.where(t < t[-1] * 0.7)[0][-1] # cut off plotting of end
-    # sl = np.s_[ :final_idx]
-    # axs[lk_axf + 1].scatter(w[sl] % (2 * np.pi), 1 - e[sl]**2, c=t[sl],
-    #                         marker=',', alpha=0.5)
-    # axs[lk_axf + 1].set_yscale('log')
-    # axs[lk_axf + 1].set_ylim(min(1 - e**2), max(1 - e**2))
-    # axs[lk_axf + 1].set_xlabel(r'$\omega$')
-    # axs[lk_axf + 1].set_ylabel(r'$1 - e^2$')
-    # axs[lk_axf + 2].scatter(w[sl] % (2 * np.pi), np.degrees(I[sl]), c=t[sl],
-    #                         marker=',', alpha=0.5)
-    # axs[lk_axf + 2].set_xlabel(r'$\omega$')
-    # axs[lk_axf + 2].set_ylabel(r'$I$')
-
     fig, axs_orig = plt.subplots(2, 3, figsize=(16, 9))
     axs = np.reshape(axs_orig, np.size(axs_orig))
 
     dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
-    axs[0].semilogy(t, a, 'k', alpha=alf)
-    axs[0].set_ylabel(r'$a$')
-    axs[1].semilogy(t, 1 - e, 'k', alpha=0.3, lw=0.7, label=r'$1 - e$')
+    axs[0].semilogy(t, a * a0, 'k')
+    axs[0].set_ylabel(r'$a$ (AU)')
+
+    axs[1].semilogy(t, 1 - e, 'k')
     axs[1].set_ylabel(r'$1 - e$')
+
     l1 = axs[2].plot(t, np.degrees(I), 'k', alpha=0.3, lw=0.7, label=r'$I$')
     l2 = axs[2].plot(t_eff, np.degrees(I_avg), 'r', alpha=1, lw=2,
                      label=r'$\bar{I}$')
-    twin2 = axs[2].twinx()
-    l3 = twin2.plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
-                    label=r'$-I_{\rm e}$')
-    l4 = twin2.plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
-                    label=r'$-I_{\rm e1}$')
-
-    lns = l1 + l2 + l3 + l4
     axs[2].set_ylim(bottom=82) # make some space for legend below plot
-    twin2.set_ylim(bottom=-7)
-    axs[2].legend(lns, [l.get_label() for l in lns], fontsize=14,
-                  loc='lower right', ncol=3)
     axs[2].set_ylabel(r'$I$')
-    twin2.set_ylabel(r'$-I_{\rm e}$')
-    axs[3].semilogy(t_lkmids, dWsl, 'g', label=r'$\bar{\Omega}_{\rm SL}$',
-                    lw=1.5, alpha=0.5)
-    axs[3].semilogy(t_lkmids, dWdot, 'r', label=r'$-\bar{\Omega}_{\rm L}$',
-                    lw=1.5, alpha=0.5)
-    axs[3].semilogy(t_lkmids, dWtot, 'k',
-                    label=r'$\bar{\Omega}_{\rm e}$', lw=4)
-    # axs[3].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
-    #                 label=r'$2\pi / T_{\rm LK}$', lw=2)
-    ylims = axs[3].get_ylim()
-    axs[3].semilogy(t_Iout_smoothed[2:-2], np.degrees(Iout_dot_smoothed), 'b',
-                    lw=4, label=r'$-\dot{I}_{\rm e}$')
-    # axs[3].semilogy(t_eff[2:-2], np.degrees(Iout_dot_gauss), 'r:',
-    #                 lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
-    axs[3].legend(fontsize=14)
-    axs[3].set_ylim(ylims)
-    axs[3].set_ylim(bottom=0.1)
-    axs[3].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    # axs[3].xlabel(r'$t / t_{\rm LK, 0}$')
+    axs[2].legend(fontsize=14, ncol=2)
 
-    # axs[4].semilogy(t_lkmids, dWsl / dWdot, 'k')
-    # axs[4].set_ylabel(r'$\bar{\mathcal{A}}$')
-    W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
-    # there's a spike in ratio at late times, probably not physical, don't plot
-    last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
-    axs[4].plot(t_lkmids[ :last_idx],
-                W_lk_ratio[ :last_idx],
-                'k')
-    axs[4].plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
-                'b')
-    axs[4].set_ylabel(r'$\Omega_{\rm e} / \Omega$')
-    axs[5].plot(t_lkmids[2 + avg_len // 2:-2 - avg_len // 2],
-                np.abs(averaged_qeff - q_eff_pred), 'ro', ms=0.7, alpha=0.7,
-                label=r'$\left|\Delta \langle\theta_{\rm e}\rangle\right|$')
-    axs[5].plot(t_Iout_smoothed[2:-2],
-                np.degrees(Iout_dot_smoothed) / Weffmag_smootheds[2:-2],
-                'g', lw=1.5,
-                label=r'$\dot{I}_{\rm e} / \Omega_{\rm e}$')
-    # axs[5].plot(lk_times[t_monodromy_idxs], np.abs(q_monodromy - q_eff_pred),
-    #             'ko', label=r'$\theta_{\rm M}$')
-    axs[5].set_ylabel('Degrees')
-    axs[5].legend(fontsize=14)
-    axs[5].set_yscale('log')
-    axs[5].set_ylim(bottom=1e-4)
+    axs[3].plot(t, np.degrees(q_sl), 'k')
+    axs[3].set_ylabel(r'$\theta_{\rm sl}$')
+
+    axs[4].plot(t_lkmids[offset_idx + avg_len // 2:
+                         -offset_idx - (avg_len + 1) // 2],
+                averaged_qeff,
+                'ro', ms=1.5 if len(averaged_qeff) > 100 else 3)
+    axs[4].plot(t_eff, q_eff0, 'k', alpha=0.3)
+    axs[4].set_ylabel(r'$\theta_{\rm e}$')
+
+    axs[5].semilogy(t_lkmids, dWsl, 'g', label=r'$\overline{\Omega}_{\rm SL}$',
+                    lw=1.5, alpha=0.5)
+    axs[5].semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
+                    lw=1.5, alpha=0.5)
+    axs[5].semilogy(t_lkmids, dWtot, 'k',
+                    label=r'$\overline{\Omega}_{\rm e}$', lw=4)
+    # axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
+    #                 label=r'$2\pi / T_{\rm LK}$', lw=2)
+    ylims = axs[5].get_ylim()
+    axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
+                    Iout_dot_smoothed, 'b',
+                    lw=4, label=r'$-\dot{I}_{\rm e}$')
+    # axs[5].semilogy(t_eff[offset_idx:-offset_idx], np.degrees(Iout_dot_gauss), 'r:',
+    #                 lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
+    axs[5].legend(fontsize=14, ncol=2, loc='upper left')
+    axs[5].set_ylim(ylims)
+    axs[5].set_ylim(bottom=0.03)
+    axs[5].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
 
     lk_axf = len(axs) - 1
-    axs[lk_axf].set_xlabel(r'$t / t_{LK,0}$')
+    axs[lk_axf].set_xlabel(r'$t / t_{\rm LK,0}$')
+    axs[lk_axf].set_xlim(left=t[0], right=t[-1])
     xticks = axs[lk_axf].get_xticks()[1:-1]
     for ax in axs[ :lk_axf]:
         ax.set_xticks(xticks)
@@ -556,6 +391,60 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     print('Saving', folder + fn_template % get_fn_I(I0))
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0), dpi=200)
+
+    # zoomed in plots are fancier
+    axs[3].clear()
+    axs[4].clear()
+
+    twin2 = axs[2].twinx()
+    l3 = twin2.plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
+                    label=r'$-I_{\rm e}$')
+    l4 = twin2.plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
+                    label=r'$-I_{\rm 1}$')
+
+    lns = l1 + l2 + l3 + l4
+    twin2.set_ylim(bottom=-7)
+    axs[2].legend(lns, [l.get_label() for l in lns], fontsize=12,
+                  loc='lower left', ncol=4)
+    twin2.set_ylabel(r'$-I_{\rm e}$')
+
+    axs[2].plot(t, np.degrees(I), 'k', alpha=0.3, lw=0.7, label=r'$I$')
+    axs[2].plot(t_eff, np.degrees(I_avg), 'r', alpha=1, lw=2,
+                label=r'$\bar{I}$')
+
+    W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
+    # there's a spike in ratio at late times, probably not physical, don't plot
+    last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
+    axs[3].plot(t_lkmids[ :last_idx],
+                W_lk_ratio[ :last_idx],
+                'k', label=r'$\overline{\Omega}_{\rm e} / \Omega$')
+    axs[3].plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
+                'b', label=r'$\Omega_{\rm e1} / \Omega$')
+    axs[3].legend(fontsize=14)
+    # axs[3].set_ylabel(r'$\Omega_{\rm e} / \Omega$')
+
+    axs[4].plot(t_lkmids[offset_idx + avg_len // 2:
+                         -offset_idx - (avg_len + 1) // 2],
+                np.abs(averaged_qeff - q_eff_pred), 'ro', ms=0.7, alpha=0.7,
+                label=r'$\left|\Delta \theta_{\rm e}\right|$')
+    axs[4].plot(t_Iout_smoothed[offset_idx:-offset_idx],
+                np.degrees(Iout_dot_smoothed) /
+                Weffmag_smootheds[offset_idx:-offset_idx] / 2,
+                'g', lw=1.5,
+                label=r'$\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}$')
+
+    I0_lkmids = interp1d(t_Iout_smoothed, Iout_smoothed)(t_lkmids[1:last_idx])
+    I1_lkmids = interp1d(t_Iout_smoothed, I1_smoothed)(t_lkmids[1:last_idx])
+    pert1_strength = W1mags[ :-1] / np.abs(
+        (2 * np.pi) / np.diff(t_lkmids) - dWtot[ :-1])
+    axs[4].plot(t_lkmids[1:last_idx],
+                np.degrees(np.sin(abs(I1_lkmids - I0_lkmids))
+                           * pert1_strength[1:last_idx] / 2), 'b',
+                label='Harmonic')
+    axs[4].set_ylabel('Degrees')
+    axs[4].legend(fontsize=12, ncol=2)
+    axs[4].set_yscale('log')
+    axs[4].set_ylim(bottom=1e-3)
 
     axs[lk_axf].set_xlim(left=t[xlim_idxs[0]], right=t[xlim_idxs[1]])
     xticks = axs[lk_axf].get_xticks()[1:-1]
@@ -780,7 +669,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     l2 = plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
                       lw=0.7, alpha=0.5)
     l3 = plt.semilogy(t_lkmids, dWtot, 'k',
-                      label=r'$\langle\Omega_{\rm e}\rangle$', lw=2)
+                      label=r'$\overline{\Omega}_{\rm e}$', lw=2)
     l5 = plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b:',
                       lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e}$')
     ylims = plt.ylim()
@@ -802,7 +691,7 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     # plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
     #              lw=0.7, alpha=0.5)
     # plt.semilogy(t_lkmids, dWtot, 'k',
-    #              label=r'$\langle\Omega_{\rm e}\rangle$', lw=2)
+    #              label=r'$\overline{\Omega}_{\rm e}$', lw=2)
     # plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b',
     #              lw=2, label=r'$\dot{I}_{\rm e}$')
     # plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
@@ -929,14 +818,14 @@ def plot_good_quants():
     # ax1.set_yticks([0.01, 0.1, 1, 10, 100])
     # ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
 
-    fig, ax1 = plt.subplots(1, 1, figsize=(6, 6), sharex=True)
+    ax1 = plt.gca()
     ax1.semilogy(all_Is,
-                 np.array(Iout_dot_maxes) / np.array(dWeff_mids),
+                 np.degrees(np.array(Iout_dot_maxes)) / np.array(dWeff_mids),
                  'ko', label='Numeric')
-    ax1.plot(all_Is[as_idx], Iout_dot_th[as_idx] / Weff_th[as_idx],
+    ax1.plot(all_Is[as_idx], np.degrees(Iout_dot_th[as_idx]) / Weff_th[as_idx],
              'r', label='Analytic')
-    ax1.set_ylabel(r'$\left|\dot{I}_{\rm e} / \bar{\Omega}_{\rm e}\right|'
-                   r'_{\max}$')
+    ax1.set_ylabel(r'$\left|\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}\right|'
+                   r'_{\max}$ (Deg)')
     ax1.set_xlabel(r'$I_0$')
     ax1.legend(fontsize=14)
 
@@ -1136,7 +1025,7 @@ def plot_deviations_good(folder):
             plt.loglog(np.full_like(deltas_per_I, I - 90), np.abs(deltas_per_I),
                        'ko', ms=0.3)
     plt.xlabel(r'$I - 90^\circ$ (Deg)')
-    plt.ylabel(r'$\left|\Delta \theta_{\rm e}\right|$ (Deg)')
+    plt.ylabel(r'$\left|\Delta \theta_{\rm e}^{(f)}\right|$ (Deg)')
     plt.xlim(left=0.15)
     plt.ylim(bottom=1e-3, top=10)
 
@@ -1153,7 +1042,7 @@ def plot_deviations_good(folder):
     # plt.plot(I_vals - 90, dqeff_th, 'b', lw=2,
     #          label=r'$\Omega_{\rm e}$ Constant')
     plt.plot(I_vals - 90, np.degrees(Iout_dot_th / Weff_th), 'r',
-             label=r'$(\dot{I}_{\rm e} / \Omega_{\rm e})_{\max}$')
+             label=r'$[\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}]_{\max}$')
 
     # try second scaling?
     Weff_ratio = 1/8
@@ -1383,10 +1272,10 @@ if __name__ == '__main__':
     #              time_slice=np.s_[-45000:-20000])
 
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    for I_deg in [90.35]:
+    for I_deg in [90.2, 90.35]:
         run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
                      atol=1e-10, rtol=1e-10)
-    # plot_good_quants()
+    plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
     # s_fns = ['4sim_qsl87_phi_sb189_%s',
@@ -1401,7 +1290,7 @@ if __name__ == '__main__':
     #               time_slice=np.s_[-45000:-20000])
 
     # run_ensemble('4sims_scan/')
-    # plot_deviations_good('4sims_scan/')
+    plot_deviations_good('4sims_scan/')
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
