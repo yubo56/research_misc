@@ -141,7 +141,9 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                  np.sin(q_sb0) * np.sin(phi_sb),
                  np.cos(q_sb0)]
 
+        max_step = 0.01 * t_lk[-1]
         ret = solve_ivp(dydt, (t0, t_lk[-1]), s_rot, dense_output=True,
+                        first_step=max_step, max_step=max_step,
                         method=method, **kwargs)
         y = ret.sol(t_lk)
         print('Finished spins for I=%.3f, took %d steps' %
@@ -1290,7 +1292,7 @@ if __name__ == '__main__':
     #     plot_good('4sims905/', ret_lk, s_vec, getter_kwargs, fn_template=s_fn,
     #               time_slice=np.s_[-45000:-20000])
 
-    # run_ensemble('4sims_scan/')
+    run_ensemble('4sims_scan/')
     plot_deviations_good('4sims_scan/')
 
     # run_905_grid()
