@@ -34,7 +34,8 @@ I_LK = np.radians(125) # LK-averaged I?
 
 def get_kozai(folder, I_deg, getter_kwargs,
               a0=1, e0=1e-3, W0=0, w0=0, tf=np.inf, af=0,
-              pkl_template='4sim_lk_%s.pkl', save=True, **kwargs):
+              pkl_template='4sim_lk_%s.pkl', save=True, method='Radau',
+              **kwargs):
     mkdirp(folder)
     I0 = np.radians(I_deg)
     pkl_fn = folder + pkl_template % get_fn_I(I_deg)
@@ -80,7 +81,7 @@ def get_kozai(folder, I_deg, getter_kwargs,
         a_term_event.terminal = True
         events = [peak_event, a_term_event]
         ret = solve_ivp(dydt, (0, tf), y0, events=events,
-                        method='Radau', **kwargs)
+                        method=method, **kwargs)
         t, y, t_events = ret.t, ret.y, ret.t_events
         print('Finished for I=%.3f, took %d steps, t_f %.3f (%d cycles)' %
               (I_deg, len(t), t[-1], len(t_events[0])))
@@ -104,6 +105,7 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                        save=True,
                        t_final=None,
                        load=True,
+                       method='Radau',
                        **kwargs):
     ''' uses the same times as ret_lk '''
     mkdirp(folder)
@@ -140,7 +142,7 @@ def get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
                  np.cos(q_sb0)]
 
         ret = solve_ivp(dydt, (t0, t_lk[-1]), s_rot, dense_output=True,
-                        method='Radau', **kwargs)
+                        method=method, **kwargs)
         y = ret.sol(t_lk)
         print('Finished spins for I=%.3f, took %d steps' %
               (I_deg, len(ret.t)))
@@ -890,14 +892,15 @@ def get_qslfs_base(folder, I_deg, q_sb0, af, phi_sb, **kwargs):
         phi_sb=phi_sb,
         pkl_template=pkl_fn,
         save=True,
-        atol=1e-10,
-        rtol=1e-10,
+        atol=1e-9,
+        rtol=1e-9,
+        method='BDF',
         )
 
 # for run_ensemble, idk how to starmap w/ kwargs
 def get_kozai_kwargs(folder, I_deg, getter_kwargs):
     return get_kozai(folder, I_deg, getter_kwargs,
-                     af=3e-3, atol=1e-10, rtol=1e-10)
+                     af=3e-3, atol=1e-9, rtol=1e-9, method='LSODA')
 
 def run_ensemble(folder, I_vals=np.arange(90.15, 90.5001, 0.005),
                  af=3e-3):
@@ -920,15 +923,15 @@ def run_ensemble(folder, I_vals=np.arange(90.15, 90.5001, 0.005),
         for q_sb0 in qsb_arr:
             for phi_sb in phis:
                 args.append((folder, I_deg, q_sb0, af, phi_sb))
-    with Pool(64) as p:
+    with Pool(32) as p:
         p.starmap(get_qslfs_base, args)
 
 # make the prediction for theta_sl_f using N=0 prediction (re-process from pkl)
 def plot_deviations_good(folder):
     pkl_fn = folder + 'deviations_good.pkl'
-    I_vals=np.arange(90.15, 90.5001, 0.01)
+    I_vals=np.arange(90.15, 90.5001, 0.005)
 
-    n_pts = 5
+    n_pts = 10
     mus_edges = np.linspace(-1, 1, n_pts + 1)
     phis_edges = np.linspace(0, 2 * np.pi, n_pts + 1)
     mus = (mus_edges[ :-1] + mus_edges[1: ]) / 2
@@ -938,7 +941,6 @@ def plot_deviations_good(folder):
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         deltas_deg = []
-        a_vals = []
         dqeff_maxes = []
         dqeff_maxes_g = []
         for I_deg in I_vals:
@@ -969,54 +971,57 @@ def plot_deviations_good(folder):
                     Lhat = get_hat(Wf, If)
                     qslf = np.degrees(np.arccos(np.dot(Lhat, sf)))
 
+                    # predict q_eff final from locally nondissipative sim
+                    getter_kwargs_nondisp = dict(getter_kwargs)
+                    getter_kwargs_nondisp['eps_gw'] = 0
+                    tf = 10 * ret_lk[2][0][0] # initial half-period
+                    ret_nd = get_kozai('nosave', I_deg, getter_kwargs_nondisp,
+                                       save=False, tf=tf,
+                                       atol=1e-9, rtol=1e-9, method='LSODA')
+                    ret_lk_nd = ret_nd.t, ret_nd.y, ret_nd.t_events
+                    svec_ret = get_spins_inertial(
+                        'nosave', I_deg, ret_lk_nd, getter_kwargs_nondisp,
+                        q_sb0=q_sb0,
+                        phi_sb=phi_sb,
+                        save=False,
+                        atol=1e-9,
+                        rtol=1e-9,
+                        method='BDF',
+                        )
+                    s_vec_nd = svec_ret.sol(ret_lk_nd[0])
+
                     # Use shortened ret_lk to pass in just the first few Kozai
                     # cycles
-                    t0, y0, [events0, _] = ret_lk
-                    num_cycles = min(10, len(events0) - 1)
-                    t_idx = np.where(t0 < events0[num_cycles])[0][-1]
-                    t = t0[ :t_idx + 1]
-                    y = y0[:, :t_idx + 1]
-                    events = events0[ :num_cycles]
-                    ret_lk_new = (t, y, [events, None])
-                    _, (a, e, W, I, w), [t_lks, _] = ret_lk_new
-
                     _, _, dWdot, t_lkmids, dWslx, dWslz = get_dWs(
-                        ret_lk_new, getter_kwargs)
+                        ret_lk_nd, getter_kwargs)
                     eff_idx = np.where(np.logical_and(
-                        t < t_lkmids[-1], t > t_lkmids[0]))[0]
-                    t_eff = t[eff_idx]
+                        ret_lk_nd[0] < t_lkmids[-1], ret_lk_nd[0] > t_lkmids[0]))[0]
+                    t_eff = ret_lk_nd[0][eff_idx]
                     Wslx = interp1d(t_lkmids, dWslx)(t_eff)
                     Wslz = interp1d(t_lkmids, dWslz)(t_eff)
                     Wdot = interp1d(t_lkmids, dWdot)(t_eff)
+                    W = ret_lk_nd[1][2]
                     Lhat_xy = get_hat(W[eff_idx],
                                       np.full_like(W[eff_idx], np.pi / 2))
                     Weff = np.outer(np.array([0, 0, 1]),
                                     -Wdot + Wslz) + Wslx * Lhat_xy
                     Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
-                    _q_eff0 = np.arccos(ts_dot(s_vec[:, eff_idx], Weff_hat))
+                    _q_eff0 = np.arccos(ts_dot(s_vec_nd[:, eff_idx], Weff_hat))
                     q_eff0 = np.degrees(_q_eff0)
 
-                    # predict q_eff final
                     q_eff0_interp = interp1d(t_eff, q_eff0)
-                    try:
-                        q_eff_pred = np.mean(q_eff0_interp(
-                            np.linspace(t_lkmids[2], t_lkmids[4], 1000)))
-                    except ValueError:
-                        q_eff_pred = np.mean(q_eff0_interp(
-                            np.linspace(t_lkmids[1], t_lkmids[2], 1000)))
+                    q_eff_pred = np.mean(q_eff0_interp(
+                        np.linspace(ret_lk_nd[2][0][1], ret_lk_nd[2][0][2], 10000)))
 
                     deltas_per_I.append(q_eff_pred - qslf)
 
-                    t_lk2 = np.where(t < t_lkmids[2])[0][-1]
-                    if q_sb0 == qsb_arr[0] and phi_sb == phis[0]:
-                        a_vals.append(y0[0, t_lk2])
             deltas_deg.append(deltas_per_I)
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((deltas_deg, a_vals), f)
+            pickle.dump(deltas_deg, f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            deltas_deg, a_vals = pickle.load(f)
+            deltas_deg = pickle.load(f)
     for I, deltas_per_I in zip(I_vals, deltas_deg):
         if I == I_vals[0]:
             plt.loglog(np.full_like(deltas_per_I, I - 90), np.abs(deltas_per_I),
@@ -1051,10 +1056,6 @@ def plot_deviations_good(folder):
             -1 / (8 * Weff_ratio**2))
     # plt.plot(I_vals - 90, dqeff_new, 'c', lw=2, label='Linear')
 
-    # a_ax = plt.gca().twinx()
-    # a_ax.loglog(I_vals - 90, a_vals, 'g--', lw=2)
-    # a_ax.set_ylim(0.01, 1)
-    # a_ax.set_ylabel(r'$a$ at Time of Averaging')
     plt.legend(fontsize=14, loc='lower left')
     plt.tight_layout()
     plt.savefig(folder + 'deviations_one', dpi=200)
@@ -1272,10 +1273,10 @@ if __name__ == '__main__':
     #              time_slice=np.s_[-45000:-20000])
 
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    for I_deg in [90.2, 90.35]:
-        run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
-                     atol=1e-10, rtol=1e-10)
-    plot_good_quants()
+    # for I_deg in [90.2, 90.35]:
+    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
+    #                  atol=1e-10, rtol=1e-10)
+    # plot_good_quants()
 
     # compare plot_good for 90.5 for a few different angular locations
     # s_fns = ['4sim_qsl87_phi_sb189_%s',
