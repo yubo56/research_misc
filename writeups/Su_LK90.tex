@@ -9,8 +9,10 @@
         newtxtext,
         newtxmath,
         graphicx,
-        ae, aecompl,
-        booktabs
+        ae,
+        aecompl,
+        booktabs,
+        wasysym
     }
     \usepackage[T1]{fontenc}
 
@@ -105,20 +107,20 @@ center of mass of the inner BH binary, and call $\bm{L} \equiv L \uv{L}$ the
 orbital angular momentum of the inner BH binary.
 
 We then consider the motion of the inner binary, described by orbital elements
-Keplerian orbital elements $(a, e, \Omega, I, \omega)$. The equations describing
+Keplerian orbital elements $(a, e, \ascnode, I, \omega)$. The equations describing
 the motion of these orbital elements are \citep{peters1964,storch,bin2}
 \begin{align}
     \rd{a}{t} &= \p{\rd{a}{t}}_{\rm GW},\\
     \rd{e}{t} &= \frac{15}{8t_{\rm LK}} e\sqrt{1 - e^2}\sin 2\omega
         \sin^2 I + \p{\rd{e}{t}}_{\rm GW},\\
-    \rd{\Omega}{t} &= \frac{3}{4t_{\rm LK}}
-        \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}}
-        + \Omega_{\rm GR},\\
+    \rd{\ascnode}{t} &= \frac{3}{4t_{\rm LK}}
+        \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{\sqrt{1 - e^2}},\\
     \rd{I}{t} &= \frac{15}{16}\frac{e^2\sin 2\omega \sin 2I}{
         \sqrt{1 - e^2}},\\
     \rd{\omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{2\p{1 - e^2} + 5\sin^2\omega
-            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}},
+            (e^2 - \sin^2 I)}{\sqrt{1 - e^2}}
+        + \Omega_{\rm GR},
 \end{align}
 where we define
 \begin{align}
@@ -166,7 +168,7 @@ coordinate system, Eq.~\eqref{eq:dsdt} becomes
         &= \bm{\Omega}_{\rm e} \times \uv{S}\label{eq:dsdt_weff},\\
     \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm L}\uv{z} + \Omega_{\rm SL}
             \p{\cos I \uv{z} + \sin I \uv{x}},\label{eq:weff_def}\\
-    \Omega_{\rm L} &\equiv -\rd{\Omega}{t}.\label{eq:Wldef}
+    \Omega_{\rm L} &\equiv -\rd{\ascnode}{t}.\label{eq:Wldef}
 \end{align}
 
 In general, Eq.~\eqref{eq:dsdt_weff} is difficult to analyze, since $\Omega_{\rm
