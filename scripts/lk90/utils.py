@@ -457,7 +457,7 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
 
 # get the dWs with time-averaged jhat (for agreement w/ LL17)
 def get_dWjhat(e0, I0, Lout_mag, L_mag, eps_gr=0, eps_gw=0, eps_sl=1,
-           atol=1e-9, rtol=1e-9, intg_pts=int(1e5)):
+           atol=1e-10, rtol=1e-10, intg_pts=int(3e5)):
     '''
     total delta Omega over an LK cycle, integrate the LK equations w/ eps_gr and
     eps_gw
@@ -500,14 +500,14 @@ def get_dWjhat(e0, I0, Lout_mag, L_mag, eps_gr=0, eps_gw=0, eps_sl=1,
     term_event.terminal = True
     ret = solve_ivp(dydt, (0, np.inf), [a0, e0, W0, I0, w0],
                     events=[term_event], atol=atol, rtol=rtol,
-                    dense_output=True)
+                    method='BDF', dense_output=True)
     times = np.linspace(0, ret.t[-1], intg_pts)
     a_arr, e_arr, W_arr, I_arr, w_arr = ret.sol(times)
     x_arr = 1 - e_arr**2
-    dWsl_z = np.sum(eps_sl / a_arr**(5/2) * np.cos(I_arr) / x_arr
-                    * ret.t[-1] / len(times))
-    dWsl_x = np.sum(eps_sl / a_arr**(5/2) * np.sin(I_arr) / x_arr
-                    * ret.t[-1] / len(times))
+    _dWsl_z = eps_sl / a_arr**(5/2) * np.cos(I_arr) / x_arr
+    _dWsl_x = eps_sl / a_arr**(5/2) * np.sin(I_arr) / x_arr
+    dWsl_z = np.sum(_dWsl_z * ret.t[-1] / len(times))
+    dWsl_x = np.sum(_dWsl_x * ret.t[-1] / len(times))
     dW = (
         3 * a_arr**(3/2) * np.cos(I_arr) *
                 (5 * e_arr**2 * np.cos(w_arr)**2 - 4 * e_arr**2 - 1)
@@ -523,7 +523,12 @@ def get_dWjhat(e0, I0, Lout_mag, L_mag, eps_gr=0, eps_gw=0, eps_sl=1,
     Jvec_hatx, Jvec_hatz = Jvec / np.sqrt(np.sum(Jvec**2, axis=0))
     dWz = np.sum(Jvec_hatz * dW * ret.t[-1] / len(times))
     dWx = np.sum(Jvec_hatx * dW * ret.t[-1] / len(times))
-    return (dWz, dWx), (dWsl_z, dWsl_x)
+
+    Weffx = _dWsl_x - Jvec_hatx * dW
+    Weffz = _dWsl_z - Jvec_hatz * dW
+    x_coeffs = dct(Weffx, type=1)[::2] / (2 * len(times))
+    z_coeffs = dct(Weffz, type=1)[::2] / (2 * len(times))
+    return (dWz, dWx), (dWsl_z, dWsl_x), (x_coeffs, z_coeffs), ret.t[-1]
 
 def get_dW_anal(e0, I0, intg_pts=int(1e5), eps_sl=0, **kwargs):
     # calculate n_e...

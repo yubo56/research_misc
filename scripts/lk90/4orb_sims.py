@@ -1292,7 +1292,7 @@ if __name__ == '__main__':
     #     plot_good('4sims905/', ret_lk, s_vec, getter_kwargs, fn_template=s_fn,
     #               time_slice=np.s_[-45000:-20000])
 
-    run_ensemble('4sims_scan/')
+    # run_ensemble('4sims_scan/')
     plot_deviations_good('4sims_scan/')
 
     # run_905_grid()

@@ -31,8 +31,8 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
     I0s = np.linspace(np.pi / 2, I0_max, 2 * num_Is)[1::2]
     I0s_d = np.degrees(I0s)
 
-    e0_labels = ['0.9', '1e-3', '0.01', '0.1', '0.3']
-    e0s = [0.9, 1e-3, 0.01, 0.1, 0.3]
+    e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
+    e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
     colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
 
     pkl_fn = fn + '.pkl'
@@ -332,10 +332,10 @@ def plot_resonance_rates():
     pass
 
 if __name__ == '__main__':
-    # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-    # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    # plot_dWs(**getter_kwargs, intg_pts=int(3e5), num_Is=400,
-    #          method='BDF', atol=1e-12, rtol=1e-12)
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    plot_dWs(**getter_kwargs, intg_pts=int(3e5), num_Is=400,
+             method='BDF', atol=1e-12, rtol=1e-12)
 
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)

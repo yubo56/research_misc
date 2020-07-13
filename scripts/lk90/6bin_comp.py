@@ -455,21 +455,47 @@ def plot_anal():
     qeff_S1 = np.arccos(np.abs(ts_dot(L_hat, Weff_hat))) # L_hat = initial S
     plt.plot(I_degs, np.degrees(qeff_S1), 'r', lw=1.3, alpha=0.5, label='LL17')
 
-    # my estimate (TODO jhat should be averaged too...)
+    # my estimate
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    qeff_my = []
-    for I, lhat, jhat, qeffs1, wlpmult in\
-            zip(I_rads, L_hat.T, J_hat.T, qeff_S1, WLp_mult):
-        (dWz, dWx), (dWSLz, dWSLx) = get_dWjhat(
-            0.001, I, Lout_mag, L_mag, **getter_kwargs)
-        Weff_my = np.array([dWSLx - dWx, 0, dWSLz - dWz])
-        Weff_my_hat = Weff_my / np.sqrt(np.sum(Weff_my**2, axis=0))
-        qeff_I = np.arccos(np.abs(np.dot(lhat, Weff_my_hat)))
-        qeff_my.append(qeff_I)
-        print(np.degrees(I), np.degrees(qeff_I), np.degrees(qeffs1))
-    qeff_my = np.array(qeff_my)
-    plt.plot(I_degs, np.degrees(qeff_my), 'g', lw=1.3, alpha=0.5, label='YS')
+    import os
+    import pickle
+    pkl_fn = '6bin_comp.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        qeff_my = []
+        strengths = []
+        for I, lhat, jhat, qeffs1, wlpmult in\
+                zip(I_rads, L_hat.T, J_hat.T, qeff_S1, WLp_mult):
+            (dWz, dWx), (dWSLz, dWSLx), (xdct, zdct), tf = get_dWjhat(
+                0.001, I, Lout_mag, L_mag, **getter_kwargs)
+            Weff_my = np.array([dWSLx - dWx, 0, dWSLz - dWz])
+            Weff_my_hat = Weff_my / np.sqrt(np.sum(Weff_my**2, axis=0))
+            qeff_I = np.arccos(np.abs(np.dot(lhat, Weff_my_hat)))
+            qeff_my.append(qeff_I)
+
+            Weff0 = np.sqrt(xdct[0]**2 + zdct[0]**2)
+            Weff1 = np.sqrt(xdct[1]**2 + zdct[1]**2)
+            I0 = np.arctan2(xdct[0], -zdct[0])
+            I1 = np.arctan2(xdct[1], -zdct[1])
+            # print(Weff0 * tf / (2 * np.pi))
+            pert1_strength = np.degrees(abs(
+                Weff1 * np.sin(I1 - I0) /
+                    np.abs((2 * np.pi) / tf - Weff0))) / 2
+            strengths.append(pert1_strength)
+            print(np.degrees(I), np.degrees(qeff_I), np.degrees(qeffs1),
+                  pert1_strength)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((qeff_my, strengths), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            qeff_my, strengths = pickle.load(f)
+    qeff_my = np.degrees(np.array(qeff_my))
+    strengths = np.array(strengths)
+    plt.plot(I_degs, qeff_my, 'g', lw=1.3, alpha=0.5, label='YS')
+    def bound(q, v):
+        return np.maximum(np.minimum(np.full_like(q, v), q), np.zeros_like(q))
 
     plt.xticks([0, 45, 90, 135, 180],
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
@@ -489,8 +515,14 @@ def plot_anal():
              ms=1.0, label='Data (Offset)')
     plt.plot(I_degs[mid_idx], np.degrees(qeff_S1[mid_idx]), 'r',
              lw=1.3, alpha=0.5, label='LL17')
-    plt.plot(I_degs[mid_idx], np.degrees(qeff_my[mid_idx]), 'g',
+    plt.plot(I_degs[mid_idx], qeff_my[mid_idx], 'g',
              lw=1.3, alpha=0.5, label='YS')
+    ylim = plt.ylim()
+    plt.fill_between(I_degs[mid_idx],
+                     bound(qeff_my[mid_idx] + strengths[mid_idx], ylim[1]),
+                     bound(qeff_my[mid_idx] - strengths[mid_idx], ylim[1]),
+                     color='g',
+                     alpha=0.2)
     plt.xlabel(r'$I_0$ (Deg)')
     plt.ylabel(r'$\theta_{\rm SL,f}$')
     plt.axvline(102.6, c='k', ls=':', lw=1)
@@ -1429,7 +1461,7 @@ def monodromy_test(params=(30, 20, 30, 100, 4500, 0), tol=1e-8, **kwargs):
             print(np.dot(s0, mono_eig), np.dot(sf_num, mono_eig))
 
 if __name__ == '__main__':
-    # plot_anal()
+    plot_anal()
     # Icrit_test()
 
     # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
@@ -1507,7 +1539,7 @@ if __name__ == '__main__':
     #       I_vals=np.radians(np.linspace(90.5, 95, 200)))
     # Iscan_grid(getter_kwargs, fn='6_Iscangrid', overplot_905=True)
 
-    params_out = (30, 20, 30, 100, 4500, 0)
+    # params_out = (30, 20, 30, 100, 4500, 0)
     # plot_905_detailed(np.s_[[650, 800, 950, 1200, 4500]],
     #                   params=params_out,
     #                   real_spins_fn='4sims/4sim_s_90_500.pkl',
@@ -1632,20 +1664,20 @@ if __name__ == '__main__':
     #                 I0=np.radians(70), num_periods=100,
     #                 fn='6toy/6_poincare_inner_single_p4')
 
-    poincare_scan(fn='6toy/6_poincare_inner.png',
-                  num_periods=200)
-    poincare_scan(I0=np.radians(88),
-                  num_periods=200,
-                  fn='6toy/6_poincare_inner88.png')
-    poincare_scan(other_params=(30, 60, 4500, 0),
-                  m_t=50,
-                  # n_components=5,
-                  num_periods=200,
-                  fn='6toy/6_poincare_outer.png',
-                  I0=np.radians(101),
-                  e0=1 - 9e-4,
-                  tf=2,
-                  )
+    # poincare_scan(fn='6toy/6_poincare_inner.png',
+    #               num_periods=200)
+    # poincare_scan(I0=np.radians(88),
+    #               num_periods=200,
+    #               fn='6toy/6_poincare_inner88.png')
+    # poincare_scan(other_params=(30, 60, 4500, 0),
+    #               m_t=50,
+    #               # n_components=5,
+    #               num_periods=200,
+    #               fn='6toy/6_poincare_outer.png',
+    #               I0=np.radians(101),
+    #               e0=1 - 9e-4,
+    #               tf=2,
+    #               )
     # poincare_w_scan(I0=np.radians(70),
     #                 num_periods=200, n_ws=50,
     #                 fn='6toy/6_poincare_inner_wscan.png',
