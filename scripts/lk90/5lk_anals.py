@@ -31,8 +31,8 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
     I0s = np.linspace(np.pi / 2, I0_max, 2 * num_Is)[1::2]
     I0s_d = np.degrees(I0s)
 
-    e0_labels = ['1e-3', '0.01', '0.1', '0.3', '0.9']
-    e0s = [1e-3, 0.01, 0.1, 0.3, 0.9]
+    e0_labels = ['0.9', '1e-3', '0.01', '0.1', '0.3']
+    e0s = [0.9, 1e-3, 0.01, 0.1, 0.3]
     colors = ['C0', 'C1', 'C2', 'C3', 'C4', 'C5', 'C6']
 
     pkl_fn = fn + '.pkl'
@@ -61,8 +61,13 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             (dWs_lst, dWs_anal_lst) = pickle.load(f)
-    for e0, lbl, c, dWs, dWs_anal in\
-            zip(e0s, e0_labels, colors, dWs_lst, dWs_anal_lst):
+    for idx in np.argsort(e0s):
+        e0 = e0s[idx]
+        lbl = e0_labels[idx]
+        c = colors[idx]
+        dWs = dWs_lst[idx]
+        dWs_anal = dWs_anal_lst[idx]
+
         plot_idx = np.where(np.sqrt(np.maximum(
             1 - 5 * cosd(I0s_d)**2 / 3, 0)) > e0)[0]
         I0s_curr = I0s_d[plot_idx]

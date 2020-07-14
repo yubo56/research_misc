@@ -7,7 +7,7 @@ try:
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.rc('text', usetex=True)
-    plt.rc('font', family='serif', size=16)
+    plt.rc('font', family='serif', size=20)
     plt.rc('lines', lw=3.5)
     plt.rc('xtick', direction='in', top=True, bottom=True)
     plt.rc('ytick', direction='in', left=True, right=True)
@@ -458,8 +458,6 @@ def plot_anal():
     # my estimate
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
     getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    import os
-    import pickle
     pkl_fn = '6bin_comp.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
@@ -500,10 +498,8 @@ def plot_anal():
     plt.xticks([0, 45, 90, 135, 180],
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
     plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$\theta_{\rm SL,f}$')
-    plt.axvline(126.78, c='k', ls=':', lw=1)
-    plt.axvline(180 - 126.78, c='k', ls=':', lw=1)
-    plt.legend()
+    plt.ylabel(r'$\theta_{\rm sl}^{f}$')
+    # plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('6bin_comp', dpi=200)
     plt.clf()
@@ -512,11 +508,11 @@ def plot_anal():
     dIlim = 1.1448
     mid_idx = np.where(np.abs(I_degs - 90) < 20)[0]
     plt.plot(I_degs[mid_idx] - dIlim, qslfs[mid_idx], 'bo',
-             ms=1.0, label='Data (Offset)')
+             ms=1.0, label='Sim.')
     plt.plot(I_degs[mid_idx], np.degrees(qeff_S1[mid_idx]), 'r',
              lw=1.3, alpha=0.5, label='LL17')
     plt.plot(I_degs[mid_idx], qeff_my[mid_idx], 'g',
-             lw=1.3, alpha=0.5, label='YS')
+             lw=1.3, alpha=0.5, label='Theory')
     ylim = plt.ylim()
     plt.fill_between(I_degs[mid_idx],
                      bound(qeff_my[mid_idx] + strengths[mid_idx], ylim[1]),
@@ -524,10 +520,8 @@ def plot_anal():
                      color='g',
                      alpha=0.2)
     plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$\theta_{\rm SL,f}$')
-    plt.axvline(102.6, c='k', ls=':', lw=1)
-    plt.axvline(180 - 102.6, c='k', ls=':', lw=1)
-    plt.legend()
+    plt.ylabel(r'$\theta_{\rm sl}^{\rm f}$')
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('6bin_comp_zoom', dpi=200)
     plt.clf()

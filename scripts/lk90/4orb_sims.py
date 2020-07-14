@@ -24,8 +24,8 @@ from scipy.interpolate import interp1d, UnivariateSpline
 from scipy.optimize import brenth
 from utils import *
 
-N_THREADS = 4
-# N_THREADS = 35
+# N_THREADS = 4
+N_THREADS = 35
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
 getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
 
@@ -372,8 +372,8 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                     lw=1.5, alpha=0.5)
     axs[5].semilogy(t_lkmids, dWtot, 'k',
                     label=r'$\overline{\Omega}_{\rm e}$', lw=4)
-    # axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
-    #                 label=r'$2\pi / T_{\rm LK}$', lw=2)
+    axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
+                    label=r'$\Omega$', lw=2)
     ylims = axs[5].get_ylim()
     axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
                     Iout_dot_smoothed, 'b',
@@ -848,8 +848,8 @@ def plot_good_quants():
 
     pass
 
-def run_for_Ideg(folder, I_deg, af=5e-3,
-                 atol=1e-8, rtol=1e-8, short=False, plotter=plot_all, **kwargs):
+def run_for_Ideg(folder, I_deg, af=5e-3, atol=1e-8, rtol=1e-8,
+                 plotter=plot_all, **kwargs):
     mkdirp(folder)
     ret_lk = get_kozai(folder, I_deg, getter_kwargs,
                        af=af, atol=atol, rtol=rtol)
@@ -858,25 +858,6 @@ def run_for_Ideg(folder, I_deg, af=5e-3,
                                rtol=rtol,
                                )
     plotter(folder, ret_lk, s_vec, getter_kwargs, **kwargs)
-    if short:
-        return
-
-    # try with q_sl0
-    s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
-                               q_sl0=np.radians(20),
-                               atol=atol,
-                               rtol=rtol,
-                               pkl_template='4sim_qsl20_%s.pkl')
-    plotter(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_qsl20_%s', **kwargs)
-
-    s_vec = get_spins_inertial(folder, I_deg, ret_lk, getter_kwargs,
-                               q_sl0=np.radians(40),
-                               atol=atol,
-                               rtol=rtol,
-                               pkl_template='4sim_qsl40_%s.pkl')
-    plotter(folder, ret_lk, s_vec, getter_kwargs,
-             fn_template='4sim_qsl40_%s', **kwargs)
 
 def get_qslfs_base(folder, I_deg, q_sb0, af, phi_sb, **kwargs):
     ''' this is the ensemble simulation, default do not save '''
@@ -1026,15 +1007,13 @@ def plot_deviations_good(folder, deltas_deg,
     for I, all_deltas_per_I in zip(I_vals[::-1], deltas_deg):
         deltas_per_I_nd, deltas_per_I = np.array(all_deltas_per_I).T
         if I == I_vals[0]:
-            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I),
+            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I_nd),
                        'ko', ms=0.3, label='Sim')
         else:
-            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I),
+            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I_nd),
                        'ko', ms=0.3)
-        plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I_nd),
-                   'bo', ms=0.3)
     plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$\left|\Delta \theta_{\rm e}^{(f)}\right|$ (Deg)')
+    plt.ylabel(r'$\left|\Delta \theta_{\rm e}\right|^{\rm f}$ (Deg)')
     plt.ylim(bottom=1e-3)
 
     jmin = np.sqrt(5 * cosd(I_vals)**2 / 3)
@@ -1047,21 +1026,25 @@ def plot_deviations_good(folder, deltas_deg,
     sigm_iout = dIout_tot / (Iout_dot_th * np.sqrt(2 * np.pi))
     dqeff_th = np.degrees(dIout_tot) * np.exp(
         -(Weff_th**2 * sigm_iout**2) / 2)
-    # plt.plot(I_vals, dqeff_th, 'b', lw=2,
-    #          label=r'$\Omega_{\rm e}$ Constant')
     plt.plot(I_vals, np.degrees(Iout_dot_th / Weff_th), 'r',
-             label=r'$[\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}]_{\max}$')
+             label=r'$|\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}|_{\max}$')
 
-    # try second scaling?
-    # Weff_ratio = 1/8
-    # dqeff_new = np.degrees(dIout_tot) / (
-    #     np.sqrt(2 * sigm_iout * Weff_th * Weff_ratio)) * np.exp(
-    #         -1 / (8 * Weff_ratio**2))
-    # plt.plot(I_vals, dqeff_new, 'c', lw=2, label='Linear')
-
-    plt.legend(fontsize=14, loc='lower left')
+    plt.legend(fontsize=14, loc='upper right')
     plt.tight_layout()
     plt.savefig(folder + 'deviations_one', dpi=200)
+
+    for I, all_deltas_per_I in zip(I_vals[::-1], deltas_deg):
+        deltas_per_I_nd, deltas_per_I = np.array(all_deltas_per_I).T
+        if I == I_vals[0]:
+            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I),
+                       'bo', ms=0.3, label='W/ Disp')
+        else:
+            plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I),
+                       'bo', ms=0.3)
+
+    plt.legend(fontsize=14, loc='upper right')
+    plt.tight_layout()
+    plt.savefig(folder + 'deviations_two', dpi=200)
     plt.close()
 
 def run_close_in(I_deg=80, t_final_mult=0.5, time_slice=None, plotter=plot_all):
@@ -1258,7 +1241,7 @@ def qslscan_runner(I_deg):
     return np.degrees(np.arccos(np.dot(Lhat, sf)))
 
 def qslscan():
-    pkl_fn = 'qslscan'
+    pkl_fn = '4qslscan/qslscan.pkl'
     I_degs = np.concatenate((
         np.linspace(89.5, 89.98, 200),
         np.linspace(90.02, 90.5, 200)))
@@ -1273,15 +1256,23 @@ def qslscan():
             print('Loading %s' % pkl_fn)
             qslfs = pickle.load(f)
 
+    plt.plot(I_degs, qslfs, 'bo', ms=0.7)
+    plt.xlabel(r'$I_0$ (Deg)')
+    plt.ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
+    plt.yticks([0, 30, 60, 90],
+               labels=[r'$0$', r'$30$', r'$60$', r'$90$'])
+    plt.tight_layout()
+    plt.savefig('4qslscan/qslscan.png', dpi=200)
+
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
     # for I_deg in [90.2, 90.35]:
-    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all, short=True,
+    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all,
     #                  atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     deltas_deg = run_ensemble('4sims_scan/')
-    # plot_deviations_good('4sims_scan/', deltas_deg)
+    plot_deviations_good('4sims_scan/', deltas_deg)
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
