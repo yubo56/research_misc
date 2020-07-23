@@ -1274,6 +1274,7 @@ def qslscan_runner(I_deg):
 def qslscan():
     pkl_fn = '4qslscan/qslscan.pkl'
     I_degs = np.concatenate((
+        [89.0],
         [89.1],
         [89.2],
         [89.3],
@@ -1285,6 +1286,7 @@ def qslscan():
         [90.7],
         [90.8],
         [90.9],
+        [91.0],
     ))
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
@@ -1318,9 +1320,9 @@ def qslscan():
 
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    for I_deg in [90.2, 90.35]:
-        run_for_Ideg('4sims/', I_deg, plotter=plot_all,
-                     atol=1e-10, rtol=1e-10)
+    # for I_deg in [90.2, 90.35]:
+    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all,
+    #                  atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     # deltas_deg = run_ensemble('4sims_scan/')
@@ -1336,5 +1338,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    # qslscan()
+    qslscan()
     pass
