@@ -386,52 +386,79 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[5].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
 
     lk_axf = len(axs) - 1
-    axs[lk_axf].set_xlabel(r'$t / t_{\rm LK,0}$')
-    axs[lk_axf].set_xlim(left=t[0], right=t[-1])
     xticks = axs[lk_axf].get_xticks()[1:-1]
-    for ax in axs[ :lk_axf]:
+    for ax in axs[ :lk_axf // 2 + 1]:
         ax.set_xticks(xticks)
         ax.set_xticklabels([])
+        ax.set_xlim([t[0], t[-1]])
+    for ax in axs[lk_axf // 2 + 1: ]:
+        ax.set_xlabel(r'$t / t_{\rm LK,0}$')
+        ax.set_xlim(left=t[0], right=t[-1])
     print('Saving', folder + fn_template % get_fn_I(I0))
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0), dpi=200)
+    plt.clf()
 
     # zoomed in plots are fancier
-    axs[3].clear()
-    axs[4].clear()
+    fig, axs_orig = plt.subplots(2, 4, figsize=(16, 9))
+    axs = np.reshape(axs_orig, np.size(axs_orig))
+    axs[0].semilogy(t, a * a0, 'k')
+    axs[0].set_ylabel(r'$a$ (AU)')
 
-    twin2 = axs[2].twinx()
-    l3 = twin2.plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
-                    label=r'$-I_{\rm e}$')
-    l4 = twin2.plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
-                    label=r'$-I_{\rm 1}$')
+    axs[1].semilogy(t, 1 - e, 'k')
+    axs[1].set_ylabel(r'$1 - e$')
 
-    lns = l1 + l2 + l3 + l4
-    twin2.set_ylim(bottom=-7)
-    axs[2].legend(lns, [l.get_label() for l in lns], fontsize=12,
-                  loc='lower left', ncol=4)
-    twin2.set_ylabel(r'$-I_{\rm e}$')
+    l1 = axs[2].plot(t, np.degrees(I), 'k', alpha=0.3, lw=0.7, label=r'$I$')
+    l2 = axs[2].plot(t_eff, np.degrees(I_avg), 'r', alpha=1, lw=2,
+                     label=r'$\bar{I}$')
+    axs[2].set_ylim(bottom=82) # make some space for legend below plot
+    axs[2].set_ylabel(r'$I$')
+    axs[2].legend(fontsize=14, ncol=2)
 
-    axs[2].plot(t, np.degrees(I), 'k', alpha=0.3, lw=0.7, label=r'$I$')
-    axs[2].plot(t_eff, np.degrees(I_avg), 'r', alpha=1, lw=2,
-                label=r'$\bar{I}$')
+    axs[3].plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
+                label=r'$-\bar{I}_{\rm e}$')
+    axs[3].plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
+                label=r'$-\bar{I}_{\rm e1}$')
+
+    axs[3].set_ylim(bottom=-7)
+    axs[3].legend(fontsize=12, loc='lower left', ncol=2)
+    axs[3].set_ylabel(r'$-\bar{I}_{\rm e}$')
+
+    axs[4].plot(t, np.degrees(q_sl), 'k')
+    axs[4].set_ylabel(r'$\theta_{\rm sl}$')
+
+    axs[5].semilogy(t_lkmids, dWsl, 'g', label=r'$\overline{\Omega}_{\rm SL}$',
+                    lw=1.5, alpha=0.5)
+    axs[5].semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
+                    lw=1.5, alpha=0.5)
+    axs[5].semilogy(t_lkmids, dWtot, 'k',
+                    label=r'$\overline{\Omega}_{\rm e}$', lw=4)
+    axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
+                    label=r'$\Omega$', lw=2)
+    ylims = axs[5].get_ylim()
+    axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
+                    Iout_dot_smoothed, 'b',
+                    lw=4, label=r'$-\dot{I}_{\rm e}$')
+    axs[5].legend(fontsize=14, ncol=2, loc='upper left')
+    axs[5].set_ylim(ylims)
+    axs[5].set_ylim(bottom=0.03)
+    axs[5].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
 
     W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
     # there's a spike in ratio at late times, probably not physical, don't plot
     last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
-    axs[3].plot(t_lkmids[ :last_idx],
+    axs[6].plot(t_lkmids[ :last_idx],
                 W_lk_ratio[ :last_idx],
                 'k', label=r'$\overline{\Omega}_{\rm e} / \Omega$')
-    axs[3].plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
+    axs[6].plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
                 'b', label=r'$\Omega_{\rm e1} / \Omega$')
-    axs[3].legend(fontsize=14)
-    # axs[3].set_ylabel(r'$\Omega_{\rm e} / \Omega$')
+    axs[6].legend(fontsize=14)
 
-    axs[4].plot(t_lkmids[offset_idx + avg_len // 2:
+    axs[7].plot(t_lkmids[offset_idx + avg_len // 2:
                          -offset_idx - (avg_len + 1) // 2],
                 np.abs(averaged_qeff - q_eff_pred), 'ro', ms=0.7, alpha=0.7,
                 label=r'$\left|\Delta \theta_{\rm e}\right|$')
-    axs[4].plot(t_Iout_smoothed[offset_idx:-offset_idx],
+    axs[7].plot(t_Iout_smoothed[offset_idx:-offset_idx],
                 np.degrees(Iout_dot_smoothed) /
                 Weffmag_smootheds[offset_idx:-offset_idx] / 2,
                 'g', lw=1.5,
@@ -441,20 +468,24 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     I1_lkmids = interp1d(t_Iout_smoothed, I1_smoothed)(t_lkmids[1:last_idx])
     pert1_strength = W1mags[ :-1] / np.abs(
         (2 * np.pi) / np.diff(t_lkmids) - dWtot[ :-1])
-    axs[4].plot(t_lkmids[1:last_idx],
+    axs[7].plot(t_lkmids[1:last_idx],
                 np.degrees(np.sin(abs(I1_lkmids - I0_lkmids))
                            * pert1_strength[1:last_idx] / 2), 'b',
                 label='Harmonic')
-    axs[4].set_ylabel('Degrees')
-    axs[4].legend(fontsize=12, ncol=2)
-    axs[4].set_yscale('log')
-    axs[4].set_ylim(bottom=1e-3)
+    axs[7].set_ylabel('Degrees')
+    axs[7].legend(fontsize=12, ncol=2)
+    axs[7].set_yscale('log')
+    axs[7].set_ylim(bottom=1e-3)
 
+    lk_axf = len(axs) - 1
     axs[lk_axf].set_xlim(left=t[xlim_idxs[0]], right=t[xlim_idxs[1]])
     xticks = axs[lk_axf].get_xticks()[1:-1]
-    for ax in axs[ :lk_axf]:
+    for ax in axs[ :lk_axf // 2 + 1]:
         ax.set_xticks(xticks)
         ax.set_xticklabels([])
+        ax.set_xlim([t[xlim_idxs[0]], t[xlim_idxs[1]]])
+    for ax in axs[lk_axf // 2 + 1: ]:
+        ax.set_xlabel(r'$t / t_{\rm LK,0}$')
         ax.set_xlim([t[xlim_idxs[0]], t[xlim_idxs[1]]])
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0) + '_zoom', dpi=200)
@@ -683,8 +714,8 @@ def plot_good(folder, ret_lk, s_vec, getter_kwargs,
     plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
     twinIout_ax = plt.gca().twinx()
-    l4 = twinIout_ax.plot(t_eff, np.degrees(Iouts), 'b', label=r'$I_{\rm e}$')
-    twinIout_ax.set_ylabel(r'$I_{\rm e}$')
+    l4 = twinIout_ax.plot(t_eff, np.degrees(Iouts), 'b', label=r'$\bar{I}_{\rm e}$')
+    twinIout_ax.set_ylabel(r'$\bar{I}_{\rm e}$')
     lns = l1 + l2 + l3 + l4 + l5 + l6
     plt.legend(lns, [l.get_label() for l in lns], fontsize=10)
     plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_Iout', dpi=200)
@@ -1238,41 +1269,62 @@ def qslscan_runner(I_deg):
     sf = s_vec[:, -1]
 
     Lhat = get_hat(Wf, If)
-    return np.degrees(np.arccos(np.dot(Lhat, sf)))
+    return np.degrees(np.arccos(np.dot(Lhat, sf))), ret_lk[0][-1]
 
 def qslscan():
     pkl_fn = '4qslscan/qslscan.pkl'
     I_degs = np.concatenate((
+        [89.1],
+        [89.2],
+        [89.3],
+        [89.4],
         np.linspace(89.5, 89.98, 200),
-        np.linspace(90.02, 90.5, 200)))
+        np.linspace(89.98, 90.02, 17)[1:-1],
+        np.linspace(90.02, 90.5, 200),
+        [90.6],
+        [90.7],
+        [90.8],
+        [90.9],
+    ))
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         with Pool(32) as p:
-            qslfs = p.map(qslscan_runner, I_degs)
+            ret = p.map(qslscan_runner, I_degs)
+            qslfs, tfs = np.reshape(ret, (len(I_degs), 2)).T
             with open(pkl_fn, 'wb') as f:
-                pickle.dump(qslfs, f)
+                pickle.dump((qslfs, tfs), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            qslfs = pickle.load(f)
+            qslfs, tfs = pickle.load(f)
 
-    plt.plot(I_degs, qslfs, 'bo', ms=0.7)
-    plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
-    plt.yticks([0, 30, 60, 90],
-               labels=[r'$0$', r'$30$', r'$60$', r'$90$'])
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
+                                   gridspec_kw={'height_ratios': [1, 2]})
+    t_lk, _, _, _ = get_vals(m1, m2, m3, a0, a2, e2, np.radians(90.5))
+    ax1.plot(I_degs, tfs * t_lk, 'b', lw=1.5)
+    ax1.set_yscale('log')
+    ax1.set_ylabel('Merger Time (yr)')
+    ax1.set_yticks([1e6, 1e9, 1e12])
+    ax1.set_yticklabels([r'$10^{6}$', r'$10^{9}$', r'$10^{12}$'])
+
+    ax2.plot(I_degs, qslfs, 'b', lw=1.5)
+    ax2.set_xlabel(r'$I_0$ (Deg)')
+    ax2.set_ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
+    ax2.set_yticks([0, 30, 60, 90])
+    ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
     plt.tight_layout()
-    plt.savefig('4qslscan/qslscan.png', dpi=200)
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('4qslscan/qslscan.png', dpi=400)
 
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    # for I_deg in [90.2, 90.35]:
-    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all,
-    #                  atol=1e-10, rtol=1e-10)
+    for I_deg in [90.2, 90.35]:
+        run_for_Ideg('4sims/', I_deg, plotter=plot_all,
+                     atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
-    deltas_deg = run_ensemble('4sims_scan/')
-    plot_deviations_good('4sims_scan/', deltas_deg)
+    # deltas_deg = run_ensemble('4sims_scan/')
+    # plot_deviations_good('4sims_scan/', deltas_deg)
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',

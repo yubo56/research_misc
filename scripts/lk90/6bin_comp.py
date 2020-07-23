@@ -424,7 +424,7 @@ I_degs, qslfs = np.array([
     [177.437, 2.0331217984109426],
 ]).T
 
-def plot_anal():
+def bin_comp():
     ''' plot Fig 4 of LL 17 w/ updated trend line '''
     plt.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
     # analytic calculation
@@ -506,24 +506,27 @@ def plot_anal():
 
     # plot zoomed in plot w/ manual offset for intuition
     dIlim = 1.1448
-    mid_idx = np.where(np.abs(I_degs - 90) < 20)[0]
+    mid_idx = np.where(np.abs(I_degs - dIlim - 90) < 8)[0]
     plt.plot(I_degs[mid_idx] - dIlim, qslfs[mid_idx], 'bo',
              ms=1.0, label='Sim.')
-    plt.plot(I_degs[mid_idx], np.degrees(qeff_S1[mid_idx]), 'r',
-             lw=1.3, alpha=0.5, label='LL17')
-    plt.plot(I_degs[mid_idx], qeff_my[mid_idx], 'g',
+    xlim = plt.xlim()
+    # plt.plot(I_degs, np.degrees(qeff_S1), 'r',
+    #          lw=1.3, alpha=0.5, label='LL17')
+    plt.plot(I_degs, qeff_my, 'g',
              lw=1.3, alpha=0.5, label='Theory')
     ylim = plt.ylim()
-    plt.fill_between(I_degs[mid_idx],
-                     bound(qeff_my[mid_idx] + strengths[mid_idx], ylim[1]),
-                     bound(qeff_my[mid_idx] - strengths[mid_idx], ylim[1]),
+    plt.fill_between(I_degs,
+                     bound(qeff_my + strengths, ylim[1]),
+                     bound(qeff_my - strengths, ylim[1]),
                      color='g',
                      alpha=0.2)
+    plt.xlim(xlim)
+    plt.ylim(top=40)
     plt.xlabel(r'$I_0$ (Deg)')
     plt.ylabel(r'$\theta_{\rm sl}^{\rm f}$')
-    plt.legend(fontsize=14)
+    plt.legend(fontsize=14, loc='upper center')
     plt.tight_layout()
-    plt.savefig('6bin_comp_zoom', dpi=200)
+    plt.savefig('6bin_comp_zoom', dpi=300)
     plt.clf()
 
 def Icrit_test():
@@ -1454,8 +1457,25 @@ def monodromy_test(params=(30, 20, 30, 100, 4500, 0), tol=1e-8, **kwargs):
             sf_mono = np.dot(np.linalg.matrix_power(mono_mat, num_periods), s0)
             print(np.dot(s0, mono_eig), np.dot(sf_num, mono_eig))
 
+def print_values(other_params=(3e7, 0.1, 300, 0), m_t=60, n_ratios=1000,
+                 fn='/tmp/values.txt', I0=np.radians(70), e0=0.001):
+    ms = 1.0
+    mass_ratios = np.linspace(0, 1, n_ratios + 2)[1:-1] # m1 / m_t
+
+    with open(fn, 'w') as f:
+        for ratio in mass_ratios:
+            m1 = m_t * ratio
+            m2 = m_t * (1 - ratio)
+
+            getter_kwargs = get_eps(m1, m2, *other_params)
+            dW_num, (dWSLz_num, dWSLx_num), _ = get_dW(
+                e0, I0, **getter_kwargs)
+            A_bar = np.sqrt(dWSLz_num**2 + dWSLx_num**2) / abs(dW_num)
+            Ie = np.pi - np.arctan2(dWSLx_num, dW_num - dWSLz_num)
+            f.write("%f, %f, %f\n" % (ratio, A_bar, np.degrees(Ie)))
+
 if __name__ == '__main__':
-    plot_anal()
+    bin_comp()
     # Icrit_test()
 
     # m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
@@ -1692,4 +1712,10 @@ if __name__ == '__main__':
     # params_in = (30, 30, 30, 0.1, 3, 0)
     # monodromy_test()
     # monodromy_test(params=params_in)
+
+    # print_values()
+    # print_values(I0=np.radians(88), fn='/tmp/values88.txt')
+    # print_values(I0=np.radians(90.5),
+    #              other_params=(3e7, 100, 450000, 0), m_t=50,
+    #              fn='/tmp/values_outer_90_5.txt')
     pass

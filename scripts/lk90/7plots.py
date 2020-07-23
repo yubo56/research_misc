@@ -1,7 +1,7 @@
 '''
 more random plots
 '''
-# convert 7_3vec.png -crop 1000x1300+350+100 7_3vec_cropped.png
+# convert 7_3vec.png -crop 1100x1300+350+100 7_3vec_cropped.png
 import numpy as np
 import scipy.optimize as opt
 
@@ -57,7 +57,7 @@ def plot_3vec():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\overline{\mathbf{\Omega}_{\rm SL}}$',
+            r'$\overline{\mathbf{\Omega}}_{\rm SL}$',
             fontdict={'c': s_c})
 
     # draw arcs
@@ -73,7 +73,7 @@ def plot_3vec():
     # label arcs
     ax.text(np.sin(np.radians(ld_q * 0.4)) * 0.5,
             np.cos(np.radians(ld_q * 0.4)) * 0.5 + 2 * offset,
-            r'$I_{\rm e}$',
+            r'$\bar{I}_{\rm e}$',
             fontdict={'c': ld_c})
     xy_ld_tip = (
         0.5 * np.sin(np.radians(ld_q)),
@@ -91,8 +91,51 @@ def plot_3vec():
                 arrowprops=arrowprops(s_c))
 
     ax.set_aspect('equal')
+
+    # add coordinate axes
+    coord_xy = np.array([0.6, 0.05])
+    ax.plot(*coord_xy, 'ko', ms=8, zorder=np.inf)
+    ax.annotate('', xy=(coord_xy + 0.2 * np.array(ld_xy)),
+                xytext=coord_xy,
+                arrowprops=arrowprops('k'))
+    ax.text(*(coord_xy + np.array([0, 0.01]) + 0.2 * np.array(ld_xy)),
+            r'$\hat{\mathbf{z}}$',
+            fontdict={'c': 'k'})
+    xvec = np.array(ld_xy)[::-1]
+    xvec[1] *= -1
+    ax.annotate('', xy=(coord_xy + 0.2 * xvec),
+                xytext=coord_xy,
+                arrowprops=arrowprops('k'))
+    ax.text(*(coord_xy + np.array([0.01, 0]) + 0.2 * xvec),
+            r'$\hat{\mathbf{x}}$',
+            fontdict={'c': 'k'})
+
+
     plt.savefig('7_3vec', dpi=400)
     plt.clf()
 
+def plot_bin_bifurcations():
+    fns = ['M1_M2_thetasl_thetae_70.txt',
+           'M1_M2_thetasl_thetae_88.txt']
+    for fn in fns:
+        with open(fn) as f:
+            dat = []
+            for l in f.readlines():
+                m1, m2, qsl, qe = [float(w) for w in l.split(' ')]
+                dat.append((m1 / (m1 + m2), qsl, qe))
+        ratios, qsls, qes = np.array(dat).T
+
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
+        ax1.plot(ratios, qes, 'k,')
+        ax2.plot(ratios, qsls, 'k,')
+        ax1.set_ylabel(r'$\theta_{\rm e}$')
+        ax2.set_ylabel(r'$\theta_{\rm sl}$')
+        ax2.set_xlabel(r'$m_1 / m_{12}$')
+        plt.tight_layout()
+        fig.subplots_adjust(hspace=0.03)
+        plt.savefig(fn.replace('.txt', '.png'), dpi=300)
+        plt.clf()
+
 if __name__ == '__main__':
     plot_3vec()
+    # plot_bin_bifurcations()

@@ -19,7 +19,7 @@ from scipy.fftpack import fft
 
 def check_anal_dWs(e0=0.01, I0=np.radians(80), eps_gr=0, eps_gw=0, eps_sl=1,
                    **kwargs):
-    dW, dWSL = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
+    dW, dWSL, _ = get_dW(e0, I0, eps_gr, eps_gw, eps_sl)
     dW_anal, dWSL_anal = get_dW_anal(e0, I0, eps_sl=eps_sl)
 
     print(dWSL_anal, dWSL)
@@ -40,14 +40,17 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
         print('Running %s' % pkl_fn)
         dWs_lst = []
         dWs_anal_lst = []
+        emax_lst = []
         for e0 in e0s:
             dWs = []
             dWs_anal = []
+            emaxs = []
             for I0 in I0s:
-                dW_num, (dWSLz_num, dWSLx_num) = get_dW(e0, I0, **kwargs)
+                dW_num, (dWSLz_num, dWSLx_num), emax = get_dW(e0, I0, **kwargs)
                 dW_val = np.sqrt((abs(dW_num) + dWSLz_num)**2 + dWSLx_num**2)
                 dWs.append(dW_val)
-                print(e0, np.degrees(I0), dW_val)
+                emaxs.append(emax)
+                print(e0, np.degrees(I0), dW_val, emax)
 
                 dW_anl, (dWSLz_anl, dWSLx_anl) = get_dW_anal(e0, I0)
                 dWs_anal.append(np.sqrt(
@@ -55,48 +58,42 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
 
             dWs_lst.append(dWs)
             dWs_anal_lst.append(dWs_anal)
+            emax_lst.append(emaxs)
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((dWs_lst, dWs_anal_lst), f)
+            pickle.dump((dWs_lst, dWs_anal_lst, emax_lst), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            (dWs_lst, dWs_anal_lst) = pickle.load(f)
+            (dWs_lst, dWs_anal_lst, emax_lst) = pickle.load(f)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
     for idx in np.argsort(e0s):
         e0 = e0s[idx]
         lbl = e0_labels[idx]
         c = colors[idx]
         dWs = dWs_lst[idx]
+        emaxes = emax_lst[idx]
         dWs_anal = dWs_anal_lst[idx]
 
-        plot_idx = np.where(np.sqrt(np.maximum(
-            1 - 5 * cosd(I0s_d)**2 / 3, 0)) > e0)[0]
-        I0s_curr = I0s_d[plot_idx]
-        dWs_curr = np.array(dWs)[plot_idx]
+        # plot_idx = np.where(np.sqrt(np.maximum(
+        #     1 - 5 * cosd(I0s_d)**2 / 3, 0)) > e0)[0]
+        I0s_curr = I0s_d# [plot_idx]
+        dWs_curr = np.array(dWs)# [plot_idx]
+        emaxs_curr = np.array(emaxes)# [plot_idx]
         I_plot = np.concatenate((180 - I0s_curr[ ::-1], I0s_curr))
         dW_plot = np.concatenate((dWs_curr[ ::-1], dWs_curr))
-        plt.plot(I_plot, np.array(dW_plot) / (2 * np.pi),
-                 c=c, label=lbl, lw=1.0)
-        # plt.plot(I0s_d, dWs_anal / (2 * np.pi),
-        #          c=c, ls=':', lw=1.0)
-    plt.xlabel(r'$I_0$')
-    plt.ylabel(r'$\bar{\Omega}_{\rm e} / \Omega$')
-    plt.ylim(bottom=0, top=1.5)
-    plt.legend(fontsize=10, ncol=3)
-
-    axes = plt.gca()
-    axes.set_xticks([40, 60, 80, 100, 120, 140])
-    ax2 = axes.twiny()
-    ax2.set_xlim(axes.get_xlim())
-    I_ticks = axes.get_xticks()
-    ax2.set_xticks(I_ticks)
-    ax2.set_xticklabels([
-        "%.2f" % np.sqrt(1 - 5 * cosd(I_tick)**2 / 3)
-        for I_tick in I_ticks])
-    plt.setp(ax2.get_xticklabels(), rotation=45, fontsize=14)
-    ax2.set_xlabel(r'$e_{\max}$')
+        emax_plot = np.concatenate((emaxs_curr[ ::-1], emaxs_curr))
+        ax1.plot(I_plot, np.array(emax_plot), c=c, label=lbl, lw=1.0)
+        ax2.plot(I_plot, np.array(dW_plot) / (2 * np.pi),
+                 c=c, lw=1.0)
+    ax1.set_ylabel(r'$e_{\max}$')
+    ax2.set_xlabel(r'$I_0$')
+    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega$')
+    ax2.set_ylim(bottom=0, top=1.3)
+    ax1.legend(fontsize=10, ncol=3)
 
     plt.tight_layout()
-    plt.savefig(fn, dpi=200)
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig(fn, dpi=300)
     plt.close()
 
 def get_I_avg_traj(folder, pkl_head):

@@ -453,7 +453,7 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
                     * ret.t[-1] / len(times))
     dWsl_x = np.sum(eps_sl / a_arr**(5/2) * np.sin(I_arr) / (1 - e_arr**2)
                     * ret.t[-1] / len(times))
-    return ret.y[2, -1], (dWsl_z, dWsl_x)
+    return ret.y[2, -1], (dWsl_z, dWsl_x), ret.y[1].max()
 
 # get the dWs with time-averaged jhat (for agreement w/ LL17)
 def get_dWjhat(e0, I0, Lout_mag, L_mag, eps_gr=0, eps_gw=0, eps_sl=1,
