@@ -4,6 +4,7 @@ more random plots
 # convert 7_3vec.png -crop 1100x1300+350+100 7_3vec_cropped.png
 import numpy as np
 import scipy.optimize as opt
+from utils import *
 
 import matplotlib
 matplotlib.use('Agg')
@@ -117,25 +118,54 @@ def plot_3vec():
 def plot_bin_bifurcations():
     fns = ['M1_M2_thetasl_thetae_70.txt',
            'M1_M2_thetasl_thetae_88.txt']
-    for fn in fns:
+    for I0, fn in zip(np.radians([70, 88]), fns):
         with open(fn) as f:
             dat = []
             for l in f.readlines():
                 m1, m2, qsl, qe = [float(w) for w in l.split(' ')]
                 dat.append((m1 / (m1 + m2), qsl, qe))
         ratios, qsls, qes = np.array(dat).T
+        qes = np.degrees(qes)
 
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True)
+        for ax in ax1, ax2:
+            ax.set_yticks([0, 60, 120, 180])
+            ax.set_yticklabels([r'$0$', r'$60$', r'$120$', r'$180$'])
         ax1.plot(ratios, qes, 'k,')
         ax2.plot(ratios, qsls, 'k,')
-        ax1.set_ylabel(r'$\theta_{\rm e}$')
-        ax2.set_ylabel(r'$\theta_{\rm sl}$')
+        ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
+        ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
         ax2.set_xlabel(r'$m_1 / m_{12}$')
+        mass_ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
+        ax2.set_xticks(mass_ticks)
+        ax2.set_xticklabels([r'$0$', r'$0.2$', r'$0.4$', r'$0.6$',
+                              r'$0.8$', r'$1.0$'])
+        ax3 = ax1.twiny()
+        A0s = []
+        Abars = []
+        for ratio in mass_ticks:
+            m1 = ratio * 60
+            m2 = 60 - m1
+            m3 = 3e7
+            a0 = 0.1
+            a2 = 300
+            e2 = 0
+            getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+            A0s.append(r'$%0.1f$' % (getter_kwargs['eps_sl'] * 4 / 3))
+            dW_num, (dWSLz_num, dWSLx_num), _ = get_dW(
+                1e-3, I0, **getter_kwargs)
+            Abar = np.sqrt(dWSLz_num**2 + dWSLx_num**2) / abs(dW_num)
+            Abars.append(r'$%0.1f$' % Abar)
+        ax3.set_xlim(ax1.get_xlim())
+        ax3.set_xticks(ax1.get_xticks())
+        ax3.set_xticklabels(Abars)
+        ax3.set_xlabel(r'$\mathcal{A}$')
+
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.03)
         plt.savefig(fn.replace('.txt', '.png'), dpi=300)
         plt.clf()
 
 if __name__ == '__main__':
-    plot_3vec()
-    # plot_bin_bifurcations()
+    # plot_3vec()
+    plot_bin_bifurcations()

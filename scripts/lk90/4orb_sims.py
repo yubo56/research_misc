@@ -339,7 +339,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         trightidx = len(t) - 1
     xlim_idxs = [tleftidx, min(trightidx, len(t) - 1)]
 
-    fig, axs_orig = plt.subplots(2, 3, figsize=(16, 9))
+    fig, axs_orig = plt.subplots(2, 2, figsize=(12, 9))
     axs = np.reshape(axs_orig, np.size(axs_orig))
 
     dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
@@ -359,31 +359,31 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[3].plot(t, np.degrees(q_sl), 'k')
     axs[3].set_ylabel(r'$\theta_{\rm sl}$')
 
-    axs[4].plot(t_lkmids[offset_idx + avg_len // 2:
-                         -offset_idx - (avg_len + 1) // 2],
-                averaged_qeff,
-                'ro', ms=1.5 if len(averaged_qeff) > 100 else 3)
-    axs[4].plot(t_eff, q_eff0, 'k', alpha=0.3)
-    axs[4].set_ylabel(r'$\theta_{\rm e}$')
+    # axs[4].plot(t_lkmids[offset_idx + avg_len // 2:
+    #                      -offset_idx - (avg_len + 1) // 2],
+    #             averaged_qeff,
+    #             'ro', ms=1.5 if len(averaged_qeff) > 100 else 3)
+    # axs[4].plot(t_eff, q_eff0, 'k', alpha=0.3)
+    # axs[4].set_ylabel(r'$\bar{\theta}_{\rm e}$')
 
-    axs[5].semilogy(t_lkmids, dWsl, 'g', label=r'$\overline{\Omega}_{\rm SL}$',
-                    lw=1.5, alpha=0.5)
-    axs[5].semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
-                    lw=1.5, alpha=0.5)
-    axs[5].semilogy(t_lkmids, dWtot, 'k',
-                    label=r'$\overline{\Omega}_{\rm e}$', lw=4)
-    axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
-                    label=r'$\Omega$', lw=2)
-    ylims = axs[5].get_ylim()
-    axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
-                    Iout_dot_smoothed, 'b',
-                    lw=4, label=r'$-\dot{I}_{\rm e}$')
+    # axs[5].semilogy(t_lkmids, dWsl, 'g', label=r'$\overline{\Omega}_{\rm SL}$',
+    #                 lw=1.5, alpha=0.5)
+    # axs[5].semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
+    #                 lw=1.5, alpha=0.5)
+    # axs[5].semilogy(t_lkmids, dWtot, 'k',
+    #                 label=r'$\overline{\Omega}_{\rm e}$', lw=4)
+    # axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
+    #                 label=r'$\Omega$', lw=2)
+    # ylims = axs[5].get_ylim()
+    # axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
+    #                 Iout_dot_smoothed, 'b',
+    #                 lw=4, label=r'$-\dot{\bar{I}}_{\rm e}$')
     # axs[5].semilogy(t_eff[offset_idx:-offset_idx], np.degrees(Iout_dot_gauss), 'r:',
-    #                 lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
-    axs[5].legend(fontsize=14, ncol=2, loc='upper left')
-    axs[5].set_ylim(ylims)
-    axs[5].set_ylim(bottom=0.03)
-    axs[5].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
+    #                 lw=0.7, alpha=0.3, label=r'$\dot{\bar{I}}_{\rm e,gauss}$')
+    # axs[5].legend(fontsize=14, ncol=2, loc='upper left')
+    # axs[5].set_ylim(ylims)
+    # axs[5].set_ylim(bottom=0.03)
+    # axs[5].set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
 
     lk_axf = len(axs) - 1
     xticks = axs[lk_axf].get_xticks()[1:-1]
@@ -434,11 +434,11 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[5].semilogy(t_lkmids, dWtot, 'k',
                     label=r'$\overline{\Omega}_{\rm e}$', lw=4)
     axs[5].semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
-                    label=r'$\Omega$', lw=2)
+                    label=r'$\Omega_{\rm LK}$', lw=2)
     ylims = axs[5].get_ylim()
     axs[5].semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
                     Iout_dot_smoothed, 'b',
-                    lw=4, label=r'$-\dot{I}_{\rm e}$')
+                    lw=4, label=r'$-\dot{\bar{I}}_{\rm e}$')
     axs[5].legend(fontsize=14, ncol=2, loc='upper left')
     axs[5].set_ylim(ylims)
     axs[5].set_ylim(bottom=0.03)
@@ -449,20 +449,25 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
     axs[6].plot(t_lkmids[ :last_idx],
                 W_lk_ratio[ :last_idx],
-                'k', label=r'$\overline{\Omega}_{\rm e} / \Omega$')
+                'k', label=r'$\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$')
     axs[6].plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
-                'b', label=r'$\Omega_{\rm e1} / \Omega$')
+                'b', label=r'$\Omega_{\rm e1} / \Omega_{\rm LK}$')
+    axs[6].set_ylabel(r'$\Omega_{\rm eN} / \Omega_{\rm LK}$')
     axs[6].legend(fontsize=14)
 
+    if I0 < 90.25:
+        ms = 2
+    else:
+        ms = 0.7
     axs[7].plot(t_lkmids[offset_idx + avg_len // 2:
                          -offset_idx - (avg_len + 1) // 2],
-                np.abs(averaged_qeff - q_eff_pred), 'ro', ms=0.7, alpha=0.7,
-                label=r'$\left|\Delta \theta_{\rm e}\right|$')
+                np.abs(averaged_qeff - q_eff_pred), 'ro', ms=ms, alpha=0.7,
+                label=r'$\left|\Delta \bar{\theta}_{\rm e}\right|$')
     axs[7].plot(t_Iout_smoothed[offset_idx:-offset_idx],
                 np.degrees(Iout_dot_smoothed) /
                 Weffmag_smootheds[offset_idx:-offset_idx] / 2,
                 'g', lw=1.5,
-                label=r'$\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}$')
+                label=r'$\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}$')
 
     I0_lkmids = interp1d(t_Iout_smoothed, Iout_smoothed)(t_lkmids[1:last_idx])
     I1_lkmids = interp1d(t_Iout_smoothed, I1_smoothed)(t_lkmids[1:last_idx])
@@ -489,6 +494,71 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         ax.set_xlim([t[xlim_idxs[0]], t[xlim_idxs[1]]])
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0) + '_zoom', dpi=200)
+    plt.close()
+
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(7, 11), sharex=True)
+    W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
+    # there's a spike in ratio at late times, probably not physical, don't plot
+    last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
+    ax1.semilogy(t_lkmids, dWsl, 'g', label=r'$\overline{\Omega}_{\rm SL}$',
+                    lw=1.5, alpha=0.5)
+    ax1.semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
+                    lw=1.5, alpha=0.5)
+    ax1.semilogy(t_lkmids, dWtot, 'k',
+                    label=r'$\overline{\Omega}_{\rm e}$', lw=4)
+    ax1.semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
+                    label=r'$\Omega_{\rm LK}$', lw=2)
+    ylims = ax1.get_ylim()
+    ax1.semilogy(t_Iout_smoothed[offset_idx:-offset_idx],
+                    Iout_dot_smoothed, 'b',
+                    lw=4, label=r'$-\dot{\bar{I}}_{\rm e}$')
+    ax1.legend(fontsize=14, ncol=2, loc='upper left')
+    ax1.set_ylim(ylims)
+    ax1.set_ylim(bottom=0.003)
+    ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
+
+    ax2.plot(t_lkmids[ :last_idx],
+                W_lk_ratio[ :last_idx],
+                'k', label=r'$\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$')
+    ax2.plot(t_lkmids[ :-1], W1mags[ :-1] * np.diff(t_lkmids) / (2 * np.pi),
+                'b', label=r'$\Omega_{\rm e1} / \Omega_{\rm LK}$')
+    ax2.legend(fontsize=14)
+    ax2.set_ylabel(r'$\Omega_{\rm eN} / \Omega_{\rm LK}$')
+
+    ax3.plot(t_eff, q_eff0, 'k', alpha=0.3, label=r'$\theta_{\rm e}$')
+    ax3.plot(t_lkmids[offset_idx + avg_len // 2:
+                         -offset_idx - (avg_len + 2) // 2],
+                averaged_qeff,
+                'ro', ms=2.5 if len(averaged_qeff) > 100 else 3,
+                 label=r'$\bar{\theta}_{\rm e}$')
+    ax3.plot(t_Iout_smoothed[offset_idx:-offset_idx],
+                np.degrees(Iout_dot_smoothed) /
+                Weffmag_smootheds[offset_idx:-offset_idx] / 2
+             + averaged_qeff[0],
+                'g', lw=2.5,
+                label='Non-adiabatic')
+    ax3.plot(t_Iout_smoothed[offset_idx:-offset_idx],
+                -np.degrees(Iout_dot_smoothed) /
+                Weffmag_smootheds[offset_idx:-offset_idx] / 2
+             + averaged_qeff[0],
+                'g', lw=2.5)
+
+    ax3.plot(t_lkmids[1:last_idx],
+                np.degrees(np.sin(abs(I1_lkmids - I0_lkmids))
+                           * pert1_strength[1:last_idx] / 2)
+             + averaged_qeff[0], 'b',
+                label='Harmonic')
+    ax3.plot(t_lkmids[1:last_idx],
+                -np.degrees(np.sin(abs(I1_lkmids - I0_lkmids))
+                           * pert1_strength[1:last_idx] / 2)
+             + averaged_qeff[0], 'b')
+    ax3.legend(ncol=2, loc='upper left', fontsize=14)
+    ax3.set_ylabel('Degrees')
+    ax3.set_xlabel(r'$t / t_{\rm LK, 0}$')
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig(folder + fn_template % get_fn_I(I0) + '_supp', dpi=200)
     plt.close()
 
 def get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice=np.s_[::]):
@@ -637,112 +707,6 @@ def get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice=np.s_[::]):
     return t_lkmids, t_eff, q_eff0, Iouts, Iout_dot, Weffmag, Weff_hat,\
         dWsl, dWdot, dWtot, dqeff_max, dqeff_gauss, Iout_dot_gauss
 
-def plot_good(folder, ret_lk, s_vec, getter_kwargs,
-              fn_template='4sim_%s', time_slice=np.s_[::], ylimdy=None,
-              ylim3=None, **kwargs):
-    mkdirp(folder)
-    alf = 0.7
-    I0 = np.degrees(ret_lk[1][3, 0])
-    t_lkmids, t_eff, q_eff0, Iouts, Iout_dot, Weffmag, Weff_hat,\
-        dWsl, dWdot, dWtot, dqeff, _, Iout_dot_gauss = \
-        get_plot_good_quants(ret_lk, s_vec, getter_kwargs, time_slice)
-
-    # plots
-    if time_slice == np.s_[::]:
-        # if default time slice, plotting full simulation, use a very long view
-        fig, ax1 = plt.subplots(1, 1, figsize=(12, 5), sharex=True)
-    plt.plot(t_eff, q_eff0, 'k', alpha=0.3, label=r'$\theta_{\rm eff}$')
-    end_qeffs = []
-    averaged_qeff = []
-    plotted_ts = []
-    qeffinterp = interp1d(t_eff, q_eff0)
-    # pick an intermediate piece b/c two ends are outside of interp range
-    for start, end in zip(t_lkmids[10:-11], t_lkmids[11:-10]):
-        interpt = np.linspace(start, end, 1000)
-        qeff_interval = qeffinterp(interpt)
-        averaged_qeff.append(np.mean(qeff_interval))
-        end_qeffs.append(qeff_interval[len(interpt) // 2])
-        plotted_ts.append((start + end) / 2)
-    plt.plot(plotted_ts, averaged_qeff, 'ro', ms=1, alpha=0.7,
-             label='LK-avg')
-    plt.plot(plotted_ts, end_qeffs, 'bo', ms=1, alpha=0.7,
-             label='LK-start')
-    # predict q_eff final by averaging over an early Kozai cycle (more interp1d)
-    try:
-        q_eff0_interp = interp1d(t_eff, q_eff0)
-        q_eff_pred = np.mean(q_eff0_interp(
-            np.linspace(t_lkmids[2], t_lkmids[4], 1000)))
-        plt.ylabel(r'[$\langle %.2f \rangle$--$%.2f$]' %
-                       (q_eff_pred, q_eff0[-1]))
-        qeffdiff = np.abs(q_eff_pred - q_eff0[-1])
-    except: # time_slice can screw up the above
-        qeffdiff = None
-        pass
-    # plt.plot(t, q_eff_bin, 'r', alpha=0.3)
-    plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    # estimated amplitude of oscillations: Iout_dot / W
-    # / Weff
-    plt.plot(t_eff[2:-2],
-             q_eff0[-1] + np.degrees(Iout_dot) / Weffmag[2:-2],
-             'g', lw=1.5, label=r'$N = 0$ Integ.')
-    plt.plot(t_eff[2:-2],
-             q_eff0[-1] - np.degrees(Iout_dot) / Weffmag[2:-2],
-             'g', lw=1.5)
-    plt.legend(loc='upper left')
-    if ylimdy is not None:
-        curr_ylim = plt.ylim()
-        ylim_cent = np.sum(curr_ylim) / 2
-        plt.ylim(bottom=ylim_cent - ylimdy, top=ylim_cent + ylimdy)
-    plt.tight_layout()
-    plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_qN0', dpi=200)
-    plt.close()
-
-    # plt.plot(t_eff, np.degrees(I_avg), 'r')
-    # plt.ylabel(r'$\langle I \rangle_{LK}$')
-    l1 = plt.semilogy(t_lkmids, dWsl, 'g', label=r'$\Omega_{\rm SL}$',
-                      lw=0.7, alpha=0.5)
-    l2 = plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
-                      lw=0.7, alpha=0.5)
-    l3 = plt.semilogy(t_lkmids, dWtot, 'k',
-                      label=r'$\overline{\Omega}_{\rm e}$', lw=2)
-    l5 = plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b:',
-                      lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e}$')
-    ylims = plt.ylim()
-    l6 = plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot_gauss), 'r:',
-                      lw=0.7, alpha=0.3, label=r'$\dot{I}_{\rm e,gauss}$')
-    plt.ylim(ylims)
-    plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    twinIout_ax = plt.gca().twinx()
-    l4 = twinIout_ax.plot(t_eff, np.degrees(Iouts), 'b', label=r'$\bar{I}_{\rm e}$')
-    twinIout_ax.set_ylabel(r'$\bar{I}_{\rm e}$')
-    lns = l1 + l2 + l3 + l4 + l5 + l6
-    plt.legend(lns, [l.get_label() for l in lns], fontsize=10)
-    plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_Iout', dpi=200)
-    plt.close()
-
-    # plt.semilogy(t_lkmids, dWsl, 'g', label=r'$\Omega_{\rm SL}$',
-    #              lw=0.7, alpha=0.5)
-    # plt.semilogy(t_lkmids, dWdot, 'r', label=r'$\dot{\Omega}$',
-    #              lw=0.7, alpha=0.5)
-    # plt.semilogy(t_lkmids, dWtot, 'k',
-    #              label=r'$\overline{\Omega}_{\rm e}$', lw=2)
-    # plt.semilogy(t_eff[2:-2], np.degrees(Iout_dot), 'b',
-    #              lw=2, label=r'$\dot{I}_{\rm e}$')
-    # plt.ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
-    # plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    # plt.legend()
-    # if ylim3 is not None:
-    #     plt.ylim(ylim3)
-    # else:
-    #     plt.ylim([0.01, 100])
-    # if qeffdiff is not None:
-    #     plt.title(r'$I_0 = %.2f^\circ, \Delta \theta_{\rm eff, 0} = (%s)^\circ$'
-    #               % (I0, get_scinot(qeffdiff)))
-    # plt.tight_layout()
-    # plt.savefig(folder + (fn_template % get_fn_I(I0)) + '_phidots', dpi=200)
-    # plt.close()
-
 def plot_good_quants():
     '''
     Using ensemble data, plot: dWeff(A=1), Adot(A = 1), max(Ioutdot), Iout
@@ -833,21 +797,21 @@ def plot_good_quants():
     # ax2.semilogy(all_Is, dqeff_num, 'bo', label='Num', ms=1)
     # ax2.semilogy(all_Is, dqeff_gauss, 'go', label=r'Gaussian Fit')
     # ax2.legend(fontsize=12)
-    # ax2.set_ylabel(r'$\max \Delta \theta_{\rm eff}$')
+    # ax2.set_ylabel(r'$\max \Delta \bar{\theta}_{\rm eff}$')
     # ax2.set_xlabel(r'$I$ (Deg)')
 
     # fig, ax1 = plt.subplots(1, 1, figsize=(6, 6), sharex=True)
     # ax1.semilogy(all_Is, dWeff_mids, 'ko', label=r'$\Omega_{\rm e}$', ms=1)
     # ax1.semilogy(all_Is, dWeff_Imaxes, 'bo',
-    #              label=r'$\Omega_{\rm e}$ (at $\dot{I}_{\rm e}$ max)')
+    #              label=r'$\Omega_{\rm e}$ (at $\dot{\bar{I}}_{\rm e}$ max)')
     # ax1.semilogy(all_Is, Iout_dot_maxes, 'go',
-    #              label=r'$\dot{I}_{\rm e}$', ms=1)
+    #              label=r'$\dot{\bar{I}}_{\rm e}$', ms=1)
     # ax1.semilogy(all_Is[as_idx], Weff_th[as_idx], 'g', alpha=0.5,
     #              label=r'$\Omega_{\rm e}$ (Th)')
     # ax1.semilogy(all_Is[as_idx], Iout_dot_th[as_idx], 'r', alpha=0.5,
-    #              label=r'$\dot{I}_{\rm e}$ (Th)')
+    #              label=r'$\dot{\bar{I}}_{\rm e}$ (Th)')
     # ax1.semilogy(all_Is, Ioutdot_max_gaussest, 'ro',
-    #              label=r'$\dot{I}_{\rm e}$ (Bounds)')
+    #              label=r'$\dot{\bar{I}}_{\rm e}$ (Bounds)')
     # ax1.legend(fontsize=10)
     # ax1.set_ylabel(r'Frequency ($t_{\rm LK, 0}^{-1}$)')
     # ax1.set_yticks([0.01, 0.1, 1, 10, 100])
@@ -859,7 +823,7 @@ def plot_good_quants():
                  'ko', label='Numeric')
     ax1.plot(all_Is[as_idx], np.degrees(Iout_dot_th[as_idx]) / Weff_th[as_idx],
              'r', label='Analytic')
-    ax1.set_ylabel(r'$\left|\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}\right|'
+    ax1.set_ylabel(r'$\left|\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}\right|'
                    r'_{\max}$ (Deg)')
     ax1.set_xlabel(r'$I_0$')
     ax1.legend(fontsize=14)
@@ -880,7 +844,7 @@ def plot_good_quants():
     pass
 
 def run_for_Ideg(folder, I_deg, af=5e-3, atol=1e-8, rtol=1e-8,
-                 plotter=plot_all, **kwargs):
+                 **kwargs):
     mkdirp(folder)
     ret_lk = get_kozai(folder, I_deg, getter_kwargs,
                        af=af, atol=atol, rtol=rtol)
@@ -888,7 +852,7 @@ def run_for_Ideg(folder, I_deg, af=5e-3, atol=1e-8, rtol=1e-8,
                                atol=atol,
                                rtol=rtol,
                                )
-    plotter(folder, ret_lk, s_vec, getter_kwargs, **kwargs)
+    plot_all(folder, ret_lk, s_vec, getter_kwargs, **kwargs)
 
 def get_qslfs_base(folder, I_deg, q_sb0, af, phi_sb, **kwargs):
     ''' this is the ensemble simulation, default do not save '''
@@ -1044,7 +1008,7 @@ def plot_deviations_good(folder, deltas_deg,
             plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I_nd),
                        'ko', ms=0.3)
     plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$\left|\Delta \theta_{\rm e}\right|^{\rm f}$ (Deg)')
+    plt.ylabel(r'$\left|\Delta \bar{\theta}_{\rm e}\right|^{\rm f}$ (Deg)')
     plt.ylim(bottom=1e-3)
 
     jmin = np.sqrt(5 * cosd(I_vals)**2 / 3)
@@ -1058,7 +1022,7 @@ def plot_deviations_good(folder, deltas_deg,
     dqeff_th = np.degrees(dIout_tot) * np.exp(
         -(Weff_th**2 * sigm_iout**2) / 2)
     plt.plot(I_vals, np.degrees(Iout_dot_th / Weff_th), 'r',
-             label=r'$|\dot{I}_{\rm e} / \overline{\Omega}_{\rm e}|_{\max}$')
+             label=r'$|\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}|_{\max}$')
 
     plt.legend(fontsize=14, loc='upper right')
     plt.tight_layout()
@@ -1197,13 +1161,13 @@ def run_905_grid(I_deg=90.5, newfolder='4sims905/', af=5e-3, n_pts=20,
     plt.colorbar()
     plt.xlabel(r'$\phi$')
     plt.ylabel(r'$\cos \theta$')
-    plt.title(r'$\Delta \theta_{\rm eff}$')
+    plt.title(r'$\Delta \bar{\theta}_{\rm e}$')
     plt.tight_layout()
     plt.savefig(newfolder + 'devsgrid' + suffix, dpi=200)
     plt.close()
 
     plt.hist(sorted_res_nparr[1:-1], bins=30)
-    plt.xlabel(r'$\Delta \theta_{\rm eff}$')
+    plt.xlabel(r'$\Delta \bar{\theta}_{\rm e}$')
     plt.ylabel('Counts')
     plt.tight_layout()
     plt.savefig(newfolder + 'devshist' + suffix, dpi=200)
@@ -1299,6 +1263,8 @@ def qslscan():
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             qslfs, tfs = pickle.load(f)
+    print(qslfs)
+    return
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
                                    gridspec_kw={'height_ratios': [1, 2]})
@@ -1320,9 +1286,8 @@ def qslscan():
 
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    # for I_deg in [90.2, 90.35]:
-    #     run_for_Ideg('4sims/', I_deg, plotter=plot_all,
-    #                  atol=1e-10, rtol=1e-10)
+    for I_deg in [90.2, 90.35]:
+        run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     # deltas_deg = run_ensemble('4sims_scan/')
@@ -1338,5 +1303,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    qslscan()
+    # qslscan()
     pass

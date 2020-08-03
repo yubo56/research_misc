@@ -453,7 +453,7 @@ def bin_comp():
     Weff = A * L_hat / np.cos(I_rads) + WLp_mult * J_hat
     Weff_hat = Weff / np.sqrt(np.sum(Weff**2, axis=0))
     qeff_S1 = np.arccos(np.abs(ts_dot(L_hat, Weff_hat))) # L_hat = initial S
-    plt.plot(I_degs, np.degrees(qeff_S1), 'r', lw=1.3, alpha=0.5, label='LL17')
+    # plt.plot(I_degs, np.degrees(qeff_S1), 'r', lw=1.3, alpha=0.5, label='LL17')
 
     # my estimate
     m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
@@ -499,7 +499,7 @@ def bin_comp():
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
     plt.xlabel(r'$I_0$ (Deg)')
     plt.ylabel(r'$\theta_{\rm sl}^{f}$')
-    # plt.legend(fontsize=14)
+    # plt.legend(fontsize=10, loc='upper right')
     plt.tight_layout()
     plt.savefig('6bin_comp', dpi=200)
     plt.clf()
@@ -691,7 +691,7 @@ def Iscan(getter_kwargs, intg_pts=int(1e5), fn='6_Iscan',
         amps.append(amp)
     plt.plot(np.degrees(I_vals), amps, 'ko', ms=1)
     plt.xlabel(r'$I_0$')
-    plt.ylabel(r'$\Delta \theta_{\rm eff}$')
+    plt.ylabel(r'$\Delta \bar{\theta}_{\rm e}$')
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
 
@@ -718,7 +718,7 @@ def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1'
     ax2.set_ylabel(r'$\hat{\Omega_{\rm eff, 1}} \cdot \hat{\Omega_{\rm eff}}$')
     ax2.set_xlabel(r'$I_0$')
     ax3.plot(np.degrees(I_vals), dWs, 'ro', ms=1)
-    ax3.set_ylabel(r'$\Omega_{\rm eff} P_{\rm LK} / (2 \pi)$')
+    ax3.set_ylabel(r'$\Omega_{\rm eff} / \Omega_{\rm LK}$')
     plt.tight_layout()
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
@@ -905,7 +905,7 @@ def plot_905(t_slice=np.s_[::], fn='4sims/4sim_lk_90_500.pkl',
     else:
         ax2.semilogy(ts_run, Weffs, 'bo', ms=1.5)
     ax1.plot(ts_run, amps, 'bo', ms=1.5)
-    ax1.set_ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    ax1.set_ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
     ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
     ax2.set_xlabel(r'$t / t_{\rm LK, 0}$')
     plt.tight_layout()
@@ -971,7 +971,7 @@ def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 8), sharex=True)
     ax1.plot(ts_run, amps, 'bo', ms=3)
-    ax1.set_ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    ax1.set_ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
     ax2.semilogy(ts_run, Weffs, 'bo', ms=3)
     ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
     ax3.plot(ts_run, angles, 'bo', ms=3)
@@ -1139,7 +1139,7 @@ def search(params, fn, plot_fn, target, t_final, t_opt=None):
     # return
     plt.plot(times, amps, 'go', ms=3)
     plt.xlabel(r'$t / t_{\rm LK, 0}$')
-    plt.ylabel(r'$\Delta \theta_{\rm eff, \max}$ (Deg)')
+    plt.ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
     plt.axvline(t_opt)
     plt.savefig(plot_fn, dpi=200)
     plt.close()
@@ -1280,9 +1280,9 @@ def poincare_scan(other_params=(30, 0.1, 3, 0), m_t=60,
 
     widths = weff_mags_byN[0] * np.sin(np.radians(weff_angs_byN[0]))
     ax2.plot(mass_ratios, 1 - 3 * widths, 'r--')
-    ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
+    ax1.set_ylabel(r'$\bar{\theta}_{\rm e}$ (Deg)')
     # ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
-    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega$')
+    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$')
     ax2.set_ylim(top=1)
     ax3.set_ylabel(r'$\Omega_{\rm e,N} / \bar{\Omega}_{\rm e}$')
     ax4.set_ylabel(r'$I_N$ (Degrees)')
@@ -1334,9 +1334,9 @@ def poincare_w_scan(params=(30, 30, 30, 0.1, 3, 0),
         ax1.plot(np.full_like(q_eff_arr, w0), q_eff_arr, 'bo', ms=ms)
         ax2.plot(np.full_like(q_eff_arr, w0), qsl_arr, 'bo', ms=ms)
     ax3.plot(w_inits, freq_ratios)
-    ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
+    ax1.set_ylabel(r'$\bar{\theta}_{\rm e}$ (Deg)')
     ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
-    ax3.set_ylabel(r'$\bar{\Omega}_{\rm e} T_{\rm LK} / 2\pi$')
+    ax3.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$')
     ax3.set_xlabel(r'$m_1 / m_{12}$')
     if title:
         ax1.set_title(title)
@@ -1473,6 +1473,51 @@ def print_values(other_params=(3e7, 0.1, 300, 0), m_t=60, n_ratios=1000,
             A_bar = np.sqrt(dWSLz_num**2 + dWSLx_num**2) / abs(dW_num)
             Ie = np.pi - np.arctan2(dWSLx_num, dW_num - dWSLz_num)
             f.write("%f, %f, %f\n" % (ratio, A_bar, np.degrees(Ie)))
+
+def lyapunov(tol=1e-10, num_periods=500):
+    m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    Weff_vec, t_vals = single_cycle_toy(getter_kwargs, I0=np.radians(90.5))
+    print('single cycle done')
+
+    def get_sol_at_periods(s0):
+        t0 = t_vals[0]
+        tf = t_vals[-1]
+        period = tf - t0
+        Weff_x_interp = interp1d(t_vals, Weff_vec[0])
+        Weff_z_interp = interp1d(t_vals, Weff_vec[2])
+        Weff_x_mean = np.mean(Weff_vec[0])
+        Weff_z_mean = np.mean(Weff_vec[2])
+        def dydt(t, s):
+            t_curr = (t - t0) % period + t0
+            return np.cross(
+                [Weff_x_interp(t_curr), 0, Weff_z_interp(t_curr)],
+                s)
+
+        def period_event(t, y):
+            # want to transition continuously across (t - t0) % period = 0
+            return (t - t0 + period / 2) % period - period / 2
+        period_event.direction = +1
+        ret = solve_ivp(dydt, (t0, t0 + num_periods * period), s0,
+                        events=[period_event], dense_output=True,
+                        atol=tol, rtol=tol, method='BDF')
+        return ret.t_events[0], ret.sol(ret.t_events[0])
+    q0 = 1
+    phi0 = 2
+    phi1 = phi0 + 1e-3
+    s0 = [np.sin(q0) * np.cos(phi0), np.sin(q0) * np.sin(phi0), np.cos(q0)]
+    s1 = [np.sin(q0) * np.cos(phi1), np.sin(q0) * np.sin(phi1), np.cos(q0)]
+    t_periods, sol0 = get_sol_at_periods(s0)
+    print('1')
+    _, sol1 = get_sol_at_periods(s1)
+    print('2')
+    diffs = np.sqrt(np.sum((sol1 - sol0)**2, axis=0))
+    plt.semilogy(diffs * 1e4, 'bo', ms=2)
+    plt.xlabel('Period')
+    plt.ylabel(r'$|\Delta \mathbf{S}| (10^{-4})$')
+    plt.tight_layout()
+    plt.savefig('/tmp/lyapunov.png', dpi=200)
+    plt.close()
 
 if __name__ == '__main__':
     bin_comp()
@@ -1718,4 +1763,5 @@ if __name__ == '__main__':
     # print_values(I0=np.radians(90.5),
     #              other_params=(3e7, 100, 450000, 0), m_t=50,
     #              fn='/tmp/values_outer_90_5.txt')
+    # lyapunov()
     pass
