@@ -1,4 +1,5 @@
 import sympy as sp
+from sympy.vector import CoordSys3D
 
 def check_Iedot_scaling():
     # track j, e separately so we can set e = 1 without setting j = 0
@@ -47,5 +48,29 @@ def check_Iedot_scaling():
     print(sp.latex(sub_expr**8))
     print(sp.latex(factor))
 
+# in units WSL = A, WL = 1, Lin = eta, Lout = 1
+def check_explicit_qe():
+    C = CoordSys3D('C')
+    A, eta, I, qs3, fs3 = sp.symbols('A, eta I qs3 fs3', positive=True)
+    L3 = C.k # try -C.k as well
+    Lin_hat = sp.sin(I) * C.i + sp.cos(I) * C.k
+    Ltot = L3 + eta * Lin_hat
+    We = A * Lin_hat  + Ltot / L3.magnitude()
+
+    # check w/ LL18
+    tan_qeff = sp.simplify(sp.tan(sp.acos(We.dot(Lin_hat) / We.magnitude())))
+    print(sp.latex(tan_qeff))
+
+    print(We)
+    # print(sp.factor(sp.simplify(We.magnitude())))
+    Svec = sp.cos(qs3) * C.k + sp.sin(qs3) * (
+        sp.cos(fs3) * C.i + sp.sin(fs3) * C.j)
+    print(sp.latex(sp.simplify(Svec.dot(We) / We.magnitude())))
+
+    # nope way too ugly
+    # print(sp.latex(sp.simplify(sp.tan(sp.acos(Svec.dot(We) / We.magnitude())))))
+
 if __name__ == '__main__':
-    check_Iedot_scaling()
+    # check_Iedot_scaling()
+    check_explicit_qe()
+    pass

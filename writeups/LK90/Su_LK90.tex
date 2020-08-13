@@ -188,10 +188,10 @@ inner binary around the SMBH, and define effective semimajor axis
 \begin{equation}
     \tilde{a}_3 \equiv a_3\sqrt{1 - e_3^2}.
 \end{equation}
-Finally, call $\bm{L}_{\rm out} \equiv L_{\rm out} \uv{L}_{\rm out}$ the angular
+Finally, call $\bm{L}_{\rm 3} \equiv L_{\rm 3} \uv{L}_{\rm 3}$ the angular
 momentum of the SMBH relative to the center of mass of the inner BH binary, and
 call $\bm{L} \equiv L \uv{L}$ the orbital angular momentum of the inner BH
-binary. We take $\bm{L}_{\rm out}$ to be fixed.
+binary. We take $\bm{L}_{\rm 3}$ to be fixed.
 
 We then consider the motion of the inner binary, described by the Keplerian
 orbital elements $(a, e, \ascnode, I, \omega)$ (respectively: semimajor axis,
@@ -242,7 +242,7 @@ We summarize a few key analytical properties of this orbital evolution below:
 \begin{itemize}
     \item Neglecting GR effects (GW radiation and apsidal precession), the
         above equations describe periodic oscillations in $e$ and $I$. There are
-        two conserved quantities, the total angular momentum $\bm{L}_{\rm out} +
+        two conserved quantities, the total angular momentum $\bm{L}_{\rm 3} +
         \bm{L}$ and the ``Kozai constant'' \citep{lidov,kozai}:
         \begin{equation}
             K \equiv j(e) \cos I.\label{eq:K_def}
@@ -267,7 +267,7 @@ We summarize a few key analytical properties of this orbital evolution below:
         \begin{equation}
             e_{\max} \equiv \sqrt{1 - \frac{5}{3}\cos^2 I_0}.\label{eq:emax}
         \end{equation}
-        Note that these results assume $L_{\rm out} \gg L$ and that both
+        Note that these results assume $L_{\rm 3} \gg L$ and that both
         octupole and GR effects are negligible; see \citet{bin2} for generalized
         forms of the above results.
 
@@ -338,16 +338,16 @@ as
 \end{align}
 
 To analyze the dynamics of the spin vector, we go to co-rotating frame with
-$\uv{L}$ about $\uv{L}_{\rm out}$, where Eq.~\eqref{eq:dsdt} becomes
+$\uv{L}$ about $\uv{L}_{\rm 3}$, where Eq.~\eqref{eq:dsdt} becomes
 \begin{align}
     \p{\rd{\bm{S}}{t}}_{\rm rot}
-        &= \p{\Omega_{\rm L}\uv{L}_{\rm out}
+        &= \p{\Omega_{\rm L}\uv{L}_{\rm 3}
             + \Omega_{\rm SL}\uv{L}} \times \bm{S},\\
         &= \bm{\Omega}_{\rm e} \times \bm{S}\label{eq:dsdt_weff},
 \end{align}
 where we define
 \begin{align}
-    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm L}\uv{L}_{\rm out} + \Omega_{\rm SL}
+    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm L}\uv{L}_{\rm 3} + \Omega_{\rm SL}
             \uv{L},\label{eq:weff_def}\\
     \Omega_{\rm L} &\equiv -\rd{\ascnode}{t}.\label{eq:Wldef}
 \end{align}
@@ -471,13 +471,13 @@ $\theta_{\rm sl}$ has converged to its final value.
 For later analysis, it is also useful to write Eq.~\eqref{eq:dsdt_fullft} in
 components. To do so, it is next useful to define inclination angle
 $\bar{I}_{\rm e}$ as the angle between $\bm{\overline{\Omega}}_{\rm e}$ and
-$\bm{L}_{\rm out}$ as shown in Fig.~\ref{fig:3vec}. To express $\bar{I}_{\rm e}$
+$\bm{L}_{\rm 3}$ as shown in Fig.~\ref{fig:3vec}. To express $\bar{I}_{\rm e}$
 algebraically, we first define LK-averaged quantities
 \begin{figure}
     \centering
     \includegraphics[width=0.5\columnwidth]{LK90_plots/7_3vec_cropped.png}
     \caption{Definition of angles, shown in plane of the two angular momenta
-    $\bm{L}_{\rm out}$ and $\bm{L}$. Note that for $I_0 > 90^\circ$ (and
+    $\bm{L}_{\rm 3}$ and $\bm{L}$. Note that for $I_0 > 90^\circ$ (and
     $\bar{I} > 90^\circ$), we have $\bar{I}_{\rm e} < 0$ since $\Omega_{\rm L} <
     0$. The bottom right shows our choice of coordinate axes.}\label{fig:3vec}
 \end{figure}
@@ -527,7 +527,7 @@ Then, we can rewrite Eq.~\eqref{eq:eom_prime} as
             \Omega_{\rm eN}\cos N\Omega_{\rm LK} t.\label{eq:formal_eom_allgen}
 \end{align}
 Here, for each $\bm{\Omega}_{\rm eN}$ Fourier harmonic, we denote its magnitude
-$\Omega_{\rm eN}$ and its inclination angle relative to $\bm{L}_{\rm out}$ as
+$\Omega_{\rm eN}$ and its inclination angle relative to $\bm{L}_{\rm 3}$ as
 $I_{\rm eN}$ using the same convention as Fig.~\ref{fig:3vec} (where
 $\bar{I}_{\rm e} \equiv I_{\rm e0}$), and $\Delta I_{\rm eN} = \bar{I}_{\rm e} -
 I_{\rm eN}$.
@@ -736,10 +736,10 @@ $\rdil{\ascnode}{t}$, we can estimate
                 \s{\frac{15\cos \bar{I}}{
                     8t_{\rm LK}j}}^{-1},\\
         &\simeq \frac{4}{5}\frac{G(m_2 + \mu/3) m_{12}\tilde{a}_3^3}{
-            c^2m_3a^4 j \cos \bar{I}},\label{eq:abar_eq1}\\
+            c^2m_3a^4 j \cos \bar{I}},\nonumber\\
     \frac{\dot{\mathcal{A}}}{\mathcal{A}}
         &= -4\p{\frac{\dot{a}}{a}}_{\rm GW}
-            + \frac{e}{j^2}\p{\rd{e}{t}}_{\rm GW}.
+            + \frac{e}{j^2}\p{\rd{e}{t}}_{\rm GW}.\label{eq:abar_eq1}\\
 \end{align}
 With this, we see that Eq.~\eqref{eq:idot_over_W_med} is small except when
 $\mathcal{A} \simeq 1$, and so we obtain that the maximum $\dot{\bar{I}}_{\rm e}
@@ -777,42 +777,41 @@ Eqs.~\eqref{eq:dadt_gw} and~\eqref{eq:dedt_gw} gives
     \s{\frac{\dot{\mathcal{A}}}{\mathcal{A}}}_{\star}
         \simeq \frac{G^3 \mu m_{12}^2}{c^5a_\star^4j_\star^7} \frac{595}{3}.
 \end{equation}
-Again assuming $e_\star \approx 1$ and averaging $\cos^2 \omega \simeq 1/2$ in
-$\rdil{\ascnode}{t}$ Eq.~\eqref{eq:dWdt} gives
-\begin{equation}
-    \overline{\Omega}_{\rm L, \star}
-        \approx \frac{15\cos \bar{I}}{8t_{\rm LK, \star}j_\star}.
-\end{equation}
-Lastly, to fix $a_\star$, we require Eq.~\eqref{eq:abar_eq1} to give
-$\mathcal{A} = 1$ for $a_\star$ and $j_\star$. Taking all of these together, we
-obtain
+To fix $a_\star$, we require Eq.~\eqref{eq:abar_eq1} to give $\mathcal{A} = 1$
+for $a_\star$ and $j_\star$. Taking all of these together, we obtain
+% Exponent: (8000 * G^9 * (50 solar mass)^9 * (3e7 solar mass)^3 * (12 solar mass)^8 / ((2.2 pc)^9 * c^18 * (24 solar mass)^11))^(1/8)
+% trig part: sin(120) * (cos(60))^(3/8) / (cos(120) + 1)^(3/2)
+% together: 180 / (2pi) * (2.72^2 * 5 * cos^2(90.3 degrees) / 3)^(-37/16) * 1.033×10^-11 * 1.888 * 595 / 36
 \begin{align}
     \abs{\frac{\dot{\bar{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
-        \approx{}& \frac{952}{9}\frac{G^3 \mu m_{12}^3 \tilde{a}_3^3}{c^5
-        \sqrt{Gm_{12}} m_3}
-            \p{\frac{5c^2 m_3 \cos \bar{I}}{4G(m_2 + \mu / 3) m_{12}
-                \tilde{a}_3^3}}^{11/8}\nonumber\\
-        &\times \p{j_\star}^{-37/8}
-            \frac{\tan \bar{I}}{
-            \p{2 + 2 \cos \bar{I}}^{3/2}},\\
-        \approx{}& XXX \p{\frac{\tilde{a}_3}{2.2\;\mathrm{pc}}}^{-9/8}
-            \dots\label{eq:prediction}
+        \approx
+            \frac{595 \sin(\bar{I}) \abs{\cos(\bar{I})}^{3/8}}{36 j^{\frac{37}{8}}
+                \left(\cos(\bar{I}) + 1\right)^{\frac{3}{2}}}
+        \left(\frac{8000 G^{9} m_{12}^{9} m_{3}^{3}
+            \mu^{8}}{\tilde{a}_{3}^{9} c^{18} (m_2 + \mu /
+            3)^{11}}\right)^{1/8}.
 \end{align}
-We take constant $\bar{I} = 120^\circ$ (Figs.~\ref{fig:4sim_90_350_zoom}
+We can also calculate $\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}$ from
+numerical simulations. Taking characteristic $\bar{I} \approx 120^\circ$ (Figs.~\ref{fig:4sim_90_350_zoom}
 and~\ref{fig:4sim_90_200_zoom} show that this is a serviceable approximation
-that holds across a range of $I_0$). Then Eq.~\eqref{eq:prediction} has only one
-free parameter, $f$, which enters through $j_\star$ following
-Eq.~\eqref{eq:jstar_ansatz}. We can also calculate $\dot{\bar{I}}_{\rm e} /
-\overline{\Omega}_{\rm e}$ from numerical simulations. Fitting $f$ to the data
-from numerical simulations gives $f = 2.6$. The result of this fit is shown in
-Fig.~\ref{fig:good_quants}, where it is clear the scaling predicted by
-Eq.~\eqref{eq:prediction} is remarkably accurate.
+that holds across a range of $I_0$), we can fit the last remaining free
+parameter $f$ [Eq.~\eqref{eq:jstar_ansatz}] to the data from numerical
+simulations. This gives $f \approx 2.72$, and final result
+\begin{align}
+    \abs{\frac{\dot{\bar{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
+        ={}& 0.98^\circ \p{\frac{\cos I_0}{\cos (90.3^\circ)}}^{-37/8}
+            \p{\frac{\tilde{a}_{\rm 3}}{2.2\;\mathrm{pc}}}^{-9/8}\nonumber\\
+        & \times \p{\frac{m_3}{3 \times 10^7\;M_{\odot}}}^{3/8}.
+            \label{eq:prediction}
+\end{align}
+The result of this fit is shown in Fig.~\ref{fig:good_quants}, where it is clear
+the scaling predicted by Eq.~\eqref{eq:prediction} is remarkably accurate.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/good_quants.png}
     \caption{Comparison of $\abs{\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm
     e}}_{\max}$ extracted from simulations and using Eq.~\eqref{eq:prediction},
-    where we take $f = 2.6$ in Eq.~\eqref{eq:jstar_ansatz}. The coalescence time
+    where we take $f = 2.72$ in Eq.~\eqref{eq:jstar_ansatz}. The coalescence time
     $T_{\rm m}$ is shown along the top axis of the plot in units of the
     characteristic LK timescale at the start of inspiral $t_{\rm LK, 0}$; the LK
     period is initially of order a few $t_{\rm LK, 0}$. The agreement is
@@ -864,13 +863,69 @@ In Fig.~\ref{fig:qslscan}, we plotted $\theta_{\rm sl}^{\rm f}$ as a function of
 $I_0$ when $\theta_{\rm sl}^{\rm i} = 0$. With the results developed in the
 previous sections, we can understand very well the behavior seen in this plot.
 
-Note that, for the fiducial parameter space, $\overline{\Omega}_{\rm L} \gg
-\overline{\Omega}_{\rm SL}$ initially (Fig.~\ref{fig:4sim_90_350_supp}), and so
+First, while $\bar{\theta}_{\rm e}$ is our proposed adiabatic invariant,
+$\bar{\theta}_{\rm e}^{\rm i}$ is not measurable. As such, we re-express
+$\bar{\theta}_{\rm e}^{\rm i}$ in terms of physical quantities. Since
+$\mathcal{A}
+\lesssim 1$ initially, we expect $\bm{\overline{\Omega}}_{\rm e} \parallel
+\bm{L}_{\rm 3}$, so the natural coordinate system to use is the spherical
+coordinate system with $\bm{L}_{\rm 3} \propto \uv{Z}$ at the North pole. Define
+then the polar and azimuthal angles for $\bm{S}_{\rm i}$ to be $\theta_{\rm s3}$
+and $\phi_{ \rm s3}$ respectively. We follow the same convention as before and
+choose $\uv{X}$ to point along $\bm{L}$, for which the azimuthal angle
+$\phi_{\rm s3} = 0$. Finally, we will consider the case of nonzero $\eta \equiv
+L / L_{\rm 3}$ here, to better parallel the discussion in \citet{bin2}. In this
+case, $\bm{\overline{\Omega}}_{\rm e}$ is given by
+\begin{equation}
+    \bm{\overline{\Omega}}_{\rm e} = \overline{\Omega}_{\rm SL} \uv{L}
+        + \overline{\Omega}_{\rm L}\frac{\bm{L}_{\rm tot}}{L_3},
+\end{equation}
+where
+\begin{equation}
+    \bm{L}_{\rm tot} \equiv \bm{L} + \bm{L}_{\rm 3}.
+\end{equation}
+It can then be shown that
+\begin{equation}
+    \bm{\overline{\Omega}}_{\rm e} = \overline{\Omega}_{\rm L}\s{\p{
+        \mathcal{A} + \eta}\sin \bar{I} \uv{X} + \p{\mathcal{A}\cos \bar{I} +
+        \eta\cos \bar{I} + 1} \uv{Z}}.
+\end{equation}
+Then, for some $\bm{S}_{\rm i} = \cos \theta_{\rm s3} \uv{Z} + \sin \theta_{\rm
+s3}\p{\cos \phi_{\rm s3}\uv{X} + \sin \phi_{\rm s3}\uv{Y}}$, we can calculate
+\begin{equation}
+    \cos \bar{\theta}_{\rm e}^{\rm i} =
+        \frac{\p{\mathcal{A} + \eta}\p{\sin I \sin \theta_{\rm s3} \cos \phi_{\rm s3}
+            + \cos I \cos \theta_{\rm s3}} \pm \cos \theta_{\rm s3}}{
+        \sqrt{(\mathcal{A} + \eta)^2 \pm 2(\mathcal{A} + \eta)\cos I +
+            1}}.\label{eq:cos_qe_explicit}
+\end{equation}
+The sign is equal to $\mathrm{sgn}\p{\overline{\Omega}_{\rm L}}$: note
+$\mathrm{sgn}\p{\overline{\Omega}_{\rm L}}$ is positive for $I_0 < 90^\circ$ and
+negative for $I_0 > 90^\circ$. In \citet{bin2}, a similar equation [their
+Eq.~(73)] is derived assuming $e = 0$, for which $\bar{I} = I$, and $\bm{S}_{\rm
+i} = \uv{L}$. This implies $\theta_{\rm s3} = I$ while $\phi_{\rm s3} = 0$ as
+well, and Eq.~\eqref{eq:cos_qe_explicit} simplifies considerably, in agreement
+with Eq.~(73) of \citet{bin2} [when $e = 0$, their $\mathcal{A}_0 / 2 \cos I_0$
+is our $\mathcal{A}$, see their Eq.~(72)].
+
+Note that, for the fiducial parameter space, $\mathcal{A} \ll 1$ initially
+(Fig.~\ref{fig:4sim_90_350_supp}), and $\eta \ll 1$ as well, so
+Eq.~\eqref{eq:cos_qe_explicit} simply gives
+\begin{equation}
+    \bar{\theta}_{\rm e}^{\rm i} \approx
+    \begin{cases}
+        \theta_{\rm sb}^{\rm i} & I_0 < 90^\circ,\\
+        180^\circ - \theta_{\rm sb}^{\rm i} & I_0 > 90^\circ,
+    \end{cases}
+\end{equation}
+
+% TODO fix rest
+and so
 by Eq.~\eqref{eq:weff_def} we have
 \begin{equation}
     \frac{\bm{\overline{\Omega}}_{\rm e}}{\overline{\Omega}_{\rm e}} \approx
-        \mathrm{sgn}\p{\overline{\Omega}_{\rm L}} \uv{L}_{\rm
-        out}.\label{eq:Weff_approx}
+        \mathrm{sgn}\p{\overline{\Omega}_{\rm L}} \uv{L}_{\rm 3}.
+        \label{eq:Weff_approx}
 \end{equation}
 If then $\theta_{\rm sl}^{\rm i} = 0^\circ$, we have $\bar{\theta}_{\rm e}^{\rm i}
 \approx I_0$, and when $\bar{\theta}_{\rm e}$ is conserved, we obtain the desired
@@ -880,13 +935,13 @@ i} = 0^\circ$, since $I_0 \approx 90^\circ$ is required for sufficient
 $e$-excitation to cause the binary to merge. Careful examination of
 Fig.~\ref{fig:qslscan} shows the $\theta_{\rm sl}^{\rm f}$ values for slower
 mergers is slightly below $90^\circ$. This is because
-$\bm{\overline{\Omega}}_{\rm e}$ differs slightly from $\bm{L_{\rm out}}$ when
+$\bm{\overline{\Omega}}_{\rm e}$ differs slightly from $\bm{L_{\rm 3}}$ when
 $\overline{\Omega}_{\rm SL}$ is nonzero, and indeed $\bar{\theta}_{\rm e} \approx
 88.5^\circ$ for $I_0 = 90.5^\circ$ and $I_0 = 89.5^\circ$.
 
 This also reproduces a recent result that $\theta_{\rm sl}^{\rm f}$ either
 equals $\theta_{\rm sb}^{\rm i}$ or $180^\circ - \theta_{\rm sb}^{\rm i}$, where
-where $\theta_{\rm sb}^{\rm i}$ is the initial angle between $\bm{L}_{\rm out}$
+where $\theta_{\rm sb}^{\rm i}$ is the initial angle between $\bm{L}_{\rm 3}$
 and $\bm{S}$ \citep{yu2020spin}. Noting $\mathrm{sgn}\p{\overline{\Omega}_{\rm
 L}}$ is positive for $I_0 < 90^\circ$ and negative for $I_0 > 90^\circ$, we get
 \begin{equation}
@@ -1039,7 +1094,7 @@ $\theta_{\rm sl}^{\rm f}$, as seen in Fig.~\ref{fig:bin_comp_zoom}.
     $a_{\rm in} = 0.1\;\mathrm{AU}$, $\tilde{a}_3 = 3\;\mathrm{AU}$, and $e_3
     = 0$. Conservation of $\bar{\theta}_{\rm e}$ gives the green line. Agreement near
     $I_0 = 90^\circ$ is good when accounting for the effects of a finite
-    $L_{\rm out}$ (see Fig.~\ref{fig:bin_comp_zoom}). For $I_0$ in the two
+    $L_{\rm 3}$ (see Fig.~\ref{fig:bin_comp_zoom}). For $I_0$ in the two
     intervals $[40^\circ, 80^\circ]$ and $[100^\circ, 140^\circ]$, a further
     effect causes $\theta_{\rm sl}^{\rm f}$ to fluctuate
     unpredictably.}\label{fig:bin_comp}
@@ -1050,7 +1105,7 @@ $\theta_{\rm sl}^{\rm f}$, as seen in Fig.~\ref{fig:bin_comp_zoom}.
     \includegraphics[width=\columnwidth]{LK90_plots/6bin_comp_zoom.png}
     \caption{Zoomed in version of Fig.~\ref{fig:bin_comp} near $I_0 \approx
     90^\circ$ while adding an $I_0$ offset to account for differences between
-    the data and theory due to finite $L_{\rm out}$ effects. The green shaded
+    the data and theory due to finite $L_{\rm 3}$ effects. The green shaded
     area shows the expected range of deviations due to resonant perturbations
     following Eq.~\eqref{eq:harmonic_dqeff} (evaluated for the initial system
     parameters). The data nearer $90^\circ$ have less spread than predicted, but
