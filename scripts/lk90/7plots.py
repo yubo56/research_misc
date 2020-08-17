@@ -67,23 +67,23 @@ def plot_3vec():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\hat{\bar{L}}$',
+            r'$\hat{\overline{\mathbf{L}}}$',
             fontdict={'c': s_c})
 
     # draw arcs
     arc_lw = 3
-    ld_arc = patches.Arc((0, 0), 1.0, 1.0, 0, 90 - ld_q, 90,
+    ld_arc = patches.Arc((0, 0), 1.1, 1.1, 0, 90 - ld_q, 90,
                          color=ld_c, lw=arc_lw, alpha=alpha,
                          label='1')
     ax.add_patch(ld_arc)
 
-    ax.text(np.sin(np.radians(ld_q * 0.4)) * 0.5,
-            np.cos(np.radians(ld_q * 0.4)) * 0.5 + 2 * offset,
+    ax.text(np.sin(np.radians(ld_q * 0.4)) * 0.55,
+            np.cos(np.radians(ld_q * 0.4)) * 0.55 + 2 * offset,
             r'$\bar{I}_{\rm e}$',
             fontdict={'c': ld_c})
     xy_ld_tip = (
-        0.5 * np.sin(np.radians(ld_q)),
-        0.5 * np.cos(np.radians(ld_q)))
+        0.55 * np.sin(np.radians(ld_q)),
+        0.55 * np.cos(np.radians(ld_q)))
     ax.annotate('', xy=xy_ld_tip + np.array([0.003, -0.001]), xytext=xy_ld_tip,
                 arrowprops=arrowprops(ld_c))
 
