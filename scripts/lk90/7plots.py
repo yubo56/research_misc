@@ -1,7 +1,7 @@
+# convert 7_3vec.png -crop 1100x1300+350+100 7_3vec_cropped.png
 '''
 more random plots
 '''
-# convert 7_3vec.png -crop 1100x1300+350+100 7_3vec_cropped.png
 import numpy as np
 import scipy.optimize as opt
 from utils import *
@@ -14,6 +14,7 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=20)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
+plt.rc('text.latex', preamble=r'\usepackage{newtxmath}')
 LW=3.5
 
 def get_xy(angle, mag=1):
@@ -34,13 +35,13 @@ def plot_3vec():
     arrowprops = lambda c: {'fc': c, 'alpha': alpha, 'lw': 0,
                             'width': 3, 'headwidth': 12}
 
-    # draw three arrows
+    # draw arrows
     l_xy = get_xy(0)
     l_c = 'k'
     ax.annotate('', xy=l_xy, xytext=(0, 0),
                  arrowprops=arrowprops(l_c))
     ax.text(l_xy[0] - offset / 3, l_xy[1] + offset,
-            r'$\hat{\mathbf{L}}_{\rm out}$',
+            r'$\hat{\mathbf{L}}_{\rm 3}$',
             fontdict={'c': l_c})
 
     ld_q = 20
@@ -51,6 +52,14 @@ def plot_3vec():
     ax.text(ld_xy[0] - offset / 2, ld_xy[1] + offset,
             r'$\overline{\mathbf{\Omega}}_{\rm e}$',
             fontdict={'c': ld_c})
+    md_q = 30
+    md_xy = get_xy(md_q)
+    md_c = 'g'
+    ax.annotate('', xy=md_xy, xytext=(0, 0),
+                 arrowprops=arrowprops(md_c))
+    ax.text(md_xy[0] - offset / 2, md_xy[1] + offset,
+            r'$\mathbf{\Omega}_{\rm e1}$',
+            fontdict={'c': md_c})
 
     s_q = 50
     s_xy = get_xy(s_q)
@@ -58,20 +67,16 @@ def plot_3vec():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\overline{\mathbf{\Omega}}_{\rm SL}$',
+            r'$\hat{\bar{L}}$',
             fontdict={'c': s_c})
 
     # draw arcs
-    # center, (dx, dy), rotation, start angle, end angle (degrees)
     arc_lw = 3
     ld_arc = patches.Arc((0, 0), 1.0, 1.0, 0, 90 - ld_q, 90,
                          color=ld_c, lw=arc_lw, alpha=alpha,
                          label='1')
     ax.add_patch(ld_arc)
-    s_arc = patches.Arc((0, 0), 0.8, 0.8, 0, 90 - s_q, 90,
-                        color=s_c, lw=arc_lw, alpha=alpha)
-    ax.add_patch(s_arc)
-    # label arcs
+
     ax.text(np.sin(np.radians(ld_q * 0.4)) * 0.5,
             np.cos(np.radians(ld_q * 0.4)) * 0.5 + 2 * offset,
             r'$\bar{I}_{\rm e}$',
@@ -81,6 +86,25 @@ def plot_3vec():
         0.5 * np.cos(np.radians(ld_q)))
     ax.annotate('', xy=xy_ld_tip + np.array([0.003, -0.001]), xytext=xy_ld_tip,
                 arrowprops=arrowprops(ld_c))
+
+    md_arc = patches.Arc((0, 0), 1.4, 1.4, 0, 90 - md_q, 90,
+                         color=md_c, lw=arc_lw, alpha=alpha,
+                         label='1')
+    ax.add_patch(md_arc)
+
+    ax.text(np.sin(np.radians(md_q * 0.3)) * 0.7,
+            np.cos(np.radians(md_q * 0.3)) * 0.7 + 2 * offset,
+            r'$I_{\rm e1}$',
+            fontdict={'c': md_c})
+    xy_md_tip = (
+        0.7 * np.sin(np.radians(md_q)),
+        0.7 * np.cos(np.radians(md_q)))
+    ax.annotate('', xy=xy_md_tip + np.array([0.003, -0.001]), xytext=xy_md_tip,
+                arrowprops=arrowprops(md_c))
+
+    s_arc = patches.Arc((0, 0), 0.8, 0.8, 0, 90 - s_q, 90,
+                        color=s_c, lw=arc_lw, alpha=alpha)
+    ax.add_patch(s_arc)
     ax.text(np.sin(np.radians(0.8 * s_q)) * 0.4 + offset,
             np.cos(np.radians(0.8 * s_q)) * 0.4 + 2 * offset,
             r'$\bar{I}$',
@@ -91,9 +115,7 @@ def plot_3vec():
     ax.annotate('', xy=xy_s_tip + np.array([0.003, -0.003]), xytext=xy_s_tip,
                 arrowprops=arrowprops(s_c))
 
-    ax.set_aspect('equal')
-
-    # add coordinate axes
+    # coord axis labels
     coord_xy = np.array([0.6, 0.05])
     ax.plot(*coord_xy, 'ko', ms=8, zorder=np.inf)
     ax.annotate('', xy=(coord_xy + 0.2 * np.array(ld_xy)),
@@ -111,7 +133,7 @@ def plot_3vec():
             r'$\hat{\mathbf{x}}$',
             fontdict={'c': 'k'})
 
-
+    ax.set_aspect('equal')
     plt.savefig('7_3vec', dpi=400)
     plt.clf()
 
@@ -131,10 +153,10 @@ def plot_bin_bifurcations():
         for ax in ax1, ax2:
             ax.set_yticks([0, 60, 120, 180])
             ax.set_yticklabels([r'$0$', r'$60$', r'$120$', r'$180$'])
-        ax1.plot(ratios, qes, 'k,')
-        ax2.plot(ratios, qsls, 'k,')
-        ax1.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
-        ax2.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
+        ax1.plot(ratios, qsls, 'k,')
+        ax2.plot(ratios, qes, 'k,')
+        ax1.set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
+        ax2.set_ylabel(r'$\theta_{\rm e}$ (Deg)')
         ax2.set_xlabel(r'$m_1 / m_{12}$')
         mass_ticks = [0, 0.2, 0.4, 0.6, 0.8, 1.0]
         ax2.set_xticks(mass_ticks)
@@ -167,5 +189,5 @@ def plot_bin_bifurcations():
         plt.clf()
 
 if __name__ == '__main__':
-    # plot_3vec()
-    plot_bin_bifurcations()
+    plot_3vec()
+    # plot_bin_bifurcations()

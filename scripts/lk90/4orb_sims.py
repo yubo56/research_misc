@@ -418,7 +418,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[3].plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
                 label=r'$-\bar{I}_{\rm e}$')
     axs[3].plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
-                label=r'$-\bar{I}_{\rm e1}$')
+                label=r'$-I_{\rm e1}$')
 
     axs[3].set_ylim(bottom=-7)
     axs[3].legend(fontsize=12, loc='lower left', ncol=2)
@@ -480,7 +480,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[7].set_ylabel('Degrees')
     axs[7].legend(fontsize=12, ncol=2)
     axs[7].set_yscale('log')
-    axs[7].set_ylim(bottom=1e-3)
+    axs[7].set_ylim(bottom=1e-3, top=10)
 
     lk_axf = len(axs) - 1
     axs[lk_axf].set_xlim(left=t[xlim_idxs[0]], right=t[xlim_idxs[1]])
@@ -1263,8 +1263,9 @@ def qslscan():
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             qslfs, tfs = pickle.load(f)
-    print(qslfs)
-    return
+            I_degs = I_degs[5:-5]
+            qslfs = qslfs[5:-5]
+            tfs = tfs[5:-5]
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
                                    gridspec_kw={'height_ratios': [1, 2]})
@@ -1272,22 +1273,30 @@ def qslscan():
     ax1.plot(I_degs, tfs * t_lk, 'b', lw=1.5)
     ax1.set_yscale('log')
     ax1.set_ylabel('Merger Time (yr)')
-    ax1.set_yticks([1e6, 1e9, 1e12])
-    ax1.set_yticklabels([r'$10^{6}$', r'$10^{9}$', r'$10^{12}$'])
+    ax1.set_yticks([1e6, 1e8, 1e10])
+    ax1.set_yticklabels([r'$10^{6}$', r'$10^{8}$', r'$10^{10}$'])
 
     ax2.plot(I_degs, qslfs, 'b', lw=1.5)
     ax2.set_xlabel(r'$I_0$ (Deg)')
     ax2.set_ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
+
+    qsl_middle = np.minimum(I_degs - 1, 178 - I_degs)
+    ax2.plot(I_degs, 88.5 - (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.plot(I_degs, 88.5 + (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.set_ylim(bottom=0, top=120)
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
     plt.savefig('4qslscan/qslscan.png', dpi=400)
 
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
-    for I_deg in [90.2, 90.35]:
-        run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
+    #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
+    # run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
+    # run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     # deltas_deg = run_ensemble('4sims_scan/')
@@ -1303,5 +1312,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    # qslscan()
+    qslscan()
     pass
