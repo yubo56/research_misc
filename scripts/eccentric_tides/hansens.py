@@ -92,23 +92,25 @@ def plot_hansens_0(e, m=0):
 
     n_tot = np.concatenate((-n_vals[1: ][::-1], n_vals))
     coeffs_tot = np.concatenate((coeffs2[1: ][::-1], coeffs))
-    plt.semilogy(n_tot, coeffs_tot, 'go', ms=1.5)
+    plt.semilogy(n_tot, coeffs_tot, 'k', alpha=0.7,
+                 label=r'$F_{N0}$')
 
     # fit_func
     amp = coeffs[0]
     def f(n, a):
         return amp * np.exp(-np.abs(n) / (a * N_peak))
     [beta], _ = curve_fit(f, n_tot, coeffs_tot, p0=(2))
-    plt.semilogy(n_tot, amp * np.exp(-np.abs(n_tot) / (beta * N_peak)), 'r:')
-
-    eta = np.sqrt(8) * e * N_peak
-    C = np.sqrt((1 + 3 * e**2 + 3 * e**4 / 8) / (
-        eta * (1 - e**2)**(9/2)))
-    plt.semilogy(n_tot, C * np.exp(-np.abs(n_tot) / eta), 'k:')
+    f3 = 1 + 15*e**2/4 + 15*e**4/8 + 5*e**6/64
+    f5 = 1 + 3 * e**2 + 3 * e**4 / 8
+    eta0 = np.sqrt(9 * e**2 * f3 / ((1 - e**2)**3 * f5))
+    c0 = np.sqrt(f5 / (eta0 * (1 - e**2)**(9/2)))
+    plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'g',
+                 alpha=0.7, label='Parameterization')
 
     plt.xlabel(r'$N$')
     plt.xlim([-6 * N_peak, 6 * N_peak])
-    # plt.ylim([coeffs[6 * int(N_peak)], 1.4 * coeffs[0]])
+    plt.legend(fontsize=12, loc='lower center', ncol=2)
+    plt.tight_layout()
     plt.savefig('hansens/hansens%s' % ('%.2f' % e).replace('.', '_'), dpi=400)
     plt.close()
 
@@ -116,7 +118,7 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     N_peak = np.sqrt(1 + e) * (1 - e**2)**(-3/2)
     # just plot +2, no 8/3's laws for now
     nmax = 4 * int(max(N_peak, 150))
-    n_vals, coeffs, _ = coeff_getter(nmax, m, e)
+    n_vals, coeffs, coeffs2 = coeff_getter(nmax, m, e)
     n_vals = n_vals[1: ] # drop the 0 bin, throws off loglog plotting
     coeffs = coeffs[1: ]
 
@@ -125,27 +127,33 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     pos_idx = np.where(coeffs > 0)[0]
     neg_idx = np.where(coeffs < 0)[0]
     plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
-               'ko', ms=ms, label=r'$F_{N2} > 0$')
+               'k', ms=ms, label=r'$F_{N2}$', alpha=0.7)
+    plt.loglog(n_vals, np.abs(coeffs2[1: ]),
+               'r', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
-               'ro', ms=ms, label=r'$F_{N2} < 0$')
-    params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
-    fit = powerlaw(n_vals, params[0], params[1], params[2])
-    plt.loglog(n_vals, fit, 'r:', label='+2 Fit')
+               'k:', ms=ms, alpha=0.7)
+    # params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
+    # fit = powerlaw(n_vals, params[0], params[1], params[2])
+    f2 = 1 + 15*e**2/2 + 45*e**4/8 + 5*e**6/16
+    f5 = 1 + 3 * e**2 + 3 * e**4 / 8
+    eta2 = 4 * f2 / (5 * f5 * (1 - e**2)**(3/2))
+    c2 = np.sqrt(32 * f5 / (24 * eta2**5 * (1 - e**2)**(9/2)))
+    fit = powerlaw(n_vals, c2, 2, eta2)
+    plt.loglog(n_vals, fit, 'g', label='Parameterization', alpha=0.7)
 
     plt.xlabel('$N$')
     plt.ylabel(r'$F_{N2}$')
     # plt.axvline(max_n, c='k', linewidth=1)
-    plt.axvline(N_peak, c='b')
-    plt.title(r'$e = %.2f$' % e)
+    # plt.axvline(N_peak, c='b')
     print('N_peri, N_max', N_peak, max_n)
 
     plt.ylim(bottom=abs(coeffs[0]) / 100)
-    plt.text(
-        plt.xlim()[0] * 1.1, max(abs(coeffs)) * 0.06,
-        r'$(F_{N2} = %.3fN^{%.2f}e^{-N/%.3f})$' % tuple(params),
-        color='r',
-        size=12)
-    plt.legend(fontsize=12, ncol=2)
+    # plt.text(
+    #     np.sqrt(plt.xlim()[0] * plt.xlim()[1]), max(abs(coeffs)) * 1.5,
+    #     r'$(F_{N2} = %.3fN^{%d}e^{-N/%.3f})$' % tuple(params),
+    #     color='r',
+    #     size=12)
+    plt.legend(fontsize=12, ncol=3, loc='upper center')
     plt.tight_layout()
     plt.savefig(fn, dpi=400)
     plt.close()
@@ -294,5 +302,6 @@ if __name__ == '__main__':
     # energy terms
     # for e_val in np.arange(0.5, 0.96, 0.05):
     #     plot_hansens_0(e_val)
+    plot_hansens_0(0.9)
 
-    plot_naked_hansens(e=0.99)
+    # plot_naked_hansens(e=0.99)
