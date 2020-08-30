@@ -38,42 +38,43 @@ def get_kozai(folder, I_deg, getter_kwargs,
               **kwargs):
     mkdirp(folder)
     I0 = np.radians(I_deg)
+    y0 = (a0, e0, W0, I0, w0)
     pkl_fn = folder + pkl_template % get_fn_I(I_deg)
+
+    eps_gr = getter_kwargs['eps_gr']
+    eps_gw = getter_kwargs['eps_gw']
+    def dydt(t, y):
+        a, e, W, I, w = y
+        x = 1 - e**2
+        dadt =  (
+            -eps_gw * (64 * (1 + 73 * e**2 / 24 + 37 * e**4 / 96)) / (
+                5 * a**3 * x**(7/2))
+        )
+        dedt = (
+            15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
+                    * np.sin(I)**2 / 8
+                - eps_gw * 304 * e * (1 + 121 * e**2 / 304)
+                    / (15 * a**4 * x**(5/2))
+        )
+        dWdt = (
+            3 * a**(3/2) * np.cos(I) *
+                    (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
+                / (4 * np.sqrt(x))
+        )
+        dIdt = (
+            -15 * a**(3/2) * e**2 * np.sin(2 * w)
+                * np.sin(2 * I) / (16 * np.sqrt(x))
+        )
+        dwdt = (
+            3 * a**(3/2)
+                * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
+                / (4 * np.sqrt(x))
+            + eps_gr / (a**(5/2) * x)
+        )
+        return (dadt, dedt, dWdt, dIdt, dwdt)
 
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        eps_gr = getter_kwargs['eps_gr']
-        eps_gw = getter_kwargs['eps_gw']
-        def dydt(t, y):
-            a, e, W, I, w = y
-            x = 1 - e**2
-            dadt =  (
-                -eps_gw * (64 * (1 + 73 * e**2 / 24 + 37 * e**4 / 96)) / (
-                    5 * a**3 * x**(7/2))
-            )
-            dedt = (
-                15 * a**(3/2) * e * np.sqrt(x) * np.sin(2 * w)
-                        * np.sin(I)**2 / 8
-                    - eps_gw * 304 * e * (1 + 121 * e**2 / 304)
-                        / (15 * a**4 * x**(5/2))
-            )
-            dWdt = (
-                3 * a**(3/2) * np.cos(I) *
-                        (5 * e**2 * np.cos(w)**2 - 4 * e**2 - 1)
-                    / (4 * np.sqrt(x))
-            )
-            dIdt = (
-                -15 * a**(3/2) * e**2 * np.sin(2 * w)
-                    * np.sin(2 * I) / (16 * np.sqrt(x))
-            )
-            dwdt = (
-                3 * a**(3/2)
-                    * (2 * x + 5 * np.sin(w)**2 * (e**2 - np.sin(I)**2))
-                    / (4 * np.sqrt(x))
-                + eps_gr / (a**(5/2) * x)
-            )
-            return (dadt, dedt, dWdt, dIdt, dwdt)
-        y0 = (a0, e0, W0, I0, w0)
 
         peak_event = lambda t, y: (y[4] % np.pi) - (np.pi / 2)
         peak_event.direction = +1 # only when w is increasing
@@ -193,6 +194,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     Lhat = get_hat(W, I)
     Lout_hat = get_hat(0 * I, 0 * I)
     q_sl = np.arccos(ts_dot(Lhat, s_vec))
+    print(np.degrees(q_sl[-1]))
     q_sb = np.arccos(reg(sz))
     Wsl = getter_kwargs['eps_sl'] / (a**(5/2) * (1 - e**2))
     Wdot_eff = (
@@ -415,14 +417,14 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[2].set_ylabel(r'$I$')
     axs[2].legend(fontsize=14, ncol=2)
 
-    axs[3].plot(t_Iout_smoothed, np.degrees(Iout_smoothed), 'b',
-                label=r'$-\bar{I}_{\rm e}$')
-    axs[3].plot(t_Iout_smoothed, np.degrees(I1_smoothed), 'g',
-                label=r'$-I_{\rm e1}$')
+    axs[3].plot(t_Iout_smoothed, 180 - np.degrees(Iout_smoothed), 'b',
+                label=r'$\bar{I}_{\rm e}$')
+    axs[3].plot(t_Iout_smoothed, 180 - np.degrees(I1_smoothed), 'g',
+                label=r'$I_{\rm e1}$')
 
     axs[3].set_ylim(bottom=-7)
     axs[3].legend(fontsize=12, loc='lower left', ncol=2)
-    axs[3].set_ylabel(r'$-\bar{I}_{\rm e}$')
+    axs[3].set_ylabel(r'$\bar{I}_{\rm e}$')
 
     axs[4].plot(t, np.degrees(q_sl), 'k')
     axs[4].set_ylabel(r'$\theta_{\rm sl}$')
@@ -467,7 +469,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                 np.degrees(Iout_dot_smoothed) /
                 Weffmag_smootheds[offset_idx:-offset_idx] / 2,
                 'g', lw=1.5,
-                label=r'$\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}$')
+                label=r'$|\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}|$')
 
     I0_lkmids = interp1d(t_Iout_smoothed, Iout_smoothed)(t_lkmids[1:last_idx])
     I1_lkmids = interp1d(t_Iout_smoothed, I1_smoothed)(t_lkmids[1:last_idx])
@@ -505,7 +507,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     ax1.semilogy(t_lkmids, dWdot, 'r', label=r'$-\overline{\Omega}_{\rm L}$',
                     lw=1.5, alpha=0.5)
     ax1.semilogy(t_lkmids, dWtot, 'k',
-                    label=r'$\overline{\Omega}_{\rm e}$', lw=4)
+                 label=r'$\overline{\Omega}_{\rm e}$', lw=4)
     ax1.semilogy(lk_times[ :-1], 2 * np.pi / (np.diff(lk_times)), 'k--',
                     label=r'$\Omega_{\rm LK}$', lw=2)
     ylims = ax1.get_ylim()
@@ -1296,7 +1298,7 @@ if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
     #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
     # run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
-    # run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
+    run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     # deltas_deg = run_ensemble('4sims_scan/')
@@ -1312,5 +1314,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    qslscan()
+    # qslscan()
     pass

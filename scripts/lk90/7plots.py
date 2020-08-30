@@ -41,7 +41,7 @@ def plot_3vec():
     ax.annotate('', xy=l_xy, xytext=(0, 0),
                  arrowprops=arrowprops(l_c))
     ax.text(l_xy[0] - offset / 3, l_xy[1] + offset,
-            r'$\hat{\mathbf{L}}_{\rm 3}$',
+            r'$\hat{\mathbf{L}}_{\rm out}$',
             fontdict={'c': l_c})
 
     ld_q = 20
