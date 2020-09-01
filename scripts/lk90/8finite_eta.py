@@ -16,159 +16,13 @@ try:
 except:
     pass
 
-from utils import ts_dot, get_vals
+from utils import ts_dot, get_vals, cosd
 from multiprocessing import Pool
 
 from scipy.integrate import solve_ivp
 from scipy.optimize import brenth
 
 m1, m2, m3, a0, a2, e2 = 30, 20, 30, 100, 4500, 0
-
-# by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
-G = 9.87e-9
-def get_eps(m1, m2, m3, a0, a2, e2):
-    m12 = m1 + m2
-    mu = m1 * m2 / m12
-    n = np.sqrt(G * m12 / a0**3)
-    eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
-    eps_gr = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * 3 * G * m12
-    eps_sl = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * (
-        3 * G * (m2 + mu / 3) / 2)
-    L1 = mu * np.sqrt(G * (m12) * a0)
-    L2 = m3 * m12 / (m3 + m12) * np.sqrt(G * (m3 + m12) * a2)
-    eta = L1 / L2
-    return {'eps_gw': eps_gw, 'eps_gr': eps_gr, 'eps_sl': eps_sl,
-            'eta': eta, 'e2': e2}
-
-def get_Ilimd(eta=0, eps_gr=0, **kwargs):
-    def jlim_criterion(j): # eq 44, satisfied when j = jlim
-        return (
-            3/8 * (j**2 - 1) * (
-                - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
-            + eps_gr * (1 - 1 / j))
-    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15)
-    Ilim = np.arccos(eta / 2 * (4 * jlim**2 / 5 - 1))
-    Ilimd = np.degrees(Ilim)
-    return Ilimd
-
-def get_dydt(eps_gw=0, eps_gr=0, eps_sl=0, eta=0, e2=0):
-    def dydt(t, y):
-        '''
-        dydt for all useful of 10 orbital elements + spin, eps_oct = 0 in LML15.
-        eta = L / Lout
-        '''
-        a1, e1, W, I1, w1, I2, sx, sy, sz = y
-        # print(t, a1, 1 - e1)
-        Itot = I1 + I2
-        x1 = 1 - e1**2
-        x2 = 1 - e2**2
-
-        # orbital evolution
-        da1dt =  (
-            -eps_gw * (64 * (1 + 73 * e1**2 / 24 + 37 * e1**4 / 96)) / (
-                5 * a1**3 * x1**(7/2))
-        )
-        de1dt = (
-            15 * a1**(3/2) * e1 * np.sqrt(x1) * np.sin(2 * w1)
-                    * np.sin(Itot)**2 / 8
-                - eps_gw * 304 * e1 * (1 + 121 * e1**2 / 304)
-                    / (15 * a1**4 * x1**(5/2))
-        )
-        dWdt = (
-            3 * a1**(3/2) * np.sin(2 * Itot) / np.sin(I1) *
-                    (5 * e1**2 * np.cos(w1)**2 - 4 * e1**2 - 1)
-                / (8 * np.sqrt(x1))
-        )
-        dI1dt = (
-            -15 * a1**(3/2) * e1**2 * np.sin(2 * w1)
-                * np.sin(2 * Itot) / (16 * np.sqrt(x1))
-        )
-        dI2dt = eta * (
-            -15 * a1**(3/2) * e1**2 * np.sin(2 * w1)
-                * 2 * np.sin(Itot) / (16 * np.sqrt(x2))
-        )
-        dw1dt = (
-            3 * a1**(3/2) / 8 * (
-                (4 * np.cos(Itot)**2 +
-                 (5 * np.cos(2 * w1) - 1) * (1 - e1**2 - np.cos(Itot)**2)) /
-                    np.sqrt(x1)
-                + eta * np.cos(Itot) * (
-                    2 + e1**2 * (3 - 5 * np.cos(2 * w1))) / np.sqrt(x2)
-            )
-            + eps_gr / (a1**(5/2) * x1)
-        )
-
-        # spin evolution
-        Lhat = [np.sin(I1) * np.cos(W), np.sin(I1) * np.sin(W), np.cos(I1)]
-        s = [sx, sy, sz]
-
-        dsdt = eps_sl * np.cross(Lhat, s) / (a1**(5/2) * x1)
-
-        return (da1dt, de1dt, dWdt, dI1dt, dw1dt, dI2dt, *dsdt)
-    return dydt
-
-def get_qslf_for_I0(I0, tf=np.inf, plot=False, tol=1e-9):
-    print('Running for', np.degrees(I0))
-    af = 5e-3
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-    dydt = get_dydt(**getter_kwargs)
-
-    # a1, e1, W, I1, w1, I2, sx, sy, sz = y
-    # NB: y0 has Lout pointing up, no impact on dynamics
-    s0 = [np.sin(I0), 0, np.cos(I0)] # initial alignment
-    y0 = [1, 1e-3, 0, I0, 0, 0, *s0]
-
-    a_term_event = lambda t, y: y[0] - af
-    a_term_event.terminal = True
-    ret = solve_ivp(dydt, (0, tf), y0, events=[a_term_event],
-                    method='BDF', atol=tol, rtol=tol)
-
-    _, _, W_arr, I_arr, _, _, *s_arr = ret.y
-    Lhat_arr = [np.sin(I_arr) * np.cos(W_arr),
-                np.sin(I_arr) * np.sin(W_arr),
-                np.cos(I_arr)]
-    qslfd = np.degrees(np.arccos(ts_dot(Lhat_arr, s_arr)))
-    print('Ran for', np.degrees(I0), qslfd[-1])
-
-    if plot:
-        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
-        ax1.semilogy(ret.t, ret.y[0], 'k', alpha=0.7, lw=0.7)
-        ax2.semilogy(ret.t, 1 - ret.y[1], 'k', alpha=0.7, lw=0.7)
-        ax3.plot(ret.t, np.degrees(ret.y[3]), 'k', alpha=0.7, lw=0.7)
-        ax4.plot(ret.t, qslfd, 'k', alpha=0.7, lw=0.7)
-        plt.savefig('8sim', dpi=200)
-        plt.close()
-
-    return qslfd[-1], ret.t[-1]
-
-def qslfs_run(npts=200):
-    pkl_fn = '8finite_qslfs.pkl'
-    if not os.path.exists(pkl_fn):
-        print('Running %s' % pkl_fn)
-
-        getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
-        Ilimd = get_Ilimd(**getter_kwargs)
-        incs1 = np.radians(np.linspace(Ilimd + 0.5, Ilimd, npts))
-        incs2 = np.radians(
-            np.linspace(Ilimd - 0.5, Ilimd, npts - 1, endpoint=False)
-        )
-        incs = np.array(list(zip(incs1, incs2))).flatten()
-        with Pool(64) as p:
-            dat = p.map(get_qslf_for_I0, incs)
-        qslfds, t_merges = np.array(dat).T
-        with open(pkl_fn, 'wb') as f:
-            pickle.dump((incs, qslfds, t_merges), f)
-    else:
-        with open(pkl_fn, 'rb') as f:
-            print('Loading %s' % pkl_fn)
-            incs, qslfds, t_merges = pickle.load(f)
-
-    sort_idx = np.argsort(incs)
-    plt.plot(np.degrees(incs)[sort_idx], qslfds[sort_idx],
-             'b', lw=1.0, alpha=0.7)
-    plt.savefig('8finite_qslfs.png', dpi=200)
-    plt.close()
-
 # values from LL17
 I_degs, qslfs = np.array([
     [2.56256, 1.7252483882292753],
@@ -574,22 +428,274 @@ I_degs, qslfs = np.array([
     [177.437, 2.0331217984109426],
 ]).T
 
+def get_I1(I0d, eta):
+    ''' given total inclination between Lout and L, returns I_tot '''
+    I0 = np.radians(I0d)
+    def I2_constr(_I2):
+        return np.sin(_I2) - eta * np.sin(I0 - _I2)
+    I2 = brenth(I2_constr, 0, np.pi)
+    return np.degrees(I0 - I2)
+
+# by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
+G = 9.87e-9
+def get_eps(m1, m2, m3, a0, a2, e2):
+    m12 = m1 + m2
+    mu = m1 * m2 / m12
+    n = np.sqrt(G * m12 / a0**3)
+    eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
+    eps_gr = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * 3 * G * m12
+    eps_sl = (m12 / m3) * (a2**3 / a0**4) * (1 - e2**2)**(3/2) * (
+        3 * G * (m2 + mu / 3) / 2)
+    L1 = mu * np.sqrt(G * (m12) * a0)
+    L2 = m3 * m12 / (m3 + m12) * np.sqrt(G * (m3 + m12) * a2)
+    eta = L1 / L2
+    return {'eps_gw': eps_gw, 'eps_gr': eps_gr, 'eps_sl': eps_sl,
+            'eta': eta, 'e2': e2}
+
+def get_Ilimd(eta=0, eps_gr=0, **kwargs):
+    def jlim_criterion(j): # eq 44, satisfied when j = jlim
+        return (
+            3/8 * (j**2 - 1) * (
+                - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
+            + eps_gr * (1 - 1 / j))
+    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15)
+    Ilim = np.arccos(eta / 2 * (4 * jlim**2 / 5 - 1))
+    Ilimd = np.degrees(Ilim)
+    return Ilimd
+
+def get_dydt(eps_gw=0, eps_gr=0, eps_sl=0, eta=0, e2=0):
+    def dydt(t, y):
+        '''
+        dydt for all useful of 10 orbital elements + spin, eps_oct = 0 in LML15.
+        eta = L / Lout
+        '''
+        a1, e1, W, I1, w1, I2, sx, sy, sz = y
+        Itot = I1 + I2
+        x1 = 1 - e1**2
+        x2 = 1 - e2**2
+
+        # orbital evolution
+        da1dt =  (
+            -eps_gw * (64 * (1 + 73 * e1**2 / 24 + 37 * e1**4 / 96)) / (
+                5 * a1**3 * x1**(7/2))
+        )
+        de1dt = (
+            15 * a1**(3/2) * e1 * np.sqrt(x1) * np.sin(2 * w1)
+                    * np.sin(Itot)**2 / 8
+                - eps_gw * 304 * e1 * (1 + 121 * e1**2 / 304)
+                    / (15 * a1**4 * x1**(5/2))
+        )
+        # dWdt = (
+        #     3 * a1**(3/2) * np.sin(2 * Itot) / np.sin(I1) *
+        #             (5 * e1**2 * np.cos(w1)**2 - 4 * e1**2 - 1)
+        #         / (8 * np.sqrt(x1))
+        # )
+        dWdt = (
+            -3 * a1**(3/2) / (np.sin(I1) * 32 * np.sqrt(x1)) * (
+                2 * (2 + 3 * e1**2 - 5 * e1**2 * np.cos(2 * w1))
+                * np.sin(2 * Itot))
+        )
+        dI1dt = (
+            -15 * a1**(3/2) * e1**2 * np.sin(2 * w1)
+                * np.sin(2 * Itot) / (16 * np.sqrt(x1))
+        )
+        dI2dt = eta * (
+            -15 * a1**(3/2) * e1**2 * np.sin(2 * w1)
+                * 2 * np.sin(Itot) / (16 * np.sqrt(x2))
+        )
+        dw1dt = (
+            3 * a1**(3/2) / 8 * (
+                (4 * np.cos(Itot)**2 +
+                 (5 * np.cos(2 * w1) - 1) * (1 - e1**2 - np.cos(Itot)**2)) /
+                    np.sqrt(x1)
+                + eta * np.cos(Itot) * (
+                    2 + e1**2 * (3 - 5 * np.cos(2 * w1))) / np.sqrt(x2)
+            )
+            + eps_gr / (a1**(5/2) * x1)
+        )
+
+        # spin evolution
+        Lhat = [np.sin(I1) * np.cos(W), np.sin(I1) * np.sin(W), np.cos(I1)]
+        s = [sx, sy, sz]
+
+        dsdt = eps_sl * np.cross(Lhat, s) / (a1**(5/2) * x1)
+
+        return (da1dt, de1dt, dWdt, dI1dt, dw1dt, dI2dt, *dsdt)
+    return dydt
+
+def get_qslf_for_I0(I0, tf=np.inf, plot=False, tol=1e-9):
+    print('Running for', np.degrees(I0))
+    af = 5e-3
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    dydt = get_dydt(**getter_kwargs)
+
+    # a1, e1, W, I1, w1, I2, sx, sy, sz = y
+    # NB: y0 has Lout pointing up, no impact on dynamics
+    s0 = [np.sin(I0), 0, np.cos(I0)] # initial alignment
+    y0 = [1, 1e-3, 0, I0, 0, 0, *s0]
+
+    a_term_event = lambda t, y: y[0] - af
+    a_term_event.terminal = True
+    ret = solve_ivp(dydt, (0, tf), y0, events=[a_term_event],
+                    method='BDF', atol=tol, rtol=tol)
+
+    _, _, W_arr, I_arr, _, _, *s_arr = ret.y
+    Lhat_arr = [np.sin(I_arr) * np.cos(W_arr),
+                np.sin(I_arr) * np.sin(W_arr),
+                np.cos(I_arr)]
+    qslfd = np.degrees(np.arccos(ts_dot(Lhat_arr, s_arr)))
+    print('Ran for', np.degrees(I0), qslfd[-1])
+
+    if plot:
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
+        ax1.semilogy(ret.t, ret.y[0], 'k', alpha=0.7, lw=0.7)
+        ax2.semilogy(ret.t, 1 - ret.y[1], 'k', alpha=0.7, lw=0.7)
+        ax3.plot(ret.t, np.degrees(ret.y[3]), 'k', alpha=0.7, lw=0.7)
+        ax4.plot(ret.t, qslfd, 'k', alpha=0.7, lw=0.7)
+        plt.savefig('8sim', dpi=200)
+        plt.close()
+
+    return qslfd[-1], ret.t[-1]
+
+def qslfs_run(npts=200):
+    pkl_fn = '8finite_qslfs.pkl'
+    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    Ilimd = get_Ilimd(**getter_kwargs)
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+
+        incs1 = np.radians(np.linspace(Ilimd + 0.5, Ilimd, npts))
+        incs2 = np.radians(
+            np.linspace(Ilimd - 0.5, Ilimd, npts - 1, endpoint=False)
+        )
+        incs = np.array(list(zip(incs1, incs2))).flatten()
+        with Pool(64) as p:
+            dat = p.map(get_qslf_for_I0, incs)
+        qslfds, t_merges = np.array(dat).T
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((incs, qslfds, t_merges), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            incs, qslfds, t_merges = pickle.load(f)
+    sort_idx = np.argsort(incs)
+    # TODO x-axis is flipped somehow?
+    I_degs = np.degrees(incs)[sort_idx][::-1]
+    tf = t_merges[sort_idx]
+    qslfd_arr = qslfds[sort_idx]
+
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
+                                   gridspec_kw={'height_ratios': [1, 2]})
+    t_lk, _, _, _ = get_vals(m1, m2, m3, a0, a2, e2, np.radians(90.5))
+    ax1.plot(I_degs, tf * t_lk, 'b', lw=1.5)
+    ax1.set_yscale('log')
+    ax1.set_ylabel('Merger Time (yr)')
+    ax1.set_yticks([1e6, 1e8, 1e10])
+    ax1.set_yticklabels([r'$10^{6}$', r'$10^{8}$', r'$10^{10}$'])
+
+    ax2.plot(I_degs, qslfd_arr, 'b', lw=1.5)
+    ax2.set_xlabel(r'$I_0$ (Deg)')
+    ax2.set_ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
+    ax2.set_yticks([0, 30, 60, 90])
+    ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
+    ax1.axvline(Ilimd, c='k', lw=0.7)
+    ax2.axvline(Ilimd, c='k', lw=0.7)
+
+    I_left = I_degs[np.where(I_degs < Ilimd)[0]]
+    I_right = I_degs[np.where(I_degs > Ilimd)[0]]
+    offset = 1.5 # due to finite A
+    I_leftlim = [get_I1(I_val, getter_kwargs['eta']) - offset
+                 for I_val in I_left]
+    I_rightlim = [180 - get_I1(I_val, getter_kwargs['eta']) - offset
+                  for I_val in I_right]
+    ax2.plot(I_left,
+             I_leftlim - (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.plot(I_left,
+             I_leftlim + (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.plot(I_right,
+             I_rightlim - (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.plot(I_right,
+             I_rightlim + (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+             'k:', lw=1, alpha=0.7)
+    ax2.set_ylim(bottom=0, top=120)
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('8finite_qslfs.png', dpi=200)
+    plt.close()
+
+def get_qeff0(I0, params, tol=1e-8):
+    tf = 20
+    getter_kwargs = get_eps(*params)
+    getter_kwargs['eps_gw'] = 0
+    dydt = get_dydt(**getter_kwargs)
+
+    # a1, e1, W, I1, w1, I2, sx, sy, sz = y
+    # NB: y0 has Lout pointing up, no impact on dynamics
+    s0 = [np.sin(I0), 0, np.cos(I0)] # initial alignment
+    y0 = [1, 1e-3, 0, I0, 0, 0, *s0]
+
+    period_event = lambda t, y: y[4] - np.pi
+    period_event.terminal = True
+    ret = solve_ivp(dydt, (0, tf), y0, events=[period_event],
+                    method='BDF', atol=tol, rtol=tol, dense_output=True)
+    t = ret.t
+    a1, e1, W, I1, w1, I2, sx, sy, sz = ret.y
+    Iall = I1 + I2
+    Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I1]
+    x1 = 1 - e1**2
+    dWdt = (
+        3 * a1**(3/2) * np.sin(2 * Iall) / np.sin(I1) *
+                (5 * e1**2 * np.cos(w1)**2 - 4 * e1**2 - 1)
+            / (8 * np.sqrt(x1))
+    )
+    Jvec_hatx, Jvec_hatz = getter_kwargs['eta'] * np.array([
+        np.sin(I1),
+        np.cos(I1),
+    ]) + np.array([
+        -np.sin(I2),
+        np.cos(I2),
+    ])
+    dWdt_mean = np.array([
+        np.sum(dWdt * Jvec_hatx * np.gradient(t)) / t[-1],
+        0,
+        np.sum(dWdt * Jvec_hatz * np.gradient(t)) / t[-1]])
+
+    dWslx = getter_kwargs['eps_sl'] * np.sin(I1) / (a1**(5/2) * x1)
+    dWslx_mean = np.sum(dWslx * np.gradient(t)) / t[-1]
+    dWslz = getter_kwargs['eps_sl'] * np.cos(I1) / (a1**(5/2) * x1)
+    dWslz_mean = np.sum(dWslz * np.gradient(t)) / t[-1]
+    dWsl_mean = np.array([dWslx_mean, 0, dWslz_mean])
+
+    Weff_vec = dWsl_mean - dWdt_mean
+    Weff_vec /= np.sqrt(np.sum(Weff_vec**2))
+    qeff0 = np.arccos(np.dot(Weff_vec, s0))
+    return qeff0
+
 def bin_comp():
     ''' plot Fig 4 of LL 17 w/ updated trend line '''
     plt.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
 
     # my estimate
-    m1, m2, m3, a0, a2, e2 = 30, 30, 30, 0.1, 3, 0
-    getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
+    params = [30, 30, 30, 0.1, 3, 0]
+    getter_kwargs = get_eps(*params)
+
     pkl_fn = '8bin_comp.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        # with open(pkl_fn, 'wb') as f:
-        #     pickle.dump((qeff_my, strengths), f)
+        angles = []
+        for I_val in I_degs:
+            angles.append(get_qeff0(np.radians(I_val), params))
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((angles), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            qeff_my, strengths = pickle.load(f)
+            angles = pickle.load(f)
+    plt.plot(I_degs, np.degrees(angles), 'g', lw=1.5, alpha=0.7)
 
     plt.xticks([0, 45, 90, 135, 180],
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
@@ -603,9 +709,10 @@ def bin_comp():
 if __name__ == '__main__':
     # getter_kwargs = get_eps(m1, m2, m3, a0, a2, e2)
     # Ilimd = get_Ilimd(**getter_kwargs)
-    # get_qslf_for_I0(np.radians(Ilimd))
+    # get_qslf_for_I0(np.radians(Ilimd + 0.35))
+    # get_qslf_for_I0(np.radians(Ilimd - 0.35))
 
-    qslfs_run()
+    # qslfs_run()
 
-    # bin_comp()
+    bin_comp()
     pass

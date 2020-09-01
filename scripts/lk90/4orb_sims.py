@@ -1284,7 +1284,6 @@ def qslscan():
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
 
-    qsl_middle = np.minimum(I_degs - 1, 178 - I_degs)
     ax2.plot(I_degs, 88.5 - (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_degs, 88.5 + (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
