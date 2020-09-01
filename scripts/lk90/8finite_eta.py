@@ -604,23 +604,30 @@ def qslfs_run(npts=200):
     I_left = I_degs[np.where(I_degs < Ilimd)[0]]
     I_right = I_degs[np.where(I_degs > Ilimd)[0]]
     offset = 1.5 # due to finite A
-    I_leftlim = [get_I1(I_val, getter_kwargs['eta']) - offset
-                 for I_val in I_left]
-    I_rightlim = [180 - get_I1(I_val, getter_kwargs['eta']) - offset
-                  for I_val in I_right]
+    I_leftlim = np.array([get_I1(I_val, getter_kwargs['eta'])
+                          for I_val in I_left])
+    I_rightlim = np.array([180 - get_I1(I_val, getter_kwargs['eta'])
+                           for I_val in I_right])
     ax2.plot(I_left,
-             I_leftlim - (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+             I_leftlim - offset
+                - (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_left,
-             I_leftlim + (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+             I_leftlim - offset
+                + (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_right,
-             I_rightlim - (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+             I_rightlim - offset
+                - (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_right,
-             I_rightlim + (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+             I_rightlim - offset
+                + (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.set_ylim(bottom=0, top=120)
+
+    ax2.plot(I_left, I_leftlim, 'k', lw=1, alpha=0.7)
+    ax2.plot(I_right, I_rightlim, 'k', lw=1, alpha=0.7)
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
@@ -697,6 +704,14 @@ def bin_comp():
             angles = pickle.load(f)
     plt.plot(I_degs, np.degrees(angles), 'g', lw=1.5, alpha=0.7)
 
+    Ilimd = get_Ilimd(**getter_kwargs)
+    I_left = I_degs[np.where(I_degs < Ilimd)[0]]
+    I_right = I_degs[np.where(I_degs > Ilimd)[0]]
+    I_leftlim = [get_I1(I_val, getter_kwargs['eta']) for I_val in I_left]
+    I_rightlim = [180 - get_I1(I_val, getter_kwargs['eta']) for I_val in I_right]
+    plt.plot(I_left, I_leftlim, 'k', lw=1, alpha=0.7)
+    plt.plot(I_right, I_rightlim, 'k', lw=1, alpha=0.7)
+
     plt.xticks([0, 45, 90, 135, 180],
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
     plt.xlabel(r'$I_0$ (Deg)')
@@ -712,7 +727,7 @@ if __name__ == '__main__':
     # get_qslf_for_I0(np.radians(Ilimd + 0.35))
     # get_qslf_for_I0(np.radians(Ilimd - 0.35))
 
-    # qslfs_run()
+    qslfs_run()
 
     bin_comp()
     pass
