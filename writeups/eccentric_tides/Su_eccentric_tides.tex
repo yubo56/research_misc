@@ -439,6 +439,8 @@ Figs.~\ref{fig:e0} and~\ref{fig:e400}. Agreement is good again.
 
 \section{Example System: J0045+7319}\label{s:j00457319}
 
+We study J0045+7319 \citep{bell1995psr}.
+
 We can arrive at an upper bound for the $\dot{P}$ by setting the spin frequency
 equal to the breakup frequency. Then, taking the correct parameters and
 evaluating $\dot{E}_{\rm in}$, we obtain
@@ -450,6 +452,27 @@ evaluating $\dot{E}_{\rm in}$, we obtain
 \end{equation}
 This comes out to be $r_c \gtrsim 1.799R_{\odot}$ for J0045+7319, larger than
 the prior values in the literature and much larger than MESA models.
+
+\subsection{Stellar Structure Simulations}
+
+In previous literature, the primary star was initially taken to have $M_1 =
+8.8M_{\odot}$ \citep{kumar1998,lai1996}, by taking $M_2 \simeq 1.4M_{\odot}$
+characteristic mass for NSs and multiplying by the observed $q$. A later, but
+still very old, study proposed $M_1 \approx 10M_{\odot}$ by comparison with
+stellar models. Using MESA to generate updated stellar models (TODO all
+citations), we compute an updated $M_1$ estimate, giving detailed stellar
+structure measurements.
+
+At the level of approximation of this paper, our procedure is as follows: we
+use a few different values of convective overshooting and mixing, and
+metallicities, and compute stellar structures for both both non-rotating and
+highly rotating $\sim 0.95\Omega_{\rm s, c}$ stars. We find that, in general, to
+match the observed $T, L$ we must let the star evolve to $\sim 80\%$ of the way
+to complete core hydrogen depletion. We then sample a range of stellar masses,
+and find the stellar mass that best reproduces the observed $T, L$.
+
+For all of these systems, $r_c \lesssim R_{\odot}$, in tension with our bound
+above.
 
 \section{Conclusion and Discussion}\label{s:disc}
 
