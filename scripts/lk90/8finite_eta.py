@@ -17,7 +17,7 @@ try:
 except:
     pass
 
-from utils import ts_dot, get_vals, cosd
+from utils import ts_dot, get_vals, cosd, mkdirp
 from multiprocessing import Pool
 
 from scipy.integrate import solve_ivp
@@ -529,7 +529,6 @@ def get_qslf_for_I0(I0, tf=np.inf, plot=False, tol=1e-9, params=params):
     dydt = get_dydt(**getter_kwargs)
 
     # a1, e1, W, I1, w1, I2, sx, sy, sz = y
-    # NB: y0 has Lout pointing up, no impact on dynamics
     I1 = np.radians(get_I1(np.degrees(I0),
                            getter_kwargs['eta'] * np.sqrt(1 - 1e-6)))
     I2 = I0 - I1
@@ -658,7 +657,6 @@ def get_qeff0(I0, params, tol=1e-10):
     dydt = get_dydt(**getter_kwargs)
 
     # a1, e1, W, I1, w1, I2, sx, sy, sz = y
-    # NB: y0 has Lout pointing up, no impact on dynamics
     s0 = [np.sin(I0), 0, np.cos(I0)] # initial alignment
     y0 = [1, 1e-3, 0, I0, 0, 0, *s0]
 
@@ -866,9 +864,88 @@ def bin_comp():
     plt.savefig('8bin_comp', dpi=400)
     plt.clf()
 
-if __name__ == '__main__':
+def run_long(I0d, tol=1e-9, tf=np.inf, t_inc=1000):
+    folder = '8long'
+    mkdirp(folder)
+    I0 = np.radians(I0d)
+    params = [30, 30, 30, 0.1, 3, 0]
     getter_kwargs = get_eps(*params)
-    Ilimd = get_Ilimd(**getter_kwargs)
+    af = 5e-3
+
+    fn = '%s/%d_run' % (folder, I0d)
+    pkl_fn = fn + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        num_ran = 0
+        t_emaxes = []
+        y_emaxes = []
+
+        dydt = get_dydt(**getter_kwargs)
+
+        # a1, e1, W, I1, w1, I2, sx, sy, sz = y
+        I1 = np.radians(get_I1(I0d,
+                               getter_kwargs['eta'] * np.sqrt(1 - 1e-6)))
+        I2 = I0 - I1
+        s0 = [np.sin(I1), 0, np.cos(I1)] # initial alignment
+        y0 = [1, 1e-3, 0, I1, 0, I2, *s0]
+
+        peak_event = lambda t, y: (y[4] % np.pi) - (np.pi / 2)
+        peak_event.direction = +1 # only when w is increasing
+
+        print('Running for I0=%d, t_i=%d' % (I0d, num_ran * t_inc))
+        ret = solve_ivp(dydt, (0, t_inc), y0, events=[peak_event],
+                        method='BDF', atol=tol, rtol=tol, dense_output=True)
+        t_emax = ret.t_events[0]
+        t_emaxes.extend(t_emax)
+        y_emaxes.extend(ret.sol(t_emax).T)
+
+        while ret.y[0, -1] > af and ret.t[-1] < tf:
+            num_ran += 1
+            print('Running for I0=%d, t_i=%d, a=%.5f, emax=%.3f' %
+                  (I0d, num_ran * t_inc, ret.y[0, -1], ret.sol(t_emax[-1])[1]))
+            ret = solve_ivp(dydt,
+                            (num_ran * t_inc, (num_ran + 1 ) * t_inc),
+                            ret.y[:,-1],
+                            events=[peak_event],
+                            method='BDF', atol=tol, rtol=tol, dense_output=True)
+            t_emax = ret.t_events[0]
+            t_emaxes.extend(t_emax)
+            y_emaxes.extend(ret.sol(t_emax).T)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((t_emaxes, y_emaxes), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            t_emaxes, y_emaxes = pickle.load(f)
+    t_lk, _, _, _ = get_vals(*params, np.radians(90.5))
+    t_evals = np.array(t_emaxes) * t_lk
+
+    a_vals, e_vals, W_vals, I1_vals, _, I2_vals, *s_vals = np.array(y_emaxes).T
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(8, 8), sharex=True)
+    l1hat = np.array([
+        np.sin(I1_vals) * np.cos(W_vals),
+        np.sin(I1_vals) * np.sin(W_vals),
+        np.cos(I1_vals),
+    ])
+    qslfd = np.degrees(np.arccos(ts_dot(l1hat, s_vals)))
+
+    ax1.plot(t_evals, a_vals * 0.1, 'k', alpha=0.7, lw=0.7)
+    ax1.set_ylabel(r'$a$ (AU)')
+    ax2.plot(t_evals, e_vals, 'k', alpha=0.7, lw=0.7)
+    ax2.set_ylabel(r'$e$')
+    ax3.plot(t_evals, np.degrees(I1_vals + I2_vals), 'k', alpha=0.7, lw=0.7)
+    ax3.set_ylabel(r'$I$ (deg)')
+    ax4.plot(t_evals, qslfd, 'k', alpha=0.7, lw=0.7)
+    ax4.set_ylabel(r'$\theta_{\rm sl}$')
+    ax3.set_xlabel(r'$t$ (yr)')
+    ax4.set_xlabel(r'$t$ (yr)')
+    plt.tight_layout()
+    plt.savefig(fn, dpi=200)
+    plt.close()
+
+if __name__ == '__main__':
+    # getter_kwargs = get_eps(*params)
+    # Ilimd = get_Ilimd(**getter_kwargs)
     # these two finally agree
     # get_qslf_for_I0_vec(np.radians(Ilimd + 0.35), tf=10, plot=True, tol=1e-10)
     # get_qslf_for_I0(np.radians(Ilimd + 0.35), tf=10, plot=True, tol=1e-10)
@@ -876,7 +953,9 @@ if __name__ == '__main__':
     # print(np.degrees(get_qeff0(np.radians(Ilimd + 0.35), params)[1]))
     # print(np.degrees(get_qeff0(np.radians(Ilimd - 0.35), params)[1]))
 
-    qslfs_run()
+    # qslfs_run()
 
-    bin_comp()
+    # bin_comp()
+
+    run_long(80)
     pass
