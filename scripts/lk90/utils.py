@@ -413,6 +413,7 @@ def get_dW(e0, I0, eps_gr=0, eps_gw=0, eps_sl=1,
     a0 = 1
     W0 = 0
     w0 = 0
+    eps_gw = 0
 
     def dydt(t, y):
         a, e, W, I, w = y

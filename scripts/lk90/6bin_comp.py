@@ -497,7 +497,7 @@ def bin_comp():
 
     plt.xticks([0, 45, 90, 135, 180],
                labels=[r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
-    plt.xlabel(r'$I_0$ (Deg)')
+    plt.xlabel(r'$I^{\rm i}$ (Deg)')
     plt.ylabel(r'$\theta_{\rm sl}^{f}$')
     # plt.legend(fontsize=10, loc='upper right')
     plt.tight_layout()
@@ -522,7 +522,7 @@ def bin_comp():
                      alpha=0.2)
     plt.xlim(xlim)
     plt.ylim(top=40)
-    plt.xlabel(r'$I_0$ (Deg)')
+    plt.xlabel(r'$I^{\rm i}$ (Deg)')
     plt.ylabel(r'$\theta_{\rm sl}^{\rm f}$')
     plt.legend(fontsize=14, loc='upper center')
     plt.tight_layout()
@@ -690,7 +690,7 @@ def Iscan(getter_kwargs, intg_pts=int(1e5), fn='6_Iscan',
         print('Ran for I = %.3f, e0=%.3f, amp=%.3f' % (np.degrees(I), e0, amp))
         amps.append(amp)
     plt.plot(np.degrees(I_vals), amps, 'ko', ms=1)
-    plt.xlabel(r'$I_0$')
+    plt.xlabel(r'$I^{\rm i}$')
     plt.ylabel(r'$\Delta \bar{\theta}_{\rm e}$')
     plt.savefig(TOY_FOLDER + fn, dpi=200)
     plt.close()
@@ -716,7 +716,7 @@ def Iscan_N1Component(getter_kwargs, intg_pts=int(1e5), e0=0.003, fn='6_IscanN1'
     ax1.set_ylabel(r'$\Omega_{\rm eff, 1} / \Omega_{\rm eff}$')
     ax2.plot(np.degrees(I_vals), angles, 'bo', ms=1)
     ax2.set_ylabel(r'$\hat{\Omega_{\rm eff, 1}} \cdot \hat{\Omega_{\rm eff}}$')
-    ax2.set_xlabel(r'$I_0$')
+    ax2.set_xlabel(r'$I^{\rm i}$')
     ax3.plot(np.degrees(I_vals), dWs, 'ro', ms=1)
     ax3.set_ylabel(r'$\Omega_{\rm eff} / \Omega_{\rm LK}$')
     plt.tight_layout()
@@ -906,8 +906,8 @@ def plot_905(t_slice=np.s_[::], fn='4sims/4sim_lk_90_500.pkl',
         ax2.semilogy(ts_run, Weffs, 'bo', ms=1.5)
     ax1.plot(ts_run, amps, 'bo', ms=1.5)
     ax1.set_ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
-    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
-    ax2.set_xlabel(r'$t / t_{\rm LK, 0}$')
+    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK}^{\rm i}$')
+    ax2.set_xlabel(r'$t / t_{\rm LK}^{\rm i}$')
     plt.tight_layout()
     plt.savefig(plot_fn, dpi=200)
     plt.close()
@@ -973,13 +973,13 @@ def plot_905_detailed(t_slice, fn='4sims/4sim_lk_90_500.pkl',
     ax1.plot(ts_run, amps, 'bo', ms=3)
     ax1.set_ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
     ax2.semilogy(ts_run, Weffs, 'bo', ms=3)
-    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK, 0}$')
+    ax2.set_ylabel(r'$\Omega_{\rm eff} t_{\rm LK}^{\rm i}$')
     ax3.plot(ts_run, angles, 'bo', ms=3)
     ax3.set_ylabel(r'$\hat{\mathbf{\Omega}}_{\rm eff, 1} \cdot'
-                   '\hat{\mathbf{\Omega}}_{\rm eff, 0}$')
+                   r'\hat{\mathbf{\Omega}}_{\rm eff, 0}$')
     ax4.plot(ts_run, ratios, 'bo', ms=3)
     ax4.set_ylabel(r'$\Omega_{\rm eff, 1} / \Omega_{\rm eff, 0}$')
-    ax4.set_xlabel(r'$t / t_{\rm LK, 0}$')
+    ax4.set_xlabel(r'$t / t_{\rm LK}^{\rm i}$')
     plt.tight_layout()
     plt.savefig(plot_fn, dpi=200)
     plt.close()
@@ -1138,7 +1138,7 @@ def search(params, fn, plot_fn, target, t_final, t_opt=None):
         amps.append(amp)
     # return
     plt.plot(times, amps, 'go', ms=3)
-    plt.xlabel(r'$t / t_{\rm LK, 0}$')
+    plt.xlabel(r'$t / t_{\rm LK}^{\rm i}$')
     plt.ylabel(r'$\Delta \bar{\theta}_{\rm e, \max}$ (Deg)')
     plt.axvline(t_opt)
     plt.savefig(plot_fn, dpi=200)
@@ -1740,15 +1740,15 @@ if __name__ == '__main__':
     # poincare_w_scan(I0=np.radians(70),
     #                 num_periods=200, n_ws=50,
     #                 fn='6toy/6_poincare_inner_wscan.png',
-    #                 title=r'Paper I, $I_0 = 70^\circ$')
+    #                 title=r'Paper I, $I^{\rm i} = 70^\circ$')
 
     # poincare_monodromy_scan(fn='6toy/6_pmonodromy_inner.png',
     #                         I0=np.radians(70),
-    #                         title=r'Paper I, $I_0 = 70^\circ$',
+    #                         title=r'Paper I, $I^{\rm i} = 70^\circ$',
     #                         n_ratios=50)
     # poincare_monodromy_scan(fn='6toy/6_pmonodromy_inner88.png',
     #                         I0=np.radians(88),
-    #                         title=r'Paper I, $I_0 = 88^\circ$',
+    #                         title=r'Paper I, $I^{\rm i} = 88^\circ$',
     #                         n_ratios=50)
 
     # A_In_scan(I0=np.radians(70), fn='6toy/6_A_In_scan_inner_70.png')
