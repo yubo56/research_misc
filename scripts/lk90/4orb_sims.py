@@ -385,7 +385,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     # axs[5].legend(fontsize=14, ncol=2, loc='upper left')
     # axs[5].set_ylim(ylims)
     # axs[5].set_ylim(bottom=0.03)
-    # axs[5].set_ylabel(r'Frequency ($(t_{\rm LK}^{\rm i})^{-1}$)')
+    # axs[5].set_ylabel(r'Frequency ($(t_{\rm LK, i})^{-1}$)')
 
     lk_axf = len(axs) - 1
     xticks = axs[lk_axf].get_xticks()[1:-1]
@@ -394,7 +394,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         ax.set_xticklabels([])
         ax.set_xlim([t[0], t[-1]])
     for ax in axs[lk_axf // 2 + 1: ]:
-        ax.set_xlabel(r'$t / t_{\rm LK}^{\rm i}$')
+        ax.set_xlabel(r'$t / t_{\rm LK, i}$')
         ax.set_xlim(left=t[0], right=t[-1])
     print('Saving', folder + fn_template % get_fn_I(I0))
     plt.tight_layout()
@@ -444,7 +444,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[5].legend(fontsize=14, ncol=2, loc='upper left')
     axs[5].set_ylim(ylims)
     axs[5].set_ylim(bottom=0.03)
-    axs[5].set_ylabel(r'Frequency ($(t_{\rm LK}^{\rm i})^{-1}$)')
+    axs[5].set_ylabel(r'Frequency ($(t_{\rm LK, i})^{-1}$)')
 
     W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
     # there's a spike in ratio at late times, probably not physical, don't plot
@@ -492,7 +492,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         ax.set_xticklabels([])
         ax.set_xlim([t[xlim_idxs[0]], t[xlim_idxs[1]]])
     for ax in axs[lk_axf // 2 + 1: ]:
-        ax.set_xlabel(r'$t / t_{\rm LK}^{\rm i}$')
+        ax.set_xlabel(r'$t / t_{\rm LK, i}$')
         ax.set_xlim([t[xlim_idxs[0]], t[xlim_idxs[1]]])
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0) + '_zoom', dpi=200)
@@ -517,7 +517,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     ax1.legend(fontsize=14, ncol=2, loc='upper left')
     ax1.set_ylim(ylims)
     ax1.set_ylim(bottom=0.003)
-    ax1.set_ylabel(r'Frequency ($(t_{\rm LK}^{\rm i})^{-1}$)')
+    ax1.set_ylabel(r'Frequency ($(t_{\rm LK, i})^{-1}$)')
 
     ax2.plot(t_lkmids[ :last_idx],
                 W_lk_ratio[ :last_idx],
@@ -556,7 +556,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
              + averaged_qeff[0], 'b')
     ax3.legend(ncol=2, loc='upper left', fontsize=14)
     ax3.set_ylabel('Degrees')
-    ax3.set_xlabel(r'$t / t_{\rm LK}^{\rm i}$')
+    ax3.set_xlabel(r'$t / t_{\rm LK, i}$')
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
@@ -815,10 +815,11 @@ def plot_good_quants():
     # ax1.semilogy(all_Is, Ioutdot_max_gaussest, 'ro',
     #              label=r'$\dot{\bar{I}}_{\rm e}$ (Bounds)')
     # ax1.legend(fontsize=10)
-    # ax1.set_ylabel(r'Frequency ($(t_{\rm LK, 0}^{\rm i})^{-1}$)')
+    # ax1.set_ylabel(r'Frequency ($(t_{\rm LK, i})^{-1}$)')
     # ax1.set_yticks([0.01, 0.1, 1, 10, 100])
     # ax1.set_yticklabels([r'$0.01$', r'$0.1$', r'$1$', r'$10$', r'$100$'])
 
+    fig = plt.figure(figsize=(7, 5))
     ax1 = plt.gca()
     ax1.semilogy(all_Is,
                  np.degrees(np.array(Iout_dot_maxes)) / np.array(dWeff_mids),
@@ -827,7 +828,7 @@ def plot_good_quants():
              'r', label='Analytic')
     ax1.set_ylabel(r'$\left|\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}\right|'
                    r'_{\max}$ (Deg)')
-    ax1.set_xlabel(r'$I^{\rm i}$')
+    ax1.set_xlabel(r'$I_{\rm i}$')
     ax1.legend(fontsize=14)
 
     tmerge_ax = ax1.twiny()
@@ -837,7 +838,7 @@ def plot_good_quants():
         '%.1f' % np.log10(tm) for tm in tmerges[:len(I_degs):2]
     ])
     plt.setp(tmerge_ax.get_xticklabels(), rotation=45)
-    tmerge_ax.set_xlabel(r'$\log_{10} (T_{\rm m} / t_{\rm LK}^{\rm i})$')
+    tmerge_ax.set_xlabel(r'$\log_{10} (T_{\rm m} / t_{\rm LK, i})$')
 
     plt.tight_layout()
     plt.savefig('4sims/good_quants', dpi=200)
@@ -1001,6 +1002,7 @@ def run_ensemble(folder, I_vals=np.arange(90.05, 90.5001, 0.005),
 # make the prediction for theta_sl_f using N=0 prediction (re-process from pkl)
 def plot_deviations_good(folder, deltas_deg,
                          I_vals=np.arange(90.05, 90.5001, 0.005)):
+    fig = plt.figure(figsize=(7, 5))
     for I, all_deltas_per_I in zip(I_vals[::-1], deltas_deg):
         deltas_per_I_nd, deltas_per_I = np.array(all_deltas_per_I).T
         if I == I_vals[0]:
@@ -1009,8 +1011,8 @@ def plot_deviations_good(folder, deltas_deg,
         else:
             plt.semilogy(np.full_like(deltas_per_I, I), np.abs(deltas_per_I_nd),
                        'ko', ms=0.3)
-    plt.xlabel(r'$I^{\rm i}$ (Deg)')
-    plt.ylabel(r'$\left|\Delta \bar{\theta}_{\rm e}\right|^{\rm f}$ (Deg)')
+    plt.xlabel(r'$I_{\rm i}$ (Deg)')
+    plt.ylabel(r'$\left|\Delta \bar{\theta}_{\rm e}\right|_{\rm f}$ (Deg)')
     plt.ylim(bottom=1e-3)
 
     jmin = np.sqrt(5 * cosd(I_vals)**2 / 3)
@@ -1268,8 +1270,6 @@ def qslscan():
             I_degs = I_degs[5:-5]
             qslfs = qslfs[5:-5]
             tfs = tfs[5:-5]
-    print(qslfs[0], qslfs[-1])
-    return
 
     fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6, 6), sharex=True,
                                    gridspec_kw={'height_ratios': [1, 2]})
@@ -1281,8 +1281,8 @@ def qslscan():
     ax1.set_yticklabels([r'$10^{6}$', r'$10^{8}$', r'$10^{10}$'])
 
     ax2.plot(I_degs, qslfs, 'b', lw=1.5)
-    ax2.set_xlabel(r'$I^{\rm i}$ (Deg)')
-    ax2.set_ylabel(r'$\theta_{\rm sl}^{\rm f}$ (Deg)')
+    ax2.set_xlabel(r'$I_{\rm i}$ (Deg)')
+    ax2.set_ylabel(r'$\theta_{\rm sl, f}$ (Deg)')
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
 
@@ -1300,10 +1300,10 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
     # run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
     # run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
-    # plot_good_quants()
+    plot_good_quants()
 
-    # deltas_deg = run_ensemble('4sims_scan/')
-    # plot_deviations_good('4sims_scan/', deltas_deg)
+    deltas_deg = run_ensemble('4sims_scan/')
+    plot_deviations_good('4sims_scan/', deltas_deg)
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
@@ -1315,5 +1315,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    qslscan()
+    # qslscan()
     pass
