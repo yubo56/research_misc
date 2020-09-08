@@ -1360,33 +1360,23 @@ Then $\bar{\theta}_{\rm e, i} = \abs{I_{\rm tot, i} - \bar{I}_{\rm e-tot, i}}$
 \begin{equation}
     \theta_{\rm sl, f} = \abs{I_{\rm tot, i} - \bar{I}_{\rm e, i}}.
         \label{eq:qslf_eta_pred}
-\end{equation} Suppose additionally that $\abs{\overline{\Omega}_{\rm L, i}} \gg
+\end{equation}
+Suppose additionally that $\abs{\overline{\Omega}_{\rm L, i}} \gg
 \overline{\Omega}_{\rm SL, i}$, then $\overline{\Omega}_{\rm e, i}$ is either
 parallel or anti-parallel to $\bm{L}_{\rm tot}$ depending on whether
-$\overline{\Omega}_{\rm L}$ is positive or negative. The sign of
-$\overline{\Omega}_{\rm L}$ is positive if $I_{\rm i} < I_{\lim}$ and negative
-if $I_{\rm i} > I_{\lim}$, where $I_{\lim}$ is the starting mutual inclination
-for which the maximum eccentricity is largest. Note that even though
-$\Omega_{\rm L}$ changes signs at $I = 90^\circ$ [see Eq.~\eqref{eq:dWdt_eta}],
-$\overline{\Omega}_{\rm L}$ changes sign at $I = I_{\lim}$. This is because for
-$I < I_{\lim}$, the eccentricity maximum occurs when $I < 90^\circ$, and
-$\overline{\Omega}_{\rm L}$ is dominated by the contribution around the
-eccentricity maximum. $I_{\rm \lim, i}$ is given by \citep{bin2}
-\begin{equation}
-    \cos I_{\lim} = \frac{\eta}{2}\p{\frac{4}{5}j_{\lim}^2 - 1},
-\end{equation}
-where $j_{\lim}$ satisfies
-\begin{equation}
-    \frac{3}{8}\p{j_{\lim}^2 - 1}\s{-3 + \frac{\eta^2}{4}
-        \p{\frac{4}{5}j_{\lim}^2 - 1}} + \epsilon_{\rm GR}\p{1 - j_{\lim}^{-1}}
-        = 0.
-\end{equation}
-Finally, we find that
+$\overline{\Omega}_{\rm L}$ is positive or negative. Define $I_{\rm c}$ to be
+the starting mutual inclination for which $\overline{\Omega}_{\rm L}$ changes
+sign (for the present parameters, $I_{\rm c} \approx 92.14^\circ$). Note that
+even though $\Omega_{\rm L}$ changes sign at $I = 90^\circ$ [see
+Eq.~\eqref{eq:dWdt_eta}], $I_{\rm c} > 90^\circ$. This is because for $I <
+I_{\lim}$, where $I_{\lim} \approx 92.16^\circ$ is the starting mutual
+inclination that maximizes $e_{\max}$ \citep{bin2}, the inclination can decrease
+to below $90^\circ$ when the eccentricity increases. As such, we find that
 \begin{equation}
     \theta_{\rm sl, f} =
     \begin{cases}
-        I_{\rm tot, i} & I_{\rm i} < I_{\lim},\\
-        180^\circ - I_{\rm tot, i} & I_{\rm i} > I_{\lim}.
+        I_{\rm tot, i} & I_{\rm i} < I_{\rm c},\\
+        180^\circ - I_{\rm tot, i} & I_{\rm i} > I_{\rm c}.
     \end{cases}
 \end{equation}
 
@@ -1397,13 +1387,13 @@ from exact $\bar{\theta}_{\rm e}$ conservation are well described by
 Eq.~\eqref{eq:qslf_plot_black}, the prediction of the theory in
 Section~\ref{s:fast_merger}. Unlike the $\eta = 0$ case
 (Fig.~\ref{fig:qslscan}), $\theta_{\rm sl, f}$ is not symmetric about
-$I_{\lim}$. This is because $\abs{\Omega}_{\rm L}$ is not exactly equal on
-either side of $I_{\lim}$. Additionally, unlike in the $\eta = 0$ case, the
+$I_{\rm c}$. This is because $\abs{\Omega}_{\rm L}$ is not exactly equal on
+either side of $I_{\rm c}$. Additionally, unlike in the $\eta = 0$ case, the
 minimum $\theta_{\rm sl,f}$ is not exactly zero. We showed in
 Section~\ref{ss:effect} that when $\eta = 0$, $\bm{L}$ is fixed when $I_{\rm i}
 = 90^\circ$, as $\rdil{\ascnode}{t} = \rdil{I}{t} = 0$. For nonzero $\eta$,
 $\rdil{\ascnode}{t}$ and $\rdil{I_{\rm tot}}{t}$ are not zero at $I_{\rm i} =
-I_{\lim}$.
+I_{\rm c}$.
 
 Eq.~\eqref{eq:qslf_eta_pred} also holds well over a
 large range of $I_{\rm i}$ in the LK-enhanced menger regime, as shown in
@@ -1413,8 +1403,8 @@ Fig.~\ref{fig:finite_bin_comp}.
     \includegraphics[width=\columnwidth]{LK90_plots/8finite_qslfs.png}
     \caption{Same as Fig.~\ref{fig:qslscan} but for $m_3 = 30M_{\odot}$ and
     $\tilde{a}_3 = 4500\;\mathrm{AU}$. The vertical black line denotes $I_{\rm
-    i} = I_{\lim}$, the inclination for which the maximum eccentricity is
-    largest, and the two horizontal lines denote the predictions of
+    c} \approx 92.14^\circ$, the inclination for which $\overline{\Omega}_{\rm L}$
+    changes signs, and the two horizontal lines denote the predictions of
     Eq.~\eqref{eq:qslf_eta_pred}. The dotted black lines bound the deviation due
     to non-adiabatic evolution, given by Eq.~\eqref{eq:qslf_plot_black}.
     }\label{fig:finite_qslfscan}
@@ -1426,13 +1416,13 @@ Fig.~\ref{fig:finite_bin_comp}.
     LK-enhanced parameter regime, i.e.\ $m_1 = m_2 = m_3 = 30M_{\odot}$, $a =
     0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $\tilde{a}_{\rm out} =
     3\;\mathrm{AU}$, and $e_{\rm out} = 0$. In the first panel, we show the
-    magnitude of the adiabaticity parameter $\abs{\mathcal{A}}$. In the second
-    panel, we show the ratio of the magnitude of the averaged precession vector
-    to the LK frequency; we expect resonant effects (see Section~TODO) when
-    $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$. The third panel shows
-    the magnitude of the angle between the eigenvector of the monodromy matrix
-    (see Section~\ref{ss:monodromy}) and the averaged precession vector, as well
-    as the effect of the first two resonant harmonics
+    adiabaticity parameter $\mathcal{A}$, where red denotes $\mathcal{A} < 0$.
+    In the second panel, we show the ratio of the magnitude of the averaged
+    precession vector to the LK frequency; we expect resonant effects (see
+    Section~TODO) when $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$. The
+    third panel shows the magnitude of the angle between the eigenvector of the
+    monodromy matrix (see Section~\ref{ss:monodromy}) and the averaged
+    precession vector, as well as the effect of the first two resonant harmonics
     [Eq.~\eqref{eq:harmonic_dqeff}]. Finally, in the final panel we show
     $\theta_{\rm sl, f}$ as a function of $I_{\rm i}$ from simulations (blue
     dots; LL17) and from conservation of $\bar{\theta}_{\rm e}$ (red line). The
@@ -1455,8 +1445,8 @@ between $\bm{S}$ and $\bm{L}_{\rm tot}$, giving
 \begin{equation}
     \theta_{\rm sl, f} =
     \begin{cases}
-        \theta_{\rm s-tot, i} & I < I_{\lim},\\
-        180^\circ - \theta_{\rm s-tot, i} & I > I_{\lim}.
+        \theta_{\rm s-tot, i} & I < I_{\rm c},\\
+        180^\circ - \theta_{\rm s-tot, i} & I > I_{\rm c}.
     \end{cases}
 \end{equation}
 

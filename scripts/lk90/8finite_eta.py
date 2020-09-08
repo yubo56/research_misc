@@ -812,28 +812,30 @@ def qslfs_run(npts=200):
     ax2.set_ylabel(r'$\theta_{\rm sl, f}$ (Deg)')
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
-    ax1.axvline(Ilimd, c='k', lw=0.7)
-    ax2.axvline(Ilimd, c='k', lw=0.7)
+    Icrit = I_degs[np.argmin(qslfd_arr)]
+    print(Icrit, Ilimd)
+    ax1.axvline(Icrit, c='k', lw=0.7)
+    ax2.axvline(Icrit, c='k', lw=0.7)
 
-    I_left = I_degs[np.where(I_degs < Ilimd)[0]]
-    I_right = I_degs[np.where(I_degs > Ilimd)[0]]
+    I_left = I_degs[np.where(I_degs < Icrit)[0]]
+    I_right = I_degs[np.where(I_degs > Icrit)[0]]
     I_leftlim = np.degrees(get_qeff0(np.radians(I_degs.min()), params)[2])
     I_rightlim = np.degrees(get_qeff0(np.radians(I_degs.max()), params)[2])
     ax2.plot(I_left,
              I_leftlim
-                - (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+                - (cosd(90.3)**2 / cosd(I_left - Icrit + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_left,
              I_leftlim
-                + (cosd(90.3)**2 / cosd(I_left - Ilimd + 90)**2)**(37/16),
+                + (cosd(90.3)**2 / cosd(I_left - Icrit + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_right,
              I_rightlim
-                - (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+                - (cosd(90.3)**2 / cosd(I_right - Icrit + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.plot(I_right,
              I_rightlim
-                + (cosd(90.3)**2 / cosd(I_right - Ilimd + 90)**2)**(37/16),
+                + (cosd(90.3)**2 / cosd(I_right - Icrit + 90)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
     ax2.set_ylim(bottom=0, top=120)
 
@@ -1040,12 +1042,12 @@ if __name__ == '__main__':
     # print(np.degrees(get_qeff0(np.radians(Ilimd - 0.35), params)[2]))
     # these two finally agree
 
-    # qslfs_run()
+    qslfs_run()
 
     # get_qeff0(np.radians(85), params_in)
-    bin_comp()
-    bin_comp(e0=1e-2, fn='8bin_comp_en2')
-    bin_comp(e0=3e-3, fn='8bin_comp_en1')
+    # bin_comp()
+    # bin_comp(e0=1e-2, fn='8bin_comp_en2')
+    # bin_comp(e0=3e-3, fn='8bin_comp_en1')
 
     # run_long(80, tol=1e-8)
     # run_long(70, tol=1e-8)
