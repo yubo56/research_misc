@@ -23,6 +23,8 @@ from multiprocessing import Pool
 
 from scipy.integrate import solve_ivp
 from scipy.optimize import brenth
+from scipy.interpolate import interp1d
+from scipy.fft import dct
 
 params = 30, 20, 30, 100, 4500, 0
 params_in = 30, 30, 30, 0.1, 3, 0
@@ -497,7 +499,7 @@ def get_dydt(eps_gw=0, eps_gr=0, eps_sl=0, eta=0, e2=0):
             -15 * a1**(3/2) * e1**2 * np.sin(2 * w1)
                 * np.sin(2 * Itot) / (16 * np.sqrt(x1))
         )
-        dI2dt = eta * (
+        dI2dt = eta * a1**(1/2) * (
             -15 * a1**(3/2) * e1**2 * np.sin(2 * w1) * np.sin(Itot) / 8
         )
         dw1dt = (
@@ -505,7 +507,7 @@ def get_dydt(eps_gw=0, eps_gr=0, eps_sl=0, eta=0, e2=0):
                 (4 * np.cos(Itot)**2 +
                  (5 * np.cos(2 * w1) - 1) * (1 - e1**2 - np.cos(Itot)**2))
                   / (8 * np.sqrt(x1))
-                + eta * np.cos(Itot) * (
+                + eta * a1**(1/2) * np.cos(Itot) * (
                     2 + e1**2 * (3 - 5 * np.cos(2 * w1))) / 8
             )
             + eps_gr / (a1**(5/2) * x1)
@@ -531,8 +533,7 @@ def get_qslf_for_I0(I0, tf=np.inf, plot=False, tol=1e-9, params=params):
     dydt = get_dydt(**getter_kwargs)
 
     # a1, e1, W, I1, w1, I2, sx, sy, sz = y
-    I1 = np.radians(get_I1(np.degrees(I0),
-                           getter_kwargs['eta'] * np.sqrt(1 - 1e-6)))
+    I1 = np.radians(get_I1(np.degrees(I0), getter_kwargs['eta']))
     I2 = I0 - I1
     s0 = [np.sin(I1), 0, np.cos(I1)] # initial alignment
     y0 = [1, 1e-3, 0, I1, 0, I2, *s0]
@@ -685,15 +686,9 @@ def get_qeff0(I0, params, tol=1e-10, e0=1e-3):
     mono_mat = np.matmul(np.reshape(svecs_f, (3, 3)), rot_mat)
     # NB: in corotating frame, svec[:,-1] = np.dot(mono_mat.T, svec[:,0])
     eigs, eigv = np.linalg.eig(mono_mat.T)
-    # one_eig_idx = np.where(abs(np.imag(eigs)) < 1e-8)[0][0]
-    # mono_eig = np.real(eigv[:, one_eig_idx])
-    # Im = np.arccos(mono_eig[2])
-    # to get the actual signed rot axis, cross the eigv w/ positive Im(eigs) w/
-    # negative and divide by +i
-    pos_im_idx = np.where(np.imag(eigs) > 1e-8)[0][0]
-    neg_im_idx = np.where(np.imag(eigs) < -1e-8)[0][0]
-    mono_eig2 = np.cross(eigv[:, pos_im_idx], eigv[:, neg_im_idx]) / 1.j
-    Im2 = np.real(np.arccos(mono_eig2[2]))
+    one_eig_idx = np.where(abs(np.imag(eigs)) < 1e-8)[0][0]
+    mono_eig = np.real(eigv[:, one_eig_idx])
+    Im = np.arccos(mono_eig[2])
 
     Iall = I1 + I2
     Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I1]
@@ -713,10 +708,20 @@ def get_qeff0(I0, params, tol=1e-10, e0=1e-3):
     dWslz = getter_kwargs['eps_sl'] * np.cos(I1) / (a1**(5/2) * x1)
     dWslx_mean = np.sum(dWslx * np.gradient(t)) / t[-1]
     dWslz_mean = np.sum(dWslz * np.gradient(t)) / t[-1]
-    dWsl_mean = np.array([dWslx_mean, 0, dWslz_mean])
 
-    Weff_vec = dWsl_mean - dWdt_mean
-    Weff_vec /= np.sqrt(np.sum(Weff_vec**2))
+    dWsl_vec = np.array([
+        dWslx,
+        np.zeros_like(dWslx),
+        dWslz,
+    ])
+    dWdt_vec = np.outer(np.array([0, 0, 1]), dWdt)
+    Weff_vec_t = dWsl_vec - dWdt_vec
+    dWsl_mean = np.sum(dWsl_vec * np.gradient(t) / t[-1], axis=1)
+    dWdt_mean = np.sum(dWdt_vec * np.gradient(t) / t[-1], axis=1)
+    _Weff_vec = np.sum(Weff_vec_t * np.gradient(t) / t[-1], axis=1)
+
+    Weffmag = np.sqrt(np.sum(_Weff_vec**2))
+    Weff_vec = _Weff_vec / Weffmag
     # |A|
     A = np.sqrt(np.sum(dWsl_mean**2)) / np.sqrt(np.sum(dWdt_mean**2))
 
@@ -750,9 +755,20 @@ def get_qeff0(I0, params, tol=1e-10, e0=1e-3):
     # print(np.degrees(qeff0), np.degrees(qeff_est))
 
     Ie = np.arctan2(Weff_vec[0], Weff_vec[2])
+    ratio = Weffmag * t[-1] / (2 * np.pi)
 
-    print(A, np.degrees(Ie), np.degrees(qeff0), np.degrees(Im2))
-    return A, Ie, qeff0, Im2
+    # Weff harmonics
+    t_vals = np.linspace(t[0], t[-1], 4 * len(t))
+    Weffx_interp = interp1d(t, Weff_vec_t[0])(t_vals)
+    Weffz_interp = interp1d(t, Weff_vec_t[2])(t_vals)
+    x_coeffs = dct(Weffx_interp, type=1)[::2] / (2 * len(t_vals))
+    z_coeffs = dct(Weffz_interp, type=1)[::2] / (2 * len(t_vals))
+    Ie1 = np.arctan2(x_coeffs[1], z_coeffs[1])
+    ratio1 = np.sqrt(x_coeffs[1]**2 + z_coeffs[1]**2) * t[-1] / (2 * np.pi)
+
+    print(A, np.degrees(Ie), np.degrees(qeff0), np.degrees(Im), ratio,
+          np.degrees(Ie1), ratio1)
+    return A, Ie, qeff0, Im, ratio, Ie1, ratio1
 
 def qslfs_run(npts=200):
     getter_kwargs = get_eps(*params)
@@ -839,60 +855,89 @@ def bin_comp(e0=1e-3, fn='8bin_comp'):
     pkl_fn = fn + '.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        As = []
-        Ies = []
-        qeis = []
-        Ims = []
+        rets = []
         for I_val in I_d:
-            A, Ie, qei, Im = get_qeff0(np.radians(I_val), params, e0=e0)
-            As.append(A)
-            Ies.append(Ie)
-            qeis.append(qei)
-            Ims.append(Im)
+            ret = get_qeff0(np.radians(I_val), params, e0=e0)
+            rets.append(ret)
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((qeis, Ies, As, Ims), f)
+            pickle.dump(np.array(rets).T, f)
+        rets = np.array(rets).T
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            qeis, Ies, As, Ims = pickle.load(f)
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 10), sharex=True,
-                                   gridspec_kw={'height_ratios': [1, 1, 2]})
-    Ims = np.array(Ims)
+            rets = pickle.load(f)
+    As, Ies, qeis, Ims, ratios, Ie1s, ratio1s = rets # whoops, double .T
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(
+        4, 1, figsize=(6, 12), sharex=True,
+        gridspec_kw={'height_ratios': [1, 1, 1, 3]})
+    # convention: Im is in [0, 90] or [90, 180] with Ies
+    corrected_Ims = []
+    for Im, Ie in zip(Ims, Ies):
+        if Ie < np.pi / 2 and Ie > 0:
+            if Im < np.pi / 2 and Im > 0:
+                corrected_Ims.append(Im)
+            elif Im > np.pi / 2 and Im < np.pi:
+                corrected_Ims.append(np.pi - Im)
+        elif Ie > np.pi / 2 and Ie < np.pi:
+            if Im < np.pi / 2 and Im > 0:
+                corrected_Ims.append(np.pi - Im)
+            elif Im > np.pi / 2 and Im < np.pi:
+                corrected_Ims.append(Im)
+    assert len(corrected_Ims) == len(Ims)
+    Ims = np.array(corrected_Ims)
     Ies = np.array(Ies)
 
+    ax1.semilogy(I_d, As, 'k', lw=1)
     ax1.axhline(1, c='k', ls=':', lw=0.7, alpha=0.5)
     ax1.set_ylabel(r'$|\mathcal{A}|$')
 
+    ax2.plot(I_d, ratios, 'k',
+             label=r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$', lw=1, alpha=0.7)
+    ax2.plot(I_d, ratio1s, 'g',
+             label=r'$\Omega_{\rm e1} / \Omega_{\rm LK}$', lw=1, alpha=0.7)
+    ax2.legend(fontsize=12, loc='upper right')
+    ax2.set_ylabel('Freq. Ratios')
+
     # angle between averaged rotation axis and true monodromy eigenvector
     delta_Im = np.degrees(Ims - Ies)
-    ax2.plot(I_d, delta_Im, 'k')
-    ax2.set_ylabel(r'$\bar{I}_{\rm m, i} - I_{\rm e, i}$')
+    ax3.plot(I_d, np.abs(delta_Im), 'k', label='Num', lw=1)
+    ylims = ax3.get_ylim()
+    ax3.set_ylabel(r'$|\bar{I}_{\rm m, i} - I_{\rm e, i}|$')
+    ax3.plot(
+        I_d, np.degrees(np.abs(
+            np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 1))),
+        'g', label=r'$N = 1$', lw=1)
+    # TODO use Ie2, ratio2s for this
+    ax3.plot(
+        I_d, np.degrees(np.abs(
+            np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 2))),
+        'b', label=r'$N = 2$', lw=1)
+    ax3.legend(fontsize=12)
+    ax3.set_ylim(ylims)
 
     # correct range?
     # qslfs_ranged = np.minimum(qslfs, 180 - qslfs)
-    ax3.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
-
-    # my guess
-    ax1.semilogy(I_d, As, 'k', lw=1)
+    ax4.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
 
     # same as dl_prediction
-    # ax3.plot(I_d, np.degrees(qeis), 'g', lw=1.5, alpha=0.7)
+    # ax4.plot(I_d, np.degrees(qeis), 'g', lw=1.5, alpha=0.7)
     Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I_d]
     qslf_dl = np.degrees(np.abs(Ies - np.radians(Itot)))
-    ax3.plot(I_d, qslf_dl, 'r', lw=0.5)
-    ax3.fill_between(
+    ax4.plot(I_d, qslf_dl, 'r', lw=2)
+    ax4.fill_between(
         I_d,
-        np.minimum(qslf_dl, delta_Im - qslf_dl),
-        np.maximum(qslf_dl, delta_Im - qslf_dl),
+        np.minimum(np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl)),
+        np.maximum(np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl)),
         color='r',
-        alpha=0.5)
+        alpha=0.3)
 
-    ax3.set_xticks([0, 45, 90, 135, 180])
-    ax3.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
-    ax3.set_xlabel(r'$I_{\rm i}$ (Deg)')
-    ax3.set_ylabel(r'$\theta_{\rm sl, f}$')
+    ax4.set_xticks([0, 45, 90, 135, 180])
+    ax4.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
+    ax4.set_xlabel(r'$I_{\rm i}$ (Deg)')
+    ax4.set_ylabel(r'$\theta_{\rm sl, f}$')
 
     plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
     plt.savefig(fn, dpi=600)
     plt.clf()
 
@@ -997,12 +1042,12 @@ if __name__ == '__main__':
 
     # qslfs_run()
 
-    # get_qeff0(np.radians(40.161), params_in)
+    # get_qeff0(np.radians(85), params_in)
     bin_comp()
     bin_comp(e0=1e-2, fn='8bin_comp_en2')
     bin_comp(e0=3e-3, fn='8bin_comp_en1')
 
-    # run_long(80)
-    # run_long(70, tol=1e-7)
-    # run_long(60, tol=1e-7)
+    # run_long(80, tol=1e-8)
+    # run_long(70, tol=1e-8)
+    # run_long(60, tol=1e-8)
     pass

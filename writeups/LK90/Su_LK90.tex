@@ -1,4 +1,4 @@
-% rm -f LK90_plots/*.png; for i in 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 6bin_comp_zoom 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png LK90_plots; done
+% rm -f LK90_plots/*.png; for i in 7_3vec_eta_cropped 8bin_comp_en2 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 6bin_comp_zoom 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png LK90_plots; done
     \documentclass[
         twocolumn,
         twocolappendix
@@ -140,18 +140,19 @@ to extreme eccentricities (close to unity) by a highly inclined tertiary and
 merges within a few Gyrs. LL18 examined a wide range of orbital and spin
 evolution behaviors and found that LK-induced mergers can sometimes yield a
 ``$90^\circ$ attractor'': when the BH spin is initially aligned with the inner
-binary angular momentum axis ($\theta_{\rm sl}^{\rm i} = 0$), it evolves towards
-a perpendicular state ($\theta_{\rm sl}^{\rm f} = 90^\circ$) near merger.
+binary angular momentum axis ($\theta_{\rm sl, i} = 0$), it evolves towards
+a perpendicular state ($\theta_{\rm sl, f} = 90^\circ$) near merger.
 Qualitatively, they found that the attractor exists when the LK-induced orbital
 decay is sufficiently ``gentle'' and the octupole effect is unimportant.
 Fig.~\ref{fig:4sim_90_350} gives an example of a system evolving towards this
 attractor, where $\theta_{\rm sl}$ converges to $\approx 90^\circ$ at
 late times in the bottom right panel. Fig.~\ref{fig:qslscan} shows how
-$\theta_{\rm sl}^{\rm f}$ varies when the initial inclination of the tertiary
-orbit $I_0$ (relative to the inner orbit) is varied. Note that for rapid mergers
-(when $I_0$ is close to $90^\circ$), the attractor does not exist; as $I_0$
+$\theta_{\rm sl, f}$ varies when the initial inclination of the tertiary
+orbit $I_{\rm i}$ (relative to the inner orbit) is varied. Note that for rapid mergers
+(when $I_{\rm i}$ is close to $90^\circ$), the attractor does not exist; as
+$I_{\rm i}$
 deviates more from $90^\circ$, the merger time increases and $\theta_{\rm
-sl}^{\rm f}$ is close to $90^\circ$.  This $90^\circ$ attractor gives rise to a
+sl, f}$ is close to $90^\circ$.  This $90^\circ$ attractor gives rise to a
 peak around $\chi_{\rm eff} = 0$ in the final $\chi_{\rm eff}$ distribution in
 tertiary-induced mergers (LL18; \citealp{bin3}). This peak was also found in the
 population studies of \citet{antonini2018precessional}.
@@ -180,26 +181,27 @@ and conclude in Section~\ref{s:discussion}.
     mergers. The four panes show the time evolution of the binary semi-major
     axis $a$, eccentricity $e$, inclination $I$ [the red line denotes the
     averaged $\bar{I}$ given by Eq.~\eqref{eq:barI}], and spin-orbit
-    misalignment angle $\theta_{\rm sl}$. The unit of time $t_{\rm LK, 0}$ is
-    the LK timescale [Eq.~\eqref{eq:t_lk}] evaluated for the initial conditions.
-    The inner binary has $m_1 = 30M_{\odot}$, $m_2 = 20M_{\odot}$, and initial
-    $a_0 = 100\;\mathrm{AU}$, $e_0 = 0.001$, $I_0 = 90.35^\circ$ (with respect
-    to the outer binary), and $\theta_{\rm sl}^{\rm i} = 0$. The tertiary SMBH
-    has $a_{\rm out} = 2.2\;\mathrm{pc}$, $e_{\rm out} = 0$, and $m_3 = 3 \times
-    10^7 M_{\odot}$. It can be seen that $\theta_{\rm sl}$ evolves to $\sim
-    90^\circ$ as $a$ shrinks to smaller values.}\label{fig:4sim_90_350}
+    misalignment angle $\theta_{\rm sl}$. The unit of time $t_{\rm LK, i}$
+    is the LK timescale [Eq.~\eqref{eq:t_lk}] evaluated for the initial
+    conditions. The inner binary has $m_1 = 30M_{\odot}$, $m_2 = 20M_{\odot}$,
+    and initial $a_{\rm i} = 100\;\mathrm{AU}$, $e_{\rm i} = 0.001$, $I_{\rm i}
+    = 90.35^\circ$ (with respect to the outer binary), and $\theta_{\rm sl, i} =
+    0$. The tertiary SMBH has $a_{\rm out} = 2.2\;\mathrm{pc}$, $e_{\rm out} =
+    0$, and $m_3 = 3 \times 10^7 M_{\odot}$. It can be seen that $\theta_{\rm
+    sl}$ evolves to $\sim 90^\circ$ as $a$ shrinks to smaller
+    values.}\label{fig:4sim_90_350}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/qslscan.png}
     \caption{The merger time and the final spin-orbit misalignment angle
-    $\theta_{\rm sl}^{\rm f}$ as a function of the initial inclination $I_0$ for
-    LK-induced mergers. The other parameters are the same as those in
-    Fig.~\ref{fig:4sim_90_350}. For $I_0$ somewhat far away from $90^\circ$, the
-    resulting $\theta_{\rm sl}^{\rm f}$ are all quite near $90^\circ$. The black
-    dashed line in the lower panel shows Eq.~\eqref{eq:qslf_plot_black}, which
-    provides an estimate for the deviation from the $90^\circ$
-    attractor.}\label{fig:qslscan}
+    $\theta_{\rm sl, f}$ as a function of the initial inclination $I_{\rm i}$
+    for LK-induced mergers. The other parameters are the same as those in
+    Fig.~\ref{fig:4sim_90_350}. For $I_{\rm i}$ somewhat far away from
+    $90^\circ$, the resulting $\theta_{\rm sl, f}$ are all quite near
+    $90^\circ$. The black dashed line in the lower panel shows
+    Eq.~\eqref{eq:qslf_plot_black}, which provides an estimate for the deviation
+    from the $90^\circ$ attractor.}\label{fig:qslscan}
 \end{figure}
 
 \section{LK-Induced Mergers: Orbital Evolution}\label{s:setup_orbital}
@@ -233,7 +235,7 @@ inner binary are
     \rd{\ascnode}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{j(e)}
             \label{eq:dWdt},\\
-    \rd{I}{t} &= \frac{15}{16}\frac{e^2\sin 2\omega \sin
+    \rd{I}{t} &= -\frac{15}{16t_{\rm LK}}\frac{e^2\sin 2\omega \sin
         2I}{j(e)},\label{eq:dIdt}\\
     \rd{\omega}{t} &= \frac{3}{4t_{\rm LK}}
         \frac{2j^2(e) + 5\sin^2\omega (e^2 - \sin^2 I)}{j(e)}
@@ -266,7 +268,7 @@ where
 Fig.~\ref{fig:4sim_90_350} depicts an example of LK-induced mergers as
 caclulated using the above equations. We adopt the following fiducial
 parameters: the inner binary has $m_1 = 30M_{\odot}$, $m_2 = 20M_{\odot}$,
-initial $a = 100\;\mathrm{AU}$, $e_0 = 0.001$, and $I_0 = 90.35^\circ$. We take
+initial $a = 100\;\mathrm{AU}$, $e_{\rm i} = 0.001$, and $I_{\rm i} = 90.35^\circ$. We take
 the SMBH tertiary companion to have $m_3 = 3 \times 10^{7} M_{\odot}$ and
 $\tilde{a}_{\rm out} = 4.5 \times 10^5\;\mathrm{AU} = 2.2\;\mathrm{pc}$. Since
 $\tilde{a}_{\rm out} \gg a$, the octupole effects are negligible and have been
@@ -294,16 +296,16 @@ when $L_{\rm out}$ is comparable to $L$), where
         = \frac{3Gm_{12}^2 \tilde{a}_{\rm out}^3}{c^2m_3a^4}.
 \end{equation}
 The conservation laws can be combined to obtain the maximum eccentricity
-$e_{\max}$ as a function of the initial $I_0$ (and initial $e_0 \ll 1$).
-The largest value of $e_{\max}$ occurs at $I_0 = 90^\circ$ and is given
+$e_{\max}$ as a function of the initial $I_{\rm i}$ (and initial $e_{\rm i} \ll 1$).
+The largest value of $e_{\max}$ occurs at $I_{\rm i} = 90^\circ$ and is given
 by
 \begin{equation}
-    j(e_{\max})_{I_0 = 90^\circ} = (8/9) \epsilon_{\rm GR}.
+    j(e_{\max})_{I_{\rm i} = 90^\circ} = (8/9) \epsilon_{\rm GR}.
 \end{equation}
 Eccentricity excitation then requires $\epsilon_{\rm GR} < 9/8$. Our fiducial
 examples in Figs.~\ref{fig:4sim_90_350} and~\ref{fig:qslscan} satisfy
-$\epsilon_{\rm GR} \ll 1$ at $a = a_0$, leading to $e_{\max} \sim 1$ within a
-narrow inclination window around $I_0 = 90^\circ$.
+$\epsilon_{\rm GR} \ll 1$ at $a = a_{\rm i}$, leading to $e_{\max} \sim 1$ within a
+narrow inclination window around $I_{\rm i} = 90^\circ$.
 
 Eqs.~\eqref{eq:const1} and~\eqref{eq:const2} imply that $e$ is a fuction
 of $\sin^2\omega$ alone \citep[see][for exact forms]{kinoshita, storch},
@@ -386,7 +388,7 @@ with [see Eq.~\eqref{eq:dWdt}]
 In this rotating frame, the plane spanned by $\uv{L}_{\rm out}$ and $\uv{L}$ is constant
 in time, only the inclination angle $I$ can vary.
 
-\subsection{Nondissipative Dynamics}
+\subsection{Nondissipative Dynamics}\label{ss:monodromy}
 
 We first consider the limit where dissipation via GW radiation is completely
 neglected ($t_{\rm GW}(e) \to \infty$). Then $\bm{\Omega}_{\rm e}$ is exactly
@@ -427,7 +429,7 @@ unity.
 
 To generate an analogous bifurcation diagram for our problem, we consider a
 sample system with $m_{12} = 60M_{\odot}$, $m_3 = 3 \times 10^7 M_{\odot}$, $a =
-0.1\;\mathrm{AU}$, $e_0 = 10^{-3}$, $I_0 = 70^\circ$, $a_{\rm out} =
+0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $I_{\rm i} = 70^\circ$, $a_{\rm out} =
 300\;\mathrm{AU}$, $e_{\rm out} = 0$, and initial $\theta_{\rm sl} = 0$. We then
 evolve Eq.~\eqref{eq:dsdt_weff} together with the orbital evolution equations
 [Eqs.~(\ref{eq:dadt}--\ref{eq:dwdt}) without the GW terms] while sampling both
@@ -451,16 +453,16 @@ Fig.~\ref{fig:bifurcation_70}.
     \includegraphics[width=\columnwidth]{LK90_plots/M1_M2_thetasl_thetae_70.png}
     \caption{Bifurcation diagram for the BH spin orientation during LK
     oscillations. The physical parameters are $m_{12} = 60M_{\odot}$, $m_3 = 3
-    \times 10^7 M_{\odot}$, $a = 0.1\;\mathrm{AU}$, $e_0 = 10^{-3}$, $I_0 =
-    70^\circ$, $a_{\rm out} = 300\;\mathrm{AU}$, $e_{\rm out} = 0$, and initial
-    condition $\theta_{\rm sl}^{\rm i} = 0$. For each mass ratio $m_1 / m_{12}$,
-    the orbit-spin system is solved over $500$ LK cycles, and both $\theta_{\rm
-    sl}$ (the angle between $\bm{S}$ and $\uv{L}$) and $\theta_{\rm e}$ [defined
-    by Eq.~\eqref{eq:q_eff_inst}] are sampled at every eccentricity maximum and
-    are plotted. The top axis shows the adiabaticity parameter $\mathcal{A}$ as
-    defined by Eq.~\eqref{eq:abar_def}. Note that for a given $m_{12}$, changing
-    the mass ratio $m_1 / m_{12}$ only changes the spin evolution and not the
-    orbital evolution.}\label{fig:bifurcation_70}
+    \times 10^7 M_{\odot}$, $a = 0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$,
+    $I_{\rm i} = 70^\circ$, $a_{\rm out} = 300\;\mathrm{AU}$, $e_{\rm out} = 0$,
+    and initial condition $\theta_{\rm sl, i} = 0$. For each mass ratio $m_1 /
+    m_{12}$, the orbit-spin system is solved over $500$ LK cycles, and both
+    $\theta_{\rm sl}$ (the angle between $\bm{S}$ and $\uv{L}$) and $\theta_{\rm
+    e}$ [defined by Eq.~\eqref{eq:q_eff_inst}] are sampled at every eccentricity
+    maximum and are plotted. The top axis shows the adiabaticity parameter
+    $\mathcal{A}$ as defined by Eq.~\eqref{eq:abar_def}. Note that for a given
+    $m_{12}$, changing the mass ratio $m_1 / m_{12}$ only changes the spin
+    evolution and not the orbital evolution.}\label{fig:bifurcation_70}
 \end{figure}
 
 While our bifurcation diagram has interesting structure, the features are all
@@ -544,7 +546,7 @@ LK-averaged quantities
     Eq.~\eqref{eq:barI}, $\overline{\bm{\Omega}}_{\rm e}$ is the LK-averaged
     $\bm{\Omega}_{\rm e}$, and $\bm{\Omega}_{\rm e1}$ is the first harmonic
     component (see Eqs.~\eqref{eq:weff_def} and~\eqref{eq:dsdt_fullft}). Note
-    that for $I_0 > 90^\circ$ (and $\bar{I} > 90^\circ$), we choose
+    that for $I_{\rm i} > 90^\circ$ (and $\bar{I} > 90^\circ$), we choose
     $\bar{I}_{\rm e} \in (90^ \circ, 180^\circ)$ so that $\overline{\Omega}_{\rm
     e} > 0$ (since $\Omega_{\rm L} < 0$). The bottom right shows our choice of
     coordinate axes with $\uv{z} \propto \overline{\Omega}_{\rm e}$.
@@ -693,11 +695,11 @@ zero. The bottom panel of Fig.~\ref{fig:4sim_90_350_supp} shows $\Delta
 e}$ is indeed mostly constant where Eq.~\eqref{eq:nonad_dqeff} predicts small
 oscillations.
 
-If we denote $\abs{\Delta \bar{\theta}_{\rm e}}^{\rm f}$ to be the net change
+If we denote $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$ to be the net change
 in $\bar{\theta}_{\rm e}$ over $t \in [t_{\rm i}, t_{\rm f}]$, we can give a
 loose bound
 \begin{equation}
-    \abs{\Delta \bar{\theta}_{\rm e}}^{\rm f} \lesssim
+    \abs{\Delta \bar{\theta}_{\rm e}}_{\rm f} \lesssim
         \abs{\frac{\dot{\bar{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}.
         \label{eq:nonad_dqeff_tot}
 \end{equation}
@@ -712,10 +714,10 @@ e}$ are dominated by a second contribution, the subject of
 the discussion in Section~\ref{s:harmonic}.
 
 For comparison, we show in Fig.~\ref{fig:4sim_90_200_zoom} a more rapid
-binary merger starting with $I_0 = 90.2^\circ$, for which $\abs{\Delta
-\theta_{\rm e}}^{\rm f} \approx 2^\circ$. If we again examine the
+binary merger starting with $I_{\rm i} = 90.2^\circ$, for which $\abs{\Delta
+\theta_{\rm e}}_{\rm f} \approx 2^\circ$. If we again examine the
 bottom-rightmost panel, we see that the net $\abs{\Delta \bar{\theta}_{\rm
-e}}^{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
+e}}_{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
 
 \begin{figure}
     \centering
@@ -754,7 +756,7 @@ e}}^{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{LK90_plots/4sim_90_200_zoom.png}
-    \caption{Same as Fig.~\ref{fig:4sim_90_350_zoom} except for $I_0 =
+    \caption{Same as Fig.~\ref{fig:4sim_90_350_zoom} except for $I_{\rm i} =
     90.2^\circ$ (and all other parameters are the same as in
     Fig.~\ref{fig:4sim_90_350}), corresponding to a faster coalescence. The
     total change in $\bar{\theta}_{\rm e}$ for this simulation is $\approx
@@ -821,12 +823,12 @@ and~\ref{fig:4sim_90_200_zoom}), and (ii) $j(e)$ evaluated at $\mathcal{A}
 $j(e_{\max})$, i.e.
 \begin{equation}
     j_{\star} \equiv j(e_{\star}) = f
-        \sqrt{\frac{5}{3}\cos^2 I_0},\label{eq:jstar_ansatz}
+        \sqrt{\frac{5}{3}\cos^2 I_{\rm i}},\label{eq:jstar_ansatz}
 \end{equation}
 where the star subscript denotes evaluation at $\mathcal{A} \simeq 1$ and $f>1$
-is a constant. Eq.~\eqref{eq:jstar_ansatz} assumes that $I_0$ far enough from
+is a constant. Eq.~\eqref{eq:jstar_ansatz} assumes that $I_{\rm i}$ far enough from
 $90^\circ$ that the GR effect is unimportant in determining $e_{\max}$. The
-value of f turns out to be relatively insensitive to $I_0$.
+value of f turns out to be relatively insensitive to $I_{\rm i}$.
 
 Using Eq.~\eqref{eq:abar_dot} and approximating $e_\star \approx 1$ in
 Eqs.~\eqref{eq:dadt_gw} and~\eqref{eq:dedt_gw} give
@@ -853,12 +855,12 @@ rewrite Eq.~\eqref{eq:idot_over_W_med} as
 We can also calculate $\abs{\dot{\bar{I}}_{\rm e}} / \overline{\Omega}_{\rm e}$ from
 numerical simulations. Taking characteristic $\bar{I} \approx 120^\circ$
 (Figs.~\ref{fig:4sim_90_350_zoom} and~\ref{fig:4sim_90_200_zoom} show that this
-holds across a range of $I_0$), we fit the last remaining free parameter $f$
+holds across a range of $I_{\rm i}$), we fit the last remaining free parameter $f$
 [Eq.~\eqref{eq:jstar_ansatz}] to the data from numerical simulations. This
 yields $f \approx 2.72$, leading to
 \begin{align}
     \abs{\frac{\dot{\bar{I}}_{\rm e}}{\overline{\Omega}_{\rm e}}}_{\max}
-        \simeq{}& 0.98^\circ \p{\frac{\cos I_0}{\cos (90.3^\circ)}}^{-37/8}
+        \simeq{}& 0.98^\circ \p{\frac{\cos I_{\rm i}}{\cos (90.3^\circ)}}^{-37/8}
             \p{\frac{\tilde{a}_{\rm out}}{2.2\;\mathrm{pc}}}^{-9/8}\nonumber\\
         & \times \p{\frac{m_3}{3 \times 10^7\;M_{\odot}}}^{3/8}
             \p{\frac{m_{12}^9 \mu^8 / (m_2 + \mu/3)^{11}}{\p{28.64M_{\odot}}^6}}
@@ -877,9 +879,9 @@ compared with numerical results.
     Eq.~\eqref{eq:prediction}, where we take $f = 2.72$ in
     Eq.~\eqref{eq:jstar_ansatz}. The coalescence time $T_{\rm m}$ is shown along
     the top axis of the plot in units of the characteristic LK timescale at the
-    start of inspiral $t_{\rm LK, 0}$. The agreement between the analytical and
-    numerical results is excellent for $T_{\rm m} \gg t_{\rm
-    LK,0}$.}\label{fig:good_quants}
+    start of inspiral $t_{\rm LK, i}$. The agreement between the analytical
+    and numerical results is excellent for $T_{\rm m} \gg t_{\rm
+    LK, i}$.}\label{fig:good_quants}
 \end{figure}
 
 In the above, we have assumed that the system evolves through $\mathcal{A}
@@ -899,8 +901,8 @@ computing the quotient $\abs{\dot{\bar{I}}_{\rm e}} / \overline{\Omega}_{\rm
 e}$.
 
 The accuracy of Eq.~\eqref{eq:prediction} in bounding $\abs{\Delta
-\bar{\theta}_{\rm e}}^{\rm f}$ is shown in Fig.~\ref{fig:deviations}, where we
-carry out simulations for a range of $I_0$, and for each $I_0$ we consider $100$
+\bar{\theta}_{\rm e}}_{\rm f}$ is shown in Fig.~\ref{fig:deviations}, where we
+carry out simulations for a range of $I_{\rm i}$, and for each $I_{\rm i}$ we consider $100$
 different, isotropically distributed initial orientations for $\bm{S}$ (thus
 sampling a wide range of initial initial $\bar{\theta}_{\rm e}$). Note that
 conservation of $\bar{\theta}_{\rm e}$ is generally much better than
@@ -910,31 +912,31 @@ Eq.~\eqref{eq:prediction} assumes (recall that Eq.~\eqref{eq:nonad_dqeff} only
 provides an estimate for the amplitude of ``local'' oscillations of
 $\bar{\theta}_{\rm e}$). Nevertheless, it is clear that
 Eq.~\eqref{eq:prediction} provides a robust upper bound of
-$\abs{\Delta\bar{\theta}_{\rm e}}^{\rm f}$, and serves as a good indicator for
+$\abs{\Delta\bar{\theta}_{\rm e}}_{\rm f}$, and serves as a good indicator for
 the breakdown of adiabatic invariance.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/deviations_one.png}
     \caption{Net change in $\bar{\theta}_{\rm e}$ over the binary inspiral as a
-    function of initial inclination $I_0$. For each $I_0$, $100$ simulations are
+    function of initial inclination $I_{\rm i}$. For each $I_{\rm i}$, $100$ simulations are
     run for $\bm{S}$ on a uniform, isotropic grid. Plotted for comparison is the
-    bound $\abs{\Delta \bar{\theta}_{\rm e}}^{\rm f} \lesssim
+    bound $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f} \lesssim
     \abs{\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm e}}_{\max}$, using the
     analytical expression given by Eq.~\eqref{eq:prediction}. It is clear that the
     expression provides a robust upper bound for the non-conservation of
     $\bar{\theta}_{\rm e}$ due to nonadiabatic effects. Note that at the right of the
-    plot, the numerical $\abs{\Delta \bar{\theta}_{\rm e}}^{\rm f}$ saturates;
+    plot, the numerical $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$ saturates;
     this is because we compute the initial $\bar{\Omega}_e$ (in order to
     evaluate the initial $\bar\theta_e$) without GW dissipation, and such a
     procedure inevitably introduces fuzziness in $\bar{\theta}_{\rm e}$.
     }\label{fig:deviations}
 \end{figure}
 
-\subsection{Origin of the $\theta_{\rm sl}^{\rm f} = 90^\circ$ Attractor
-}\label{eq:effect}
+\subsection{Origin of the $\theta_{\rm sl, f} = 90^\circ$ Attractor
+}\label{ss:effect}
 
 Using the approximate adiabatic invariant, we can now understand the origin of
-the $\theta_{\rm sl}^{\rm f} = 90^\circ$ attractor as shown in
+the $\theta_{\rm sl, f} = 90^\circ$ attractor as shown in
 Fig.~\ref{fig:qslscan}.
 
 Recall from Eq.~\eqref{eq:weff_def}
@@ -951,23 +953,23 @@ the $\uv{L}_{\rm out}$--$\uv{L}$ plane. Note that
 \begin{align}
     \overline{\Omega}_{\rm L} &\propto \frac{\cos \bar{I}}{t_{\rm LK}}
         \propto a^{3/2}\cos \bar{I},\\
-    \overline{\Omega}_{\rm SL} &\propto \frac{1}{a}.
+    \overline{\Omega}_{\rm SL} &\propto \frac{1}{a^{5/2}}.
 \end{align}
 
 Adiabatic invariance implies that $\bar{\theta}_{\rm e}$, the angle between
 $\bm{S}$ and $\overline{\bm{\Omega}}_{\rm e}$ is conserved between $t = t_{\rm
 i}$ and $t = t_{\rm f}$, i.e.
 \begin{equation}
-    \bar{\theta}_{\rm e}^{\rm f} \simeq \bar{\theta}_{\rm e}^{\rm i}.
+    \bar{\theta}_{\rm e, f} \simeq \bar{\theta}_{\rm e, i}.
         \label{eq:4_4_qeffcons}
 \end{equation}
 At $t = t_f$, $\overline{\Omega}_{\rm SL} \gg \abs{\overline{\Omega}_{\rm L}}$
 and the spin-orbit misalignment angle $\theta_{\rm sl}$ is ``frozen'', implying
 $\overline{\bm{\Omega}}_{\rm e}$ is parallel to $\bm{L}$, and so
-$\bar{\theta}_{\rm e}^{\rm f} = \theta_{\rm sl}^{\rm f}$.
+$\bar{\theta}_{\rm e, f} = \theta_{\rm sl, f}$.
 Eq.~\eqref{eq:4_4_qeffcons} then gives
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} \simeq \bar{\theta}_{\rm e}^{\rm i},
+    \theta_{\rm sl, f} \simeq \bar{\theta}_{\rm e, i},
         \label{eq:4_4_general}
 \end{equation}
 i.e.\ the final $\theta_{\rm sl}$ is determined by the initial angle between
@@ -975,81 +977,81 @@ $\bm{S}$ and $\overline{\bm{\Omega}}_{\rm e}$.
 
 Now, first consider the case where the initial spin $\bm{S}_{\rm i}$ is aligned
 with the initial $\bm{L}_{\rm i}$. This initial spin is inclined with respect to
-$\overline{\bm{\Omega}}_{\rm e}$ by $\bar{\theta}_{\rm e}^{\rm i} = \abs{I_0 -
-{\bar{I}_{\rm e}}^{\rm i}}$, where $I_0$ is the initial inclination angle
-between $\bm{L}$ and $\bm{L}_{\rm out}$ and ${\bar{I}_{\rm e}}^{\rm i}$ is the
+$\overline{\bm{\Omega}}_{\rm e}$ by $\bar{\theta}_{\rm e, i} = \abs{I_{\rm i} -
+\bar{I}_{\rm e, i}}$, where $I_{\rm i}$ is the initial inclination angle
+between $\bm{L}$ and $\bm{L}_{\rm out}$ and $\bar{I}_{\rm e, i}$ is the
 initial value of $\bar{I}_{\rm e}$. Thus, adiabatic invariance implies
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} \simeq \abs{I_0 - {\bar{I}_{\rm e}}^{\rm i}}.
+    \theta_{\rm sl, f} \simeq \abs{I_{\rm i} - \bar{I}_{\rm e, i}}.
 \end{equation}
 In the special case where the initial binary satisfies $\overline{\Omega}_{\rm
 SL} \ll \abs{\overline{\Omega}_{\rm L}}$ or $\abs{\mathcal{A}_{\rm i}} \ll 1$,
 we find that $\overline{\bm{\Omega}}_{\rm e}$ is nearly parallel to $\bm{L}_{\rm
-out}$ (for $I_0 < 90^\circ$) or antiparallel to $\bm{L}_{\rm out}$ (for $I_0 >
-90^\circ$). Thus,
+out}$ (for $I_{\rm i} < 90^\circ$) or antiparallel to $\bm{L}_{\rm out}$ (for
+$I_{\rm i} > 90^\circ$). Thus,
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} =
+    \theta_{\rm sl, f} =
     \begin{cases}
-        I_0 & I_0 < 90^\circ,\\
-        180^\circ - I_0 & I_0 > 90^\circ.
+        I_{\rm i} & I_{\rm i} < 90^\circ,\\
+        180^\circ - I_{\rm i} & I_{\rm i} > 90^\circ.
     \end{cases}
 \end{equation}
-Since LK-induced mergers necessarily require $I_0$ close to $90^\circ$, we find
-that $\theta_{\rm sl}^{\rm f}$ is ``attracted'' to $90^\circ$.
+Since LK-induced mergers necessarily require $I_{\rm i}$ close to $90^\circ$, we
+find that $\theta_{\rm sl, f}$ is ``attracted'' to $90^\circ$.
 
 Eq.~\eqref{eq:4_4_general} can be applied to more general initial spin
 orientations. For initial $\abs{\mathcal{A}_{\rm i}} \ll 1$ (as required for
-LK-induced mergers), $\overline{\Omega}_{\rm e}^{\rm i}$ is parallel to $\pm
+LK-induced mergers), $\overline{\Omega}_{\rm e, i}$ is parallel to $\pm
 \bm{L}_{\rm out}$. Suppose the initial inclination between $\bm{S}$ and
-$\bm{L}_{\rm out}$ is $\theta_{\rm s, out}^{\rm i}$, then $\bar{\theta}_{\rm
-e}^{\rm i} = \theta_{\rm s, out}^{\rm i}$ or $180^\circ - \theta_{\rm s,
-out}^{\rm i}$ (depending on whether $I_0 < 90^\circ$ or $I_0 > 90^\circ$). Thus,
+$\bm{L}_{\rm out}$ is $\theta_{\rm s-out, i}$, then $\bar{\theta}_{\rm
+e, i} = \theta_{\rm s-out, i}$ or $180^\circ - \theta_{\rm s,
+out, i}$ (depending on whether $I_{\rm i} < 90^\circ$ or $I_{\rm i} >
+90^\circ$). Thus,
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} \simeq
+    \theta_{\rm sl, f} \simeq
     \begin{cases}
-        \theta_{\rm s, out}^{\rm i} & I_0 < 90^\circ,\\
-        180^\circ - \theta_{\rm s, out}^{\rm i} & I_0 > 90^\circ,
+        \theta_{\rm s-out, i} & I_{\rm i} < 90^\circ,\\
+        180^\circ - \theta_{\rm s-out, i} & I_{\rm i} > 90^\circ,
     \end{cases}
 \end{equation}
 \citep[see also][]{yu2020spin}.
 
-So far, we have analyzed the $\theta_{\rm sl}^{\rm f}$ distribution for smooth
+So far, we have analyzed the $\theta_{\rm sl, f}$ distribution for smooth
 mergers. Next, we can consider rapid mergers, for which $\bar{\theta}_{\rm e}$
 conservation is imperfect. We expect
 \begin{equation}
-    \abs{\theta_{\rm sl}^{\rm f} - \bar{\theta}_{\rm e}^{\rm i}}
-        \lesssim \abs{\Delta \bar{\theta}_{\rm e}}^{\rm
-        f}.\label{eq:qslf_plot_black}
+    \abs{\theta_{\rm sl, f} - \bar{\theta}_{\rm e, i}}
+        \lesssim \abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}.\label{eq:qslf_plot_black}
 \end{equation}
-where $\abs{\Delta \bar{\theta}_{\rm e}}^{\rm f}$ is given by
+where $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$ is given by
 Eq.~\eqref{eq:prediction}. This is shown as the black dotted line in
 Fig.~\ref{fig:qslscan}, and we see it predicts the maximum deviation of
-$\theta_{\rm sl}^{\rm f}$ from $\sim 90^\circ$ except very near $I_0 =
+$\theta_{\rm sl, f}$ from $\sim 90^\circ$ except very near $I_{\rm i} =
 90^\circ$. This is expected, as Eq.~\eqref{eq:prediction} is not very accurate
-very near $I_0 = 90^\circ$, where it diverges (see Fig.~\ref{fig:deviations}).
+very near $I_{\rm i} = 90^\circ$, where it diverges (see Fig.~\ref{fig:deviations}).
 
-When $I_0 = 90^\circ$ exactly, Fig.~\ref{fig:qslscan} shows that $\theta_{\rm
-sl}^{\rm f} = 0^\circ$. This can be understood: $I_0 = 90^\circ$ gives
+When $I_{\rm i} = 90^\circ$ exactly, Fig.~\ref{fig:qslscan} shows that $\theta_{\rm
+sl, f} = 0^\circ$. This can be understood: $I_{\rm i} = 90^\circ$ gives
 $\rdil{I}{t} = 0$ by Eq.~\eqref{eq:dIdt}, so $I = 90^\circ$ for all time. This
 then implies $\rdil{\ascnode}{t} = 0$ [Eq.~\eqref{eq:dWdt}], implying that
 $\bm{L}$ is constant. Thus, $\bm{L}$ is fixed as $\bm{S}$ precesses around it,
 and $\theta_{\rm sl}$ can never change. In Fig.~\ref{fig:qslscan}, we take
-$\theta_{\rm sl}^{\rm i} = 0$, so $\theta_{\rm sl}^{\rm f} = 0$.
+$\theta_{\rm sl, i} = 0$, so $\theta_{\rm sl, f} = 0$.
 
-Finally, Fig.~\ref{fig:qslscan} shows that the actual $\theta_{\rm sl}^{\rm f}$
+Finally, Fig.~\ref{fig:qslscan} shows that the actual $\theta_{\rm sl, f}$
 are oscillatory within the envelope bounded by Eq.~\eqref{eq:qslf_plot_black}
 above. This can also be understood: Eq.~\eqref{eq:nonad_dqeff_tot} only bounds
 the maximum of the absolute value of the change in $\bar{\theta}_{\rm e}$, while
 the actual change depends on the initial and final complex phases of $S_{\perp}$
 in Eq.~\eqref{eq:formal_sol_0}, denoted $\Phi(t_{\rm i})$ and $\Phi(t_{\rm f})$.
-When $\theta_{\rm sl}^{\rm i} = 0$, we have $\Phi(t_{\rm i}) = 0$, as $\bm{S}$
-starts in the $\uv{x}$-$\uv{z}$ plane. Then, as $I_0$ is smoothly varied, the
+When $\theta_{\rm sl, i} = 0$, we have $\Phi(t_{\rm i}) = 0$, as $\bm{S}$
+starts in the $\uv{x}$-$\uv{z}$ plane. Then, as $I_{\rm i}$ is smoothly varied, the
 final phase $\Phi\p{t_{\rm f}}$ must also vary smoothly [since
 $\overline{\Omega}_{\rm e}$ in Eq.~\eqref{eq:Phi_t} is a continuous function,
 $\Phi\p{t}$ must be as well], so the total phase difference between the initial
 and final values of $S_{\perp}$ varies smoothly. This means the total change in
 $\bar{\theta}_{\rm e}$ will fluctuate smoothly between $\pm \abs{\Delta
-\bar{\theta}_{\rm e}}^{\rm f}$ as $I_0$ is changed, giving rise to the
+\bar{\theta}_{\rm e}}_{\rm f}$ as $I_{\rm i}$ is changed, giving rise to the
 sinusoidal shape seen in Fig.~\ref{fig:qslscan}.
 
 % I can't plot this since my plot (905_htol) uses with-GW to calculate \Omega_e.
@@ -1063,7 +1065,7 @@ sinusoidal shape seen in Fig.~\ref{fig:qslscan}.
 \section{Analysis: Effect of Resonances}\label{s:harmonic}
 
 In the previous section, we neglected the $N \geq 1$ Fourier harmonics in
-Eq.~\eqref{eq:dsdt_fullft}, and showed that the final $\theta_{\rm sl}^{\rm f}$
+Eq.~\eqref{eq:dsdt_fullft}, and showed that the final $\theta_{\rm sl, f}$
 behavior could be completely explained. In this section, we study one effect of
 the Fourier harmonics that occurs when two frequencies become commensurate. We
 show this effect can be neglected for the fiducial parameter regime. A regime
@@ -1135,8 +1137,8 @@ Eq.~\eqref{eq:harmonic_dqeff} describes the oscillations in $\bar{\theta}_{\rm
 e}$ very well. The agreement is poorer in the bottom-rightmost panel of
 Fig.~\ref{fig:4sim_90_200_zoom}, as the nonadiabatic effect is much stronger.
 However, note that the theory presented in the previous section captures the
-final deviations $\abs{\Delta \bar{\theta}_{\rm e}}^{\rm f}$ very well (see
-Fig.~\ref{fig:deviations} for $I_0 = 90.35^\circ$). This suggests that
+final deviations $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$ very well (see
+Fig.~\ref{fig:deviations} for $I_{\rm i} = 90.35^\circ$). This suggests that
 oscillations in $\bar{\theta}_{\rm e}$ due to harmonic perturbations of up to a
 few degrees do not affect final nonconservation by more than $\sim 0.01^\circ$.
 
@@ -1158,46 +1160,46 @@ via GW radiation, given by: $m_1 = m_2 = m_3 = 30M_{\odot}$, $a_{\rm in} =
 0$. Note that $m_3$ here is not an SMBH\@. However, our results can still be
 applied judiciously to this parameter regime and yield interesting insights.
 
-First, we recall the $\theta_{\rm sl}^{\rm f}$ distribution obtained via
+First, we recall the $\theta_{\rm sl, f}$ distribution obtained via
 numerical simulation, shown in Fig.~\ref{fig:bin_comp}. LL17 derives an
 adiabatic invariant assuming the inner binary does not undergo eccentricity
 oscillations. Our result, based on $\bar{\theta}_{\rm e}$ conservation, is a
 generalization of their result, giving the same result when the inner orbit
-remains circular. Very near $I_0 \approx 90^\circ$, the data are offset somewhat
+remains circular. Very near $I_{\rm i} \approx 90^\circ$, the data are offset somewhat
 from our result, because we have assumed the tertiary's angular momentum is
 fixed, but accounting for the offset, our theory captures the scaling of
-$\theta_{\rm sl}^{\rm f}$, as seen in Fig.~\ref{fig:bin_comp_zoom}.
+$\theta_{\rm sl, f}$, as seen in Fig.~\ref{fig:bin_comp_zoom}.
 
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/6bin_comp.png}
-    \caption{Plot of $\theta_{\rm sl}^{\rm f}$ for the LK-enhanced parameter
+    \caption{Plot of $\theta_{\rm sl, f}$ for the LK-enhanced parameter
     regime, i.e.\ $m_1 = m_2 = m_3 = 30M_{\odot}$, $a_{\rm in} =
     0.1\;\mathrm{AU}$, $\tilde{a}_{\rm out} = 3\;\mathrm{AU}$, and $e_{\rm out}
     = 0$. Conservation of $\bar{\theta}_{\rm e}$ gives the green line. Agreement
-    near $I_0 = 90^\circ$ is good when accounting for the effects of a finite
-    $L_{\rm out}$ (see Fig.~\ref{fig:bin_comp_zoom}). For $I_0$ in the two
+    near $I_{\rm i} = 90^\circ$ is good when accounting for the effects of a finite
+    $L_{\rm out}$ (see Fig.~\ref{fig:bin_comp_zoom}). For $I_{\rm i}$ in the two
     intervals $[40^\circ, 80^\circ]$ and $[100^\circ, 140^\circ]$, a further
-    effect causes $\theta_{\rm sl}^{\rm f}$ to fluctuate
+    effect causes $\theta_{\rm sl, f}$ to fluctuate
     unpredictably.}\label{fig:bin_comp}
 \end{figure}
 
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/6bin_comp_zoom.png}
-    \caption{Zoomed in version of Fig.~\ref{fig:bin_comp} near $I_0 \approx
-    90^\circ$ while adding an $I_0$ offset to account for differences between
+    \caption{Zoomed in version of Fig.~\ref{fig:bin_comp} near $I_{\rm i} \approx
+    90^\circ$ while adding an $I_{\rm i}$ offset to account for differences between
     the data and theory due to finite $L_{\rm out}$ effects. The green shaded
     area shows the expected range of deviations due to resonant perturbations
     following Eq.~\eqref{eq:harmonic_dqeff} (evaluated for the initial system
     parameters). The data nearer $90^\circ$ have less spread than predicted, but
-    the transition to a larger $\theta_{\rm sl}^{\rm f}$ spread roughly follows
+    the transition to a larger $\theta_{\rm sl, f}$ spread roughly follows
     the prediction of the green line.}\label{fig:bin_comp_zoom}
 \end{figure}
 
-However, as can be seen in Fig.~\ref{fig:bin_comp}, intermediate
-inclinations $I_0 \in [50, 80]$ and $I_0 \in [100, 130]$ exhibit very volatile
-behavior in $\theta_{\rm sl}^{\rm f}$. This is unlike the plots generated in the
+However, as can be seen in Fig.~\ref{fig:bin_comp}, intermediate inclinations
+$I_{\rm i} \in [50, 80]$ and $I_{\rm i} \in [100, 130]$ exhibit very volatile
+behavior in $\theta_{\rm sl, f}$. This is unlike the plots generated in the
 fiducial parameter regime (Fig.~\ref{fig:qslscan}), as this inclination regime
 corresponds to neither the fastest nor slowest merging systems. We attribute the
 origin of this volatility to a stronger resonant interaction. By examining
@@ -1205,11 +1207,10 @@ Fig.~\ref{fig:dWs_inner}, it is evident that, for the same $e_{\min}$, systems
 with $I_{\min}$ further from $90^\circ$ are closer to the
 $\overline{\Omega}_{\rm e} = \Omega_{\rm LK}$ resonance. Outside of the LK
 window, $\overline{\Omega}_{\rm e}$ also goes swiftly to zero, as seen in
-Fig.~\ref{fig:dWs_inner}, so this explanation is consistent with the
-ranges of inclinations that exhibit volatile $\theta_{\rm sl}^{\rm f}$ behavior.
-We forgo further investigation of this mechanism because it is not expected to
-play an important role in any LK-induced BH binary mergers for reasons discussed
-below.
+Fig.~\ref{fig:dWs_inner}, so this explanation is consistent with the ranges of
+inclinations that exhibit volatile $\theta_{\rm sl, f}$ behavior. We forgo
+further investigation of this mechanism because it is not expected to play an
+important role in any LK-induced BH binary mergers for reasons discussed below.
 
 \begin{figure}
     \centering
@@ -1246,61 +1247,133 @@ mergers, then $e_{\min}$ will be very close to $1$ when $\mathcal{A}$ grows to
 be $\simeq 1$, and the contribution predicted by Eq.~\eqref{eq:harmonic_dqeff}
 must be small.
 
-\section{Stellar Mass BH Triples}
+\section{Stellar Mass Black Hole Triples}
 
-In this section, we extend our predictions to systems where all three masses are
-comparable and $\eta \equiv L / L_{\rm out}$ is not negligible. We still
-consider the simplified limit where $e_{\rm out} \ll 1$ and the octupole-order
-effects are negligible. The equations of motion are given in \citet{bin_diego}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{LK90_plots/7_3vec_eta_cropped.png}
+    \caption{Definition of angles in the case where $L / L_{\rm out}$ is
+    nonzero, with the same conventions as those in Fig.~\ref{fig:3vec}. Here,
+    $\bm{L}_{\rm out}$ is not fixed, but $\bm{L}_{\rm tot} \equiv \bm{L} +
+    \bm{L}_{\rm out}$ is. Note that the coordinate system is now oriented with
+    $\uv{z} \propto \bm{L}_{\rm tot}$.}\label{fig:3vec_eta}
+\end{figure}
 
-When $\eta \neq 0$, $\bm{L}_{\rm out}$ is no longer fixed, but the total angular
-momentum $\bm{L}_{\rm tot} \equiv \bm{L} + \bm{L}_{\rm out}$ is. We choose
-the coordinate system with $\uv{z} = \uv{L}_{\rm tot}$ and go to the corotating
-frame with $\bm{L}$ about $\bm{L}_{\rm tot}$, in which
+In this section, we extend our predictions for the final spin-orbit misalignment
+angle $\theta_{\rm sl, f}$ to systems where all three masses are comparable
+and the ratio of the angular momenta of the two binaries
+\begin{equation}
+    \eta = \at{\frac{L}{L_{\rm out}}}_{e = e_{\rm out} = 0} =
+        \frac{\mu}{\mu_{\rm out}}
+            \s{\frac{m_{12}a}{m_{123}a_{\rm out}}}^{1/2},
+\end{equation}
+where $m_{123} = m_{12 + m_3}$ and $\mu_{\rm out} = m_{12}m_3 / m_{123}$, is not
+negligible. When $\eta \neq 0$, $\bm{L}_{\rm out}$ is no longer fixed, but the
+total angular momentum $\bm{L}_{\rm tot} \equiv \bm{L} + \bm{L}_{\rm out}$ is
+fixed. We choose the coordinate system with $\uv{Z} = \uv{L}_{\rm tot}$, shown
+in Fig.~\ref{fig:3vec_eta}.
+
+To analyze this system, we still assume $e_{\rm out} \ll 1$ such that the
+octupole-order effects are negligible. To calculate the evolution of $\bm{L}$,
+it is only necessary to evolve a single orbital element for the outer binary,
+the inclination $I_{\rm tot, out}$ relative to the total angular momentum, in
+addition to the orbital elements of the inner binary ($a$, $e$, $\ascnode$,
+$I_{\rm tot}$, and $\omega$ as before), as the ascending node of the outer
+binary satisfies $\ascnode_{\rm out} = \ascnode + 180^\circ$. The equations of
+motion are given by \citep{bin_diego}
+\begin{align}
+    \rd{a}{t} ={}& \p{\rd{a}{t}}_{\rm GW},\\
+    \rd{e}{t} ={}& \frac{15}{8t_{\rm LK}} e\,j(e)\sin 2\omega
+        \sin^2 I + \p{\rd{e}{t}}_{\rm GW},\\
+    \rd{\ascnode}{t} ={}& \frac{L_{\rm tot}}{L_{\rm out}}\frac{3}{4t_{\rm LK}}
+        \frac{\cos I\p{5e^2 \cos^2\omega - 4e^2 - 1}}{j(e)}
+            \label{eq:dWdt_eta},\\
+    \rd{I_{\rm tot}}{t} ={}& -\frac{15}{16t_{\rm LK}}\frac{e^2\sin 2\omega \sin
+        2I}{j(e)},\label{eq:dIdt}\\
+    \rd{I_{\rm tot,out}}{t} ={}& -\eta\frac{15}{8t_{\rm LK}}
+        \p{e^2\sin 2\omega \sin I},\\
+    \rd{\omega}{t} ={}& \frac{3}{t_{\rm LK}} \left\{
+        \frac{4 \cos^2 I + (5 \cos(2\omega) - 1)(1 - e^2 - \cos^2 I)} {8j(e)}
+        \right.\nonumber\\
+        &+ \left.\frac{\eta \cos I}{8} \s{2 + e^2 (3 - 5\cos(2\omega))}\right\}
+        + \Omega_{\rm GR},
+\end{align}
+where $I = I_{\rm tot} + I_{\rm tot, out}$ is the relative inclination between
+the two angular momenta. The spin evolution of one of the inner BHs is then
+described in the corotating with $\bm{L}$ about $\bm{L}_{\rm tot}$ by the
+equation of motion
 \begin{equation}
     \p{\rd{\bm{S}}{t}}_{\rm rot} = \bm{\Omega}_{\rm e} \times \bm{S},
 \end{equation}
 where
 \begin{align}
-    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm SL}\hat{L}
-        + \Omega_{\rm L} \frac{\bm{L}_{\rm tot}}{L_{\rm out}},\nonumber\\
-        &= \overline{\Omega_{\rm SL} \sin I_{\rm tot}}\uv{x}
-            + \p{\overline{\Omega}_{\rm L}\frac{L_{\rm tot}}{L_{\rm out}}
-                + \overline{\Omega_{\rm SL}\cos I_{\rm tot}}}\uv{z},
+    \bm{\Omega}_{\rm e} &\equiv \Omega_{\rm SL}\uv{L}
+        + \Omega_{\rm L} \uv{L}_{\rm tot},\nonumber\\
+        &= \overline{\Omega_{\rm SL} \sin I_{\rm tot}}\uv{X}
+            + \p{\overline{\Omega}_{\rm L}
+            + \overline{\Omega_{\rm SL}\cos I_{\rm tot}}}\uv{Z},
+            \label{eq:We_component_finiteeta}
 \end{align}
-where $-\Omega_{\rm L} \bm{L}_{\rm tot} / L_{\rm out}$ is the rate of precession
-of $\bm{L}$ about $\bm{L}_{\rm tot}$. The results of Section~\ref{s:fast_merger}
-suggest then that the angle $\bar{\theta}_{\rm e}$ is an adiabatic invariant,
-where $\bar{\theta}_{\rm e}$ is given by
+where $\Omega_{\rm L} = -\rdil{\ascnode}{t}$ [Eq.~\eqref{eq:dWdt_eta}] is the
+rate of precession of $\bm{L}$ about $\bm{L}_{\rm tot}$, and bars denote
+averaging over an LK cycle. It is then natural to define the averaged quantities
+\begin{align}
+    \overline{\Omega_{\rm SL} \sin I_{\rm out}} &\equiv
+            \overline{\Omega}_{\rm SL} \sin \bar{I}_{\rm out},&
+    \overline{\Omega_{\rm SL} \cos I_{\rm out}} &\equiv
+            \overline{\Omega}_{\rm SL} \cos \bar{I}_{\rm out}
+\end{align}
+
+The results of Section~\ref{s:fast_merger} suggest that the angle
+$\bar{\theta}_{\rm e}$ is an adiabatic invariant, where $\bar{\theta}_{\rm e}$
+is given by
 \begin{equation}
     \cos \bar{\theta}_{\rm e} \equiv
         \frac{\overline{\bm{\Omega}}_{\rm e}}{\overline{\Omega}_{\rm e}}
-            \cdot \overline{\bm{S}},
+            \cdot \overline{\bm{S}}.
 \end{equation}
-where bars denote averaging over a LK cycle.
-
-Similarly to the $\eta \ll 1$ case, $\bar{\theta}_{\rm e}^{\rm f} = \theta_{\rm
-sl}^{\rm f}$ once the inner binary is sufficiently compact, as $\mathcal{A} \gg
-1$ for sufficiently small $a$. This implies that
+The orientation of $\overline{\bm{\Omega}}_{\rm e}$ is described by the
+inclination angle $\bar{I}_{\rm e-tot}$ (Fig.~\ref{fig:3vec_eta}), which can be
+expressed using Eq.~\eqref{eq:We_component_finiteeta}
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} = \bar{\theta}_{\rm e}^{\rm i}.
+    \tan \bar{I}_{\rm e-tot} =
+        \frac{\mathcal{A}\sin \bar{I}_{\rm tot}}{1 + \mathcal{A}\cos
+        \bar{I}_{\rm tot}},
+\end{equation}
+where $\mathcal{A} \equiv \overline{\Omega}_{\rm SL} / \overline{\Omega}_{\rm
+L}$ is the adiabaticity parameter.
+
+At $t = t_f$, the inner binary has become sufficiently compact that $\theta_{\rm
+sl}$ becomes frozen (see bottom right panel of Fig.~\ref{fig:4sim_90_350}), and
+the system satisfies $\mathcal{A} \gg 1$, as $\overline{\Omega}_{\rm SL} \propto
+a^{-5/2}$ while $\overline{\Omega}_{\rm L} \propto a^{3/2}$. When this is
+satisfied, $\overline{\bm{\Omega}}_{\rm e} \parallel \bm{L}$, and so
+$\bar{\theta}_{\rm e, f} = \theta_{\rm sl, f}$. Then, since adiabatic invariance
+implies $\bar{\theta}_{\rm e, f} = \bar{\theta}_{\rm e, i}$,
+\begin{equation}
+    \theta_{\rm sl, f} = \bar{\theta}_{\rm e, i}.
 \end{equation}
 
-First, we consider the case where $\bm{S}^{\rm i} \parallel \bm{L}^{\rm i}$.
-This implies $\bar{\theta}_{\rm e}^{\rm i} = \abs{I_{\rm tot}^{\rm i} -
-\bar{I}_{\rm e}^{\rm i}}$ (see Fig.~TODO), and
+First, we consider the case where $\bm{S}_{\rm i} = \uv{\overline{L}}_{\rm i}$.
+Then $\bar{\theta}_{\rm e, i} = \abs{I_{\rm tot, i} - \bar{I}_{\rm e-tot, i}}$
+(see Fig.~\ref{fig:3vec_eta}), and so
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} = \abs{
-        I_{\rm tot}^{\rm i} - \bar{I}_{\rm e}^{\rm i}}.
-\end{equation}
-Suppose additionally that initially $\abs{\overline{\Omega}_{\rm L}} \gg
-\abs{\overline{\Omega}_{\rm SL}}$, then $\overline{\Omega}_{\rm e}^{\rm i}$ is
-either parallel or anti-parallel to $\bm{L}_{\rm tot}$ depending on whether
+    \theta_{\rm sl, f} = \abs{I_{\rm tot, i} - \bar{I}_{\rm e, i}}.
+        \label{eq:qslf_eta_pred}
+\end{equation} Suppose additionally that $\abs{\overline{\Omega}_{\rm L, i}} \gg
+\overline{\Omega}_{\rm SL, i}$, then $\overline{\Omega}_{\rm e, i}$ is either
+parallel or anti-parallel to $\bm{L}_{\rm tot}$ depending on whether
 $\overline{\Omega}_{\rm L}$ is positive or negative. The sign of
-$\overline{\Omega}_{\rm L}$ is positive if $I_0 < I_{\rm 0, \lim}$ and negative
-if $I_0 > I_{\rm 0, \lim}$, where \citep{bin2}
+$\overline{\Omega}_{\rm L}$ is positive if $I_{\rm i} < I_{\lim}$ and negative
+if $I_{\rm i} > I_{\lim}$, where $I_{\lim}$ is the starting mutual inclination
+for which the maximum eccentricity is largest. Note that even though
+$\Omega_{\rm L}$ changes signs at $I = 90^\circ$ [see Eq.~\eqref{eq:dWdt_eta}],
+$\overline{\Omega}_{\rm L}$ changes sign at $I = I_{\lim}$. This is because for
+$I < I_{\lim}$, the eccentricity maximum occurs when $I < 90^\circ$, and
+$\overline{\Omega}_{\rm L}$ is dominated by the contribution around the
+eccentricity maximum. $I_{\rm \lim, i}$ is given by \citep{bin2}
 \begin{equation}
-    \cos I_{\rm 0, \lim} = \frac{\eta}{2}\p{\frac{4}{5}j_{\lim}^2 - 1},
+    \cos I_{\lim} = \frac{\eta}{2}\p{\frac{4}{5}j_{\lim}^2 - 1},
 \end{equation}
 where $j_{\lim}$ satisfies
 \begin{equation}
@@ -1308,38 +1381,82 @@ where $j_{\lim}$ satisfies
         \p{\frac{4}{5}j_{\lim}^2 - 1}} + \epsilon_{\rm GR}\p{1 - j_{\lim}^{-1}}
         = 0.
 \end{equation}
-This allows us to make prediction
+Finally, we find that
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} =
+    \theta_{\rm sl, f} =
     \begin{cases}
-        I_{\rm tot}^{\rm i} & I_0 < I_{\rm 0, \lim},\\
-        180^\circ - I_{\rm tot}^{\rm i} & I_0 > I_{\rm 0, \lim}.
+        I_{\rm tot, i} & I_{\rm i} < I_{\lim},\\
+        180^\circ - I_{\rm tot, i} & I_{\rm i} > I_{\lim}.
     \end{cases}
 \end{equation}
-Again, we can compare this to the results of numerical simulations in
-Fig.~\ref{fig:finite_qslfscan} in the LK-induced regime and in
+
+Fig.~\ref{fig:finite_qslfscan} shows that Eq.~\eqref{eq:qslf_eta_pred}
+accurately predicts $\theta_{\rm sl, f}$ in the finite-$\eta$, LK-induced regime
+when conservation of $\bar{\theta}_{\rm e}$ is good. Furthermore, deviations
+from exact $\bar{\theta}_{\rm e}$ conservation are well described by
+Eq.~\eqref{eq:qslf_plot_black}, the prediction of the theory in
+Section~\ref{s:fast_merger}. Unlike the $\eta = 0$ case
+(Fig.~\ref{fig:qslscan}), $\theta_{\rm sl, f}$ is not symmetric about
+$I_{\lim}$. This is because $\abs{\Omega}_{\rm L}$ is not exactly equal on
+either side of $I_{\lim}$. Additionally, unlike in the $\eta = 0$ case, the
+minimum $\theta_{\rm sl,f}$ is not exactly zero. We showed in
+Section~\ref{ss:effect} that when $\eta = 0$, $\bm{L}$ is fixed when $I_{\rm i}
+= 90^\circ$, as $\rdil{\ascnode}{t} = \rdil{I}{t} = 0$. For nonzero $\eta$,
+$\rdil{\ascnode}{t}$ and $\rdil{I_{\rm tot}}{t}$ are not zero at $I_{\rm i} =
+I_{\lim}$.
+
+Eq.~\eqref{eq:qslf_eta_pred} also holds well over a
+large range of $I_{\rm i}$ in the LK-enhanced menger regime, as shown in
 Fig.~\ref{fig:finite_bin_comp}.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/8finite_qslfs.png}
     \caption{Same as Fig.~\ref{fig:qslscan} but for $m_3 = 30M_{\odot}$ and
-    $\tilde{a}_3 = 4500\;\mathrm{AU}$.}\label{fig:finite_qslfscan}
+    $\tilde{a}_3 = 4500\;\mathrm{AU}$. The vertical black line denotes $I_{\rm
+    i} = I_{\lim}$, the inclination for which the maximum eccentricity is
+    largest, and the two horizontal lines denote the predictions of
+    Eq.~\eqref{eq:qslf_eta_pred}. The dotted black lines bound the deviation due
+    to non-adiabatic evolution, given by Eq.~\eqref{eq:qslf_plot_black}.
+    }\label{fig:finite_qslfscan}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/8bin_comp.png}
-    \caption{Same as Fig.~\ref{fig:bin_comp} but for $m_3 = 30M_{\odot}$ and
-    $\tilde{a}_3 = 3\;\mathrm{AU}$.}\label{fig:finite_bin_comp}
+    \caption{Various dynamical quantities as a function of $I_{\rm i}$ for the
+    LK-enhanced parameter regime, i.e.\ $m_1 = m_2 = m_3 = 30M_{\odot}$, $a =
+    0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $\tilde{a}_{\rm out} =
+    3\;\mathrm{AU}$, and $e_{\rm out} = 0$. In the first panel, we show the
+    magnitude of the adiabaticity parameter $\abs{\mathcal{A}}$. In the second
+    panel, we show the ratio of the magnitude of the averaged precession vector
+    to the LK frequency; we expect resonant effects (see Section~TODO) when
+    $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$. The third panel shows
+    the magnitude of the angle between the eigenvector of the monodromy matrix
+    (see Section~\ref{ss:monodromy}) and the averaged precession vector, as well
+    as the effect of the first two resonant harmonics
+    [Eq.~\eqref{eq:harmonic_dqeff}]. Finally, in the final panel we show
+    $\theta_{\rm sl, f}$ as a function of $I_{\rm i}$ from simulations (blue
+    dots; LL17) and from conservation of $\bar{\theta}_{\rm e}$ (red line). The
+    shaded red region is the predicted oscillation in $\bar{\theta}_{\rm e}$ due
+    to the numerically calculated angle between $\bm{R}$ and
+    $\overline{\bm{\Omega}}_{\rm e}$.}\label{fig:finite_bin_comp}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/8bin_comp_en2.png}
+    \caption{Same as Fig.~\ref{fig:finite_bin_comp} but for $e_{\rm i} =
+    10^{-2}$. The location of the resonances moves away from $I_{\rm i} =
+    90^\circ$ as the minimum eccentricity
+    increases.}\label{fig:finite_bin_comp2}
 \end{figure}
 
 More generally, so long as $\mathcal{A} \ll 1$ initially, we can specify the
-initial spin orientation by $\theta_{\rm s, tot}^{\rm i}$, the initial angle
+initial spin orientation by $\theta_{\rm s-tot, i}$, the initial angle
 between $\bm{S}$ and $\bm{L}_{\rm tot}$, giving
 \begin{equation}
-    \theta_{\rm sl}^{\rm f} =
+    \theta_{\rm sl, f} =
     \begin{cases}
-        \theta_{\rm s, tot}^{\rm i} & I < I_{\rm 0, \lim},\\
-        180^\circ - \theta_{\rm s, tot}^{\rm i} & I > I_{\rm 0, \lim}.
+        \theta_{\rm s-tot, i} & I < I_{\lim},\\
+        180^\circ - \theta_{\rm s-tot, i} & I > I_{\lim}.
     \end{cases}
 \end{equation}
 
@@ -1368,7 +1485,7 @@ equation yields the following conclusions:
         can arise. We derive an analytic estimate of this oscillation amplitude.
         This estimate both demonstrates that the resonance is unimportant for
         ``LK-induced'' mergers and tentatively explains the scatter in
-        $\theta_{\rm sl}^{\rm f}$ seen by LL17.
+        $\theta_{\rm sl, f}$ seen by LL17.
 \end{itemize}
 
 \bibliography{Su_LK90}
@@ -1376,9 +1493,17 @@ equation yields the following conclusions:
 
 \appendix
 
-\section{Justification of Using $\overline{\bm{\Omega}}_{\rm e}$}
+\section{Alternative \S5 (rough)}
 
-We seek to compute the monodromy matrix $\tilde{\bm{M}}$ in closed form.
+In the previous section, we assumed that the evolution of $\bm{S}$ is well
+described as precession about $\overline{\bm{\Omega}}_{\rm e}$, the averaged
+effective precession vector. In this section, we prove that this prescription is
+valid for most relevant regions of parameter space.
+
+For simplicity, we neglect the effects of GW radiation. In this case, the spin
+dynamics are exactly periodic, and we showed in Section~\ref{ss:monodromy} that
+the spin vector evolution can be described by an iterative map, the monodromy
+matrix $\tilde{\bm{M}}$. We seek to express $\tilde{\bm{M}}$ in closed form.
 Consider the EOM
 \begin{equation}
     \rd{\bm{S}}{t} = \bm{\Omega}_{\rm e}\times \bm{S}.
@@ -1439,25 +1564,88 @@ satisfied, since the range of nutation of $\overline{\bm{\Omega}}_{\rm e}$ is
 limited, so $\tilde{\bm{B}}$ is generally small. However, note that when
 $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$,
 $\exp\p{\ev{\tilde{\bm{A}}}T}$ becomes very near the identity (it induces a
-rotation about $\uv{\overline{\bm{\Omega}}}_{\rm e}$ by angle $2\pi N$).
+rotation about $\uv{\overline{\bm{\Omega}}}_{\rm e}$ by angle $2\pi N$). In
+summary, this proves that the prescription introduced in
+Eq.~\eqref{eq:dsdt_0only} is valid except when both $\overline{\bm{\Omega}}_{\rm
+e}$ is nutating significantly (requiring $\mathcal{A} \simeq 1$) and when
+$\overline{\Omega}_{\rm e} \simeq N\Omega_{\rm LK}$.
 
-This analysis shows a few points that complement the results in the main text:
-\begin{itemize}
-    \item It gives a different interpretation to the resonant condition
-        $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$.
+We can now understand these requirements in terms of the physical parameters of
+the system. $\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$ can be numerically
+calculated for the fiducial parameter regime, and its behavior is shown in
+Fig.~\ref{fig:dWs}. It can be seen that very near $I = 90^\circ$,
+$\overline{\Omega}_{\rm e} / \Omega_{\rm LK} \lesssim 0.5$ is satisfied for all
+eccentricities, and for $e_{\min} \gtrsim 0.3$, $\overline{\Omega}_{\rm e} /
+\Omega_{\rm LK} \lesssim 0.5$ as well. As such, for the fiducial simulation (see
+Fig.~\ref{fig:4sim_90_350}), we always expect $\overline{\Omega}_{\rm e} /
+\Omega_{\rm LK} \lesssim 0.5$, which Fig.~\ref{fig:4sim_90_350_supp} shows to be
+the case. In fact, since $e_{\min}$ and $\mathcal{A}$ change over similar
+timescales ($\sim t_{\rm GW}$), the only way that Eq.~\eqref{eq:dsdt_0only}
+becomes invalid is when $\mathcal{A}_{\rm i} \simeq 1$. This is not the case for
+LK-induced mergers, as GR effects are too weak in these systems to force the
+inner binary to merge without LK oscillations.
 
-    \item The commutator vanishes for the same conditions as are required in the
-        main text: the Fourier components must be modestly misaligned from the
-        averaged component and have substantial magnitudes.
+\subsection{Quantitative Analysis}
 
-    \item It gives an explicit, though approximate, solution for the monodromy
-        matrix.
+Explicitly evaluating the commutator in the definition of $\tilde{\bm{M}}$ is
+difficult to do in general. In this section, we show that the behavior of the
+axis of rotation of $\tilde{\bm{M}}$ can be understood.
 
-    \item It proves that the averaged component of $\bm{\Omega}_{\rm e}$ can
-        indeed be analyzed separately from the higher harmonics, as otherwise
-        it's conceivable that higher harmonics can generate large
-        $\bar{\theta}_{\rm e}$ variations on much longer timescales than $T_{\rm
-        LK}$.
-\end{itemize}
+Remainder of the old Section 5, resonances
+
+In conclusion, we find that the effect of these resonances is to tilt the
+effective rotation axis away from $\overline{\bm{\Omega}}_{\rm e}$
+
+\section{Alternative \S6}
+
+For LK-enhanced mergers (TODO elaborate), the inner binary is significantly more
+compact, and $\mathcal{A}_{\rm i} \simeq 1$ is satisfied for much of parameter
+space (see Fig.~\ref{fig:finite_bin_comp}). For such systems, significant
+deviation from the predictions of Section~\ref{s:fast_merger} are expected. In
+the bottom panel of Fig.~\ref{fig:finite_bin_comp}, we show the results of
+simulations in the blue dots, and the prediction $\theta_{\rm e, i} =
+\theta_{\rm sl, f}$ in the solid red line: it is clear that for broad ranges of
+$I_{\rm i}$ the prediction is very poor. In this section, we show that the
+resonances described in the previous section are responsible for generating
+these deviations from $\bar{\theta}_{\rm e}$ conservation.
+
+In the first panel of Fig.~\ref{fig:finite_bin_comp}, we show the adiabaticity
+parameter $\mathcal{A}$. It is clear that when $\mathcal{A} \gg 1$, the
+conservation of $\bar{\theta}_{\rm e}$ is very accurate (near $I_{\rm i} =
+90^\circ$). Conservation is also very good for $I_{\rm i} \lesssim 50^\circ$ and
+$I_{\rm i} \gtrsim 130^\circ$ since there is no eccentricity excitation and thus
+all $N \geq 1$ Fourier components of $\bm{\Omega}_{\rm e}$ are zero.
+
+In the second panel of Fig.~\ref{fig:finite_bin_comp}, we show
+$\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$. According to the results of the
+previous section, we expect large deviations from $\bar{\theta}_{\rm e, i}$
+conservation when $\overline{\Omega}_{\rm e} = N\Omega_{\rm LK}$. This can be
+observed to be the case upon comparison with the bottom panel.
+
+In the third panel of Fig.~\ref{fig:finite_bin_comp}, we show the misalignment
+angle between $\bm{R}$ and $\overline{\bm{\Omega}}_{\rm e}$ at initial
+conditions. We see that $\bm{R}$ and $\overline{\bm{\Omega}}_{\rm e}$ are near
+parallel exaclty where conservation of $\bar{\theta}_{\rm e, i}$ is accurate,
+but there are significant deviations from alignment. The green and blue lines
+are given by evaluating Eq.~\eqref{eq:harmonic_dqeff} for initial conditions for
+the $N = 1$ and $N = 2$ harmonics respectively; we see that they capture the
+misalignment angle between $\bm{R}$ and $\overline{\bm{\Omega}}_{\rm e}$ well.
+
+Taken all together, these show that there can be large $\bar{\theta}_{\rm e}$
+variations in the LK-enhanced regime caused by the resonances described in the
+previous section. However, these resonances are large only for particular values
+of $I_{\rm i}$, while the deviations of the data from the predicted curve in the
+bottom panel of Fig.~\ref{fig:finite_bin_comp} are not localized to these values
+of $I_{\rm i}$. In Fig.~\ref{fig:finite_bin_comp2}, we show the effect of using
+$e_{\rm i} = 10^{-2}$ instead. It is clear that the resonances move farther away
+from $90^\circ$.
+
+Finally, we observe that in the continuum limit, conservation of phase space
+area would imply $\theta_{\rm R, i} = \theta_{\rm sl, f}$ where $\theta_{\rm R}$
+is the angle between $\bm{R}$ and $\bm{S}$. However, this is clearly not
+observed in Fig.~\ref{fig:finite_bin_comp}. This is likely due to the narrowness
+of the resonances which ensures adiabatic passage (that would conserve phase
+space area) is impossible, though a detailed calculation is beyond the scope of
+this paper.
 
 \end{document}
