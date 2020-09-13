@@ -739,20 +739,19 @@ def get_qeff0(I0, params, tol=1e-10, e0=1e-3):
 
     # my best qeff estimator: <We> dot <svec>
     # seems like qeff0 is sufficient
-    # dWdt_inertial = np.outer([Jvec[0], 0, Jvec[1]], dWdt)
-    # Wsl_inertial = np.outer(
-    #     np.ones(3),
-    #     getter_kwargs['eps_sl'] / (a1**(5/2) * x1)
-    # ) * np.array([
-    #     np.sin(I1) * np.cos(W),
-    #     np.sin(I1) * np.sin(W),
-    #     np.cos(I1),
-    # ])
-    # Weffvec_inertial = np.sum(
-    #     (Wsl_inertial - dWdt_inertial) * np.gradient(t) / t[-1], axis=1)
-    # Weffvec_inertial /= np.sqrt(np.sum(Weffvec_inertial**2))
-    # qeff_est = np.arccos(np.dot(Weffvec_inertial, np.mean(svec, axis=1)))
-    # print(np.degrees(qeff0), np.degrees(qeff_est))
+    dWdt_inertial = np.outer([Jvec[0], 0, Jvec[1]], dWdt)
+    Wsl_inertial = np.outer(
+        np.ones(3),
+        getter_kwargs['eps_sl'] / (a1**(5/2) * x1)
+    ) * np.array([
+        np.sin(I1) * np.cos(W),
+        np.sin(I1) * np.sin(W),
+        np.cos(I1),
+    ])
+    Weffvec_inertial = np.sum(
+        (Wsl_inertial - dWdt_inertial) * np.gradient(t) / t[-1], axis=1)
+    Weffvec_inertial /= np.sqrt(np.sum(Weffvec_inertial**2))
+    qeff_est = np.arccos(np.dot(Weffvec_inertial, np.mean(svec, axis=1)))
 
     Ie = np.arctan2(Weff_vec[0], Weff_vec[2])
     ratio = Weffmag * t[-1] / (2 * np.pi)
@@ -765,10 +764,11 @@ def get_qeff0(I0, params, tol=1e-10, e0=1e-3):
     z_coeffs = dct(Weffz_interp, type=1)[::2] / (2 * len(t_vals))
     Ie1 = np.arctan2(x_coeffs[1], z_coeffs[1])
     ratio1 = np.sqrt(x_coeffs[1]**2 + z_coeffs[1]**2) * t[-1] / (2 * np.pi)
+    Ie2 = np.arctan2(x_coeffs[2], z_coeffs[2])
+    ratio2 = np.sqrt(x_coeffs[2]**2 + z_coeffs[2]**2) * t[-1] / (2 * np.pi)
 
-    print(A, np.degrees(Ie), np.degrees(qeff0), np.degrees(Im), ratio,
-          np.degrees(Ie1), ratio1)
-    return A, Ie, qeff0, Im, ratio, Ie1, ratio1
+    print(A, np.degrees(Ie), np.degrees(qeff0), np.degrees(Im), ratio)
+    return A, Ie, qeff0, qeff_est, Im, ratio, Ie1, ratio1, Ie2, ratio2
 
 def qslfs_run(npts=200):
     getter_kwargs = get_eps(*params)
@@ -868,10 +868,9 @@ def bin_comp(e0=1e-3, fn='8bin_comp'):
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             rets = pickle.load(f)
-    As, Ies, qeis, Ims, ratios, Ie1s, ratio1s = rets # whoops, double .T
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(
-        4, 1, figsize=(6, 12), sharex=True,
-        gridspec_kw={'height_ratios': [1, 1, 1, 3]})
+    As, Ies, qeis, barqeis, Ims, ratios, Ie1s, ratio1s, Ie2s, ratio2s = rets
+    fig, (ax2, ax3) = plt.subplots(2, 1, figsize=(6, 8), sharex=True,
+                                   gridspec_kw={'height_ratios':[1, 2]})
     # convention: Im is in [0, 90] or [90, 180] with Ies
     corrected_Ims = []
     for Im, Ie in zip(Ims, Ies):
@@ -888,34 +887,39 @@ def bin_comp(e0=1e-3, fn='8bin_comp'):
     assert len(corrected_Ims) == len(Ims)
     Ims = np.array(corrected_Ims)
     Ies = np.array(Ies)
+    delta_Im = np.degrees(Ims - Ies)
 
+    ax2.plot(I_d, ratios, 'k', lw=1)
+    ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$')
+    ax2.axhline(1, c='k', lw=0.7, alpha=0.7, ls=':')
+    ax2.axhline(2, c='k', lw=0.7, alpha=0.7, ls=':')
+
+    # angle between averaged rotation axis and true monodromy eigenvector
+    ax3.plot(I_d, np.abs(delta_Im), 'k', label='Num', lw=1.5, alpha=0.7)
+    ylims = ax3.get_ylim()
+    ax3.set_ylabel(r'$\Delta I_{\rm m}$')
+    N1term = np.degrees(np.abs(
+        np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 1)))
+    N2term = np.degrees(np.abs(
+        np.sin(Ies - Ie2s) * ratio2s / (np.abs(ratios) - 2)))
+    ax3.plot(I_d, N1term + N2term, 'g', label=r'Resonant', lw=1.5, alpha=0.7)
+    ax3.legend(fontsize=12)
+    ax3.set_ylim(ylims)
+    ax3.set_xlabel(r'$I$ (Deg)')
+
+    ax3.set_xticks([0, 45, 90, 135, 180])
+    ax3.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
+
+    fig.subplots_adjust(hspace=0.03)
+    plt.tight_layout()
+    plt.savefig(fn + '_m', dpi=600)
+    plt.clf()
+
+    fig, (ax1, ax4) = plt.subplots(2, 1, figsize=(6, 8), sharex=True,
+                                   gridspec_kw={'height_ratios':[1, 3]})
     ax1.semilogy(I_d, As, 'k', lw=1)
     ax1.axhline(1, c='k', ls=':', lw=0.7, alpha=0.5)
     ax1.set_ylabel(r'$|\mathcal{A}|$')
-
-    ax2.plot(I_d, ratios, 'k',
-             label=r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$', lw=1, alpha=0.7)
-    ax2.plot(I_d, ratio1s, 'g',
-             label=r'$\Omega_{\rm e1} / \Omega_{\rm LK}$', lw=1, alpha=0.7)
-    ax2.legend(fontsize=12, loc='upper right')
-    ax2.set_ylabel('Freq. Ratios')
-
-    # angle between averaged rotation axis and true monodromy eigenvector
-    delta_Im = np.degrees(Ims - Ies)
-    ax3.plot(I_d, np.abs(delta_Im), 'k', label='Num', lw=1)
-    ylims = ax3.get_ylim()
-    ax3.set_ylabel(r'$|\bar{I}_{\rm m, i} - I_{\rm e, i}|$')
-    ax3.plot(
-        I_d, np.degrees(np.abs(
-            np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 1))),
-        'g', label=r'$N = 1$', lw=1)
-    # TODO use Ie2, ratio2s for this
-    ax3.plot(
-        I_d, np.degrees(np.abs(
-            np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 2))),
-        'b', label=r'$N = 2$', lw=1)
-    ax3.legend(fontsize=12)
-    ax3.set_ylim(ylims)
 
     # correct range?
     # qslfs_ranged = np.minimum(qslfs, 180 - qslfs)
@@ -926,20 +930,36 @@ def bin_comp(e0=1e-3, fn='8bin_comp'):
     Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I_d]
     qslf_dl = np.degrees(np.abs(Ies - np.radians(Itot)))
     ax4.plot(I_d, qslf_dl, 'r', lw=2)
+
+    # do fill_between for 3 intervals, need 4 endpoints
+    large_delta_idx = np.where(np.abs(delta_Im) > 7)[0]
+    any_delta_idx = np.where(np.abs(delta_Im) > 0.1)[0]
+    start1 = any_delta_idx[0]
+    end1 = large_delta_idx[np.where(large_delta_idx < len(I_d) // 2)[0][-1]]
+    start2 = large_delta_idx[np.where(large_delta_idx > len(I_d) // 2)[0][0]]
+    end2 = any_delta_idx[-1]
+    bound_low = np.minimum(
+        np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl))
+    bound_high = np.maximum(
+        np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl))
     ax4.fill_between(
-        I_d,
-        np.minimum(np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl)),
-        np.maximum(np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl)),
+        I_d[end1:start2],
+        bound_low[end1:start2],
+        bound_high[end1:start2],
         color='r',
         alpha=0.3)
+    ylims = ax4.get_ylim()
+    ax4.fill_between(I_d[start1:end1], *ylims, color='r', alpha=0.3)
+    ax4.fill_between(I_d[start2:end2], *ylims, color='r', alpha=0.3)
+    ax4.set_ylim(ylims)
 
     ax4.set_xticks([0, 45, 90, 135, 180])
     ax4.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
     ax4.set_xlabel(r'$I_{\rm i}$ (Deg)')
     ax4.set_ylabel(r'$\theta_{\rm sl, f}$')
 
-    plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
+    plt.tight_layout()
     plt.savefig(fn, dpi=600)
     plt.clf()
 
@@ -1042,12 +1062,12 @@ if __name__ == '__main__':
     # print(np.degrees(get_qeff0(np.radians(Ilimd - 0.35), params)[2]))
     # these two finally agree
 
-    qslfs_run()
+    # qslfs_run()
 
     # get_qeff0(np.radians(85), params_in)
-    # bin_comp()
-    # bin_comp(e0=1e-2, fn='8bin_comp_en2')
-    # bin_comp(e0=3e-3, fn='8bin_comp_en1')
+    bin_comp()
+    bin_comp(e0=1e-2, fn='8bin_comp_en2')
+    bin_comp(e0=3e-3, fn='8bin_comp_en1')
 
     # run_long(80, tol=1e-8)
     # run_long(70, tol=1e-8)

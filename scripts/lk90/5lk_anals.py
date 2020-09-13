@@ -86,9 +86,9 @@ def plot_dWs(fn='5_dWs', num_Is=200, **kwargs):
         ax2.plot(I_plot, np.array(dW_plot) / (2 * np.pi),
                  c=c, lw=1.0)
     ax1.set_ylabel(r'$1 - e_{\max}$')
-    ax2.set_xlabel(r'$I_{\min}$ (Deg)')
+    ax2.set_xlabel(r'$I(e_{\min})$ (Deg)')
     ax2.set_ylabel(r'$\bar{\Omega}_{\rm e} / \Omega_{\rm LK}$')
-    ax2.set_ylim(bottom=0, top=1.3)
+    ax2.set_ylim(bottom=0, top=2.0)
     ax2.set_xticks([40, 60, 80, 100, 120, 140])
     ax2.set_xticklabels([r'$40$',r'$60$',r'$80$',r'$100$',r'$120$', r'$140$'])
     ax1.legend(fontsize=10, ncol=2)

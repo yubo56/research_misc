@@ -1285,6 +1285,7 @@ def qslscan():
     ax2.set_ylabel(r'$\theta_{\rm sl, f}$ (Deg)')
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
+    ax2.axhline(88.51, c='k', lw=0.7)
 
     ax2.plot(I_degs, 88.5 - (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
@@ -1300,10 +1301,10 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
     # run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
     # run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
-    plot_good_quants()
+    # plot_good_quants()
 
-    deltas_deg = run_ensemble('4sims_scan/')
-    plot_deviations_good('4sims_scan/', deltas_deg)
+    # deltas_deg = run_ensemble('4sims_scan/')
+    # plot_deviations_good('4sims_scan/', deltas_deg)
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
@@ -1315,5 +1316,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    # qslscan()
+    qslscan()
     pass
