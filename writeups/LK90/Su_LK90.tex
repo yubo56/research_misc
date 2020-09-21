@@ -1,8 +1,8 @@
-% rm -f LK90_plots/*.png; for i in 7_3vec_mc 7_3vec_eta_cropped 8bin_comp_m 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png LK90_plots; done
+% rm -f LK90_plots/*.png; for i in 8bin_comp_eta0 7_3vec_mc 7_3vec_eta_cropped 8bin_comp_m 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png LK90_plots; done
     \documentclass[
-        twocolumn,
-        twocolappendix
-    ]{aastex63}
+        fleqn,
+        usenatbib,
+    ]{mnras}
     \usepackage{
         amsmath,
         amssymb,
@@ -12,7 +12,9 @@
         ae,
         aecompl,
         booktabs,
-        wasysym
+        wasysym,
+        xcolor,
+        soul,
     }
     \usepackage[T1]{fontenc}
 
@@ -25,7 +27,7 @@
     \newcommand*{\at}[1]{\left.#1\right|}
     \newcommand*{\abs}[1]{\left|#1\right|}
     \newcommand*{\ev}[1]{\langle#1\rangle}
-    \renewcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
     \newcommand*{\uv}[1]{\hat{\bm{#1}}}
     \newcommand*{\p}[1]{\left(#1\right)}
     \newcommand*{\s}[1]{\left[#1\right]}
@@ -40,43 +42,60 @@
     \DeclareMathOperator{\Im}{Im}
     \colorlet{Corr}{red}
 
-    \received{XXXX}
-    \revised{XXXX}
-    \accepted{XXXX}
-    \submitjournal{ApJ}
+\title[BH Triple Spin-Orbit Dynamics]{Spin Dynamics in Hierarchical Black Hole
+Triples: Predicting Final Spin-Orbit Misalignment Angle From Initial Conditions}
+\author[Y. Su et\ al.]{
+Yubo Su,$^1$,
+Dong Lai$^1$
+Bin Liu$^1$
+\\
+$^1$ Cornell Center for Astrophysics and Planetary Science, Department of
+Astronomy, Cornell University, Ithaca, NY 14853, USA
+}
 
-\shorttitle{BH Triple Spin-Orbit Dynamics}
-\shortauthors{Y.\ Su et.\ al.}
+\date{Accepted Jan 31, 2999. Received Jan 31, 2999; in original form Jan 31,
+2999}
 
-\begin{document}
+\pubyear{2020}
 
-\title{Spin Dynamics in Hierarchical Black Hole Triples: Predicting Final
-Spin-Orbit Misalignment Angle From Initial Conditions}
+\begin{document}\label{firstpage}
 
-\correspondingauthor{Yubo Su}
-\email{yubosu@astro.cornell.edu}
-
-\author[0000-0001-8283-3425]{Yubo Su}% chktex 8
-\affiliation{Cornell Center for Astrophysics and Planetary Science, Department
-of Astronomy, Cornell University, Ithaca, NY 14853, USA}
-
-\author[0000-0002-1934-6250]{Dong Lai}% chktex 8
-\affiliation{Cornell Center for Astrophysics and Planetary Science, Department
-of Astronomy, Cornell University, Ithaca, NY 14853, USA}
-
-\author[0000-0002-0643-8295]{Bin Liu}% chktex 8
-\affiliation{Cornell Center for Astrophysics and Planetary Science, Department
-of Astronomy, Cornell University, Ithaca, NY 14853, USA}
+\pagerange{\pageref{firstpage}--\pageref{lastpage}}
+\maketitle
 
 \begin{abstract}
-    Abstract
+    Many previous studies have considered the spin and orbital dynamics of
+    black hole (BH) binaries that undergo large eccentricity excitations through
+    Lidov-Kozai oscillations due to the influence of a highly inclined tertiary
+    companion and merge via gravitational wave radiation. However, these extreme
+    eccentricity variations make such systems difficult to characterize
+    analytically. In this paper, we provide an analytical formalism for
+    understanding the spin dynamics of the inner BHs to quadrupole order. We
+    show that, under certain conditions, the regular eccentricity oscillations
+    of the binary can be averaged over to determine the long-term behavior of
+    the system in a smooth and gradual way. In particular, we demonstrate that
+    the final spin-orbit misalignment angle when the inner binary
+    gravitationally decouples from the tertiary companion is often simply
+    related to the binary's primordial spin orientation through an approximate
+    adiabatic invariant. We calculate the deviation from adiabaticity in closed
+    form as a function of initial conditions. We also place accurate constraints
+    on when this adiabatic invariant breaks down due to resonant interactions.
+    We consider both stellar-mass and supermassive BH tertiary companions, and
+    provide simple prescriptions for astrophysically relevant parameters.
 \end{abstract}
 
-\keywords{keywords}
+\begin{keywords}
+black hole physics -- gravitational waves -- binaries: general % chktex 8
+-- stars: kinematics and dynamics % chktex 8
+\end{keywords}
+
+% so that \cite[see][for q]{QQ} gives (see QQ for q) without comma after QQ
+\setcitestyle{notesep={ }}
 
 \section{Introduction}\label{s:intro}
 
-As the LIGO/VIRGO collaboration continues to detect mergers of black hole (BH)
+As the \textcolor{Corr}{Laser Interferometer Gravitational-Wave Observatory
+(LIGO) Scientific Collaboration} continues to detect mergers of black hole (BH)
 binaries \citep[e.g.][]{Abbott:2016blz, abbott2019binary}, it is increasingly
 important to systematically study various formation channels of BH binaries and
 their observable signatures. The canonical channel consists of isolated binary
@@ -171,8 +190,10 @@ Sections~\ref{s:setup_orbital} and~\ref{s:setup_spin}, we set up the relevant
 equations of motion for the orbital and spin evolution of the system. In
 Sections~\ref{s:fast_merger} and~\ref{s:harmonic}, we develop an analytic theory
 and compute its regime of validity for LK-induced mergers. In
-Section~\ref{s:lk_enhanced}, we comment on the LK-enhanced scenario. We discuss
-and conclude in Section~\ref{s:discussion}.
+Section~\ref{s:lk_enhanced}, we comment on the LK-enhanced scenario.
+\textcolor{Corr}{In Section~\ref{s:stellar}, we generalize our results to
+stellar-mass tertiary companions.} We discuss and conclude in
+Section~\ref{s:discussion}.
 
 \begin{figure}
     \centering
@@ -1006,15 +1027,15 @@ Eq.~\eqref{eq:4_4_general} can be applied to more general initial spin
 orientations. For initial $\abs{\mathcal{A}_{\rm i}} \ll 1$ (as required for
 LK-induced mergers), $\overline{\Omega}_{\rm e, i}$ is parallel to $\pm
 \bm{L}_{\rm out}$. Suppose the initial inclination between $\bm{S}$ and
-$\bm{L}_{\rm out}$ is $\theta_{\rm s-out, i}$, then $\bar{\theta}_{\rm
-e, i} = \theta_{\rm s-out, i}$ or $180^\circ - \theta_{\rm s,
+$\bm{L}_{\rm out}$ is $\theta_{\rm s,out, i}$, then $\bar{\theta}_{\rm
+e, i} = \theta_{\rm s,out, i}$ or $180^\circ - \theta_{\rm s,
 out, i}$ (depending on whether $I_{\rm i} < 90^\circ$ or $I_{\rm i} >
 90^\circ$). Thus,
 \begin{equation}
     \theta_{\rm sl, f} \simeq
     \begin{cases}
-        \theta_{\rm s-out, i} & I_{\rm i} < 90^\circ,\\
-        180^\circ - \theta_{\rm s-out, i} & I_{\rm i} > 90^\circ,
+        \theta_{\rm s,out, i} & I_{\rm i} < 90^\circ,\\
+        180^\circ - \theta_{\rm s,out, i} & I_{\rm i} > 90^\circ,
     \end{cases}
 \end{equation}
 \citep[see also][]{yu2020spin}.
@@ -1067,12 +1088,12 @@ sinusoidal shape seen in Fig.~\ref{fig:qslscan}.
 
 \section{Analysis: Effect of Resonances}\label{s:harmonic}
 
-In the previous section, we neglected the $N \geq 1$ Fourier harmonics in
-Eq.~\eqref{eq:dsdt_fullft}, and showed that the final $\theta_{\rm sl, f}$
-behavior could be well understood. In this section, we study the effects of the
-Fourier harmonics. We argue that the harmonics can be neglected for the fiducial
-parameter regime. A regime for which the Fourier harmonics cannot be neglected
-is discussed separately in Section~\ref{s:lk_enhanced}.
+\textcolor{Corr}{In the previous section, we showed that the final $\theta_{\rm
+sl, f}$ distribution can be well understood when assuming the $N \geq 1$ Fourier
+harmonics in Eq.~\eqref{eq:dsdt_fullft} can be neglected. In this section, we
+study the effects of these neglected terms and argue that they are not important
+in the LK-induced merger regime.} A regime for which they cannot be neglected is
+discussed separately in Section~\ref{s:lk_enhanced}.
 
 For simplicity, we ignore the effects of GW dissipation in this section and
 assume the system is exactly periodic (so $\dot{\bar{I}}_{\rm e} = 0$). The
@@ -1081,36 +1102,33 @@ scalar equation of motion Eq.~\eqref{eq:formal_eom_allgen} is then:
     \rd{S_{\perp}}{t} ={}& i\overline{\Omega}_{\rm e}S_\perp
         + \sum\limits_{N = 1}^\infty\Big[
             \cos \p{\Delta I_{\rm eN}}S_\perp \nonumber\\
-        &- i\cos \theta \sin \p{\Delta I_{\rm eN}}\Big]
+        &- i\cos \bar{\theta}_{\rm e} \sin \p{\Delta I_{\rm eN}}\Big]
             \Omega_{\rm eN}\cos (N\Omega_{\rm LK} t).\label{eq:formal_sol_gen}
 \end{align}
 Resonances may occur when $\overline{\Omega}_{\rm e} = N\Omega_{\rm LK}$.
 \textcolor{Corr}{
-Assuming the resonances do not overlap, we restrict our attention to a single
-harmonic at a time. There are then two time-dependent perturbations, a
-modulation of the oscillation frequency and a driving term. We analyze these two
-terms separately to identify resonant behaviors.}
+Assuming that any resonances that do exist are well separated, we restrict our
+attention to a single $N$ at a time. There are then two time-dependent
+perturbations, a modulation of the oscillation frequency and a driving term. We
+analyze these two terms separately to identify resonant behaviors.}
 
 \textcolor{Corr}{
 First, we consider the effect of frequency modulation alone. The equation of
 motion is
 \begin{equation}
-    \rd{S_\perp}{t} \approx i\overline{\Omega}_{\rm e} S_\perp
-        + \cos\p{\Delta I_{\rm eN}} \Omega_{\rm eN}\cos\p{N\Omega_{\rm LK}t}
+    \rd{S_\perp}{t} \approx \s{i\overline{\Omega}_{\rm e}
+        + \cos\p{\Delta I_{\rm eN}} \Omega_{\rm eN}\cos\p{N\Omega_{\rm LK}t}}
             S_\perp.
 \end{equation}
-This can be exactly solved, and we obtain
-\begin{equation}
-    S_\perp(t) = S_\perp(t_{\rm i})
-        \int\limits_{t_{\rm i}}^{t}\exp\s{
-            -i\overline{\Omega}_{\rm e}
-            - \cos\p{\Delta I_{\rm eN}} \Omega_{\rm eN}\cos\p{N\Omega_{\rm LK}t}
-        }\;\mathrm{d}t.
-\end{equation}
-The two terms in the integrand contribute separately to the phase and magnitude
-of $S_{\perp}$ respectively, and it is evident there is no condition for which
-the magnitude of $S_{\perp}$ can diverge. Thus, there are no resonances induced
-by this frequency modulation.
+This has the exact solution
+\begin{align}
+    S_\perp(t) &= S_\perp(t_{\rm i})
+        \exp\s{i\overline{\Omega}_{\rm e}t + \frac{\cos\p{\Delta I_{\rm eN}}
+            \Omega_{\rm eN}}{N\Omega_{\rm LK}}\sin\p{N\Omega_{\rm LK}\tau}}.
+\end{align}
+There is no combination of finite parameters for which the magnitude of
+$S_{\perp}$ diverges, so the modulation of the oscillation frequency does
+not cause any resonant behavior.
 }
 
 \textcolor{Corr}{
@@ -1123,8 +1141,8 @@ motion is
             \cos \p{N\Omega_{\rm LK} t}.
 \end{align}
 We can approximate $\cos \p{N\Omega_{\rm LK}t} \approx e^{iN\Omega_{\rm LK} t} /
-2$, as the $e^{-iN\Omega_{\rm LK} t}$ component is far from resonance. Then we
-can write down solution as before
+2$, as the $e^{-iN\Omega_{\rm LK} t}$ component is far from resonance. Then the
+equation of motion has the solution
 \begin{align}
     e^{-i\overline{\Omega}_{\rm e}t}S_{\perp}\bigg|_{t_{\rm i}}^{t_{\rm f}}
         &= -\int\limits_{t_{\rm i}}^{t_{\rm f}}
@@ -1133,8 +1151,8 @@ can write down solution as before
                 \bar{\theta}_{\rm e}
             \;\mathrm{d}t.\label{eq:harmonic_dS}
 \end{align}
-Thus, similarly to Section~\ref{ss:eom_0}, the instantaneous oscillation
-amplitude $\abs{\Delta \bar{\theta}_{\rm e}}$ can be bound by
+The instantaneous oscillation amplitude $\abs{\Delta \bar{\theta}_{\rm e}}$ can
+be bound by
 \begin{equation}
     \abs{\Delta \bar{\theta}_{\rm e}} \sim \frac{1}{2}
         \abs{\frac{\sin \p{\Delta I_{\rm eN}} \Omega_{\rm eN}}{
@@ -1142,36 +1160,44 @@ amplitude $\abs{\Delta \bar{\theta}_{\rm e}}$ can be bound by
         \label{eq:harmonic_dqeff}
 \end{equation}
 \textcolor{Corr}{
-We see indeed that the oscillation amplitude diverges when
-$\overline{\Omega}_{\rm e} = N \Omega_{\rm LK}$. Numerically, we find that
-$\overline{\Omega}_{\rm e} < \Omega_{\rm LK}$ for the relevant region of
-parameter space to LK-induced mergers (see Fig.~\ref{fig:dWs}, and recall that
-LK-induced mergers only complete within a Hubble time when $I(e_{\min}) \approx
-90^\circ$), so we consider only the $N = 1$ resonance.}
-We see that if $\overline{\Omega}_{\rm e} < \Omega_{\rm LK}$ by a
-sufficient margin for all times, then the conservation of $\bar{\theta}_{\rm e}$
-in the fiducial parameter regime cannot be significantly affected by this
-resonance. The ratio $\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$ is
-shown in the middle panel of Fig.~\ref{fig:4sim_90_350_supp}, and the amplitude
-of oscillation of $\bar{\theta}_{\rm e}$ it generates
-[Eq.~\eqref{eq:harmonic_dqeff}] is given in blue in the bottom panel of
-Fig.~\ref{fig:4sim_90_350_supp}. We see that the total effect of the resonance
-with the $N = 1$ harmonic never exceeds a few degrees.
+We see that there resonances when $\overline{\Omega}_{\rm e} = N \Omega_{\rm
+LK}$. Numerically, we find that $\overline{\Omega}_{\rm e} < \Omega_{\rm LK}$
+for the region of parameter space relevant to LK-induced mergers (see
+Fig.~\ref{fig:dWs}), so we focus on the effect of the $N = 1$ resonance. If, for
+the entire inspiral, $\overline{\Omega}_{\rm e} < \Omega_{\rm LK}$ by a
+sufficient margin that Eq.~\eqref{eq:harmonic_dqeff} remains small,} then the
+conservation of $\bar{\theta}_{\rm e}$ cannot be significantly affected by this
+resonance. \textcolor{Corr}{For the fiducial simulation,
+Fig.~\ref{fig:4sim_90_350_supp} shows the ratio $\overline{\Omega}_{\rm e} /
+\Omega_{\rm LK}$ in the middle panel (black) and the amplitude of oscillation of
+$\bar{\theta}_{\rm e}$ due to the $N = 1$ resonance
+[Eq.~\eqref{eq:harmonic_dqeff}] in the bottom panel (blue).} We see that
+\textcolor{Corr}{the system is never close to the resonant condition
+$\overline{\Omega}_{\rm e} / \Omega_{\rm LK} = 1$, and as a result} the total
+effect of the resonance never exceeds a few degrees.
 
 For a more precise comparison, the bottom-rightmost panel of
-Fig.~\ref{fig:4sim_90_350_zoom} compares the behavior of $\bar{\theta}_{\rm e}$
-to its two contributions, the nonadiabatic and harmonic effects, in the regime
-where $\mathcal{A} \simeq 1$. We see that Eq.~\eqref{eq:harmonic_dqeff} for $N =
-1$ describes the oscillations in $\bar{\theta}_{\rm e}$ very well. The agreement
-is poorer in the bottom-rightmost panel of Fig.~\ref{fig:4sim_90_200_zoom}, as
-the nonadiabatic effect is much stronger. This is surprising, as the theory
-presented in the previous section, which neglects the Fourier harmonics,
-captures the final deviations $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$ very
-well (see Fig.~\ref{fig:deviations} for $I_{\rm i} = 90.35^\circ$), despite the
-instantaneous $\abs{\Delta \bar{\theta}_{\rm e}}$ being dominated by the
-resonance interaction. This suggests that oscillations in $\bar{\theta}_{\rm e}$
-due to harmonic perturbations of up to a few degrees do not affect final
-nonconservation by more than $\sim 0.01^\circ$.
+Fig.~\ref{fig:4sim_90_350_zoom} compares $\abs{\Delta \bar{\theta}_{\rm e}}$ in
+the fiducial simulation to the expected contributions from nonadiabatic
+[Eq.~\eqref{eq:nonad_dqeff}] and resonant [Eq.~\eqref{eq:harmonic_dqeff} for $N
+= 1$] effects in the regime where $\mathcal{A} \simeq 1$. We see that
+Eq.~\eqref{eq:harmonic_dqeff} for $N = 1$ describes the oscillations in
+$\bar{\theta}_{\rm e}$ very well. The agreement is poorer in the
+bottom-rightmost panel of Fig.~\ref{fig:4sim_90_200_zoom}, as the nonadiabatic
+effect is much stronger.
+
+\textcolor{Corr}{It is surprising that the contribution of the resonant terms to
+the instantaneous $\Delta \bar{\theta}_{\rm e}$ in the $\mathcal{A} \simeq 1$
+regime is dominant over that of the nonadiabatic effect. In the previous
+section, we showed that neglecting resonant terms still allows for an accurate
+prediction of the final deviation $\abs{\Delta \bar{\theta}_{\rm e}}_{\rm f}$,
+implying the nonadiabatic effect must instead be more important in determining
+the final deviation. This requires that a $\abs{\Delta \bar{\theta}_{\rm e}}$ of
+up to a few degrees due to the $N \geq 1$ Fourier harmonics not affect the final
+nonconservation of $\bar{\theta}_{\rm e}$ by more than $\sim 0.01^\circ$. This
+differs from the nonadiabatic case, where we find $\abs{\Delta \bar{\theta}_{\rm
+e}}_{\rm f} \sim \max \abs{\Delta \bar{\theta}_{\rm e}}$. We do not have an
+explanation for this discrepancy.}
 
 \begin{figure}
     \centering
@@ -1192,75 +1218,78 @@ nonconservation by more than $\sim 0.01^\circ$.
 \section{Lidov-Kozai Enhanced Mergers}\label{s:lk_enhanced}
 
 We turn now to the case of LK-enhanced mergers, as was studied in LL17, where
-the inner binary is sufficiently close in ($\sim 0.1\;\mathrm{AU}$) that it can
-merge in isolation via GW radiation. \textcolor{Corr}{Here, we consider a
-similar set of parameters that has the same $t_{\rm LK, i}$ as the system
-studied in LL17 but has a tertiary SMBH\@: $m_1 = m_2 = 30M_{\odot}$, $a_{\rm i}
-= 0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $m_3 = 3 \times 10^7 M_{\odot}$,
-$\tilde{a}_{\rm out} = 3\;\mathrm{AU}$, and $e_{\rm out} = 0$.}
+the inner binary is sufficiently \textcolor{Corr}{compact} ($\sim
+0.1\;\mathrm{AU}$) that it can merge in isolation via GW radiation.
+\textcolor{Corr}{We consider a set of parameters that has the same $t_{\rm LK,
+i}$ as the system studied in LL17 but has a tertiary SMBH\@: $m_1 = m_2 =
+30M_{\odot}$, $a_{\rm i} = 0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $m_3 = 3
+\times 10^7 M_{\odot}$, $\tilde{a}_{\rm out} = 300\;\mathrm{AU}$, and $e_{\rm
+out} = 0$.}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\columnwidth]{LK90_plots/8bin_comp_eta0.png}
+    \caption{The merger time (top), the magnitude of the adiabaticity parameter
+    $\abs{\mathcal{A}} \equiv \Omega_{\rm SL} / \abs{\Omega_{\rm L}}$ (middle),
+    and the final spin-orbit misalignment angle $\theta_{\rm sl, f}$ (bottom)
+    for the LK-enhanced parameter regime, i.e.\ $m_1 = m_2 = 30M_{\odot}$, $m_3
+    = 3 \times 10^{7}M_{\odot}$, $a_{\rm i} = 0.1\;\mathrm{AU}$, $e_{\rm i} =
+    10^{-3}$, $\tilde{a}_{\rm out} = 300\;\mathrm{AU}$, and $e_{\rm out} = 0$.
+    In the middle panel, the horizontal dashed line indicates $\abs{\mathcal{A}}
+    = 1$. On the bottom panel, the blue dots denote results from numerical
+    simulations with $\theta_{\rm sl, f} = 0$. The prediction for $\theta_{\rm
+    sl, f}$ assuming conservation of $\bar{\theta}_{\rm e}$ is shown as the red
+    line, which agrees well with the data both when there is no eccentricity
+    excitation ($I \lesssim 50^\circ$ and $I \gtrsim 130^\circ$) and when
+    $\abs{\mathcal{A}} \gg 1$. The red shaded area shows the predicted deviation
+    from conservation of $\theta_{\rm e}$, given by
+    Eq.~\eqref{eq:harmonic_dqeff} for $N = 1$. For a substantial range of
+    intermediate inclinations ($I \in [50^\circ, 80^\circ]$ and $I \in
+    [100^\circ, 130^\circ]$), the spin is significantly affected the resonances
+    as they sweep away from $I = 90^\circ$ (see Fig.~\ref{fig:dWs_inner}).
+    As such, these initial inclinations are expected to have uncorrelated
+    $\theta_{\rm sl, f}$ and $\theta_{\rm e, i}$, and we denote this range with
+    a broad red shaded interval.}\label{fig:bin_comp}
+\end{figure}
 
 First, we illustrate the $\theta_{\rm sl, f}$ distribution obtained via
 numerical simulation, shown as the blue dots in Fig.~\ref{fig:bin_comp}.
 \textcolor{Corr}{The prediction assuming conservation of $\bar{\theta}_{\rm e}$
 is shown in the red solid line. Good agreement is observed both when no
-eccentricity excitation occurs ($I \lesssim 50^\circ$ and $I \gtrsim 130^\circ$)
-and when $\abs{\mathcal{A}} \gg 1$.}
+eccentricity excitation occurs ($I_{\rm i} \lesssim 50^\circ$ and $I_{\rm i}
+\gtrsim 130^\circ$) and when $\abs{\mathcal{A}} \gg 1$ ($80^\circ \lesssim
+I_{\rm i} \lesssim 100^\circ$).} However, we see in Fig.~\ref{fig:bin_comp} that
+for intermediate inclinations $I_{\rm i} \in [50, 80]$ and $I_{\rm i} \in [100,
+130]$, \textcolor{Corr}{$\theta_{\rm sl, f}$ varies over a large range and does
+not agree with the prediction of $\bar{\theta}_{\rm e}$ conservation. This
+pattern of deviations is different than that seen in the} fiducial parameter
+regime (Fig.~\ref{fig:qslscan}), as this inclination regime corresponds to
+neither the fastest nor slowest merging systems.
 
-\begin{figure}
-    \centering
-    \includegraphics[width=\columnwidth]{LK90_plots/8bin_comp.png}
-    \caption{[TEMPORARILY USING FINITE ETA PLOT] Plot of the magnitude of the
-    adiabaticity parameter $\abs{\mathcal{A}} \equiv \Omega_{\rm SL} /
-    \abs{\Omega_{\rm L}}$ and the final spin-orbit misalignment angle
-    $\theta_{\rm sl, f}$ for the LK-enhanced parameter regime, i.e.\ $m_1 = m_2
-    = 30M_{\odot}$, $m_3 = 3 \times 10^{7}M_{\odot}$, $a_{\rm i} =
-    0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$, $\tilde{a}_{\rm out} =
-    300\;\mathrm{AU}$, and $e_{\rm out} = 0$. On the top panel, the horizontal
-    dashed line indicates $\abs{\mathcal{A}} = 1$. On the bottom panel, the blue
-    dots denote results from numerical simulations with $\theta_{\rm sl, f} =
-    0$. The prediction for $\theta_{\rm sl, f}$ assuming conservation of
-    $\theta_{\rm e}$ is given the red line, which agrees well with the data both
-    when there is no eccentricity excitation ($I \lesssim 50^\circ$ and $I
-    \gtrsim 130^\circ$) and when $\abs{\mathcal{A}} \gg 1$. The red shaded area
-    shows the predicted deviation from conservation of $\theta_{\rm e}$, given
-    by Eq.~\eqref{eq:harmonic_dqeff} for $N = 1$. For a substantial range of
-    intermediate inclinations ($I \in [50^\circ, 80^\circ]$ and $I \in
-    [100^\circ, 130^\circ]$), the spin is significantly affected the resonances
-    as they sweep outwards from $I = 90^\circ$ (see Fig.~\ref{fig:dWs_inner}).
-    As such, these initial inclinations are expected to have largely
-    uncorrelated $\theta_{\rm sl, f}$ and $\theta_{\rm e, i}$, and we denote
-    this range with a broad red shaded interval.}\label{fig:bin_comp}
-\end{figure}
-
-However, as can be seen in Fig.~\ref{fig:bin_comp}, intermediate inclinations
-$I_{\rm i} \in [50, 80]$ and $I_{\rm i} \in [100, 130]$ exhibit very volatile
-behavior in $\theta_{\rm sl, f}$. This is unlike the plots generated in the
-fiducial parameter regime (Fig.~\ref{fig:qslscan}), as this inclination regime
-corresponds to neither the fastest nor slowest merging systems. We attribute the
-origin of this volatility to a stronger resonant interaction.
+We attribute the origin of these deviations to resonance interactions.
 \textcolor{Corr}{Fig.~\ref{fig:dWs_inner} illustrates that these intermediate
 inclinations are closer to the $\overline{\Omega}_{\rm e} = \Omega_{\rm LK}$
-resonance than inclinations closer to $90^\circ$. Furthermore, as the inner
+resonance than inclinations very close to $90^\circ$. In addition, as the inner
 binary coalesces under GW radiation, $e_{\min}$ becomes larger (e.g.\ see
-Fig.~\ref{fig:4sim_90_350}), so the locations of the resonances sweep outwards
-from $I = 90^\circ$. Moreover, the location of the resonances is a very
-sensitive function of $e_{\min}$ (see the results for $e_{\min} = 10^{-3}$ and
-$e_{\min} = 10^{-2}$ in Fig.~\ref{fig:dWs_inner}), so resonance passage is
-generally expected to be nonadiabatic. Thus, we expect that all systems that
-encounter the resonance, i.e.\ all intermediate inclinations, will have poor
-conservation of $\bar{\theta}_{\rm e}$. This is denoted by the broad red
-shaded region in Fig.~\ref{fig:bin_comp} over these intermediate inclinations.}
+Fig.~\ref{fig:4sim_90_350}), so the locations of the resonances sweep away from
+$I = 90^\circ$. As the location of the resonances is a sensitive function of
+$e_{\min}$, resonance passage is likely nonadiabatic. Thus, we expect that all
+systems that encounter the resonance, i.e.\ all systems with intermediate
+initial inclinations, will experience an impulsive kick to $\bar{\theta}_{\rm
+e}$, resulting in poor $\bar{\theta}_{\rm e}$ conservation. This result is
+denoted by the broad red shaded regions in Fig.~\ref{fig:bin_comp}.}
 
-\textcolor{Corr}{Instead, for inclinations closer to $I_{\rm i} = 90^\circ$,
-these systems exit the resonance very early, and so the cumulative effect of the
-resonance interaction can be predicted by evaluating
-Eq.~\eqref{eq:harmonic_dqeff} for $N = 1$ and using the initial conditions. This
-is denoted by the narrow red shaded region about the red line near $I_{\rm i} =
-90^\circ$ in Fig.~\ref{fig:bin_comp}. We see that the scatter is well predicted
-for these weakly-resonant conditions. We empirically choose the transition
-between ``weakly'' and ``strongly'' resonant systems when the $\abs{\Delta
-\bar{\theta}_{\rm e}}$ predicted by Eq.~\eqref{eq:harmonic_dqeff} exceeds
-$7^\circ$.}
+\textcolor{Corr}{For initial inclinations closer to $90^\circ$, these systems
+start at the edge of the $N = 1$ resonance and quickly evolve away from it (as
+$e_{\min}$ increases and causes $\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$
+to decrease), so the cumulative effect of the resonance interaction is well
+predicted by evaluating Eq.~\eqref{eq:harmonic_dqeff} for $N = 1$ at the initial
+conditions. This is denoted by the narrow red shaded region surrounding the red
+line near $I_{\rm i} = 90^\circ$ in Fig.~\ref{fig:bin_comp}. We see that the
+scatter is well predicted for these weakly-resonant conditions. We empirically
+choose the transition between ``weakly'' and ``strongly'' resonant systems when
+the $\abs{\Delta \bar{\theta}_{\rm e}}$ predicted by
+Eq.~\eqref{eq:harmonic_dqeff} exceeds $7^\circ$.}
 
 \begin{figure}
     \centering
@@ -1273,8 +1302,8 @@ $7^\circ$.}
     to the LK-induced regime.}}\label{fig:dWs_inner}
 \end{figure}
 
-\textcolor{Corr}{To understand the properties of systems that will interact
-strongly with resonances we can reason about the quantities in
+\textcolor{Corr}{To understand the general characteristics of systems that
+interact strongly with resonances, we examine the quantities in
 Eq.~\eqref{eq:harmonic_dqeff}}:
 \begin{itemize}
     \item $\sin \p{\Delta I_{\rm eN}}$ is small unless $\mathcal{A} \simeq
@@ -1286,17 +1315,17 @@ Eq.~\eqref{eq:harmonic_dqeff}}:
     \item Smaller values of $e_{\min}$ increase $\overline{\Omega}_{\rm e} /
         \Omega_{\rm LK}$, as shown in Fig.~\ref{fig:dWs_inner}.
 \end{itemize}
-However, LK-driven coalescence causes $\mathcal{A}$ to increase on a similar
-timescale to that of $e_{\min}$ increase (see Fig.~\ref{fig:4sim_90_350}). This
+However, \textcolor{Corr}{the timescales over which $\mathcal{A}$ increases and
+$e_{\min}$ decreases are comparable (see Fig.~\ref{fig:4sim_90_350})}. This
 implies that, if $\mathcal{A} \ll 1$ initially, which is the case for LK-induced
-mergers, then $e_{\min}$ will be very close to $1$ when $\mathcal{A}$ grows to
+mergers, then $e_{\min}$ will be very close to unity when $\mathcal{A}$ grows to
 be $\simeq 1$, and the contribution predicted by Eq.~\eqref{eq:harmonic_dqeff}
 will remain small throughout the entire evolution. \textcolor{Corr}{On the other
-hand, if $\mathcal{A} \simeq 1$ initially, as is the case for the intermediate
-inclinations in the LK-enhanced regime, resonant interactions can be
-significant.}
+hand, only if $\mathcal{A} \simeq 1$ and $e_{\min} \ll 1$ initially, as is the
+case for the intermediate inclinations in the LK-enhanced regime, are resonant
+interactions likely to be significant.}
 
-\section{Stellar Mass Black Hole Triples}
+\section{Stellar Mass Black Hole Triples}\label{s:stellar}
 
 \begin{figure}
     \centering
@@ -1313,7 +1342,7 @@ significant.}
 
 In this section, we extend our predictions for the final spin-orbit misalignment
 angle $\theta_{\rm sl, f}$ to systems where all three masses are comparable
-and the ratio of the angular momenta of the two binaries
+and the ratio of the angular momenta of the two binaries, given by
 \begin{equation}
     \eta \equiv \at{\frac{L}{L_{\rm out}}}_{e = e_{\rm out} = 0} =
         \frac{\mu}{\mu_{\rm out}}
@@ -1325,14 +1354,14 @@ total angular momentum $\bm{L}_{\rm tot} \equiv \bm{L} + \bm{L}_{\rm out}$ is
 fixed. We choose the coordinate system with $\uv{Z} = \uv{L}_{\rm tot}$, shown
 in Fig.~\ref{fig:3vec_eta}.
 
-To analyze this system, we still assume $e_{\rm out} \ll 1$ such that the
+To analyze this system, we still assume $e_{\rm out} \ll 1$ so that the
 octupole-order effects are negligible. To calculate the evolution of $\bm{L}$,
 it is only necessary to evolve a single orbital element for the outer binary,
 the inclination $I_{\rm tot, out}$ relative to the total angular momentum, in
 addition to the orbital elements of the inner binary ($a$, $e$, $\ascnode$,
-$I_{\rm tot}$, and $\omega$ as before), as the ascending node of the outer
-binary satisfies $\ascnode_{\rm out} = \ascnode + 180^\circ$. The equations of
-motion are given by \citep{bin_diego}
+$I_{\rm tot}$, and $\omega$), as the ascending node of the outer binary
+satisfies $\ascnode_{\rm out} = \ascnode + 180^\circ$. The equations of motion
+are given by \citep{bin_diego}
 \begin{align}
     \rd{a}{t} ={}& \p{\rd{a}{t}}_{\rm GW},\\
     \rd{e}{t} ={}& \frac{15}{8t_{\rm LK}} e\,j(e)\sin 2\omega
@@ -1368,12 +1397,12 @@ where
 \end{align}
 where $\Omega_{\rm L} = -\rdil{\ascnode}{t}$ [Eq.~\eqref{eq:dWdt_eta}] is the
 rate of precession of $\bm{L}$ about $\bm{L}_{\rm tot}$, and bars denote
-averaging over an LK cycle. It is then natural to define the averaged quantities
+averaging over an LK cycle. We define the averaged quantities
 \begin{align}
     \overline{\Omega_{\rm SL} \sin I_{\rm out}} &\equiv
             \overline{\Omega}_{\rm SL} \sin \bar{I}_{\rm out},&
     \overline{\Omega_{\rm SL} \cos I_{\rm out}} &\equiv
-            \overline{\Omega}_{\rm SL} \cos \bar{I}_{\rm out}
+            \overline{\Omega}_{\rm SL} \cos \bar{I}_{\rm out}.
 \end{align}
 
 The results of Section~\ref{s:fast_merger} suggest that the angle
@@ -1382,11 +1411,12 @@ is given by
 \begin{equation}
     \cos \bar{\theta}_{\rm e} \equiv
         \frac{\overline{\bm{\Omega}}_{\rm e}}{\overline{\Omega}_{\rm e}}
-            \cdot \overline{\bm{S}}.
+            \cdot \overline{\bm{S}},
 \end{equation}
-The orientation of $\overline{\bm{\Omega}}_{\rm e}$ is described by the
-inclination angle $\bar{I}_{\rm tot,e}$ (Fig.~\ref{fig:3vec_eta}), which can be
-expressed using Eq.~\eqref{eq:We_component_finiteeta}
+where $\overline{\bm{S}}$ is the spin vector averaged over a LK cycle. The
+orientation of $\overline{\bm{\Omega}}_{\rm e}$ is described by the inclination
+angle $\bar{I}_{\rm tot,e}$ (Fig.~\ref{fig:3vec_eta}), which can be expressed
+using Eq.~\eqref{eq:We_component_finiteeta}
 \begin{equation}
     \tan \bar{I}_{\rm tot,e} =
         \frac{\mathcal{A}\sin \bar{I}_{\rm tot}}{1 + \mathcal{A}\cos
@@ -1395,13 +1425,13 @@ expressed using Eq.~\eqref{eq:We_component_finiteeta}
 where $\mathcal{A} \equiv \overline{\Omega}_{\rm SL} / \overline{\Omega}_{\rm
 L}$ is the adiabaticity parameter.
 
-At $t = t_f$, the inner binary has become sufficiently compact that $\theta_{\rm
-sl}$ becomes frozen (see bottom right panel of Fig.~\ref{fig:4sim_90_350}), and
-the system satisfies $\mathcal{A} \gg 1$, as $\overline{\Omega}_{\rm SL} \propto
-a^{-5/2}$ while $\overline{\Omega}_{\rm L} \propto a^{3/2}$. When this is
-satisfied, $\overline{\bm{\Omega}}_{\rm e} \parallel \bm{L}$, and so
-$\bar{\theta}_{\rm e, f} = \theta_{\rm sl, f}$. Then, since adiabatic invariance
-implies $\bar{\theta}_{\rm e, f} = \bar{\theta}_{\rm e, i}$,
+At $t = t_f$, the inner binary is sufficiently compact that $\theta_{\rm sl}$ is
+frozen (see bottom right panel of Fig.~\ref{fig:4sim_90_350}), and the system
+satisfies $\mathcal{A} \gg 1$ ($\overline{\Omega}_{\rm SL} \propto a^{-5/2}$
+while $\overline{\Omega}_{\rm L} \propto a^{3/2}$). When this is satisfied,
+$\overline{\bm{\Omega}}_{\rm e} \parallel \bm{L}$, and so $\bar{\theta}_{\rm e,
+f} = \theta_{\rm sl, f}$. Then, since adiabatic invariance implies
+$\bar{\theta}_{\rm e, f} = \bar{\theta}_{\rm e, i}$,
 \begin{equation}
     \theta_{\rm sl, f} = \bar{\theta}_{\rm e, i}.
 \end{equation}
@@ -1415,15 +1445,15 @@ Then $\bar{\theta}_{\rm e, i} = \abs{I_{\rm tot, i} - \bar{I}_{\rm tot,e, i}}$
 \end{equation}
 Suppose additionally that the binary initially satisfies
 $\abs{\overline{\Omega}_{\rm L}} \gg \overline{\Omega}_{\rm SL}$, then
-$\overline{\Omega}_{\rm e}$ is either
-parallel or anti-parallel to $\bm{L}_{\rm tot}$ depending on whether
-$\overline{\Omega}_{\rm L}$ is positive or negative. Define $I_{\rm c}$ to be
-the starting mutual inclination for which $\overline{\Omega}_{\rm L}$ changes
-sign. Note that even though $\Omega_{\rm L}$ changes sign at $I = 90^\circ$ [see
-Eq.~\eqref{eq:dWdt_eta}], $I_{\rm c} > 90^\circ$. This is because for $I <
-I_{\lim}$, where $I_{\lim} \approx 92.16^\circ$ is the starting mutual
-inclination that maximizes $e_{\max}$ \citep{bin2}, the inclination can decrease
-to below $90^\circ$ when the eccentricity increases. As such, we find that
+$\overline{\Omega}_{\rm e}$ is either parallel or anti-parallel to $\bm{L}_{\rm
+tot}$ depending on whether $\overline{\Omega}_{\rm L}$ is positive or negative.
+Define $I_{\rm c}$ to be the starting mutual inclination for which
+$\overline{\Omega}_{\rm L}$ changes sign. Note that $I_{\rm c} > 90^\circ$:
+even though $\Omega_{\rm L}$ changes sign at $90^\circ$, the inclination
+decreases over a LK cycle for $I < I_{\lim}$ (where $I_{\lim} > 90^\circ$ is the
+starting mutual inclination that maximizes $e_{\max}$ \citep{bin2}), so the sign
+of $\Omega_{\rm L}$ changes over a LK cycle when $90^\circ < I_{\rm i} <
+I_{\lim}$. We find that
 \begin{equation}
     \theta_{\rm sl, f} =
     \begin{cases}
@@ -1447,9 +1477,9 @@ We first compare these results to numerical simulations by considering a
 stellar-mass BH triple that is in the LK-induced regime: we use the same inner
 binary parameters as the fiducial system before, but use a tertiary companion
 with $m_3 = 30M_{\odot}$, $a_{\rm out} = 4500\;\mathrm{AU}$, and $e_{\rm out} =
-0$. Again, we use the $\theta_{\rm sl, i} = 0$. Fig.~\ref{fig:finite_qslfscan}
-shows that Eq.~\eqref{eq:qslf_eta_pred} accurately predicts $\theta_{\rm sl, f}$
-for this parameter regime when conservation of $\bar{\theta}_{\rm e}$ is good.
+0$. Fig.~\ref{fig:finite_qslfscan} shows that Eq.~\eqref{eq:qslf_eta_pred}
+accurately predicts $\theta_{\rm sl, f}$ when $\theta_{\rm sl, i} = 0^\circ$ for
+this parameter regime when conservation of $\bar{\theta}_{\rm e}$ is good.
 Furthermore, deviations from exact $\bar{\theta}_{\rm e}$ conservation are well
 described by Eq.~\eqref{eq:qslf_plot_black}, the prediction of the theory in
 Section~\ref{s:fast_merger}. Unlike the $\eta = 0$ case
@@ -1462,11 +1492,11 @@ Section~\ref{ss:effect} that when $\eta = 0$, $\bm{L}$ is fixed when $I_{\rm i}
 $\rdil{\ascnode}{t}$ and $\rdil{I_{\rm tot}}{t}$ are not zero at $I_{\rm i} =
 I_{\rm c}$.
 
-Eq.~\eqref{eq:qslf_eta_pred} also holds well over a
-large range of $I_{\rm i}$ in the LK-enhanced menger regime, as shown in
-Fig.~\ref{fig:finite_bin_comp}. We see that shape of the $\theta_{\rm sl, f}$
-distribution near its minimum around $I_{\rm i} \approx 91.14^\circ$ is well
-captured.
+Eq.~\eqref{eq:qslf_eta_pred} also gives good agreement LK-enhanced menger
+regime. We consider the same inner binary parameters as in
+Section~\ref{s:lk_enhanced} but use a tertiary companion with $m_3 =
+30M_{\odot}$, $a_{\rm out} = 3\;\mathrm{AU}$, and $e_{\rm out} = 0$. The results
+are shown in Fig.~\ref{fig:finite_bin_comp}.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/8finite_qslfs.png}
@@ -1492,10 +1522,12 @@ captured.
 In this paper, we consider the evolution of the spin-orbit misalignment angle
 $\theta_{\rm sl}$ of a black hole (BH) binary that merges under gravitational
 wave (GW) radiation during Lidov-Kozai (LK) oscillations induced by a tertiary
-supermassive black hole (SMBH). We show that, when the SMBH orbit is circular
-and octupole effects are unimportant, the spin vectors of the inner BHs obey the
-simple equation of motion Eq.~\eqref{eq:dsdt_weff}. Analysis of this equation
-yields the following conclusions:
+companion. We study cases where the tertiary companion is either a supermassive
+black hole (SMBH) or a stellar mass black hole (BH). We show that, when the
+tertiary orbit is circular and octupole effects are unimportant, the spin
+vectors of the inner BHs obey the simple equation of motion
+Eq.~\eqref{eq:dsdt_weff}. Analysis of this equation yields the following
+conclusions:
 \begin{itemize}
     \item For most parameters of astrophysical relevance, the angle
         $\bar{\theta}_{\rm e}$ [Eq.~\eqref{eq:q_eff}] is an adiabatic invariant.
@@ -1503,72 +1535,71 @@ yields the following conclusions:
         is only conserved to finite accuracy; we show that the deviation from
         perfect adiabaticity can be predicted from initial conditions.
 
-    \item When the resonant condition $\bar{\Omega}_{\rm e} \approx \Omega_{\rm
-        LK}$ is satisfied, significant oscillations in $\bar{\theta}_{\rm e}$
-        can arise. We derive an analytic estimate of this oscillation amplitude.
-        This estimate both demonstrates that the resonance is unimportant for
-        ``LK-induced'' mergers and tentatively explains the scatter in
-        $\theta_{\rm sl, f}$ seen by LL17.
-
-    \item These results can be generalized to stellar mass BH triples, for which
-        our results are still accurate.
+    \item When the resonant condition $\bar{\Omega}_{\rm e} \approx N\Omega_{\rm
+        LK}$ for integer $N$ is satisfied, significant oscillations in
+        $\bar{\theta}_{\rm e}$ can arise. We derive an analytic estimate of this
+        oscillation amplitude. This estimate both demonstrates that the
+        resonance is unimportant for ``LK-induced'' mergers and tentatively
+        explains the scatter in $\theta_{\rm sl, f}$ seen by LL17.
 \end{itemize}
 
-Possible discussion points:
-\begin{itemize}
-    \item We see that the $90^\circ$ attractor found in LL18 when the octupole
-        effect is negligible is a result of the choosing the initial condition
-        $\theta_{\rm sl, i} = 0^\circ$. In particular, the distribution of
-        $\theta_{\rm sl, f}$ is directly related to the distribution of
-        $\theta_{\rm sl, i}$ through the angle $\bar{\theta}_{\rm e, i}$.
+In the beginning of the paper, we pointed out that LL18 found that the final
+spin-orbit misalignment angle $\theta_{\rm sl, f}$ exhibits a $90^\circ$
+attractor (Fig.~\ref{fig:qslscan}) when the octupole effect is negligible. Our
+theory shows that this attractor is a result of their taking $\theta_{\rm sl, i}
+= 0^\circ$, as the initial and final spin orientations are related via
+conservation of $\bar{\theta}_{\rm e}$ (Sections~\ref{ss:effect}
+and~\ref{s:stellar}). Note that the component BH spins in the recent LIGO
+detection GW190521 have spin-orbit misalignment angle $\sim 90^\circ$
+\citep{190521}. If the evolution history of the component BHs resembled our
+LK-induced scenario, a primordial $\theta_{\rm sl, i} \approx 0^\circ$ would be
+consistent with the observed outcome.
 
-    \item When the tertiary orbit is eccentric, the octupole-order contributions
-        can no longer be neglected. The octupole-order LK effect is no longer
-        integrable, and the eccentricity excitations are no longer regular
-        \citep[see e.g.][]{bin2}. In this case, $\bm{\Omega}_{\rm e}$ has
-        neither consistent direction nor magnitude, and the resulting
-        $\theta_{\rm sl, f}$ distribution is largely unrelated to the initial
-        $\bar{\theta}_{\rm e, i}$ \citep{bin2}.
+When the tertiary orbit is eccentric, the octupole-order contributions can no
+longer be neglected. The octupole-order LK effect is not integrable, and the
+eccentricity excitations are no longer regular \citep[see e.g.][]{bin2}. In this
+case, $\bm{\Omega}_{\rm e}$ has neither consistent direction nor magnitude, and
+our theory cannot be applied. In fact, the resulting $\theta_{\rm sl, f}$
+distribution is largely unrelated to the initial $\bar{\theta}_{\rm e, i}$
+\citep{bin2}.
 
-    \item If the system is not sufficiently hierarchical ($a_{\rm out}$ is too
-        small), the double averaging approximation breaks down, and the dynamics
-        are no longer integrable, so there is little reason to expect the same
-        relation between $\theta_{\rm sl, f}$ and $\bar{\theta}_{\rm e, i}$.
-        However, \citet{bin2} found that the double averaged equations predict
-        the correct merger window and merger fractions even beyond their regime
-        of validity if the octupole effect is weak, so it is possible that our
-        results on $\theta_{\rm sl, f}$ are somewhat robust even when the double
-        averaged equations break down. We defer this possibility to future work.
-\end{itemize}
+If the system is not sufficiently hierarchical ($a_{\rm out}$ is too small), the
+double averaging approximation breaks down, and the dynamics are no longer
+integrable, so there is little reason to expect any relation between
+$\theta_{\rm sl, f}$ and $\bar{\theta}_{\rm e, i}$. However, \citet{bin2} found
+that the double averaged equations predict the correct merger window and merger
+fractions even beyond their regime of validity if the octupole effect is weak,
+so it is possible that our results concerning $\theta_{\rm sl, f}$ are also
+somewhat robust even when the double averaged equations formally break down. We
+defer this possibility to future work.
 
 \bibliography{Su_LK90}
-\bibliographystyle{aasjournal}
+\bibliographystyle{mnras}
 
+\clearpage
 \appendix
 
 \section{Floquet Theory Analysis}\label{app:floquet}
 
-In this appendix, we show using a combination of analytical and numerical
-methods that the approximations made in the main text are accurate and
-completely describe the spin dynamics of the inner BH\@. We again work in the
-corotating frame and neglect GW dissipation, so the equation of motion is given
-by Eq.~\eqref{eq:dsdt_weff}. If we define the matrix operator satisfying
-$\tilde{\bm{A}}\bm{S} = \bm{\Omega}_{\rm e} \times \bm{S}$, i.e.\
-$\tilde{A}_{\rm ik} = \epsilon_{ijk}\Omega_{\rm e, j}$, then the equation of
-motion is
+In this appendix, we provide an alternative approach to analyzing the dynamics
+of the system that provides results complementary to those in the main text.
+Through a combination of analytical and numerical results, we argue that the
+results of the main text provide a complete and description of the system. We
+again work in the corotating frame and neglect GW dissipation, so the equation
+of motion is given by Eq.~\eqref{eq:dsdt_weff}. If we define the matrix operator
+satisfying $\tilde{\bm{A}}\bm{S} = \bm{\Omega}_{\rm e} \times \bm{S}$, then the
+equation of motion is
 \begin{align}
     \p{\rd{\bm{S}}{t}}_{\rm rot}
-        &= \tilde{\bm{A}}(t) \bm{S}\label{eq:app_dsdt_weff}.
+        &= \tilde{\bm{A}} \bm{S}\label{eq:app_dsdt_weff}.
 \end{align}
 Here, $\tilde{\bm{A}}$ is periodic with period $T_{\rm LK}$.
 
 \subsection{Without Nutation}\label{app:a1}
 
-First, for simplicity, let us first assume that $\bm{\Omega}_{\rm e}$ does not
-nutate significantly, so its orientation is fixed ($\bm{\Omega}_{\rm e}$ does
-not precess in the corotating frame, as the plane of $\bm{L}$--$\bm{L}_{\rm
-out}$ is fixed). In this case, Eq.~\eqref{eq:app_dsdt_weff} admits an exact
-conserved quantity:
+First, for simplicity, let us assume that $\bm{\Omega}_{\rm e}$ does not nutate,
+so its orientation is fixed. In this case, Eq.~\eqref{eq:app_dsdt_weff} admits
+an exact conserved quantity:
 \begin{equation}
     \rd{}{t}\s{e^{-\Phi}\bm{S}} = 0,\label{eq:app_cons}
 \end{equation}
@@ -1577,8 +1608,8 @@ where
     \Phi(t) \equiv \int\limits^t \tilde{\bm{A}}\;\mathrm{d}t.
 \end{equation}
 Separately, since Eq.~\eqref{eq:app_dsdt_weff} is linear and has periodic
-coefficients, Floquet theory mandates that $\bm{S}\p{t + T_{\rm LK}}$ be related
-to $\bm{S}(t)$ by the monodromy matrix $\tilde{\bm{M}}$ satisfying
+coefficients, Floquet theory tells us that $\bm{S}\p{t + T_{\rm LK}}$ is related
+to $\bm{S}(t)$ by the monodromy matrix $\tilde{\bm{M}}$:
 \begin{equation}
     \bm{S}\p{t + T_{\rm LK}} = \tilde{\bm{M}}\bm{S}(t).\label{eq:app_M}
 \end{equation}
@@ -1586,46 +1617,37 @@ Comparing Eqs.~\eqref{eq:app_cons} and~\eqref{eq:app_M}, we immediately find
 that
 \begin{align}
     \tilde{\bm{M}} &= \exp\s{
-            -\int\limits_0^{T_{\rm LK}}\tilde{\bm{A}}\;\mathrm{d}t}
+            \int\limits_0^{T_{\rm LK}}\tilde{\bm{A}}\;\mathrm{d}t}
             ,\nonumber\\
-        &= \exp\s{-T_{\rm LK} \overline{\tilde{\bm{A}}}},\label{eq:app_Mbase}
+        &= \exp\s{T_{\rm LK} \overline{\tilde{\bm{A}}}},\label{eq:app_Mbase}
 \end{align}
-where again the overline denotes time averaging.
+where again the overline denotes time averaging. As $\tilde{\bm{M}}$ is a
+rotation matrix, call $\bm{R}$ its rotation axis, or its eigenvector with
+eigenvalue $1$. But $\bm{R} = \hat{\bm{\Omega}}_{\rm e}$, so $\bm{S} \cdot
+\hat{\bm{\Omega}}_{\rm e}$ must be constant for every $t = NT_{\rm LK}$.
 
-Now, we define a surrogate spin vector $\bm{S}_{\rm surr}$ that evolves as
-\begin{align}
-    \rd{\bm{S}_{\rm surr}}{t}
-            &= \overline{\tilde{\bm{A}}}\bm{S}_{\rm surr},\nonumber\\
-        &= \overline{\bm{\Omega}}_{\rm e} \times \bm{S}_{\rm
-        surr}.\label{eq:app_eomsurr}
-\end{align}
-The evolution of $\bm{S}_{\rm surr}$ also obeys $\bm{S}_{\rm surr}(t + T_{\rm
-LK}) = \tilde{\bm{M}} \bm{S}_{\rm surr}(t)$. This then implies that if
-$\bm{S}_{\rm i} = \bm{S}_{\rm surr, i}$, then $\bm{S} = \bm{S}_{\rm surr}$ at
-every $t = NT_{\rm LK}$.
+This example is somewhat trivial, as if $\bm{\Omega}_{\rm e}$ does not nutate,
+then $\bm{S}$ just precesses around fixed $\bm{R} = \hat{\bm{\Omega}}_{\rm e}$
+at a variable rate, and $\bm{S} \cdot \hat{\bm{\Omega}}_{\rm e}$ is conserved.
+However, the equation of motion studied in Section~\ref{s:fast_merger}
+[Eq.~\eqref{eq:dsdt_0only}] neglects nutation yet provides a good description of
+the evolution of $\bar{\theta}_{\rm e}$. For the fiducial LK-induced merger,
+Fig.~\ref{fig:4sim_90_350_zoom} shows that $\bm{\Omega}_{\rm e}$ nutates
+substantially within a LK period when $\mathcal{A} \simeq 1$ (nutation is
+equivalent to $\Omega_{\rm e1} \neq 0$ and $\Delta I_{\rm e1} \neq 0^\circ$). We
+infer that, even when $\bm{\Omega}_{\rm e}$ does nutate appreciably, there are
+conditions for which its nutation negligibly affects $\bar{\theta}_{\rm e}$
+conservation.
 
-When the system is allowed to evolve under GW radiation, $\tilde{\bm{M}}$
-evolves on the timescale $t_{\rm GW}$. Furthermore, as the inner binary
-coalesces, $T_{\rm LK} \to 0$ and the variation of $\tilde{\bm{A}}$ within
-$T_{\rm LK}$ vanishes (as LK oscillations freeze out). As such, we see that if
-$t_{\rm GW} \gg T_{\rm LK}$, i.e.\ the merger is smooth, the evolution of
-$\bm{S}$ and the surrogate $\bm{S}_{\rm surr}$ are exactly equal for $t =
-t_{\rm i} + NT_{\rm LK}$ and converge once the LK oscillations freeze out. This
-shows that studying the equation of motion Eq.~\eqref{eq:app_eomsurr} for
-$\bm{S}_{\rm surr}$, as is done in Section~\ref{s:fast_merger}, gives an
-accurate prediction of the final spin $\bm{S}_{\rm f}$ when the merger is smooth
-and nutation of $\bm{\Omega}_{\rm e}$ within a LK period can be neglected.
+In the main text, Section~\ref{s:harmonic} showed that being close to a
+resonance $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$ results in
+non-conservation of $\bar{\theta}_{\rm e}$. However, the converse is not
+obviously true: our approximate analysis does not prove that being far from
+these resonances guarantees good conservation of $\bar{\theta}_{\rm e}$. In the
+next section, we argue that, for the dynamics studied in this paper, this
+converse is likely true as well.
 
-\subsection{Effect of Nutation}\label{app:a2}
-
-In the previous section, we have assumed $\bm{\Omega}_{\rm e}$ does not nutate
-within a LK period. However, even for the fiducial example shown in
-Fig.~\ref{fig:4sim_90_350}, there are periods of time over which
-$\bm{\Omega}_{\rm e}$ nutates substantially within a LK period. In this
-section, our objective is to understand the conditions under which nutation can
-be neglected. To this end, we will work perturbatively by assuming that the
-nutation of $\bm{\Omega}_{\rm e}$ is small and seeking the breakdown of our
-solution.
+\subsection{With Nutation}\label{app:a2}
 
 When $\bm{\Omega}_{\rm e}$ is allowed to nutate within $T_{\rm LK}$, the
 quantity given by Eq.~\eqref{eq:app_cons} is no longer conserved, as
@@ -1648,42 +1670,104 @@ This requires
 where the square brackets denote the commutator. The monodromy matrix is then
 \begin{equation}
     \tilde{\bm{M}} = \exp\s{
-        -\int\limits_0^{T_{\rm LK}}\tilde{\bm{A}} + \tilde{\bm{B}}
+        \int\limits_0^{T_{\rm LK}}\tilde{\bm{A}} + \tilde{\bm{B}}
             \;\mathrm{d}t}.\label{eq:app_Mgen}
 \end{equation}
 
 We next want to understand when Eq.~\eqref{eq:app_Mgen} can be well approximated
-by Eq.~\eqref{eq:app_Mbase}. From Eq.~\eqref{eq:app_bexact}, we see that
-$\tilde{\bm{B}} = 0$ vanishes when $\s{\tilde{\bm{A}}, \Phi}$ commute, which
-occurs when $\bm{\Omega}_{\rm e}$ does not nutate. However, a small range of
-nutation alone is not sufficient to guarantee Eq.~\eqref{eq:app_Mgen} is well
-approximated by Eq.~\eqref{eq:app_Mbase}. To see this, we expand the matrix
-exponential using the well known Baker-Campbell-Hausdorff formula
-\citep[e.g.][]{shankar2012principles}
+by Eq.~\eqref{eq:app_Mbase}. We first expand the matrix
+exponential using the Zassenhaus formula \citep[the inverse of the well-known
+Baker-Campbell-Hausdorff formula, see e.g.][]{magnus1954exponential}
 \begin{equation}
-    \tilde{\bm{M}} = e^{-T_{\rm LK}\overline{\tilde{\bm{A}}}}
-        e^{-T_{\rm LK}\overline{\tilde{\bm{B}}}}
-        \exp\s{\int\limits_0^{T_{\rm LK}}\frac{\s{\tilde{\bm{A}},
-            \tilde{\bm{B}}}}{2} +\dots\;\mathrm{d}t}.
+    \tilde{\bm{M}} = e^{T_{\rm LK}\overline{\tilde{\bm{A}}}}
+        e^{T_{\rm LK}\overline{\tilde{\bm{B}}}}
+        \exp\s{-\frac{T_{\rm LK}^2\s{\overline{\tilde{\bm{A}}},
+            \overline{\tilde{\bm{B}}}}}{2} +\dots}.\label{eq:m_gen}
 \end{equation}
-These matrix exponentials are rotation matricies, and the first rotation matrix
-$e^{-T_{\rm LK}\overline{\tilde{\bm{A}}}}$ rotates by total angle
-$\overline{\Omega}_{\rm e}T_{\rm LK}$, which for the problem considered in the
-main text is not more than a few times $2\pi$ (see Figs.~\ref{fig:dWs}
-and~\ref{fig:dWs_inner}). On the other hand, if $\tilde{\bm{B}}$ is small by
-assumption, $e^{-T_{\rm LK}\overline{\tilde{\bm{B}}}}$ and the remaining
-matricies rotate by an angle $\ll 2\pi$ and are very near the identity matrix.
-Therefore, if $e^{-T_{\rm LK}\overline{\tilde{\bm{A}}}}$ is not very near the
-identity matrix, then Eq.~\eqref{eq:app_Mbase} is approximately correct and the
-rotation axis of $\tilde{\bm{M}}$ (call this $\bm{R}$) is very nearly
-$\overline{\bm{\Omega}}_{\rm e}$ as before.
+Note that $\tilde{\bm{M}}$ is a rotation matrix (see
+Section~\ref{ss:monodromy}), and $\exp\s{T_{\rm LK}\overline{\tilde{\bm{A}}}}$
+is also a rotation matrix ($\tilde{\bm{A}}$ is skew-symmetric), so the remainder
+of the right hand side above must also be a rotation matrix (as the rotation
+matricies are closed under matrix multiplication). For convenience, define
+\begin{align}
+    \tilde{\bm{R}}_{\rm A} &\equiv
+        e^{T_{\rm LK}\overline{\tilde{\bm{A}}}}&
+    \tilde{\bm{R}}_{\rm B} &\equiv
+        e^{T_{\rm LK}\overline{\tilde{\bm{B}}}}
+        \exp\s{-\frac{T_{\rm LK}^2\s{\overline{\tilde{\bm{A}}},
+            \overline{\tilde{\bm{B}}}}}{2} +\dots},
+\end{align}
+where $\tilde{\bm{R}}_{\rm A}$ and $\tilde{\bm{R}}_{\rm B}$ are rotation
+matricies that effect rotations by angles $\theta_{\rm A}$ and $\theta_{\rm B}$
+about their respective axes.
 
-However, if $\overline{\Omega}_{\rm e}T_{\rm LK} \approx 2\pi N$ for integer $N$,
-then $e^{-T_{\rm LK}\overline{\tilde{\bm{A}}}}$ itself is near the identity as
-well, and the remaining matricies that depend on $\tilde{\bm{B}}$ \emph{cannot}
-be neglected when calculating $\bm{R}$. As such, we conclude that even very
-small nutation of $\bm{\Omega}_{\rm e}$ can change $\bm{R}$ significantly when
-$\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$.
+When can $\tilde{\bm{R}}_{\rm B}$ be neglected? From Eq.~\eqref{eq:app_bexact}, we see
+that $\tilde{\bm{B}} = 0$ vanishes ($\theta_{\rm B} = 0$) when $\s{\tilde{\bm{A}},
+\Phi}$ commute, which occurs when $\bm{\Omega}_{\rm e}$ does not nutate, and we
+recover Eq.~\eqref{eq:app_Mbase}. In fact, we will argue later that $\theta_{\rm
+B}$
+is generally small for the spin dynamics studied in the main text. However, a
+small $\theta_{\rm B}$ alone is not sufficient to assume $\tilde{\bm{M}} \approx
+\tilde{\bm{R}}_{\rm A}$. To see this, note if $\theta_{\rm B}$ is small, then
+$\tilde{\bm{R}}_{\rm B} \approx \bm{1}$ where $\bm{1}$ is the $3\times3$
+identity matrix. On the other hand, $\theta_{\rm A} = \overline{\Omega}_{\rm e}T_{\rm
+LK}$. Then, if $\theta_{\rm A}$ is not too near an integer multiple of $2\pi$,
+$\tilde{\bm{M}} \approx \tilde{\bm{R}}_{\rm A}$ and $\tilde{\bm{M}} \approx
+\tilde{\bm{R}}_{\rm A}$ as before. However, if $\overline{\Omega}_{\rm e}T_{\rm
+LK} \approx 2\pi N$ for integer $N$, then $\tilde{\bm{R}}_{\rm A}$ itself is
+near the identity as well, and $\tilde{\bm{R}}_{\rm B}$ \emph{cannot} be
+neglected when calculating $\tilde{\bm{M}}$. The criterion for neglecting
+$\tilde{\bm{R}}_{\rm B}$ is then clear: $\theta_{\rm B}$ must be much closer to
+$2\pi N$ for integer $N$ than $\theta_{\rm A}$.
+
+To complete this picture, we argue that, for the spin dynamics studied in the
+main text, $\theta_{\rm B}$ is small, so generally $\tilde{\bm{R}}_{\rm B}
+\approx \bm{1}$, and $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$ is a
+\emph{necessary} condition for $\bm{R}$ to differ significantly from
+$\hat{\overline{\bm{\Omega}}}_{\rm e}$. To do this, we recall that
+$\overline{\Omega}_{\rm e} T_{\rm LK} \lesssim 2\pi$ (Figs.~\ref{fig:dWs}
+and~\ref{fig:dWs_inner}), and we seek to show that $\theta_{\rm B}$ must
+generally be small compared to $\theta_{\rm A}$, which would imply $\theta_{\rm
+B} \ll 2\pi$. We first approximate that $e^{\Phi'} \approx e^{\Phi}$ in
+Eq.~\eqref{eq:app_bexact} (requiring $\theta_{\rm B} \ll \theta_{\rm A}$, which
+we will verify retroactively, and being far from resonance, $\theta_{\rm A} \neq
+2\pi$), which gives
+\begin{equation}
+    \tilde{\bm{B}} \approx
+        \s{e^{-\Phi},\tilde{\bm{A}}}e^{\Phi}.\label{eq:bapprox}
+\end{equation}
+Next, recall that $\Phi$ is the integral of $-\tilde{\bm{A}}$, and so the
+magnitude of $\overline{\tilde{\bm{B}}}$ [$\tilde{\bm{B}}$ primarily affects
+$\tilde{\bm{M}}$ via its average, see Eq.~\eqref{eq:app_Mgen}] depends on the
+average misalignment between the vectors $\bm{\Omega}_{\rm e}$ and $\int^t
+\bm{\Omega}_{\rm e}\;\mathrm{d}t \simeq \overline{\bm{\Omega}}_{\rm e}$. There
+are a few possible regimes to consider: (i) if $\mathcal{A} \gg 1$, then LK
+oscillations are frozen, and $\bm{\Omega}_{\rm e}$ does not nutate; (ii) if
+$\mathcal{A} \ll 1$, then $\uv{\Omega}_{\rm e} \approx \uv{L}_{\rm tot} \approx
+\hat{\overline{\bm{\Omega}}}_{\rm e}$ for almost all of $T_{\rm Lk}$; and (iii)
+if $\mathcal{A} \simeq 1$, then $e_{\max}$ cannot be too large
+[Eq.~\eqref{eq:jemaxepsgr}], and so $\Omega_{\rm L}$ and $\Omega_{\rm SL}$
+cannot vary too much within an LK cycle and the nutation of $\bm{\Omega}_{\rm
+e}$ is limited. This analysis suggests that, at least far from resonance, the
+nutation of $\bm{\Omega}_{\rm e}$ is limited, and the commutator in
+Eq.~\eqref{eq:bapprox} is small in the sense that $\theta_{\rm B} \ll
+\theta_{\rm A}$, justifying our earlier claim. While this analysis is not
+rigorous, it suggests that the only resonances present in the system are near
+$\overline{\Omega}_{\rm e} = N\Omega_{\rm LK}$, as claimed in the main text, and
+that otherwise $\bm{R} \parallel \overline{\bm{\Omega}}_{\rm e}$.
+
+In passing, we take note of one difference between the resonance models in
+Section~\ref{s:harmonic} and Appendix~\ref{app:a2}. If only one harmonic exists,
+e.g.\ if $\bm{\Omega}_{\rm eN} = 0$ for $N \geq 2$, then
+Eq.~\eqref{eq:harmonic_dqeff} predicts that there should only be one resonance,
+at $\overline{\Omega}_{\rm e} = \Omega_{\rm LK}$, while Eq.~\eqref{eq:app_Mgen}
+suggests there should still be multiple resonances when $\overline{\Omega}_{\rm
+e} = N\Omega_{\rm LK}$. Tentative numerical experiments suggest the latter
+result is correct. In the problem studied in this paper, this distinction is
+unimportant since $\overline{\Omega}_{\rm e}$ does not exceed a few $\Omega_{\rm
+LK}$, and the first few harmonics $\bm{\Omega}_{\rm eN}$ are quite similar (the
+characteristic scale in $N$ over which the $\bm{\Omega}_{\rm eN}$ change is $1 /
+j(e_{\max}) \gg 1$).
 
 % useful but also not the best way of arguing this
 % \begin{equation}
@@ -1733,7 +1817,7 @@ $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$.
 % However, $\tilde{\bm{B}} \ll \tilde{\bm{A}}$ is not a sufficient condition to
 % guarantee Eq.~\eqref{eq:app_Mgen} reduces to Eq.~\eqref{eq:app_Mbase}. Note that
 % when $\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$, we find that
-% $\exp\p{-T_{\rm LK}\overline{\tilde{\bm{A}}}} \approx \mathbb{I}$ the identity
+% $\exp\p{-T_{\rm LK}\overline{\tilde{\bm{A}}}} \approx \bm{1}$ the identity
 % matrix.
 
 % a x (b x c) = b(a.c) - c(a.b)     |      b x (a x c) = a(b.c) - c(b.a)
@@ -1758,19 +1842,16 @@ monodromy matrix $\tilde{\bm{M}}$. In this section, we aim to reconcile this
 with the quantitative, approximate results in the text and suggest that the
 results in the text constitute a complete characterization of the spin dynamics.
 
-In Section~\ref{s:fast_merger} of the main text, we found that $\bm{S}$
-precesses around $\overline{\bm{\Omega}}_{\rm e}$ when $N \geq 1$ harmonics of
-the periodic $\bm{\Omega}_{\rm e}$ are neglected, a result justified in
-Appendix~\ref{app:a1}. In Section~\ref{s:harmonic}, we found that one effect of
-these $N \geq 1$ harmonics are fluctuations in $\bar{\theta}_{\rm e}$ when
-$\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$ with amplitude
+In Section~\ref{s:harmonic}, we found that one effect of the $N \geq 1$ Fourier
+harmonics are fluctuations in $\bar{\theta}_{\rm e}$ when
+$\overline{\Omega}_{\rm e} \approx N\Omega_{\rm LK}$ with amplitude given by
 Eq.~\eqref{eq:harmonic_dqeff}. On the other hand, in Appendix~\ref{app:a2}, we
 found that $\bm{R}$ is aligned with $\overline{\bm{\Omega}}_{\rm e}$ except when
 $\overline{\Omega}_{\rm e}$ is sufficiently close to $N\Omega_{\rm LK}$ that
 nutation of $\bm{\Omega}_{\rm e}$ becomes important, but we were not able to
-determine a quantitative criterion for the effect of nutation. In this section,
-we show numerically that the formulas given in the main text give good
-predictions for the orientation of $\bm{R}$.
+determine a closed-form criterion for the misalignment. In this section, we show
+numerically that the formulas given in the main text give good predictions for
+the orientation of $\bm{R}$.
 \begin{figure}
     \centering
     \includegraphics[width=0.5\columnwidth]{LK90_plots/7_3vec_mc.png}
@@ -1781,11 +1862,13 @@ predictions for the orientation of $\bm{R}$.
 
 To validate the analytic prediction given by Eq.~\eqref{eq:harmonic_dqeff}, we
 numerically compute $\tilde{\bm{M}}$. We study the $\eta \neq 0$, LK-enhanced
-regime. We still neglect GW dissipation in order for Floquet analysis to be
-applicable. For $2000$ different initial inclinations of the inner binary, we
-construct $\tilde{\bm{M}}$ by evolving the spin equation of motion
-Eq.~\eqref{eq:dsdt_weff} starting with the three initial conditions $\bm{S} =
-\uv{x}$, $\bm{S} = \uv{y}$, and $\bm{S} = \bm{z}$ (see Fig.~\ref{fig:app_vecs})
+regime ($m_1 = m_2 = m_3 = 30M_{\odot}$, $a_{\rm i} = 0.1\;\mathrm{AU}$, $e_{\rm
+i} = 10^{-3}$,$\tilde{a}_{\rm out} = 3\;\mathrm{AU}$). We still neglect GW
+dissipation in order for Floquet analysis to be applicable. For $2000$ different
+initial inclinations of the inner binary, we construct $\tilde{\bm{M}}$ by
+evolving the spin equation of motion Eq.~\eqref{eq:dsdt_weff} starting with the
+three initial conditions $\bm{S} = \uv{x}$, $\bm{S} = \uv{y}$, and $\bm{S} =
+\bm{z}$ (see Fig.~\ref{fig:app_vecs})
 over a single LK period, then using
 \begin{equation}
     \tilde{\bm{M}} = \bm{\Phi}\p{T_{\rm LK}} \bm{\Phi}^{-1}(0)
@@ -1793,18 +1876,17 @@ over a single LK period, then using
 \end{equation}
 where $\bm{\Phi}(t)$ is the \emph{principal fundamental matrix solution} whose
 columns are solutions to Eq.~\eqref{eq:dsdt_weff} and $\bm{\Phi}(0)$ is the
-identity. $\bm{R}$ is then the eigenvector that has
-eigenvalue $1$. Note that if $\bm{v}$ is an eigenvector, so too is $-\bm{v}$; we
-choose convention that $\bm{R}$ points in the same direction as
-$\overline{\bm{\Omega}}_{\rm e}$, i.e.\ $\Delta I_{\rm m} \equiv \abs{I_{\rm m}
-- \bar{I}_{\rm e}} < 90^\circ$.
+identity. $\bm{R}$ is then the eigenvector that has eigenvalue $1$. Note that if
+$\bm{v}$ is an eigenvector, so too is $-\bm{v}$; we choose convention that
+$\bm{R}$ points in the same direction as $\overline{\bm{\Omega}}_{\rm e}$, i.e.\
+$\Delta I_{\rm m} \equiv \abs{I_{\rm m} - \bar{I}_{\rm e}} < 90^\circ$.
 
 The orientation of $\bm{R}$ is related to the $\abs{\Delta \bar{\theta}_{\rm
 e}}$ predicted by Eq.~\eqref{eq:harmonic_dqeff}: if $\bm{R}$ and
 $\overline{\bm{\Omega}}_{\rm e}$ are misaligned by angle $\Delta I_{\rm m}$,
-then $\bar{\theta}_{\rm e}$ varies by up to $2\Delta I_{\rm m}$. Thus, we can
-infer $\Delta I_{\rm m}$ in the vicinity of each $\overline{\Omega}_{\rm e} =
-N\Omega_{\rm LK}$ resonance from Eq.~\eqref{eq:harmonic_dqeff}. Finally, if the
+then $\bar{\theta}_{\rm e}$ oscillates with amplitude $2\Delta I_{\rm m}$. Thus,
+we can infer $\Delta I_{\rm m}$ in the vicinity of each $\overline{\Omega}_{\rm
+e} = N\Omega_{\rm LK}$ resonance from Eq.~\eqref{eq:harmonic_dqeff}. If the
 resonances are well spaced, the total $\Delta I_{\rm m}$ is well approximated by
 the sum of the contribution from each $N$ harmonic, so
 \begin{equation}
@@ -1815,72 +1897,34 @@ the sum of the contribution from each $N$ harmonic, so
 \end{equation}
 Fig.~\ref{fig:finite_bin_comp_m} shows that this calculation predicts the
 numeric $\Delta I_{\rm m}$ rather well except for the exact shape near $I =
-90^\circ$. This tentatively supports our assertion that the primary deviation of
-$\bm{R}$ from $\uv{\bm{\Omega}}_{\rm e}$ comes at resonances
-$\overline{\Omega}_{\rm e} \approx N \Omega_{\rm LK}$ whose effects are captured
-by Eq.~\eqref{eq:harmonic_dqeff}.
+90^\circ$. This supports our assertion that $\bm{R}$ deviates from
+$\hat{\overline{\bm{\Omega}}}_{\rm e}$ at resonances $\overline{\Omega}_{\rm e}
+\approx N \Omega_{\rm LK}$, and the misalignment is captured by
+Eq.~\eqref{eq:harmonic_dqeff}.
 
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{LK90_plots/8bin_comp_m.png}
     \caption{Comparison of the orientation $\bm{R}$ obtained from numerical
-    simulations with the analytic resonance formula given by
-    Eq.~\eqref{eq:harmonic_dqeff} as a function of initial inclination, in the
+    simulations of Eq.~\eqref{eq:dsdt_weff} in the $\eta \neq 0$, LK-enhanced
+    parameter regime ($m_1 = m_2 = m_3 = 30M_{\odot}$, $a_{\rm i} =
+    0.1\;\mathrm{AU}$, $e_{\rm i} = 10^{-3}$,$\tilde{a}_{\rm out} =
+    3\;\mathrm{AU}$) with the analytic resonance formula given by
+    Eq.~\eqref{eq:app_im_pred} as a function of initial inclination, in the
     absence of GW dissipation. The top panel shows the ratio
     $\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$ is shown as the solid black
     line, while the horizontal dashed lines denote $\overline{\Omega}_{\rm e} =
     \Omega_{\rm LK}$ and $\overline{\Omega}_{\rm e} = 2\Omega_{\rm LK}$. The
-    bottom panel shows the misalignment angle between $\bm{R}$ and
-    $\overline{\bm{\Omega}}_{\rm e}$ as the black line. Separately, we can infer
-    from Eq.~\eqref{eq:harmonic_dqeff} the effect of the $N$th harmonic on the
-    misalignment between $\overline{\Omega}_{\rm e}$ and $\bm{R}$, given by
-    Eq.~\eqref{eq:app_im_pred}. We see that the scaling of the misalignment
-    angle near resonance is generally well captured by our analytic formula, but
-    the numerically computed misalignment angle is smaller than predicted near
-    $I = 90^\circ$. Furthermore, the numeric misalignment angle crosses $0$
-    within the $N = 1$ resonance, which is not predicted by our simple
+    bottom panel shows the misalignment angle between the numerically-computed
+    $\bm{R}$ and $\overline{\bm{\Omega}}_{\rm e}$ as the black line. Separately,
+    the predicted misalignment $\Delta I_{\rm m}$ due to interaction with the
+    Fourier harmonics is given by Eq.~\eqref{eq:app_im_pred}. We see that the
+    scaling of the misalignment angle near resonances is generally well captured
+    by our analytic formula, but there are some small discrepancies near
+    $90^\circ$, and the numerical misalignment angle crosses $0$ within the $N =
+    1$ resonance, which is not predicted by our simple
     theory.}\label{fig:finite_bin_comp_m}
 \end{figure}
 
-This result suggests that our approximation in Section~\ref{app:a2} where the
-effect of nutation of $\bm{\Omega}_{\rm e}$ is small except near resonance is
-largely accurate. We can qualitatively understand this if we assume that
-$e^{\Phi'} \approx e^{\Phi}$ in Eq.~\eqref{eq:app_bexact} (requiring small
-$\tilde{\bm{B}}$, which we will verify retroactively, and being far from
-resonance), which gives
-\begin{equation}
-    \tilde{\bm{B}} \approx \s{e^{-\Phi},\tilde{\bm{A}}}e^{\Phi}.
-\end{equation}
-Next, recall that $\Phi$ is the integral of $-\tilde{\bm{A}}$, and so the
-magnitude of $\overline{\tilde{\bm{B}}}$ [$\tilde{\bm{B}}$ primarily affects
-$\tilde{\bm{M}}$ via its average, see Eq.~\eqref{eq:app_Mgen}] depends on the
-average misalignment between the vectors $\bm{\Omega}_{\rm e}$ and $\int^t
-\bm{\Omega}_{\rm e}\;\mathrm{d}t \simeq \overline{\bm{\Omega}}_{\rm e}$. There
-are a few possible regimes to consider: (i) if $\mathcal{A} \gg 1$, then LK
-oscillations are frozen, and $\bm{\Omega}_{\rm e}$ does not nutate; (ii) if
-$\mathcal{A} \ll 1$, then $\uv{\Omega}_{\rm e} \approx \uv{L}_{\rm tot}$ for
-almost all of $T_{\rm Lk}$; and (iii) if $\mathcal{A} \simeq 1$, then
-$j\p{e_{\max}}$ cannot be too small [Eq.~\eqref{eq:jemaxepsgr}], and so
-$\rdil{\ascnode}{t}$ and $\bm{\Omega}_{\rm SL}$ cannot vary too much within an
-LK cycle and the nutation of $\bm{\Omega}_{\rm e}$ is limited. This implies that
-$\tilde{\bm{B}}$ is likely small when far from resonance, justifying our prior
-claim. While this analysis is not rigorous, it gives a qualitative
-interpretation to the success of the approximation where nutation of
-$\bm{\Omega}_{\rm e}$ is neglected except near resonances.
-
-Finally, we take note of one difference between the resonance models in
-Section~\ref{s:harmonic} and Appendix~\ref{app:a2}. If only one harmonic exists,
-e.g.\ $\Omega_{\rm eN} = 0$ for $N \geq 2$, then Eq.~\eqref{eq:harmonic_dqeff}
-predicts that there should only be one resonance, at $\overline{\Omega}_{\rm e}
-= \Omega_{\rm LK}$, while Eq.~\eqref{eq:app_Mgen} suggests there should still be
-multiple resonances when $\overline{\Omega}_{\rm e} = N\Omega_{\rm LK}$. In the
-problem studied in this paper, this distinction is unimportant since
-$\overline{\Omega}_{\rm e}$ does not exceed a few $\Omega_{\rm LK}$, and the
-first few harmonics $\bm{\Omega}_{\rm eN}$ are quite similar (the characteristic
-scale over which the $\bm{\Omega}_{\rm eN}$ change is $1 / j(e_{\max}) \gg 1$),
-so the particular $\bm{\Omega}_{\rm eN}$ responsible for a resonance makes
-little quantitative difference. \textbf{NB\@: Numerical experiments of a toy
-model suggest the latter picture is correct, but I am not sure I want to write
-this up.}
-
+\label{lastpage} % chktex 24
 \end{document}
