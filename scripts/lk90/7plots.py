@@ -39,7 +39,7 @@ def plot_3vec():
 
     # draw arrows
     l_xy = get_xy(0)
-    l_c = 'k'
+    l_c = 'r'
     ax.annotate('', xy=l_xy, xytext=(0, 0),
                  arrowprops=arrowprops(l_c))
     ax.text(l_xy[0] - offset / 3, l_xy[1] + offset,
@@ -48,7 +48,7 @@ def plot_3vec():
 
     ld_q = 20
     ld_xy = get_xy(ld_q)
-    ld_c = 'r'
+    ld_c = 'k'
     ax.annotate('', xy=ld_xy, xytext=(0, 0),
                  arrowprops=arrowprops(ld_c))
     ax.text(ld_xy[0] - offset / 2, ld_xy[1] + offset,
@@ -287,7 +287,7 @@ def plot_3vec_mono():
 
     # draw arrows
     l_xy = get_xy(0)
-    l_c = 'k'
+    l_c = 'r'
     ax.annotate('', xy=l_xy, xytext=(0, 0),
                  arrowprops=arrowprops(l_c))
     ax.text(l_xy[0] - offset / 3, l_xy[1] + offset,
@@ -296,7 +296,7 @@ def plot_3vec_mono():
 
     ld_q = 30
     ld_xy = get_xy(ld_q)
-    ld_c = 'r'
+    ld_c = 'k'
     ax.annotate('', xy=ld_xy, xytext=(0, 0),
                  arrowprops=arrowprops(ld_c))
     ax.text(ld_xy[0] - offset / 2, ld_xy[1] + offset,
@@ -417,7 +417,7 @@ def plot_bin_bifurcations():
         plt.clf()
 
 if __name__ == '__main__':
-    # plot_3vec()
+    plot_3vec()
     plot_3vec_eta()
-    # plot_3vec_mono()
+    plot_3vec_mono()
     # plot_bin_bifurcations()

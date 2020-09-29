@@ -1210,7 +1210,7 @@ def qslfs_run(npts=200):
     ax1.set_yticklabels([r'$10^{6}$', r'$10^{8}$', r'$10^{10}$'])
 
     ax2.plot(I_degs, qslfd_arr, 'b', lw=1.5)
-    ax2.set_xlabel(r'$I_{\rm i}$ (Deg)')
+    ax2.set_xlabel(r'$I_{\rm 0}$ (Deg)')
     ax2.set_ylabel(r'$\theta_{\rm sl, f}$ (Deg)')
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
@@ -1296,14 +1296,14 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
     ax2.axhline(2, c='k', lw=0.7, alpha=0.7, ls=':')
 
     # angle between averaged rotation axis and true monodromy eigenvector
-    ax3.plot(I_d, np.abs(delta_Im), 'k', label='Num', lw=1.5, alpha=0.7)
+    ax3.plot(I_d, np.abs(delta_Im), 'k', label='Numeric', lw=1.5, alpha=0.7)
     ylims = ax3.get_ylim()
-    ax3.set_ylabel(r'$\Delta I_{\rm m}$')
-    N1term = np.degrees(np.abs(
+    ax3.set_ylabel(r'$\Delta I_{\rm m}$ (Deg)')
+    N1term = 0.5 * np.degrees(np.abs(
         np.sin(Ies - Ie1s) * ratio1s / (np.abs(ratios) - 1)))
     N2term = np.degrees(np.abs(
         np.sin(Ies - Ie2s) * ratio2s / (np.abs(ratios) - 2)))
-    ax3.plot(I_d, N1term + N2term, 'g', label=r'Resonant', lw=1.5, alpha=0.7)
+    ax3.plot(I_d, N1term + N2term, 'g', label=r'Analytic', lw=1.5, alpha=0.7)
     ax3.legend(fontsize=12)
     ax3.set_ylim(ylims)
     ax3.set_xlabel(r'$I$ (Deg)')
@@ -1311,8 +1311,8 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
     ax3.set_xticks([0, 45, 90, 135, 180])
     ax3.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
 
-    fig.subplots_adjust(hspace=0.03)
     plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
     plt.savefig(fn + '_m', dpi=600)
     plt.clf()
 
@@ -1322,8 +1322,8 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
     else:
         fig, (ax1, ax2, ax4) = plt.subplots(3, 1, figsize=(6, 10), sharex=True,
                                        gridspec_kw={'height_ratios':[2, 2, 5]})
-        ax1.semilogy(I_degs, tm, 'k', lw=1)
-        ax1.set_ylabel(r'Merger time (yr)')
+        ax1.plot(I_degs, tm / 1e8, 'k', lw=1)
+        ax1.set_ylabel(r'Merger time ($10^8$ yr)')
     ax2.semilogy(I_d, As, 'k', lw=1)
     ax2.axhline(1, c='k', ls=':', lw=0.7, alpha=0.5)
     ax2.set_ylabel(r'$|\mathcal{A}|$')
@@ -1336,10 +1336,11 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
     # ax4.plot(I_d, np.degrees(qeis), 'g', lw=1.5, alpha=0.7)
     Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I_d]
     qslf_dl = np.degrees(np.abs(Ies - np.radians(Itot)))
-    ax4.plot(I_d, qslf_dl, 'r', lw=2)
+    ax4.plot(I_d, qslf_dl, 'r', lw=2, alpha=0.8)
 
     # do fill_between for 3 intervals, need 4 endpoints
-    large_delta_idx = np.where(np.abs(delta_Im) > 5)[0]
+    delta_Im = N1term
+    large_delta_idx = np.where(np.abs(delta_Im) > 6)[0]
     any_delta_idx = np.where(np.abs(delta_Im) > 0.1)[0]
     start1 = any_delta_idx[0]
     end1 = large_delta_idx[np.where(large_delta_idx < len(I_d) // 2)[0][-1]]
@@ -1362,11 +1363,11 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
 
     ax4.set_xticks([0, 45, 90, 135, 180])
     ax4.set_xticklabels([r'$0$', r'$45$', r'$90$', r'$135$', r'$180$'])
-    ax4.set_xlabel(r'$I_{\rm i}$ (Deg)')
+    ax4.set_xlabel(r'$I_{\rm 0}$ (Deg)')
     ax4.set_ylabel(r'$\theta_{\rm sl, f}$')
 
-    fig.subplots_adjust(hspace=0.03)
     plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
     plt.savefig(fn, dpi=600)
     plt.clf()
 
@@ -1473,11 +1474,14 @@ if __name__ == '__main__':
 
     # get_qeff0(np.radians(85), params_in)
     bin_comp(I_degs_etanz, qslfs_nz, params_in)
-    # params_smbh = 30, 30, 3e7, 0.1, 300, 0
-    # bin_comp(I_degs_eta0, qslfs_eta0, params_smbh, fn='8bin_comp_eta0',
-    #          tm=tm_eta0)
     # bin_comp(e0=1e-2, fn='8bin_comp_en2')
     # bin_comp(e0=3e-3, fn='8bin_comp_en1')
+    params_smbh = 30, 30, 3e7, 0.1, 300, 0
+    I_degs_smbh = np.concatenate((I_degs_eta0, 180 - I_degs_eta0))
+    qslfs_smbh = np.concatenate((qslfs_eta0, qslfs_eta0))
+    tm_smbh = np.concatenate((tm_eta0, tm_eta0[::-1]))
+    bin_comp(I_degs_smbh, qslfs_smbh, params_smbh, fn='8bin_comp_eta0',
+             tm=tm_smbh)
 
     # run_long(80, tol=1e-8)
     # run_long(70, tol=1e-8)
