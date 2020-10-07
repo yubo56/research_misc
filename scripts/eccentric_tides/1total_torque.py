@@ -67,12 +67,12 @@ def plot_ecc(w_s=0, num_pts=1000):
             (1 - 0.691 * w_s / eta2)**(8/3) * gamma(23 / 3) / gamma(5)
             / 2**(8/3))
         sign = +1
-        plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
+        # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.ylabel(r'$\tau / \hat{\tau}$')
     else:
         torque = -prefactor * ((w_s / eta2 - 1)**(8/3) * 2**(8/3))
         sign = -1
-        plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
+        # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
         plt.ylabel(r'$-\tau / \hat{\tau}$')
     plt.semilogy(e_vals, sign * totals, 'k+', ms=ms, alpha=af,
                  label='Sum')
@@ -86,7 +86,12 @@ def plot_ecc(w_s=0, num_pts=1000):
     plt.savefig('1totals_ecc_%d' % w_s, dpi=400)
     plt.clf()
 
-def get_integral(w_s, e, Nmax=300, dN=0.01):
+def get_explicit(w_s, e, Nmax=500):
+    coeffs = get_coeffs_fft(num_pts, 2, e)
+    torques = get_torques(num_pts, w_s)
+    totals.append(np.sum(coeffs**2 * torques))
+
+def get_integral(w_s, e, Nmax=500, dN=0.01):
     # numerically evaluates the integral for arbitrary spin
     f2 = 1 + 15*e**2/2 + 45*e**4/8 + 5*e**6/16
     f5 = 1 + 3 * e**2 + 3 * e**4 / 8
@@ -112,7 +117,7 @@ def plot_spin(e=0.9, num_pts=1000):
     totals = np.array(totals)
     totals_integ = np.array(totals_integ)
 
-    plt.xlabel(r'$\frac{\Omega_s}{\Omega}$')
+    plt.xlabel(r'$\Omega_s / \Omega$')
     plt.ylabel(r'$\tau / \hat{\tau}$')
     plt.title(r'$e = %.1f$' % e)
     pos_idxs = np.where(totals > 0)[0]
@@ -207,11 +212,11 @@ def plot_energy(w_s=0, num_pts=1000):
 
     # anal fits
     if w_s < np.max(eta2):
-        plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
+        # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
         plt.ylabel(r'$\dot{E}_{in} / \hat{\tau}\Omega$')
         sign = +1
     else:
-        plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
+        # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
         plt.ylabel(r'$-\dot{E}_{in} / \hat{\tau}\Omega$')
         sign = -1
 
@@ -313,17 +318,23 @@ def plot_pseudo():
     eta2 = 4 * f2 / (5 * f5 * (1 - e_vals**2)**(3/2))
 
     w_syncs = []
+    w_syncs_sum = []
     for e in e_vals:
-        Nmax_max = 10 * np.sqrt(1 + e) / (1 - e**2)**(3/2)
+        Nmax_max = 20 * np.sqrt(1 + e) / (1 - e**2)**(3/2)
         def opt_func(w):
             return get_integral(w, e, Nmax=int(Nmax_max))
+        def opt_func_sum(w):
+            return get_energies_integ(w, e, Nmax=int(Nmax_max))
         res = brenth(opt_func, 0, Nmax_max)
-        print(e, res)
+        res2 = brenth(opt_func_sum, 0, Nmax_max)
+        print(e, res, res2)
         w_syncs.append(res)
-    plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
+        w_syncs_sum.append(res2)
+    # plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
+    plt.loglog(1 - e_vals**2, w_syncs_sum, label='Sum')
+    plt.loglog(1 - e_vals**2, eta2 / 0.691, label=r'$\eta_2 / 0.691$')
     plt.loglog(1 - e_vals**2, np.sqrt(1 + e_vals) / (1 - e_vals**2)**(3/2),
                label=r'$N_{\rm peri}$')
-    plt.loglog(1 - e_vals**2, eta2 / 0.691, label=r'$\eta_2 / 0.691$')
     plt.xlabel(r'$1 - e^2$')
     plt.ylabel(r'$\Omega_{\rm s, sync} / \Omega$')
     plt.legend()
@@ -370,10 +381,10 @@ if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
     # plot_spin()
-    plot_energy()
-    plot_energy(400)
+    # plot_energy()
+    # plot_energy(400)
     # plot_spin_energy(e=0.9)
-    # plot_pseudo()
+    plot_pseudo()
     # plot_7319()
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
     pass

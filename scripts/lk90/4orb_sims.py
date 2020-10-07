@@ -341,7 +341,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
         trightidx = len(t) - 1
     xlim_idxs = [tleftidx, min(trightidx, len(t) - 1)]
 
-    fig, axs_orig = plt.subplots(2, 2, figsize=(12, 9))
+    fig, axs_orig = plt.subplots(2, 2, figsize=(8, 6))
     axs = np.reshape(axs_orig, np.size(axs_orig))
 
     dWtot, dWsl, dWdot, t_lkmids, dWslx, dWslz = get_dWs(ret_lk_sliced, getter_kwargs)
@@ -392,10 +392,10 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     for ax in axs[ :lk_axf // 2 + 1]:
         ax.set_xticks(xticks)
         ax.set_xticklabels([])
-        ax.set_xlim([t[0], t[-1]])
+        ax.set_xlim([t[0], 1.03 * t[-1]])
     for ax in axs[lk_axf // 2 + 1: ]:
         ax.set_xlabel(r'$t / t_{\rm LK, 0}$')
-        ax.set_xlim(left=t[0], right=t[-1])
+        ax.set_xlim([t[0], 1.03 * t[-1]])
     print('Saving', folder + fn_template % get_fn_I(I0))
     plt.tight_layout()
     plt.savefig(folder + fn_template % get_fn_I(I0), dpi=200)

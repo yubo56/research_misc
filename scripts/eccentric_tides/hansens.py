@@ -128,8 +128,8 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     neg_idx = np.where(coeffs < 0)[0]
     plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
                'k', ms=ms, label=r'$F_{N2}$', alpha=0.7)
-    plt.loglog(n_vals, np.abs(coeffs2[1: ]),
-               'r', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
+    # plt.loglog(n_vals, np.abs(coeffs2[1: ]),
+    #            'r', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
                'k:', ms=ms, alpha=0.7)
     # params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
@@ -294,7 +294,7 @@ def plot_naked_hansens(m=2, e=0.9):
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
+    plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
@@ -302,6 +302,6 @@ if __name__ == '__main__':
     # energy terms
     # for e_val in np.arange(0.5, 0.96, 0.05):
     #     plot_hansens_0(e_val)
-    plot_hansens_0(0.9)
+    # plot_hansens_0(0.9)
 
-    # plot_naked_hansens(e=0.99)
+    # plot_naked_hansens(e=0.9)

@@ -10,7 +10,7 @@ try:
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.rc('text', usetex=True)
-    plt.rc('font', family='serif', size=16)
+    plt.rc('font', family='serif', size=20)
     plt.rc('lines', lw=3.5)
     plt.rc('xtick', direction='in', top=True, bottom=True)
     plt.rc('ytick', direction='in', left=True, right=True)
@@ -1328,10 +1328,6 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
     ax2.axhline(1, c='k', ls=':', lw=0.7, alpha=0.5)
     ax2.set_ylabel(r'$|\mathcal{A}|$')
 
-    # correct range?
-    # qslfs_ranged = np.minimum(qslfs, 180 - qslfs)
-    ax4.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
-
     # same as dl_prediction
     # ax4.plot(I_d, np.degrees(qeis), 'g', lw=1.5, alpha=0.7)
     Itot = [get_I1(_I1, getter_kwargs['eta']) for _I1 in I_d]
@@ -1340,7 +1336,7 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
 
     # do fill_between for 3 intervals, need 4 endpoints
     delta_Im = N1term
-    large_delta_idx = np.where(np.abs(delta_Im) > 6)[0]
+    large_delta_idx = np.where(np.abs(delta_Im) > 3)[0]
     any_delta_idx = np.where(np.abs(delta_Im) > 0.1)[0]
     start1 = any_delta_idx[0]
     end1 = large_delta_idx[np.where(large_delta_idx < len(I_d) // 2)[0][-1]]
@@ -1350,12 +1346,16 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
         np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl))
     bound_high = np.maximum(
         np.abs(delta_Im - qslf_dl), np.abs(delta_Im + qslf_dl))
-    ax4.fill_between(
-        I_d[end1:start2],
-        bound_low[end1:start2],
-        bound_high[end1:start2],
-        color='r',
-        alpha=0.3)
+    # ax4.fill_between(
+    #     I_d[end1:start2],
+    #     bound_low[end1:start2],
+    #     bound_high[end1:start2],
+    #     color='r',
+    #     alpha=0.3)
+
+    # plot data
+    ax4.plot(I_degs, qslfs, 'bo', ms=1.0, label='Data')
+
     ylims = ax4.get_ylim()
     ax4.fill_between(I_d[start1:end1], *ylims, color='r', alpha=0.3)
     ax4.fill_between(I_d[start2:end2], *ylims, color='r', alpha=0.3)
