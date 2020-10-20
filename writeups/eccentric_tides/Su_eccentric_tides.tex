@@ -208,7 +208,7 @@ the Hansen coefficients $F_{N2}$:
 
     \item Since the left hand side of Eq.~\eqref{eq:hansen_series} is smooth in
         time, the Fourier coefficients must fall off exponentially for
-        sufficiently large $N$.
+        sufficiently large $N$ (the Paley-Wiener theorem).
 
     \item Since there are no characteristic timescales between $\Omega$ and
         $\Omega_{\rm p}$, we anticipate the Hansen coefficients must be scale
@@ -244,7 +244,7 @@ to also scale like $N^2$ for $N \ll \Omega_{\rm p} / \Omega$.}.
 
 To constrain the remaining two free parameters $\eta_2$ and $C_2$ the
 normalization, we use the well known Hansen coefficient homements
-\citep{hut,sl,vlf}:
+\citep{hut81,sl,vlf}:
 \begin{align}
     \sum\limits_{N = -\infty}^\infty F_{N2}^2
         &= \frac{1 + 3e^2 + 3e^4/8}{\p{1 - e^2}^{9/2}}
@@ -279,7 +279,7 @@ ansatz is of form
 \end{equation}
 Here, again, we expect $\eta_0 \simeq \Omega / \Omega_{\rm p}$. The two free
 parameters $C_0$ and $\eta_0$ are again fixed by the well known moments
-\citep{hut,sl,vlf}:
+\citep{hut81,sl,vlf}:
 \begin{align}
     \sum\limits_{N = -\infty}^\infty F_{N0}^2 &= \frac{f_5}{\p{1 - e^2}^{9/2}}
         ,\\
@@ -381,12 +381,20 @@ and~\ref{fig:totals_s} for the accuracy of this prediction.
 In fact, Eq.~\eqref{eq:tau_approx} gives a very concrete prediction for the
 pseudosynchronization frequency:
 \begin{equation}
-    \frac{\Omega_{\rm s, sync}}{\Omega} =
-        \frac{\eta_2}{0.691}.\label{eq:eta2_691}
+    \frac{\Omega_{\rm s, ps}}{\Omega} =
+        \frac{\eta_2}{0.691} = \frac{4f_2}{5(0.691)f_5\p{1 -
+        e^2}^{3/2}}.\label{eq:eta2_691}
 \end{equation}
-This has the expected scaling $\Omega_{\rm s, sync} \propto (1 - e^2)^{-3/2}$,
-but is more accurate than $\Omega_{\rm s, sync} \simeq \Omega_{\rm p}$, as seen
-in Fig.~\ref{fig:pseudosync}.
+This has the expected scaling $\Omega_{\rm s, ps} \propto (1 - e^2)^{-3/2}$,
+but is more accurate than $\Omega_{\rm s, ps} \simeq \Omega_{\rm p}$, as seen
+in Fig.~\ref{fig:pseudosync}. By comparison, in standard weak friction theory of
+equilibrium tides, the pseudo-synchronized rotation rate is given by
+\citep{alexander73, hut81}
+\begin{equation}
+    \frac{\Omega_{\rm s, ps}^{\rm (Eq)}}{\Omega} = \frac{f_2}{f_5\p{1 -
+        e^2}^{3/2}}.
+\end{equation}
+This differs from our Eq.~\eqref{eq:eta2_691} by a factor of $1.15$.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1pseudosynchronous.png}
@@ -495,6 +503,11 @@ and~\ref{fig:e400}).
         near pseudosynchronization.
 \end{itemize}
 
+\section{Acknowledgements}
+
+We thank Michelle Vick and Christopher O'Connor for fruitful discussions. This
+work has been supported in part by the NSF grant AST-17152. YS is supported by
+the NASA FINESST grant 19-ASTRO19-0041.% chktex 8
 
 \bibliographystyle{mnras}
 \bibliography{Su_eccentric_tides}

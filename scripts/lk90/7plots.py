@@ -69,7 +69,7 @@ def plot_3vec():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\hat{\overline{\mathbf{L}}}$',
+            r'$\hat{\mathbf{L}}$',
             fontdict={'c': s_c})
 
     # draw arcs
@@ -109,7 +109,7 @@ def plot_3vec():
     ax.add_patch(s_arc)
     ax.text(np.sin(np.radians(0.8 * s_q)) * 0.4 + offset,
             np.cos(np.radians(0.8 * s_q)) * 0.4 + 2 * offset,
-            r'$\bar{I}$',
+            r'$I$',
             fontdict={'c': s_c})
     xy_s_tip = (
         0.4 * np.sin(np.radians(s_q)),
@@ -417,7 +417,7 @@ def plot_bin_bifurcations():
         plt.clf()
 
 if __name__ == '__main__':
-    # plot_3vec()
-    plot_3vec_eta()
+    plot_3vec()
+    # plot_3vec_eta()
     # plot_3vec_mono()
     # plot_bin_bifurcations()
