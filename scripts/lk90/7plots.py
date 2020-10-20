@@ -177,7 +177,7 @@ def plot_3vec_eta():
     ax.annotate('', xy=md_xy, xytext=(0, 0),
                  arrowprops=arrowprops(md_c))
     ax.text(md_xy[0] - offset / 2, md_xy[1] + offset,
-            r'$\hat{\overline{\mathbf{L}}}_{\rm out}$',
+            r'$\hat{\mathbf{L}}_{\rm out}$',
             fontdict={'c': md_c})
 
     s_q = 50
@@ -186,7 +186,7 @@ def plot_3vec_eta():
     ax.annotate('', xy=s_xy, xytext=(0, 0),
                  arrowprops=arrowprops(s_c))
     ax.text(s_xy[0] - offset, s_xy[1] + offset,
-            r'$\hat{\overline{\mathbf{L}}}$',
+            r'$\hat{\mathbf{L}}$',
             fontdict={'c': s_c})
 
     # draw arcs
@@ -213,7 +213,7 @@ def plot_3vec_eta():
 
     ax.text(np.sin(np.radians(s_q * 0.9)) * 0.9 - offset,
             np.cos(np.radians(s_q * 0.9)) * 0.9 + 3 * offset,
-            r'$\bar{I}$',
+            r'$I$',
             fontdict={'c': 'k'})
     xy_md_tip = (
         0.9 * np.sin(np.radians(s_q)),
@@ -228,7 +228,7 @@ def plot_3vec_eta():
 
     ax.text(np.sin(np.radians(md_q * 2.5)) * 0.65 - 2 * offset,
             np.cos(np.radians(md_q * 2.5)) * 0.65 + 3 * offset,
-            r'$\bar{I}_{\rm tot, out}$',
+            r'$I_{\rm tot, out}$',
             fontdict={'c': md_c})
     xy_md_tip = (
         0.65 * np.sin(np.radians(md_q)),
@@ -241,7 +241,7 @@ def plot_3vec_eta():
     ax.add_patch(s_arc)
     ax.text(np.sin(np.radians(0.8 * s_q)) * 0.4 - offset,
             np.cos(np.radians(0.8 * s_q)) * 0.4 + 3 * offset,
-            r'$\bar{I}_{\rm tot}$',
+            r'$I_{\rm tot}$',
             fontdict={'c': s_c})
     xy_s_tip = (
         0.4 * np.sin(np.radians(s_q)),
@@ -417,7 +417,7 @@ def plot_bin_bifurcations():
         plt.clf()
 
 if __name__ == '__main__':
-    plot_3vec()
+    # plot_3vec()
     plot_3vec_eta()
-    plot_3vec_mono()
+    # plot_3vec_mono()
     # plot_bin_bifurcations()

@@ -1326,7 +1326,7 @@ def bin_comp(I_degs, qslfs, params, e0=1e-3, fn='8bin_comp', tm=None):
         ax1.set_ylabel(r'Merger time ($10^8$ yr)')
     ax2.semilogy(I_d, As, 'k', lw=1)
     ax2.axhline(1, c='k', ls=':', lw=0.7, alpha=0.5)
-    ax2.set_ylabel(r'$|\mathcal{A}|$')
+    ax2.set_ylabel(r'Initial $|\mathcal{A}|$')
 
     # same as dl_prediction
     # ax4.plot(I_d, np.degrees(qeis), 'g', lw=1.5, alpha=0.7)
@@ -1470,18 +1470,18 @@ if __name__ == '__main__':
     # print(np.degrees(get_qeff0(np.radians(Ilimd - 0.35), params)[2]))
     # these two finally agree
 
-    # qslfs_run()
+    qslfs_run()
 
     # get_qeff0(np.radians(85), params_in)
-    bin_comp(I_degs_etanz, qslfs_nz, params_in)
+    # bin_comp(I_degs_etanz, qslfs_nz, params_in)
     # bin_comp(e0=1e-2, fn='8bin_comp_en2')
     # bin_comp(e0=3e-3, fn='8bin_comp_en1')
-    params_smbh = 30, 30, 3e7, 0.1, 300, 0
-    I_degs_smbh = np.concatenate((I_degs_eta0, 180 - I_degs_eta0))
-    qslfs_smbh = np.concatenate((qslfs_eta0, qslfs_eta0))
-    tm_smbh = np.concatenate((tm_eta0, tm_eta0[::-1]))
-    bin_comp(I_degs_smbh, qslfs_smbh, params_smbh, fn='8bin_comp_eta0',
-             tm=tm_smbh)
+    # params_smbh = 30, 30, 3e7, 0.1, 300, 0
+    # I_degs_smbh = np.concatenate((I_degs_eta0, 180 - I_degs_eta0))
+    # qslfs_smbh = np.concatenate((qslfs_eta0, qslfs_eta0))
+    # tm_smbh = np.concatenate((tm_eta0, tm_eta0[::-1]))
+    # bin_comp(I_degs_smbh, qslfs_smbh, params_smbh, fn='8bin_comp_eta0',
+    #          tm=tm_smbh)
 
     # run_long(80, tol=1e-8)
     # run_long(70, tol=1e-8)

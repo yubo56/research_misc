@@ -356,7 +356,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                      label=r'$\bar{I}$')
     axs[2].set_ylim(bottom=82) # make some space for legend below plot
     axs[2].set_ylabel(r'$I$ (Deg)')
-    axs[2].legend(fontsize=14, ncol=2)
+    axs[2].legend(fontsize=14, ncol=2, loc='lower left')
 
     axs[3].plot(t, np.degrees(q_sl), 'k')
     axs[3].set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
@@ -385,7 +385,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     # axs[5].legend(fontsize=14, ncol=2, loc='upper left')
     # axs[5].set_ylim(ylims)
     # axs[5].set_ylim(bottom=0.03)
-    # axs[5].set_ylabel(r'Frequency ($(t_{\rm LK, 0})^{-1}$)')
+    # axs[5].set_ylabel(r'Frequency [$(t_{\rm LK, 0})^{-1}$]')
 
     lk_axf = len(axs) - 1
     xticks = axs[lk_axf].get_xticks()[1:-1]
@@ -425,6 +425,9 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[3].set_ylim(bottom=-7)
     axs[3].legend(fontsize=12, loc='lower left', ncol=2)
     axs[3].set_ylabel(r'$\bar{I}_{\rm e}$ (Deg)')
+    axs[3].set_ylim(top=190)
+    axs[3].set_yticks([0, 60, 120, 180])
+    axs[3].set_yticklabels([r'$0$', r'$60$', r'$120$', r'$180$'])
 
     axs[4].plot(t, np.degrees(q_sl), 'k')
     axs[4].set_ylabel(r'$\theta_{\rm sl}$ (Deg)')
@@ -444,7 +447,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     axs[5].legend(fontsize=14, ncol=2, loc='upper left')
     axs[5].set_ylim(ylims)
     axs[5].set_ylim(bottom=0.03)
-    axs[5].set_ylabel(r'Frequency ($(t_{\rm LK, 0})^{-1}$)')
+    axs[5].set_ylabel(r'Frequency [$(t_{\rm LK, 0})^{-1}$]')
 
     W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
     # there's a spike in ratio at late times, probably not physical, don't plot
@@ -480,7 +483,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                            * pert1_strength[1:last_idx] / 2), 'b',
                 label='Harmonic')
     axs[7].set_ylabel(r'$|\Delta \bar{\theta}_{\rm e}|$ (Deg)')
-    axs[7].legend(fontsize=12, ncol=2)
+    axs[7].legend(fontsize=14, loc='lower left')
     axs[7].set_yscale('log')
     axs[7].set_ylim(bottom=1e-3, top=10)
 
@@ -498,7 +501,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     plt.savefig(folder + fn_template % get_fn_I(I0) + '_zoom', dpi=200)
     plt.close()
 
-    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(7, 11), sharex=True)
+    fig, (ax1, ax2, ax3) = plt.subplots(3, 1, figsize=(6, 9), sharex=True)
     W_lk_ratio = dWtot[ :-1] * np.diff(t_lkmids) / (2 * np.pi)
     # there's a spike in ratio at late times, probably not physical, don't plot
     last_idx = np.where(t_lkmids > t[xlim_idxs[1]])[0][0]
@@ -517,7 +520,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
     ax1.legend(fontsize=14, ncol=2, loc='upper left')
     ax1.set_ylim(ylims)
     ax1.set_ylim(bottom=0.003)
-    ax1.set_ylabel(r'Frequency ($(t_{\rm LK, 0})^{-1}$)')
+    ax1.set_ylabel(r'Frequency [$(t_{\rm LK, 0})^{-1}$]')
 
     ax2.plot(t_lkmids[ :last_idx],
                 W_lk_ratio[ :last_idx],
@@ -555,7 +558,7 @@ def plot_all(folder, ret_lk, s_vec, getter_kwargs,
                            * pert1_strength[1:last_idx] / 2)
              + averaged_qeff[0], 'b')
     ax3.legend(ncol=2, loc='upper left', fontsize=14)
-    ax3.set_ylabel(r'$\bar{\theta}_{\rm e}$ (Deg)')
+    ax3.set_ylabel(r'$\theta_{\rm e}$ and $\bar{\theta}_{\rm e}$ (Deg)')
     ax3.set_xlabel(r'$t / t_{\rm LK, 0}$')
 
     plt.tight_layout()
@@ -1286,6 +1289,9 @@ def qslscan():
     ax2.set_yticks([0, 30, 60, 90])
     ax2.set_yticklabels([r'$0$', r'$30$', r'$60$', r'$90$'])
     ax2.axhline(88.51, c='k', lw=0.7)
+    ax2.annotate(r"``$90^\circ$ attractor''", (89.62, 87),
+                 (89.5, 55), fontsize=14, c='r',
+                 arrowprops=dict(width=3, headwidth=12, fc='r'))
 
     ax2.plot(I_degs, 88.5 - (cosd(90.3)**2 / cosd(I_degs)**2)**(37/16),
              'k:', lw=1, alpha=0.7)
@@ -1301,10 +1307,10 @@ if __name__ == '__main__':
     #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
     run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
     run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
-    plot_good_quants()
+    # plot_good_quants()
 
-    deltas_deg = run_ensemble('4sims_scan/')
-    plot_deviations_good('4sims_scan/', deltas_deg)
+    # deltas_deg = run_ensemble('4sims_scan/')
+    # plot_deviations_good('4sims_scan/', deltas_deg)
 
     # run_905_grid()
     # run_905_grid(newfolder='4sims905_htol/', orig_folder='4sims905_htol/',
@@ -1316,5 +1322,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    qslscan()
+    # qslscan()
     pass
