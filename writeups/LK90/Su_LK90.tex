@@ -66,24 +66,33 @@ of Astronomy, Cornell University, Ithaca, NY 14853, USA}
 \date{\today}
 
 \begin{abstract}
-    Many previous studies have considered the spin and orbital dynamics of
-    black hole (BH) binaries that undergo large eccentricity excitations through
-    Lidov-Kozai oscillations due to the influence of a highly inclined tertiary
-    companion and merge via gravitational wave radiation. However, these extreme
+    Black-hole (BH) binary mergers driven by gravitational perturbations of
+    tertiary companions constitute an important class of dynamical formation
+    channels for merging BH binaries detected by LIGO/VIRGO\@. Recent works have
+    examined numerically the combined orbital and spin dynamics of BH binaries
+    that undergo large Lidov-Kozai \textcolor{Corr}{(LK)} eccentricity
+    oscillations due to the influence of a highly inclined tertiary companion
+    and merge via gravitational wave radiation. However, the extreme
     eccentricity variations make such systems difficult to characterize
-    analytically. In this paper, we provide an analytical formalism for
-    understanding the spin dynamics of the inner BHs to quadrupole order. We
-    show that, under certain conditions, the regular eccentricity oscillations
-    of the binary can be averaged over to determine the long-term behavior of
-    the system in a smooth and gradual way. In particular, we demonstrate that
-    the final spin-orbit misalignment angle when the inner binary
-    gravitationally decouples from the tertiary companion is often simply
-    related to the binary's primordial spin orientation through an approximate
-    adiabatic invariant. We calculate the deviation from adiabaticity in closed
-    form as a function of initial conditions. We also place accurate constraints
-    on when this adiabatic invariant breaks down due to resonant interactions.
-    We consider both stellar-mass and supermassive BH tertiary companions, and
-    provide simple prescriptions for astrophysically relevant parameters.
+    analytically. In this paper, we develop an analytical formalism for
+    understanding the spin dynamics of binary BHs undergoing LK-induced mergers.
+    We show that, under certain conditions, the eccentricity oscillations of the
+    binary can be averaged over to determine the long-term behavior of the BH
+    spin in a smooth way. In particular, we demonstrate that the final
+    spin-orbit misalignment angle $\theta_{\rm sl}$ when the inner binary
+    gravitationally decouples from the tertiary companion is often related to
+    the binary's primordial spin orientation through an approximate adiabatic
+    invariant. Our theory explains the ``$90^\circ$ attractor'' (found in recent
+    numerical studies) for the evolution of $\theta_{\rm sl}$ when the initial
+    BH spin is aligned with the orbital axis and the octupole LK effects are
+    negligible---such a ``$90^\circ$ attractor'' would lead to a small binary
+    effective spin parameter $\chi_{\rm eff}\sim 0$ even for large intrinsic BH
+    spins. We calculate the deviation from adiabaticity in closed form as a
+    function of initial conditions. We also place accurate constraints on when
+    this adiabatic invariant breaks down due to resonant spin-orbit
+    interactions. We consider both stellar-mass and supermassive BH tertiary
+    companions, and provide simple prescriptions for determining analytically
+    the final spin-orbit misalignment angles of the merging BH binaries.
 \end{abstract}
 
 \keywords{
@@ -303,7 +312,7 @@ effects of quadrupole perturbations from $m_3$ on the binary. The octupole
 effects depend on the parameter
 \begin{equation}
     \epsilon_{\rm oct} = \frac{m_1 - m_2}{m_{12}}
-        \frac{ae_{\rm out}}{a_{\rm out}(1 - e_{\rm out}^2)},
+        \frac{ae_{\rm out}}{a_{\rm out}(1 - e_{\rm out}^2)},\label{eq:epsoct}
 \end{equation}
 \citep[see][]{bin_diego}. Throughout this paper, we consider $a_{\rm out} \gg a$
 and $e_{\rm out} = 0$, so that the octupole effects are neglected.}
@@ -1612,7 +1621,8 @@ rate of precession of $\bv{L}$ about $\bv{L}_{\rm tot}$.
 $\bv{\Omega}_{\rm e}$ and neglect the harmonic terms:
 \begin{equation}
     \p{\rd{\overline{\bv{S}}}{t}}_{\rm rot}
-        = \overline{\bv{\Omega}}_{\rm e} \times \overline{\bv{S}},
+        = \overline{\bv{\Omega}}_{\rm e} \times
+        \overline{\bv{S}},\label{eq:dsdt_eta}
 \end{equation}
 where
 \begin{align}
@@ -1741,76 +1751,107 @@ Fig.~\ref{fig:finite_bin_comp}.
 
 \section{Conclusion and Discussion}\label{s:discussion}
 
-In this paper, we consider the evolution of the final spin-orbit misalignment
-angle $\theta_{\rm sl}$ of LK-induced binary BH mergers. We study cases where
-the tertiary companion is either a supermassive black hole (SMBH) or a stellar
-mass black hole (BH). We show that, when the tertiary orbit is circular and
-octupole effects are unimportant, the spin vectors of the inner BHs obey the
-simple equation of motion Eq.~\eqref{eq:dsdt_weff}. Analysis of this equation
-yields the following conclusions:
-\begin{itemize}
-    \item For most parameters of astrophysical relevance, the angle
-        $\bar{\theta}_{\rm e}$ [Eq.~\eqref{eq:q_eff}] is an adiabatic invariant.
-        Since the inner BH binary merges in finite time, $\bar{\theta}_{\rm e}$
-        is only conserved to finite accuracy; we show that the deviation from
-        perfect adiabaticity can be predicted from initial conditions [see
-        Eq.~\ref{eq:prediction} and Fig.~\ref{fig:deviations}].
+In this paper, we have carried out \textcolor{Corr}{a} theoretical study on the
+evolution of spin-orbit misalignments in tertiary-induced black-hole (BH) binary
+mergers. Recent numerical works \citep{bin1, bin2, bin3,
+antonini2018precessional, yu2020spin} have revealed that when binary BHs undergo
+mergers due to Lidov-Kozai (LK) oscillations driven by a tertiary companion, the
+BH spin may evolve toward a perpendicular state where the final spin-orbit
+misalignment angle $\theta_{\rm sl}$ is close to $90^\circ$. Our theoretical
+analysis in this paper provides an understanding of this ``$90^\circ$
+attractor'' and characterizes its regime of validity and various spin evolution
+behaviors during \textcolor{Corr}{such} LK-induced mergers. We focus on
+hierachical triple systems where the inner BH binary experiences the
+``standard'' quadupole LK oscillations and eventually merges, with the octuple
+effects playing a negigible role [$\epsilon_{\rm oct}\ll 1$; see
+Eq.~\eqref{eq:epsoct}]. For such systems, the spin vectors of the inner BHs obey
+a simple evolution equation, Eq.~\eqref{eq:dsdt_weff} or
+Eq.~\eqref{eq:dsdt_eta}, where the ``effective'' precssion rate
+$\bv{\Omega}_{\rm e}$ varies quasi-periodically due to the combined effects of
+LK oscillations and gravitational radiation. Analysis of this equation yields
+the following conclusions:
 
-    \item When the resonant condition $\bar{\Omega}_{\rm e} \approx N\Omega_{\rm
-        LK}$ for integer $N$ is satisfied, significant oscillations in
-        $\bar{\theta}_{\rm e}$ can arise. We derive an analytic estimate of this
-        oscillation amplitude [Eq.~\eqref{eq:harmonic_dqeff}]. This estimate
-        both demonstrates that the resonance is unimportant for ``LK-induced''
-        mergers and qualitatively explains the scatter in $\theta_{\rm sl, f}$
-        seen by LL17 (see Fig.~\ref{fig:bin_comp}).
+\begin{itemize}
+    \item For BH binaries that have too large initial separations to merge
+        \textcolor{Corr}{in isolation}, LK-induced mergers require large/extreme
+        eccentricity excitations in the binary driven by a highly inclined
+        tertiary companion. For such systems, the BH spin evolution behavior can
+        be generally captured by replacing $\bv{\Omega}_{\rm e}$ with its
+        LK-average $\overline{\bv{\Omega}}_{\rm e}$ (thus neglecting the
+        \textcolor{Corr}{Fourier harmonics}). If the orbital decay is
+        sufficiently gradual, the angle $\bar{\theta}_{\rm e}$
+        [Eq.~\eqref{eq:q_eff}] between the spin axis and
+        $\overline{\bv{\Omega}}_{\rm e}$ is an adiabatic invariant. This
+        naturally explains the ``$90^\circ$ attractor'' for the final spin-orbit
+        misalignment angle when the initial tertiary inclination $I_0$ is not
+        too close to $90^\circ$ and the initial BH spin axis is aligned with the
+        orbital angular momentum axis (see Fig.~\ref{fig:qslscan}). We show that
+        the deviation from perfect adiabaticity can be predicted from initial
+        conditions [see Eq.~\ref{eq:prediction} and Fig.~\ref{fig:deviations}].
+
+    \item When the resonant condition $\bar{\Omega}_{\rm e} \approx
+        M\Omega_{\rm LK}$ for integer $M$ is satisfied, significant variations
+        in $\bar{\theta}_{\rm e}$ can arise. We derive an analytic estimate of
+        this variation amplitude [Eq.~\eqref{eq:harmonic_dqeff}]. This estimate
+        demonstrates that the resonances are unimportant for ``LK-induced''
+        mergers (see above), but become important for ``LK-enhanced'' mergers,
+        where the BH binaries exhibit only modest eccentricity excitations. Our
+        analysis of the resonance effects qualitatively explain the behavior in
+        $\theta_{\rm sl, f}$ as seen in LK-enhanced mergers (see
+        Figs.~\ref{fig:bin_comp} and~\ref{fig:finite_bin_comp}).
+
+    \item For LK-induced mergers of BH binaries with general tertiary
+        companions, we provide an analytic prescription for calculating the
+        final spin-orbit misalignment angle for arbitrary initial spin
+        orientations (Section~\ref{s:stellar}). This prescirption is based on
+        the approximate adiabatic invariance of $\bar{\theta}_{\rm e}$, and
+        produces results that are in agreement with numerical simulations (see
+        Fig.~\ref{fig:finite_qslfscan}) in the appropriate regime.
 \end{itemize}
 
-In previous work, LL18 found that the final spin-orbit misalignment angle
-$\theta_{\rm sl, f}$ exhibits a $90^\circ$ attractor (Fig.~\ref{fig:qslscan})
-when the octupole effect is negligible. Our theory shows that this attractor is
-a result of their taking $\theta_{\rm sl, 0} = 0^\circ$ \citep[in agreement
-with][]{yu2020spin}, as the initial and final spin orientations are related via
-conservation of $\bar{\theta}_{\rm e}$ (Sections~\ref{ss:effect}
-and~\ref{s:stellar}). Note that the component BH spins in the recent LIGO
-detection GW190521 have spin-orbit misalignment angle $\sim 90^\circ$
-\citep{190521}. If the evolution history of the component BHs resembled our
-LK-induced scenario, a primordial $\theta_{\rm sl, 0} \approx 0^\circ$ would be
-consistent with the observed outcome.
+There are several simplificatons in our theoretical analysis that are worth
+remembering. (i) We have neglected the octupole effects in the LK oscillations.
+This is appropriate for systems where the tertiary orbit is
+\textcolor{Corr}{not} eccentric, \textcolor{Corr}{when} the semi-major axis
+$a_{\rm out}$ is much larger than \textcolor{Corr}{that of} the inner binary (as
+in the case when the tertiary is a SMBH), or \textcolor{Corr}{when} the inner
+binary BHs have nearly equal masses. The octupole effects are known to
+significantly broaden the inclination window for extreme eccentricity
+excitations, and therefore enhance the efficiency of LK-induced mergers
+\citep{bin2}. The octupole-order LK effect is not integrable, and the
+eccentricity excitations are no longer regular. As a result, when the octuple
+effects are important, $\bv{\Omega}_{\rm e}$ has neither consistent direction
+nor magnitude, and our theory cannot be applied. In fact, the resulting
+$\theta_{\rm sl, f}$ distribution is largely unrelated to the initial
+$\bar{\theta}_{\rm e, 0}$ \citep{bin2}, and no ``$90^\circ$ attractor'' is
+expected \citep{bin2}. (ii) If the system is not sufficiently hierarchical
+($a_{\rm out}$ is too small), the double averaging approximation for the
+dynamics of the triple breaks down \citep{bin2}. In this case, there is little
+reason to expect any relation between $\theta_{\rm sl, f}$ and
+$\bar{\theta}_{\rm e, 0}$. However, \citet{bin2} found that the double averaged
+equations predict the correct merger window and merger fractions even beyond
+their regime of validity if the octupole effect is weak, so it is possible that
+our results concerning $\theta_{\rm sl, f}$ are also somewhat robust even when
+the double averaged equations formally break down. (iii) In this work, we only
+consider spin-orbit coupling, and follow the evolution of $\theta_{\rm sl}$
+until the orbital separation is sufficiently small that the inner binary is
+gravitationally decoupled from the tertiary and the spin-orbit misalignment
+angle is frozen. To leading post-Newtonian (PN) order, $\theta_{\rm sl}$ is
+constant for small separations until the spin-spin interaction (2 PN) becomes
+important. This interaction is non-negligible only when binary enters the LIGO
+band and when the spin magnitude of each is appreciable \citep{bin3,
+yu2020spin}.
 
-The systems detected by LIGO in O1 and O2 have $\chi_{\rm eff} \approx 0$, where
-$\chi_{\rm eff}$ is given by Eq.~\eqref{eq:chi_eff}
-\citep{Abbott:2016blz, abbott2019binary}. One possible explanation for
-this is that BHs are born slowly rotating \citep[e.g.][]{fuller2019most}. Our
-mechanism provides an alternative origin for this behavior with no assumptions
-on the BH spin magnitudes if $\theta_{\rm sl, 0} \approx 0^\circ$. We also
-quantify the expected scatter from the perfect $90^\circ$ attractor reported by
-LL18 due to either non-adiabaticity or resonances during the inspiral.
-
-When the tertiary orbit is eccentric, the octupole-order contributions can no
-longer be neglected. The octupole-order LK effect is not integrable, and the
-eccentricity excitations are no longer regular \citep[see e.g.][]{bin2}. In this
-case, $\bv{\Omega}_{\rm e}$ has neither consistent direction nor magnitude, and
-our theory cannot be applied. In fact, the resulting $\theta_{\rm sl, f}$
-distribution is largely unrelated to the initial $\bar{\theta}_{\rm e, 0}$
-\citep{bin2}.
-
-If the system is not sufficiently hierarchical ($a_{\rm out}$ is too small), the
-double averaging approximation breaks down, and the dynamics are no longer
-integrable, so there is little reason to expect any relation between
-$\theta_{\rm sl, f}$ and $\bar{\theta}_{\rm e, 0}$. However, \citet{bin2} found
-that the double averaged equations predict the correct merger window and merger
-fractions even beyond their regime of validity if the octupole effect is weak,
-so it is possible that our results concerning $\theta_{\rm sl, f}$ are also
-somewhat robust even when the double averaged equations formally break down. We
-defer this possibility to future work.
-
-Finally, in this work, we only follow the evolution of $\theta_{\rm sl}$ until
-the orbital separation is $\leq 0.5\;\mathrm{AU}$ for the LK-induced mergers,
-and $\leq 0.1\;\mathrm{AU}$ for the LK-enhanced mergers. To leading
-post-Newtonian (PN) order, $\theta_{\rm sl}$ is constant for separations smaller
-than these until the spin-spin interaction (2 PN) becomes important
-[Eq.~\eqref{eq:dsdt}]. This interaction is negligible until the binary enters
-the LIGO band \citep{bin3, yu2020spin}.
+As noted in Section~\ref{s:intro}, the merging BH binaries detected by LIGO in
+O1 and O2 have $\chi_{\rm eff} \sim 0$ \citep{Abbott:2016blz,abbott2019binary}.
+One possible explanation for this is that BHs are born slowly rotating
+\citep[e.g.][]{fuller2019most}. But our ``$90^\circ$ attractor'' provides an
+alternative explanation with no assumptions on the BH spin magnitudes if the
+mergers are ``LK-induced'' and $\theta_{\rm sl, 0} \approx 0^\circ$. In the O3
+event GW190521, each BH has a significant spin magnitude and a large spin-orbit
+misalignment angle \citep{190521}. If the evolution history of the system
+resembled our LK-induced scenario, a primordial $\theta_{\rm sl, 0} \approx
+0^\circ$ would be consistent with the observed outcome.
 
 \section{Acknowledgements}
 
