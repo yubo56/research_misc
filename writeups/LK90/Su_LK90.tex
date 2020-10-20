@@ -1,4 +1,4 @@
-% rm -f LK90_plots/*.png; for i in 8bin_comp_eta0 7_3vec_mc 7_3vec_eta_cropped 8bin_comp_m 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png LK90_plots; done
+% rm -f *.png; for i in 8bin_comp_eta0 7_3vec_mc 7_3vec_eta_cropped 8bin_comp_m 8bin_comp 8finite_qslfs M1_M2_thetasl_thetae_70 5_dWs_inner 5_dWs 6bin_comp 4qslscan/qslscan 4sims_scan/deviations_one 4sims/4sim_90_200_zoom 4sims/4sim_90_350_supp 4sims/4sim_90_350_zoom 4sims/4sim_90_350 7_3vec_cropped 4sims/good_quants; do cp ../../scripts/lk90/$i.png .; done
     \documentclass[
         aps,
         prd,
@@ -216,7 +216,7 @@ Section~\ref{s:discussion}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/4sim_90_350.png}
+    \includegraphics[width=\colummwidth]{4sim_90_350.png}
     \caption{An example of the ``$90^\circ$ spin attractor'' in LK-induced BH
     binary mergers. The four panes show the time evolution of the binary
     semi-major axis $a$, eccentricity $e$, inclination $I$ [the red line denotes
@@ -236,7 +236,7 @@ Section~\ref{s:discussion}.
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/qslscan.png}
+    \includegraphics[width=\colummwidth]{qslscan.png}
     \caption{The merger time and the final spin-orbit misalignment angle
     $\theta_{\rm sl, f}$ as a function of the initial inclination $I_0$
     for LK-induced mergers. The other parameters are the same as those in
@@ -508,7 +508,7 @@ because the initial $\Omega_{\rm SL}$ is too small. Our result is depicted in
 Fig.~\ref{fig:bifurcation_70}.
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/M1_M2_thetasl_thetae_70.png}
+    \includegraphics[width=\colummwidth]{M1_M2_thetasl_thetae_70.png}
     \caption{Bifurcation diagram for the BH spin orientation during LK
     oscillations. The physical parameters are $m_{12} = 60M_{\odot}$, $m_3 = 3
     \times 10^7 M_{\odot}$, $a = 0.1\;\mathrm{AU}$, $e_0 = 10^{-3}$,
@@ -596,7 +596,7 @@ $\bv{L}_{\rm out}$ as shown in Fig.~\ref{fig:3vec}. To express $\bar{I}_{\rm
 e}$ algebraically, we define \textcolor{Corr}{the} LK-averaged quantities
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\colummwidth]{LK90_plots/7_3vec_cropped.png}
+    \includegraphics[width=0.5\colummwidth]{7_3vec_cropped.png}
     \caption{Definition of angles in the problem, shown in plane of the two
     angular momenta $\bv{L}_{\rm out}$ and $\bv{L}$. Here, $\overline{\bv{L}}$
     is the suitably averaged $\bv{L}$ with inclination $\bar{I}$ defined by
@@ -788,7 +788,7 @@ e}}_{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/4sim_90_350_supp.png}
+    \includegraphics[width=\colummwidth]{4sim_90_350_supp.png}
     \caption{The same simulation as depicted in Fig.~\ref{fig:4sim_90_350} but
     showing \textcolor{Corr}{several} calculated quantities relevant to the
     theory of the spin evolution. Top: the four characteristic frequencies of
@@ -804,7 +804,7 @@ e}}_{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
 \end{figure}
 \begin{figure*}
     \centering
-    \includegraphics[width=\textwidth]{LK90_plots/4sim_90_350_zoom.png}
+    \includegraphics[width=\textwidth]{4sim_90_350_zoom.png}
     \caption{The same simulation as Fig.~\ref{fig:4sim_90_350} but zoomed in on
     the region around $\mathcal{A} \equiv \overline{\Omega}_{\rm SL} /
     \overline{\Omega}_{\rm L} \simeq 1$ and showing a wide range of relevant
@@ -823,7 +823,7 @@ e}}_{\rm f}$ obeys Eq.~\eqref{eq:nonad_dqeff_tot}.
 
 \begin{figure*}
     \centering
-    \includegraphics[width=\textwidth]{LK90_plots/4sim_90_200_zoom.png}
+    \includegraphics[width=\textwidth]{4sim_90_200_zoom.png}
     \caption{Same as Fig.~\ref{fig:4sim_90_350_zoom} except for $I_0 =
     90.2^\circ$ (and all other parameters are the same as in
     Fig.~\ref{fig:4sim_90_350}), corresponding to a faster coalescence. The
@@ -942,7 +942,7 @@ accurate estimate for $|\dot{\bar{I}}_{\rm e} / \bar{\Omega}_{\rm e}|_{\max}$
 when compared with numerical results.
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/good_quants.png}
+    \includegraphics[width=\colummwidth]{good_quants.png}
     \caption{Comparison of $\abs{\dot{\bar{I}}_{\rm e} / \overline{\Omega}_{\rm
     e}}_{\max}$ obtained from simulations and from the analytical expression
     Eq.~\eqref{eq:prediction}, where we take $f = 2.72$ in
@@ -985,7 +985,7 @@ $\abs{\Delta\bar{\theta}_{\rm e}}_{\rm f}$, and serves as a good indicator for
 the breakdown of adiabatic invariance.
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/deviations_one.png}
+    \includegraphics[width=\colummwidth]{deviations_one.png}
     \caption{Net change in $\bar{\theta}_{\rm e}$ over the binary inspiral as a
     function of initial inclination $I_0$. For each $I_0$, $100$ simulations are
     run for $\bv{S}$ on a uniform, isotropic grid. Plotted for comparison is the
@@ -1422,7 +1422,7 @@ and~\eqref{eq:formal_sol_terms} as the BH binary coalesces.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/5_dWs.png}
+    \includegraphics[width=\colummwidth]{5_dWs.png}
     \caption{$e_{\max}$ and $\overline{\Omega}_{\rm e} / \Omega_{\rm LK}$ as a
     function of $I(e_{\min})$, the inclination of the inner binary at
     eccentricity minimum, for varying values of $e_{\min}$ (different colors
@@ -1451,7 +1451,7 @@ for this regime.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/8bin_comp_eta0.png}
+    \includegraphics[width=\colummwidth]{8bin_comp_eta0.png}
     \caption{The merger time (top), the magnitude of the
     \textcolor{Corr}{initial} adiabaticity parameter $\abs{\mathcal{A}} \equiv
     \overline{\Omega}_{\rm SL} / |\overline{\Omega}_{\rm L}|$ (middle), and
@@ -1519,7 +1519,7 @@ $3^\circ$.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/5_dWs_inner.png}
+    \includegraphics[width=\colummwidth]{5_dWs_inner.png}
     \caption{Same as Fig.~\ref{fig:dWs}, but for a LK-enhanced merger (with the
     parameters of Fig.~\ref{fig:bin_comp}). In the LK-enhanced regime, all
     initial inclinations merge within a Hubble time, and it is clear that
@@ -1554,7 +1554,7 @@ significant.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\colummwidth]{LK90_plots/7_3vec_eta_cropped.png}
+    \includegraphics[width=0.7\colummwidth]{7_3vec_eta_cropped.png}
     \caption{Definition of angles in the case where $L / L_{\rm out}$ is
     nonzero. Similar to before, we choose the convention where
     \textcolor{Corr}{$I_{\rm tot,e}$}$\in [0^\circ, 90^\circ]$ when
@@ -1731,7 +1731,7 @@ $a_{\rm out} = 3\;\mathrm{AU}$, and $e_{\rm out} = 0$. The results are shown in
 Fig.~\ref{fig:finite_bin_comp}.
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/8finite_qslfs.png}
+    \includegraphics[width=\colummwidth]{8finite_qslfs.png}
     \caption{Similar to Fig.~\ref{fig:qslscan} but for stellar-mass tertiary
     $m_3 = 30M_{\odot}$ and $\tilde{a}_3 = 4500\;\mathrm{AU}$. The vertical
     black line denotes $I_{\rm c} \approx 92.14^\circ$, the
@@ -1743,7 +1743,7 @@ Fig.~\ref{fig:finite_bin_comp}.
 \end{figure}
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/8bin_comp.png}
+    \includegraphics[width=\colummwidth]{8bin_comp.png}
     \caption{Similar to Fig.~\ref{fig:bin_comp} except \textcolor{Corr}{for a}
     stellar mass tertiary $m_3 = 30M_{\odot}$ and $\tilde{a}_{\rm out} =
     3\;\mathrm{AU}$.}\label{fig:finite_bin_comp}
@@ -1813,21 +1813,20 @@ There are several simplificatons in our theoretical analysis that are worth
 remembering. (i) We have neglected the octupole effects in the LK oscillations.
 This is appropriate for systems where the tertiary orbit is
 \textcolor{Corr}{not} eccentric, \textcolor{Corr}{when} the semi-major axis
-$a_{\rm out}$ is much larger than \textcolor{Corr}{that of} the inner binary (as
-in the case when the tertiary is a SMBH), or \textcolor{Corr}{when} the inner
-binary BHs have nearly equal masses. The octupole effects are known to
-significantly broaden the inclination window for extreme eccentricity
-excitations, and therefore enhance the efficiency of LK-induced mergers
-\citep{bin2}. The octupole-order LK effect is not integrable, and the
-eccentricity excitations are no longer regular. As a result, when the octuple
-effects are important, $\bv{\Omega}_{\rm e}$ has neither consistent direction
-nor magnitude, and our theory cannot be applied. In fact, the resulting
-$\theta_{\rm sl, f}$ distribution is largely unrelated to the initial
-$\bar{\theta}_{\rm e, 0}$ \citep{bin2}, and no ``$90^\circ$ attractor'' is
-expected \citep{bin2}. (ii) If the system is not sufficiently hierarchical
-($a_{\rm out}$ is too small), the double averaging approximation for the
-dynamics of the triple breaks down \citep{bin2}. In this case, there is little
-reason to expect any relation between $\theta_{\rm sl, f}$ and
+$a_{\rm out}$ is much larger than the inner binary (as in the case when the
+tertiary is a SMBH), or \textcolor{Corr}{when} the inner binary BHs have nearly
+equal masses. The octupole effects are known to significantly broaden the
+inclination window for extreme eccentricity excitations, and therefore enhance
+the efficiency of LK-induced mergers \citep{bin2}. The octupole-order LK effect
+is not integrable, and the eccentricity excitations are no longer regular. As a
+result, when the octuple effects are important, $\bv{\Omega}_{\rm e}$ has
+neither consistent direction nor magnitude, and our theory cannot be applied. In
+fact, the resulting $\theta_{\rm sl, f}$ distribution is largely unrelated to
+the initial $\bar{\theta}_{\rm e, 0}$ \citep{bin2}, and no ``$90^\circ$
+attractor'' is expected \citep{bin2}. (ii) If the system is not sufficiently
+hierarchical ($a_{\rm out}$ is too small), the double averaging approximation
+for the dynamics of the triple breaks down \citep{bin2}. In this case, there is
+little reason to expect any relation between $\theta_{\rm sl, f}$ and
 $\bar{\theta}_{\rm e, 0}$. However, \citet{bin2} found that the double averaged
 equations predict the correct merger window and merger fractions even beyond
 their regime of validity if the octupole effect is weak, so it is possible that
@@ -2130,7 +2129,7 @@ show numerically that the formulas given in the main text give good predictions
 for the orientation of $\bv{R}$.
 \begin{figure}
     \centering
-    \includegraphics[width=0.5\colummwidth]{LK90_plots/7_3vec_mc.png}
+    \includegraphics[width=0.5\colummwidth]{7_3vec_mc.png}
     \caption{Definition of angles for numerical study of the monodromy matrix
     rotation axis. $\bv{R}$ is the eigenvector of the monodromy matrix
     $\tilde{\bv{M}}$ with eigenvalue $1$.}\label{fig:app_vecs}
@@ -2180,7 +2179,7 @@ captured by Eq.~\eqref{eq:harmonic_dqeff}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=\colummwidth]{LK90_plots/8bin_comp_m.png}
+    \includegraphics[width=\colummwidth]{8bin_comp_m.png}
     \caption{Comparison of the orientation $\bv{R}$ obtained from numerical
     simulations of Eq.~\eqref{eq:dsdt_weff} in the $\eta \neq 0$, LK-enhanced
     parameter regime ($m_1 = m_2 = m_3 = 30M_{\odot}$, $a_0 =
