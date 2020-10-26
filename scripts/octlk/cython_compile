@@ -1,2 +1,2 @@
 #!/bin/bash
-python cython_build.py build_ext --inplace
+CFLAGS="-Ofast" python cython_build.py build_ext --inplace

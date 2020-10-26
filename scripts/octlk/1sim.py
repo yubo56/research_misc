@@ -4,7 +4,6 @@ import numpy as np
 from cython_utils import *
 
 from scipy.integrate import solve_ivp
-from scipy.special import seterr
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -16,7 +15,7 @@ plt.rc('ytick', direction='in', left=True, right=True)
 TF = 100
 
 def test_orbs():
-    seterr(overflow='ignore')
+    np.seterr(over='ignore') # idk why this is happening
     y0 = (1, 1e-3, np.radians(90.3), 0, 0)
     m1, m2, m3, a0, a2, e2 = 20, 30, 30, 100, 4500, 0
     eps = get_eps(m1, m2, m3, a0, a2, e2)
