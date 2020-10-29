@@ -22,6 +22,7 @@ except:
     plt = None
 
 AF = 5e-3 # in units of the initial a
+TOL = 1e-11
 
 def get_I1(I0, eta):
     ''' given total inclination between Lout and L, returns I_tot '''
@@ -46,7 +47,7 @@ def test_orbs():
     a_term_event.terminal = True
     ret = solve_ivp(dydt, (0, 100 / tlk0), y0, args=eps,
                     events=[a_term_event],
-                    method='LSODA', atol=1e-12, rtol=1e-12)
+                    method='LSODA', atol=TOL, rtol=TOL)
     fig, axs = plt.subplots(
         3, 1,
         figsize=(8, 12),
@@ -144,7 +145,7 @@ def test_vec():
     args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
     ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
                     events=[a_term_event],
-                    method='LSODA', atol=1e-12, rtol=1e-12)
+                    method='LSODA', atol=TOL, rtol=TOL)
     lin = ret.y[ :3, :]
     lin_mag = np.sqrt(np.sum(lin**2, axis=0))
     evec = ret.y[3:6, :]
@@ -181,23 +182,25 @@ def timing_tests():
     test_orbs()
     print('Orbs used', time.time() - start)
 
-def sweeper(q, t_final, tlk0, a0, e0, I0, e2, eps):
+def sweeper(idx, q, t_final, tlk0, a0, e0, I0, e2, eps):
     def a_term_event(_t, y, *_args):
         return y[0] - AF
     a_term_event.terminal = True
 
     I1 = np.radians(get_I1(I0, eps[3]))
     I2 = I0 - I1
+    np.random.seed(idx + int(time.time()))
     W, w0, w20 = np.random.random(3) * 2 * np.pi
     y0 = [a0, e0, I1, W, w0, e2, I2, W + np.pi, w20]
     ret = solve_ivp(dydt, (0, t_final), y0, args=eps,
                     events=[a_term_event],
-                    method='LSODA', atol=1e-12, rtol=1e-12)
+                    method='LSODA', atol=TOL, rtol=TOL)
     tf = ret.t[-1] * tlk0
-    print(q, np.degrees(I0), tf)
+    print(idx, q, np.degrees(I0), tf)
     return tf
 
-def sweeper_bin(q, t_final, _tlk0, a0, e0, I0, e2, _eps):
+# manually codify a0, a
+def sweeper_bin(idx, q, t_final, _tlk0, a0, e0, I0, e2, _eps):
     k = 39.4751488
     c = 6.32397263*10**4
     m = 1
@@ -213,14 +216,15 @@ def sweeper_bin(q, t_final, _tlk0, a0, e0, I0, e2, _eps):
     M2 = 20
     M3 = 30
     Itot = np.degrees(I0)
-    INTain = a0
-    a2 = 6000
+    INTain = 100
+    a2 = 4500
     N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
     Mu = (M1*M2)/(M1 + M2)
     J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
     J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
     T = 1e10
 
+    np.random.seed(idx + int(time.time()))
     w1 = np.random.rand() * 2 * np.pi
     w2 = np.random.rand() * 2 * np.pi
     W = np.random.rand() * 2 * np.pi
@@ -274,9 +278,9 @@ def sweeper_bin(q, t_final, _tlk0, a0, e0, I0, e2, _eps):
     a_term_event.terminal = True
     ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
                     events=[a_term_event],
-                    method='LSODA', atol=1e-12, rtol=1e-12)
+                    method='LSODA', atol=TOL, rtol=TOL)
     tf = ret.t[-1]
-    print(q, np.degrees(I0), tf, T)
+    print(idx, q, np.degrees(I0), tf / 1e9)
     return tf
 
 def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
@@ -287,12 +291,12 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
     p = Pool(nthreads)
 
     for q, base_fn, ilow, ihigh in [
-            [1.0, '1equaldist', 92, 93.5],
-            [0.7, '1p7dist', 91, 95],
-            [0.5, '1p5dist', 91, 98],
-            [0.4, '1p4dist', 90.5, 98],
-            [0.3, '1p3dist', 90.5, 100],
             [0.2, '1p2dist', 89.5, 105],
+            [0.3, '1p3dist', 90.5, 100],
+            [0.4, '1p4dist', 90.5, 98],
+            [0.5, '1p5dist', 91, 98],
+            [0.7, '1p7dist', 91, 95],
+            [1.0, '1equaldist', 92, 93.5],
     ]:
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
@@ -307,8 +311,8 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
             I0s = np.radians(np.linspace(ilow, ihigh, num_i))
             I_plots = np.repeat(I0s, num_trials)
             args = [
-                (q, t_final, tlk0, a0, e0, I0, e2, eps)
-                for I0 in I_plots
+                (idx, q, t_final, tlk0, a0, e0, I0, e2, eps)
+                for idx, I0 in enumerate(I_plots)
             ]
             tmerges = p.starmap(func, args)
             with open(pkl_fn, 'wb') as f:
@@ -331,7 +335,7 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
 
 def get_emax(t_final, y0, eps):
     ret = solve_ivp(dydt, (0, t_final), y0, args=eps,
-                    method='LSODA', atol=1e-12, rtol=1e-12)
+                    method='LSODA', atol=TOL, rtol=TOL)
     return ret.y[1].max()
 
 def emax_dist(num_trials=1000):
@@ -361,10 +365,59 @@ def emax_dist(num_trials=1000):
     plt.savefig('1emaxdist')
     plt.close()
 
+def sweeper_comp(nthreads=1, nruns=1000):
+    mkdirp('1sweep')
+
+    m1, m2, m3, a, a2, e0, e2 = 50/3, 100/3, 30, 100, 4500, 1e-3, 0.6
+    a0 = 1
+    q = m1 / m2
+    p = Pool(nthreads)
+    eps = get_eps(m1, m2, m3, a, a2, e2)
+    tlk0 = get_tlk0(m1, m2, m3, a, a2) / 1e9
+    t_final = 10 / tlk0
+    I0 = np.radians(93.2)
+
+    args = [[idx, q, t_final, tlk0, a0, e0, I0, e2, eps] for idx in range(nruns)]
+    pkl_fn = '1sweep/sweeper_comp.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        start = time.time()
+        my_tmerges = p.starmap(sweeper, args)
+        print('Orbs used', time.time() - start)
+        start = time.time()
+        bin_tmerges = p.starmap(sweeper_bin, args)
+        print('Bin used', time.time() - start)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((my_tmerges, bin_tmerges), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            my_tmerges, bin_tmerges = pickle.load(f)
+
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1,
+        figsize=(8, 5),
+        gridspec_kw={'height_ratios': [1, 1]},
+        sharex=True)
+    ax1.hist(np.log10(my_tmerges) + 9, bins=30)
+    ax2.hist(np.log10(bin_tmerges), bins=30)
+    ax1.set_ylabel('Orb. El. Eqs')
+    ax2.set_ylabel('Vec. Eqs')
+    ax2.set_xlabel(r'$\log_{10}$ Merger Time')
+    ax1.set_yscale('log')
+    ax2.set_yscale('log')
+    plt.tight_layout()
+
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('1sweep/sweeper_comp', dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     # timing_tests()
     # emax_dist()
 
-    sweep(nthreads=20)
-    sweep(folder='1sweepbin', func=sweeper_bin, nthreads=20)
+    # sweep(nthreads=50)
+    # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
+
+    sweeper_comp(nthreads=4, nruns=10000)
     pass
