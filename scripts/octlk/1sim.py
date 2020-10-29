@@ -293,10 +293,10 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
     for q, base_fn, ilow, ihigh in [
             [0.2, '1p2dist', 89.5, 105],
             [0.3, '1p3dist', 90.5, 100],
-            [0.4, '1p4dist', 90.5, 98],
-            [0.5, '1p5dist', 91, 98],
-            [0.7, '1p7dist', 91, 95],
-            [1.0, '1equaldist', 92, 93.5],
+            # [0.4, '1p4dist', 90.5, 98],
+            # [0.5, '1p5dist', 91, 98],
+            # [0.7, '1p7dist', 91, 95],
+            # [1.0, '1equaldist', 92, 93.5],
     ]:
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
@@ -323,8 +323,8 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
                 I_plots, tmerges = pickle.load(f)
 
         tmerges = np.array(tmerges)
-        merged = np.where(tmerges < 9.9)[0]
-        nmerged = np.where(tmerges > 9.9)[0]
+        merged = np.where(tmerges < 9.9e9)[0]
+        nmerged = np.where(tmerges > 9.9e9)[0]
         if plt is not None:
             plt.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
             plt.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
@@ -416,8 +416,8 @@ if __name__ == '__main__':
     # timing_tests()
     # emax_dist()
 
-    # sweep(nthreads=50)
     # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
+    # sweep(nthreads=50)
 
     sweeper_comp(nthreads=4, nruns=10000)
     pass
