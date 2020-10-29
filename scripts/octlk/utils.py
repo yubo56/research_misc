@@ -1,4 +1,5 @@
 import numpy as np
+import os
 
 # by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
 # NB: slight confusion here: to compute epsilon + timescales, we use AU as the
@@ -31,111 +32,12 @@ def get_tlk0(m1, m2, m3, a0, a2):
 
     return (t_lk0 * S_PER_UNIT) / S_PER_YR
 
-# implementation of vector octupole equations for eta = 0
-def dydt_vecP(t, y, eps_gw, eps_gr, eps_oct, eta):
-    a, j1, e1, j2, e2 = y[0], y[1:4], y[4:7], y[7:10], y[10:13]
-    esq = np.dot(e1, e1)
-    e = np.sqrt(esq)
-    x1 = 1 - esq
-    esq2 = np.dot(e2, e2)
-    n2 = j2 / np.sqrt(1 - esq2)
-    u2 = e2 / np.sqrt(esq2)
+def mkdirp(path):
+    if not os.path.exists(path):
+        os.mkdir(path)
 
-    dadt = (
-        -eps_gw * (64 * (1 + 73 * esq / 24 + 37 * pow(esq, 2) / 96)) / (
-            5 * pow(a, 3) * pow(x1, 3.5))
-    )
-    exn2 = np.cross(e1, n2)
-    edn2 = np.dot(e1, n2)
-    jxn2 = np.cross(j1, n2)
-    jdn2 = np.dot(j1, n2)
-    jxe = np.cross(j1, e1)
-    djdt = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * jxn2
-        - 5 * edn2 * exn2
-    ) - 75 * eps_oct * a**(3/2) / 64 * (
-        np.cross(
-            2 * (np.dot(e1, u2) * np.dot(j1, n2)
-                 + np.dot(e1, n2) * np.dot(j1, u2)) * j1
-            + 2 * (np.dot(j1, u2) * np.dot(j1, n2)
-                   - 7 * (np.dot(e1, u2) * np.dot(e1, n2))) * e1
-        , n2) + np.cross(
-            2 * np.dot(e1, n2) * np.dot(j1, n2) * j1
-            + (8 * esq / 5 - 1/5 - 7 * np.dot(e1, n2)**2 + np.dot(j1, n2)**2) *
-            e1, u2
-        )
-    )
-    dedt_gw = -(
-        eps_gw * (304 / 15) * (1 + 121 / 304 * esq) /
-        (pow(a, 4) * pow(x1, 2.5))
-    )
-    dedt = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * exn2
-        - 5 * edn2 * jxn2
-        + 2 * jxe
-    ) + dedt_gw * e1 + (
-        eps_gr * jxe / (pow(x1, 1.5) * pow(a, 2.5))
-    ) - 75 * eps_oct * a**(3/2) / 64 * (
-        np.cross(
-            2 * np.dot(e1, n2) * np.dot(j1, n2) * e1
-            + (8 * esq / 5 - 1/5 - 7 * np.dot(e1, n2)**2 + np.dot(j1, n2)**2)
-            * j1, u2
-        ) + np.cross(
-            2 * (np.dot(e1, u2) * np.dot(j1, n2)
-                 + np.dot(e1, n2) * np.dot(j1, u2)) * e1
-            + 2 * (np.dot(j1, n2) * np.dot(j1, u2)
-                   - 7 * np.dot(e1, n2) * np.dot(e1, u2)) * j1,
-            n2
-        ) + 16 / 5 * np.dot(e1, u2) * np.cross(j1, e1)
-    )
-    dj2dt = 3 * a**(3/2) * eta / 4 * (
-        jdn2 * (-jxn2)
-        - 5 * edn2 * (-exn2)
-    ) - 75 * eps_oct * a**(3/2) * eta / 64 * (
-        2 * np.cross(
-            np.dot(e1, n2) * np.dot(j1, u2) * n2
-            + np.dot(e1, u2) * np.dot(j1, n2) * n2
-            + np.dot(e1, n2) * np.dot(j1, n2) * u2
-        , j1)
-        + np.cross(
-            2 * np.dot(j1, u2) * np.dot(j1, n2) * n2
-            - 14 * np.dot(e1, u2) * np.dot(e1, n2) * n2
-            + (8 * esq / 5 - 1/5 - 7 * np.dot(e1, n2)**2
-               + np.dot(j1, n2)**2) * u2
-        , e1)
-    )
-    de2dt = 3 * a**(3/2) * eta / (4 * np.sqrt(1 - esq2)) * (
-        np.dot(j1, n2) * np.cross(e2, j1)
-        - 5 * np.dot(e1, n2) * np.cross(e2, e1)
-        - (0.5 - 3 * esq + 25 * np.dot(e1, n2)**2 / 2
-           - 2.5 * np.dot(j1, n2)**2) * np.cross(n2, e2)
-    ) - 75 * eta * eps_oct * a**(3/2) / (64 * np.sqrt(1 - esq2)) * (
-        2 * np.cross(
-            np.dot(e1, n2) * np.dot(j1, e2) * u2
-            + np.dot(j1, 2) * np.dot(e1, e2) * u2
-            + (1 - esq2) / np.sqrt(esq2) * np.dot(e1, n2)
-                * np.dot(j1, n2) * n2
-        , j1) + np.cross(
-            2 * np.dot(j1, e2) * np.dot(j1, n2) * u2
-            - 14 * np.dot(e1, e2) * np.dot(e1, n2) * u2
-            + (1 - esq2) / np.sqrt(esq2) * (
-                8 * esq / 5 - 1/5 - 7 * np.dot(e1, n2)**2
-                + np.dot(j1, n2)**2
-            ) * n2
-        , e1) - np.cross(
-            2 * (1 / 5 - 8 * esq / 5) * np.dot(e1, u2) * e2
-            + 14 * np.dot(e1, n2) * np.dot(j1, u2) * np.dot(j1, n2) * e2
-            + 7 * np.dot(e1, u2) * (
-                8 * esq / 5 - 1/5 - 7 * np.dot(e1, n2)**2
-                + np.dot(j1, n2)**2
-            ) * e2
-        , n2)
-    )
-
-    ret = [dadt, *djdt, *dedt, *dj2dt, *de2dt]
-    return ret
-
-# PYTHON VERSIONS FOR DEBUGGING Radau/BDF (maybe repro later)
+# Python version of orbital elements code
+# ran into bugs on Radau/BDF, maybe repro later
 def dydtP(t, y, eps_gw, eps_gr, eps_oct, eta):
     ''' python version for debugging '''
     # ret = [
@@ -162,7 +64,6 @@ def dydtP(t, y, eps_gw, eps_gr, eps_oct, eta):
         cu.dw2dt(t, y, eps_gw, eps_gr, eps_oct, eta),
     ]
     return ret
-
 sin = np.sin
 cos = np.cos
 sqrt = np.sqrt
@@ -230,9 +131,6 @@ def PdWdt(t, y, eps_gw, eps_gr, eps_oct, eta):
     esq = pow(e, 2)
     j = sqrt(1 - esq)
     return 0 # TODO
-    # return -3 * pow(a, 1.5) / (32 * sin(I) * j) * (
-    #     2 * (2 + 3 * esq - 5 * esq * cos(2 * w))
-    # )
 def Pdwdt(t, y, eps_gw, eps_gr, eps_oct, eta):
     a = y[0]
     e = y[1]

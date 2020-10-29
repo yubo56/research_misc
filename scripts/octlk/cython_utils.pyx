@@ -232,86 +232,569 @@ def dydt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
     ]
 
 ##########################################
-### VECTOR IMPLEMENTATION ################
-### just used to check orb els ###########
+###### BIN IMPLEMENTATION ################
 ##########################################
-# - No octupole or eta
-
-def dot(FLT x1, FLT y1, FLT z1, FLT x2, FLT y2, FLT z2):
-    return x1 * x2 + y1 * y2 + z1 * z2
-def cross(FLT x1, FLT y1, FLT z1, FLT x2, FLT y2, FLT z2):
-    return [
-        y1 * z2 - z1 * y2,
-        z1 * x2 - x1 * z2,
-        x1 * y2 - y1 * x2,
-    ]
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dydt_vec(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT
-             eps_oct, FLT eta):
-    '''
-    dydt for all useful of 10 orbital elements + spin, eps_oct = 0 in LML15.
-    eta = L / Lout
-    '''
-    cdef FLT a = y[0]
-    cdef FLT jx = y[1]
-    cdef FLT jy = y[2]
-    cdef FLT jz = y[3]
-    cdef FLT ex = y[4]
-    cdef FLT ey = y[5]
-    cdef FLT ez = y[6]
-    cdef FLT esq = ex * ex + ey * ey + ez * ez # scalar
-    cdef FLT e = sqrt(esq)
-    cdef FLT x1 = 1 - esq
-    cdef FLT n2x = 0, n2y = 0, n2z = 1 # e2 = 0
+def dydt_vec_bin(FLT t, np.ndarray[FLT, ndim=1] y, FLT m, FLT mm, FLT l, FLT ll,
+                 FLT M1, FLT M2, FLT M3, FLT Itot, FLT INTain, FLT a2, FLT N1,
+                 FLT Mu, FLT J1, FLT J2, FLT T):
+    cdef FLT k = 39.4751488
+    cdef FLT c = 6.32397263e4
+    cdef FLT L1x = y[0]
+    cdef FLT L1y = y[1]
+    cdef FLT L1z = y[2]
+    cdef FLT e1x = y[3]
+    cdef FLT e1y = y[4]
+    cdef FLT e1z = y[5]
+    cdef FLT L2x = y[6]
+    cdef FLT L2y = y[7]
+    cdef FLT L2z = y[8]
+    cdef FLT e2x = y[9]
+    cdef FLT e2y = y[10]
+    cdef FLT e2z = y[11]
 
-    # orbital evolution
-    dadt = (
-        -eps_gw * (64 * (1 + 73 * esq / 24 + 37 * pow(esq, 2) / 96)) / (
-            5 * pow(a, 3) * pow(x1, 3.5))
-    )
-    exn2 = cross(ex, ey, ez, n2x, n2y, n2z)
-    edn2 = dot(ex, ey, ez, n2x, n2y, n2z)
-    jxn2 = cross(jx, jy, jz, n2x, n2y, n2z)
-    jdn2 = dot(jx, jy, jz, n2x, n2y, n2z)
-    jxe = cross(jx, jy, jz, ex, ey, ez)
-    djdtx = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * jxn2[0]
-        - 5 * edn2 * exn2[0]
-    )
-    djdty = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * jxn2[1]
-        - 5 * edn2 * exn2[1]
-    )
-    djdtz = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * jxn2[2]
-        - 5 * edn2 * exn2[2]
-    )
-    dedt_gw = -(
-        eps_gw * (304 / 15) * (1 + 121 / 304 * esq) /
-        (pow(a, 4) * pow(x1, 2.5))
-    )
-    dedtx = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * exn2[0]
-        - 5 * edn2 * jxn2[0]
-        + 2 * jxe[0]
-    ) + dedt_gw * ex + (
-        eps_gr * jxe[0] / (pow(x1, 1.5) * pow(a, 2.5))
-    )
-    dedty = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * exn2[1]
-        - 5 * edn2 * jxn2[1]
-        + 2 * jxe[1]
-    ) + dedt_gw * ey + (
-        eps_gr * jxe[1] / (pow(x1, 1.5) * pow(a, 2.5))
-    )
-    dedtz = 3 * pow(a, 1.5) / 4 * (
-        jdn2 * exn2[2]
-        - 5 * edn2 * jxn2[2]
-        + 2 * jxe[2]
-    ) + dedt_gw * ez + (
-        eps_gr * jxe[2] / (pow(x1, 1.5) * pow(a, 2.5))
-    )
-    ret = [dadt, djdtx, djdty, djdtz, dedtx, dedty, dedtz]
-    return ret
+    cdef FLT LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
+    cdef FLT LOUT = sqrt(L2x**2 + L2y**2 + L2z**2)
+    cdef FLT E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
+    cdef FLT E2 = sqrt(e2x**2 + e2y**2 + e2z**2)
+    cdef FLT AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
+    cdef FLT linx = L1x/LIN
+    cdef FLT liny = L1y/LIN
+    cdef FLT linz = L1z/LIN
+    cdef FLT loutx = L2x/LOUT
+    cdef FLT louty = L2y/LOUT
+    cdef FLT loutz = L2z/LOUT
+    cdef FLT n1 = sqrt((k*(M1 + M2))/AIN**3)
+    cdef FLT tk = 1/n1*((M1 + M2)/M3)*(a2/AIN)**3*(1 - E2**2)**(3.0/2)
+    cdef FLT WLK = m*1/tk
+    cdef FLT Epsilonoct = mm*(M1 - M2)/(M1 + M2)*AIN/a2*E2/(1 - E2**2)
+    cdef FLT WGR = l*(3*k**2*(M1 + M2)**2)/((AIN**2)*(c**2)*sqrt(AIN*k*(M1 + M2))*(1 - E1**2))
+    cdef FLT JGW = -ll*32/5*k**(7.0/2)/c**5*Mu**2/(AIN)**(7.0/2)*(M1 + M2)**(5.0/2)*(
+       1.0 + 7.0/8*E1**2)/(1 - E1**2)**2
+    cdef FLT EGW = -ll*(304*k**3*M1*M2*(M1 + M2))/(
+       15*c**5*AIN**4*(1 - E1**2)**(5.0/2))*(1 + 121.0/304*E1**2)
+
+    return [
+        (
+        3*WLK*LIN)/(
+        4*sqrt(1 -
+          E1**2))*((1 - E1**2)*(-linz*louty + liny*loutz)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(loutz*e1y - louty*e1z)*(loutx*e1x + louty*e1y +
+              loutz*e1z)) +
+       JGW*linx - (75*Epsilonoct*WLK*LIN)/(
+        64*sqrt(1 -
+          E1**2))*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((sqrt(1 - E1**2)*linz*e2y)/E2) + (
+             sqrt(1 - E1**2)*liny*e2z)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*(-((
+              e1z*e2y)/E2) + (e1y*e2z)/E2) +
+          2*(-sqrt(1 - E1**2)*linz*louty +
+             sqrt(1 - E1**2)
+              *liny*loutz)*((loutx*e1x + louty*e1y +
+                loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(loutz*e1y -
+             louty*e1z)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+      (
+        3*WLK*LIN)/(
+        4*sqrt(1 -
+          E1**2))*((1 - E1**2)*(linz*loutx - linx*loutz)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(-loutz*e1x + loutx*e1z)*(loutx*e1x +
+             louty*e1y + loutz*e1z)) +
+       JGW*liny - (75*Epsilonoct*WLK*LIN)/(
+        64*sqrt(1 -
+          E1**2))*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linz*e2x)/E2 - (
+             sqrt(1 - E1**2)*linx*e2z)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*((
+             e1z*e2x)/E2 - (e1x*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linz*loutx -
+             sqrt(1 - E1**2)
+              *linx*loutz)*((loutx*e1x + louty*e1y +
+                loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(-loutz*e1x +
+             loutx*e1z)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+      (
+        3*WLK*LIN)/(
+        4*sqrt(1 -
+          E1**2))*((1 - E1**2)*(-liny*loutx + linx*louty)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(louty*e1x - loutx*e1y)*(loutx*e1x + louty*e1y +
+              loutz*e1z)) +
+       JGW*linz - (75*Epsilonoct*WLK*LIN)/(
+        64*sqrt(1 -
+          E1**2))*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((sqrt(1 - E1**2)*liny*e2x)/E2) + (
+             sqrt(1 - E1**2)*linx*e2y)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*(-((
+              e1y*e2x)/E2) + (e1x*e2y)/E2) +
+          2*(-sqrt(1 - E1**2)*liny*loutx +
+             sqrt(1 - E1**2)
+              *linx*louty)*((loutx*e1x + louty*e1y +
+                loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(louty*e1x -
+             loutx*e1y)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+     WGR*(-linz*e1y + liny*e1z)
+        + (3*WLK*sqrt(1 - E1**2))/
+        4*(2*(-linz*e1y + liny*e1z) + (linx*loutx + liny*louty +
+             linz*loutz)*(loutz*e1y - louty*e1z) -
+          5*(-linz*louty + liny*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)) +
+       EGW*e1x - (75*Epsilonoct*WLK)/
+        64*((-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*(-((
+              sqrt(1 - E1**2)*linz*e2y)/E2) + (
+             sqrt(1 - E1**2)*liny*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((e1z*e2y)/E2) + (e1y*e2z)/
+             E2) + 16/
+           5*(-sqrt(1 - E1**2)*linz*e1y +
+             sqrt(1 - E1**2)*liny*e1z)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2) +
+          2*(loutz*e1y -
+             louty*e1z)*((loutx*e1x + louty*e1y + loutz*e1z)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(-sqrt(1 - E1**2)*linz*louty +
+             sqrt(1 - E1**2)
+               *liny*loutz)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+     WGR*(linz*e1x - linx*e1z)
+         + (3*WLK*sqrt(1 - E1**2))/
+        4*(2*(linz*e1x - linx*e1z) + (linx*loutx + liny*louty +
+             linz*loutz)*(-loutz*e1x + loutx*e1z) -
+          5*(linz*loutx - linx*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)) +
+       EGW*e1y - (75*Epsilonoct*WLK)/
+        64*((-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*((
+             sqrt(1 - E1**2)*linz*e2x)/E2 - (
+             sqrt(1 - E1**2)*linx*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((e1z*e2x)/E2 - (e1x*e2z)/E2) +
+          16/
+           5*(sqrt(1 - E1**2)*linz*e1x -
+             sqrt(1 - E1**2)*linx*e1z)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2) +
+          2*(-loutz*e1x +
+             loutx*e1z)*((loutx*e1x + louty*e1y + loutz*e1z)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(sqrt(1 - E1**2)*linz*loutx -
+             sqrt(1 - E1**2)
+               *linx*loutz)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+     WGR*(-liny*e1x +
+          linx*e1y) + (
+        3*WLK*sqrt(1 - E1**2))/
+        4*(2*(-liny*e1x + linx*e1y) + (linx*loutx + liny*louty +
+             linz*loutz)*(louty*e1x - loutx*e1y) -
+          5*(-liny*loutx + linx*louty)*(loutx*e1x + louty*e1y +
+             loutz*e1z)) +
+       EGW*e1z - (75*Epsilonoct*WLK)/
+        64*((-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*(-((
+              sqrt(1 - E1**2)*liny*e2x)/E2) + (
+             sqrt(1 - E1**2)*linx*e2y)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((e1y*e2x)/E2) + (e1x*e2y)/
+             E2) + 16/
+           5*(-sqrt(1 - E1**2)*liny*e1x +
+             sqrt(1 - E1**2)*linx*e1y)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2) +
+          2*(louty*e1x -
+             loutx*e1y)*((loutx*e1x + louty*e1y + loutz*e1z)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/
+                E2) + (sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((e1x*e2x)/E2 + (
+                e1y*e2y)/E2 + (e1z*e2z)/E2)) +
+          2*(-sqrt(1 - E1**2)*liny*loutx +
+             sqrt(1 - E1**2)
+               *linx*louty)*((sqrt(1 - E1**2)*linx*loutx +
+                sqrt(1 - E1**2)*liny*louty +
+                sqrt(1 - E1**2)*linz*loutz)*((
+                sqrt(1 - E1**2)*linx*e2x)/E2 + (
+                sqrt(1 - E1**2)*liny*e2y)/E2 + (
+                sqrt(1 - E1**2)*linz*e2z)/E2) -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)*((
+                e1x*e2x)/E2 + (e1y*e2y)/E2 + (
+                e1z*e2z)/E2))),
+     (3*WLK*LIN)/(
+        4*sqrt(1 -
+          E1**2))*((1 - E1**2)*(linz*louty - liny*loutz)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(-loutz*e1y + louty*e1z)*(loutx*e1x +
+             louty*e1y + loutz*e1z)) - (
+        75*Epsilonoct*WLK)/64*LIN/sqrt(1 - E1**2)*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linz*e2y)/E2 - (
+             sqrt(1 - E1**2)*liny*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(-loutz*e1y +
+             louty*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linz*louty -
+             sqrt(1 - E1**2)*liny*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*((
+             e1z*e2y)/E2 - (e1y*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linz*louty -
+             sqrt(1 - E1**2)*liny*loutz)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty + sqrt(1 - E1**2)*linz*loutz)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 14*(-loutz*e1y + louty*e1z)*(loutx*e1x +
+             louty*e1y + loutz*e1z)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2)),
+     (3*WLK*LIN)/(
+        4*sqrt(1 -
+          E1**2))*((1 - E1**2)*(-linz*loutx + linx*loutz)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(loutz*e1x - loutx*e1z)*(loutx*e1x + louty*e1y +
+              loutz*e1z)) - (75*Epsilonoct*WLK)/
+        64*LIN/sqrt(1 - E1**2)*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((sqrt(1 - E1**2)*linz*e2x)/E2) + (
+             sqrt(1 - E1**2)*linx*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutz*e1x - loutx*e1z)*((
+             sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) +
+          2*(-sqrt(1 - E1**2)*linz*loutx +
+             sqrt(1 - E1**2)*linx*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*(-((
+              e1z*e2x)/E2) + (e1x*e2z)/E2) +
+          2*(-sqrt(1 - E1**2)*linz*loutx +
+             sqrt(1 - E1**2)*linx*loutz)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty + sqrt(1 - E1**2)*linz*loutz)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 14*(loutz*e1x - loutx*e1z)*(loutx*e1x +
+             louty*e1y + loutz*e1z)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2)),
+     (3*WLK*LIN)/(
+        4*sqrt(1 - E1**2))*((1 - E1**2)*(liny*loutx - linx*louty)*(linx*loutx +
+             liny*louty + linz*loutz) -
+          5*(-louty*e1x + loutx*e1y)*(loutx*e1x +
+             louty*e1y + loutz*e1z)) - (
+        75*Epsilonoct*WLK)/64*LIN/sqrt(1 - E1**2)*(2*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*liny*e2x)/E2 - (
+             sqrt(1 - E1**2)*linx*e2y)/E2) + (-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2)*((
+             e1y*e2x)/E2 - (e1x*e2y)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(-louty*e1x +
+             loutx*e1y)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*liny*loutx -
+             sqrt(1 - E1**2)*linx*louty)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*liny*loutx -
+             sqrt(1 - E1**2)*linx*louty)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty + sqrt(1 - E1**2)*linz*loutz)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 14*(-louty*e1x + loutx*e1y)*(loutx*e1x +
+             louty*e1y + loutz*e1z)*((e1x*e2x)/E2 + (
+             e1y*e2y)/E2 + (e1z*e2z)/E2)),
+     (3*WLK*LIN)/(4*sqrt(1 - E1**2))*1/(
+        J2*sqrt(1 -
+          E2**2))*((1 - E1**2)*(linx*loutx + liny*louty +
+             linz*loutz)*(linz*e2y - liny*e2z) - (1.0/2 - 3*E1**2 -
+             5.0/2*(1 - E1**2)*(linx*loutx + liny*louty + linz*loutz)**2 +
+             25.0/2*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(-loutz*e2y + louty*e2z) -
+          5*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(e1z*e2y - e1y*e2z)) - (
+        75*Epsilonoct*WLK )/64*LIN/sqrt(1 - E1**2)*1/(
+        J2*sqrt(1 - E2**2))*(1/
+           E2*2*(1 - E2**2)*(sqrt(1 - E1**2)*linz*louty -
+             sqrt(1 - E1**2)*liny*loutz)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z) +
+          1/E2*(1 - E2**2)*(-loutz*e1y + louty*e1z)*(-(1.0/5) + (
+             8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2) +
+          2*(loutx*e1x + louty*e1y + loutz*e1z)*((
+             sqrt(1 - E1**2)*linz*e2y)/E2 - (
+             sqrt(1 - E1**2)*liny*e2z)/
+             E2)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y + sqrt(1 - E1**2)*linz*e2z) -
+          14*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2)*(loutz*e2y -
+             louty*e2z) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y + sqrt(1 - E1**2)*linz*e2z)*((
+             e1z*e2y)/E2 - (e1y*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*((sqrt(1 - E1**2)*linz*e2y)/
+             E2 - (sqrt(1 - E1**2)*liny*e2z)/E2)*(e1x*e2x +
+             e1y*e2y + e1z*e2z) -
+          14*(loutx*e1x + louty*e1y + loutz*e1z)*((
+             e1z*e2y)/E2 - (e1y*e2z)/E2)*(e1x*e2x +
+             e1y*e2y + e1z*e2z) -
+          2*(1.0/5 - (8*E1**2)/5)*(loutz*e2y - louty*e2z)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 7*(-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(loutz*e2y - louty*e2z)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2)),
+     (3*WLK*LIN)/(4*sqrt(1 - E1**2))*1/(
+        J2*sqrt(1 -
+          E2**2))*((1 - E1**2)*(linx*loutx + liny*louty +
+             linz*loutz)*(-linz*e2x + linx*e2z) - (1.0/2 - 3*E1**2 -
+             5.0/2*(1 - E1**2)*(linx*loutx + liny*louty + linz*loutz)**2 +
+             25.0/2*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(loutz*e2x - loutx*e2z) -
+          5*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-e1z*e2x + e1x*e2z)) - (
+        75*Epsilonoct*WLK )/64*LIN/sqrt(1 - E1**2)*1/(
+        J2*sqrt(1 -
+          E2**2))*(1/
+           E2*2*(1 - E2**2)*(-sqrt(1 - E1**2)*linz*loutx +
+             sqrt(1 - E1**2)*linx*loutz)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z) +
+          1/E2*(1 - E2**2)*(loutz*e1x - loutx*e1z)*(-(1.0/5) + (
+             8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2) +
+          2*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((sqrt(1 - E1**2)*linz*e2x)/E2) + (
+             sqrt(1 - E1**2)*linx*e2z)/
+             E2)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y + sqrt(1 - E1**2)*linz*e2z) -
+          14*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*((sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2)*(-loutz*e2x +
+             loutx*e2z) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y +
+             sqrt(1 - E1**2)*linz*e2z)*(-((e1z*e2x)/E2) + (
+             e1x*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(-((sqrt(1 - E1**2)*linz*e2x)/
+              E2) + (sqrt(1 - E1**2)*linx*e2z)/E2)*(e1x*e2x +
+             e1y*e2y + e1z*e2z) -
+          14*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(-((e1z*e2x)/E2) + (e1x*e2z)/
+             E2)*(e1x*e2x + e1y*e2y + e1z*e2z) -
+          2*(1.0/5 - (8*E1**2)/5)*(-loutz*e2x + loutx*e2z)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 7*(-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(-loutz*e2x + loutx*e2z)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2)),
+     (3*WLK*LIN)/(4*sqrt(1 - E1**2))*1/(
+        J2*sqrt(1 -
+          E2**2))*((1 - E1**2)*(linx*loutx + liny*louty +
+             linz*loutz)*(liny*e2x - linx*e2y) - (1.0/2 - 3*E1**2 -
+             5.0/2*(1 - E1**2)*(linx*loutx + liny*louty + linz*loutz)**2 +
+             25.0/2*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(-louty*e2x + loutx*e2y) -
+          5*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(e1y*e2x - e1x*e2y)) - (
+        75*Epsilonoct*WLK )/64*LIN/sqrt(1 - E1**2)*1/(
+        J2*sqrt(1 -
+          E2**2))*(1/
+           E2*2*(1 - E2**2)*(sqrt(1 - E1**2)*liny*loutx -
+             sqrt(1 - E1**2)*linx*louty)*(sqrt(1 - E1**2)*linx*loutx +
+             sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z) +
+          1/E2*(1 - E2**2)*(-louty*e1x + loutx*e1y)*(-(1.0/5) + (
+             8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y + loutz*e1z)**2) +
+          2*(loutx*e1x + louty*e1y + loutz*e1z)*((
+             sqrt(1 - E1**2)*liny*e2x)/E2 - (
+             sqrt(1 - E1**2)*linx*e2y)/
+             E2)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y + sqrt(1 - E1**2)*linz*e2z) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*((e1y*e2x)/E2 - (
+             e1x*e2y)/E2)*(sqrt(1 - E1**2)*linx*e2x +
+             sqrt(1 - E1**2)*liny*e2y + sqrt(1 - E1**2)*linz*e2z) -
+          14*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*(loutx*e1x + louty*e1y +
+             loutz*e1z)*(louty*e2x - loutx*e2y)*((
+             sqrt(1 - E1**2)*linx*e2x)/E2 + (
+             sqrt(1 - E1**2)*liny*e2y)/E2 + (
+             sqrt(1 - E1**2)*linz*e2z)/E2) +
+          2*(sqrt(1 - E1**2)*linx*loutx + sqrt(1 - E1**2)*liny*louty +
+             sqrt(1 - E1**2)*linz*loutz)*((sqrt(1 - E1**2)*liny*e2x)/
+             E2 - (sqrt(1 - E1**2)*linx*e2y)/E2)*(e1x*e2x +
+             e1y*e2y + e1z*e2z) -
+          14*(loutx*e1x + louty*e1y + loutz*e1z)*((
+             e1y*e2x)/E2 - (e1x*e2y)/E2)*(e1x*e2x +
+             e1y*e2y + e1z*e2z) -
+          2*(1.0/5 - (8*E1**2)/5)*(louty*e2x - loutx*e2y)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2) - 7*(-(1.0/5) + (8*E1**2)/
+             5 + (sqrt(1 - E1**2)*linx*loutx +
+               sqrt(1 - E1**2)*liny*louty +
+               sqrt(1 - E1**2)*linz*loutz)**2 -
+             7*(loutx*e1x + louty*e1y +
+                loutz*e1z)**2)*(louty*e2x - loutx*e2y)*((
+             e1x*e2x)/E2 + (e1y*e2y)/E2 + (e1z*e2z)/
+             E2)),
+     ]
+
+def get_ain_vec_bin(FLT t, np.ndarray[FLT, ndim=1] y, FLT m, FLT mm, FLT l, FLT ll,
+                 FLT M1, FLT M2, FLT M3, FLT Itot, FLT INTain, FLT a2, FLT N1,
+                 FLT Mu, FLT J1, FLT J2, FLT T):
+    cdef FLT k = 39.4751488
+    cdef FLT L1x = y[0]
+    cdef FLT L1y = y[1]
+    cdef FLT L1z = y[2]
+    cdef FLT e1x = y[3]
+    cdef FLT e1y = y[4]
+    cdef FLT e1z = y[5]
+
+    cdef FLT LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
+    cdef FLT E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
+    cdef FLT AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
+    return AIN

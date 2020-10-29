@@ -1,2 +1,3 @@
 #!/bin/bash
-CFLAGS="-Ofast" python cython_build.py build_ext --inplace
+rm -rf __pycache__ build *.c *.so
+python cython_build.py build_ext --inplace

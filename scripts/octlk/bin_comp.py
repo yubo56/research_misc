@@ -2,6 +2,7 @@
 copied Bin's mathematica notebook and did minimal edits to get it to compile in
 Python
 '''
+from cython_utils import *
 import time
 from multiprocessing import Pool
 from numpy import sqrt, sin, cos, abs, radians, pi
@@ -18,34 +19,16 @@ plt.rc('lines', lw=3.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
 
-m = 1 # (*Kozai*)
-mm = 1 # (* turn on oct Kozai *)
-l = 1 # (*GR*)
-ll = 1 # (*GW*)
-
 k = 39.4751488
 c = 6.32397263*10**4
-# length = AU
-# c = 1AU / 499s
-# unit of time = 499s * 6.32e4 = 1yr
-# unit of mass = solar mass, solve for M using N1 + distance in correct units
-M1 = 30
-M2 = 20
-M3 = 30
-Itot = 93.5
-INTain = 100
-a2 = 6000
-N1 = sqrt((k*(M1 + M2))/INTain ** 3)
-Mu = (M1*M2)/(M1 + M2)
-J1 = (M2*M1)/(M2 + M1)*sqrt(k*(M2 + M1)*INTain)
-J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * sqrt(k*(M3 + M1 + M2)*a2 )
-T = 1e8
 
-def get_emax(seed):
+def get_emax(args, seed=0):
     np.random.seed(seed)
     w1 = np.random.rand() * 2 * pi
     w2 = np.random.rand() * 2 * pi
     W = np.random.rand() * 2 * pi
+
+    m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T = args
 
     E10 = 0.001
     E20 = 0.6
@@ -90,17 +73,18 @@ def get_emax(seed):
 
     y0 = [L1x0, L1y0, L1z0, e1x0, e1y0, e1z0, L2x0, L2y0, L2z0, e2x0, e2y0, e2z0]
     start = time.time()
-    ret = solve_ivp(dydt, (0, T), y0, method='DOP853', atol=1e-10, rtol=1e-10)
+    ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
+                    method='LSODA', atol=1e-12, rtol=1e-12)
     ein_vec = ret.y[3:6]
     evec_mags = np.sqrt(np.sum(ein_vec**2, axis=0))
     delta_emax_log10 = np.log10(1 - np.max(evec_mags))
-    print('Took', time.time() - start, 'log10(1 - emax) is', delta_emax_log10,
-          W, w1, w2)
+    print('Took', time.time() - start, 'log10(1 - emax) is', delta_emax_log10)
     return delta_emax_log10
     # plt.semilogy(ret.t, 1 - evec_mags)
     # plt.savefig('/tmp/bin_comp', dpi=300)
 
-def dydt(t, y):
+def dydt_vec_binP(t, y, m, mm, l, ll, M1, M2, M3, Itot, INTain, a2,
+                  N1, Mu, J1, J2, T):
     L1x, L1y, L1z, e1x, e1y, e1z, L2x, L2y, L2z, e2x, e2y, e2z = y
 
     LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
@@ -631,7 +615,7 @@ def dydt(t, y):
              E2)),
      ]
 
-def get_emax_dist(num_trials=1000):
+def get_emax_dist(args, num_trials=1000):
     p = Pool(10)
     delta_emax_log10s = p.map(get_emax, range(num_trials))
     plt.hist(delta_emax_log10s, bins=50)
@@ -642,6 +626,30 @@ def get_emax_dist(num_trials=1000):
     plt.close()
 
 if __name__ == '__main__':
-    # get_emax()
-    get_emax_dist()
+    m = 1 # (*Kozai*)
+    mm = 1 # (* turn on oct Kozai *)
+    l = 1 # (*GR*)
+    ll = 0 # (*GW*)
+
+    # length = AU
+    # c = 1AU / 499s
+    # unit of time = 499s * 6.32e4 = 1yr
+    # unit of mass = solar mass, solve for M using N1 + distance in correct units
+    M1 = 30
+    M2 = 20
+    M3 = 30
+    Itot = 93.5
+    INTain = 100
+    a2 = 6000
+    N1 = sqrt((k*(M1 + M2))/INTain ** 3)
+    Mu = (M1*M2)/(M1 + M2)
+    J1 = (M2*M1)/(M2 + M1)*sqrt(k*(M2 + M1)*INTain)
+    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * sqrt(k*(M3 + M1 + M2)*a2 )
+    T = 1e8
+
+    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
+
+    get_emax(args)
+
+    # get_emax_dist(args)
     pass
