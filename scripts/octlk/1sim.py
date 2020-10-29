@@ -288,11 +288,11 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
 
     for q, base_fn, ilow, ihigh in [
             [1.0, '1equaldist', 92, 93.5],
-            # [0.7, '1p7dist', 91, 95],
-            # [0.5, '1p5dist', 91, 98],
-            # [0.4, '1p4dist', 90.5, 98],
-            # [0.3, '1p3dist', 90.5, 100],
-            # [0.2, '1p2dist', 90.5, 105],
+            [0.7, '1p7dist', 91, 95],
+            [0.5, '1p5dist', 91, 98],
+            [0.4, '1p4dist', 90.5, 98],
+            [0.3, '1p3dist', 90.5, 100],
+            [0.2, '1p2dist', 89.5, 105],
     ]:
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
@@ -365,6 +365,6 @@ if __name__ == '__main__':
     # timing_tests()
     # emax_dist()
 
-    # sweep(nthreads=20)
+    sweep(nthreads=20)
     sweep(folder='1sweepbin', func=sweeper_bin, nthreads=20)
     pass
