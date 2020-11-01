@@ -45,9 +45,9 @@ def test_orbs():
     def a_term_event(_t, y, *_args):
         return y[0] - AF
     a_term_event.terminal = True
-    ret = solve_ivp(dydt, (0, 100 / tlk0), y0, args=eps,
+    ret = solve_ivp(dydt, (0, 20 / tlk0), y0, args=eps,
                     events=[a_term_event],
-                    method='LSODA', atol=TOL, rtol=TOL)
+                    method='LSODA', atol=TOL / 1e3, rtol=TOL / 1e3)
     fig, axs = plt.subplots(
         3, 1,
         figsize=(8, 12),
@@ -212,8 +212,8 @@ def sweeper_bin(idx, q, t_final, _tlk0, a0, e0, I0, e2, _eps):
     # c = 1AU / 499s
     # unit of time = 499s * 6.32e4 = 1yr
     # unit of mass = solar mass, solve for M using N1 + distance in correct units
-    M1 = 30
-    M2 = 20
+    M1 = 50 / (1 + q)
+    M2 = 50 - M1
     M3 = 30
     Itot = np.degrees(I0)
     INTain = 100
@@ -293,10 +293,10 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
     for q, base_fn, ilow, ihigh in [
             [0.2, '1p2dist', 89.5, 105],
             [0.3, '1p3dist', 90.5, 100],
-            # [0.4, '1p4dist', 90.5, 98],
-            # [0.5, '1p5dist', 91, 98],
-            # [0.7, '1p7dist', 91, 95],
-            # [1.0, '1equaldist', 92, 93.5],
+            [0.4, '1p4dist', 90.5, 98],
+            [0.5, '1p5dist', 91, 98],
+            [0.7, '1p7dist', 91, 95],
+            [1.0, '1equaldist', 92, 93.5],
     ]:
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
@@ -412,12 +412,230 @@ def sweeper_comp(nthreads=1, nruns=1000):
     plt.savefig('1sweep/sweeper_comp', dpi=300)
     plt.close()
 
+def vec_comp():
+    k = 39.4751488
+    c = 6.32397263*10**4
+    m = 1
+    mm = 1
+    l = 0
+    ll = 0
+
+    # length = AU
+    # c = 1AU / 499s
+    # unit of time = 499s * 6.32e4 = 1yr
+    # unit of mass = solar mass, solve for M using N1 + distance in correct units
+    M1 = 30
+    M2 = 20
+    M3 = 30
+    Itot = 93.5
+    INTain = 100
+    a2 = 6000
+    N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
+    Mu = (M1*M2)/(M1 + M2)
+    J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
+    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
+    w1 = 0
+    w2 = 0.7
+    W = 0
+    E10 = 1e-3
+    E20 = 0.6
+
+    T = 1e9
+    n1 = sqrt((k*(M1 + M2))/INTain**3)
+    tk = 1/n1*((M1 + M2)/M3)*(a2/INTain)**3
+    print('Running to', T, 'tlk is', tk)
+
+    GTOT = np.sqrt(
+        (J1*np.sqrt(1 - E10**2))**2 + (J2*np.sqrt(1 - E20**2))**2 +
+         2*J1*np.sqrt(1 - E10**2)*J2*np.sqrt(1 - E20**2)*np.cos(np.radians(Itot)))
+    def f(y):
+        i1, i2 = y
+        return [
+            J1*np.sqrt(1 - E10**2)*np.cos(np.radians(90 - i1)) -
+          J2*np.sqrt(1 - E20**2)*np.cos(np.radians(90 - i2)),
+         J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
+           J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
+        ]
+    I1, I2 = root(f, [60, 0]).x
+
+    L1x00 = np.sin(np.radians(I1))*np.sin(W)
+    L1y00 = -np.sin(np.radians(I1))*np.cos(W)
+    L1z00 = np.cos(np.radians(I1))
+    e1x00 = np.cos(w1)*np.cos(W) - np.sin(w1)*np.cos(np.radians(I1))*np.sin(W)
+    e1y00 = np.cos(w1)*np.sin(W) + np.sin(w1)*np.cos(np.radians(I1))*np.cos(W)
+    e1z00 = np.sin(w1)*np.sin(np.radians(I1))
+    L2x00 = np.sin(np.radians(I2))*np.sin(W - np.pi)
+    L2y00 = -np.sin(np.radians(I2))*np.cos(W - np.pi)
+    L2z00 = np.cos(np.radians(I2))
+    e2x00 = np.cos(w2)*np.cos(W - np.pi) - np.sin(w2)*np.cos(np.radians(I2))*np.sin(W - np.pi)
+    e2y00 = np.cos(w2)*np.sin(W - np.pi) + np.sin(w2)*np.cos(np.radians(I2))*np.cos(W - np.pi)
+    e2z00 = np.sin(w2)*np.sin(np.radians(I2))
+
+    L1x0 = J1*np.sqrt(1 - E10**2)*(L1x00)
+    L1y0 = J1*np.sqrt(1 - E10**2)*(L1y00)
+    L1z0 = J1*np.sqrt(1 - E10**2)*(L1z00)
+    e1x0 = E10*(e1x00)
+    e1y0 = E10*(e1y00)
+    e1z0 = E10*(e1z00)
+    L2x0 = J2*np.sqrt(1 - E20**2)*(L2x00)
+    L2y0 = J2*np.sqrt(1 - E20**2)*(L2y00)
+    L2z0 = J2*np.sqrt(1 - E20**2)*(L2z00)
+    e2x0 = E20*(e2x00)
+    e2y0 = E20*(e2y00)
+    e2z0 = E20*(e2z00)
+
+    # sympy vecs
+    eps = get_eps(M2, M1, M3, INTain, a2, E20)
+    y0 = np.array([
+        np.sqrt(1 - E10**2)*(L1x00),
+        np.sqrt(1 - E10**2)*(L1y00),
+        np.sqrt(1 - E10**2)*(L1z00),
+        E10*(e1x00),
+        E10*(e1y00),
+        E10*(e1z00),
+        np.sqrt(1 - E20**2)*(L2x00),
+        np.sqrt(1 - E20**2)*(L2y00),
+        np.sqrt(1 - E20**2)*(L2z00),
+        E20*(e2x00),
+        E20*(e2y00),
+        E20*(e2z00),
+    ])
+    start = time.time()
+    ret = solve_ivp(dydt_vec_sympy, (0, T / tk), y0, args=eps,
+                    method='Radau', atol=TOL / 1e3, rtol=TOL / 1e3)
+    print('Sympy took', time.time() - start)
+    lin = ret.y[ :3, :]
+    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    evec = ret.y[3:6, :]
+    evec_mags = np.sqrt(np.sum(evec**2, axis=0))
+    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
+    print(1 - evec_mags.max())
+
+    fig, (ax2, ax3) = plt.subplots(
+        2, 1,
+        figsize=(8, 12),
+        sharex=True)
+
+    ax2.semilogy(ret.t * tk / 1e8, 1 - evec_mags)
+    ax2.set_ylabel(r'$1 - e$')
+    ax3.plot(ret.t * tk / 1e8, I)
+    ax3.set_ylabel(r'$I_{\rm tot}$ (Deg)')
+    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('/tmp/sympy_vec', dpi=300)
+    plt.clf()
+
+    y0 = np.array([L1x0, L1y0, L1z0, e1x0, e1y0, e1z0, L2x0, L2y0, L2z0, e2x0,
+                   e2y0, e2z0])
+    def a_term_event(*args):
+        ain = get_ain_vec_bin(*args)
+        return ain - AF * INTain
+    a_term_event.terminal = True
+    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
+    start = time.time()
+    ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
+                    events=[a_term_event],
+                    method='Radau', atol=TOL, rtol=TOL)
+    print('Bin took', time.time() - start)
+    lin = ret.y[ :3, :]
+    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    evec = ret.y[3:6, :]
+    evec_mags = np.sqrt(np.sum(evec**2, axis=0))
+    print(1 - evec_mags.max())
+    a = lin_mag**2/((Mu**2)*k*(M1 + M2)*(1 - evec_mags**2))
+    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
+
+    fig, (ax1, ax2, ax3) = plt.subplots(
+        3, 1,
+        figsize=(8, 12),
+        sharex=True)
+
+    ax1.plot(ret.t / 1e8, a)
+    ax1.set_ylabel(r'$a$ (AU)')
+    ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
+    ax2.set_ylabel(r'$1 - e$')
+    ax3.plot(ret.t / 1e8, I)
+    ax3.set_ylabel(r'$I_{\rm tot}$ (Deg)')
+    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('/tmp/bin_vec', dpi=300)
+    plt.clf()
+
+def orb_comp():
+    m1, m2, m3, a, a2, e2 = 20, 30, 30, 100, 6000, 0.6
+    # Seems like Radau & BDF do some invalid memory access, when dadt neq 0, e2
+    # grows without bound
+    eps = get_eps(m1, m2, m3, a, a2, e2)
+    eps[0] = 0
+    eps[1] = 0
+    eps[2] = 0
+    tlk0 = get_tlk0(m1, m2, m3, a, a2) / 1e8
+    I0 = np.radians(93.5)
+    I1 = np.radians(get_I1(I0, eps[3]))
+    I2 = I0 - I1
+    y0 = np.array([1e-3, I1, 0, 0, e2, I2, 0, 0.7])
+    start = time.time()
+    ret = solve_ivp(dydt_orbel_sympy, (0, 20 / tlk0), y0, args=eps,
+                    method='LSODA', atol=TOL, rtol=TOL)
+    print('Sympy took', time.time() - start)
+
+    t = ret.t * tlk0
+    fig, axs = plt.subplots(
+        2, 1,
+        figsize=(8, 12),
+        sharex=True)
+    axs[0].semilogy(t, 1 - ret.y[0])
+    axs[0].set_ylabel(r'$1 - e$')
+    axs[1].plot(t, np.degrees(ret.y[1]))
+    axs[1].set_ylabel(r'$I_{\rm tot}$')
+    axs[1].set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('/tmp/orb_sym', dpi=300)
+    plt.clf()
+
+    y0 = np.array([1.0, 1e-3, I1, 0, 0, e2, I2, 0, 0.7],
+                  dtype=np.float64)
+    def a_term_event(_t, y, *_args):
+        return y[0] - AF
+    a_term_event.terminal = True
+    start = time.time()
+    ret = solve_ivp(dydt, (0, 20 / tlk0), y0, args=eps,
+                    events=[a_term_event],
+                    method='LSODA', atol=TOL, rtol=TOL)
+    print('Old orbel took', time.time() - start)
+    fig, axs = plt.subplots(
+        3, 1,
+        figsize=(8, 12),
+        sharex=True)
+
+    t = ret.t * tlk0
+    axs[0].semilogy(t, ret.y[0] * a)
+    axs[0].set_ylabel(r'$a$ (AU)')
+    axs[1].semilogy(t, 1 - ret.y[1])
+    axs[1].set_ylabel(r'$1 - e$')
+    axs[2].plot(t, np.degrees(ret.y[2]))
+    axs[2].set_ylabel(r'$I_{\rm tot}$')
+    axs[2].set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig('/tmp/orb_my', dpi=300)
+    plt.clf()
+
 if __name__ == '__main__':
     # timing_tests()
+    # vec_comp()
+    orb_comp()
     # emax_dist()
 
     # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
     # sweep(nthreads=50)
 
-    sweeper_comp(nthreads=4, nruns=10000)
+    # sweeper_comp(nthreads=4, nruns=10000)
     pass
