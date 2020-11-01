@@ -8,31 +8,29 @@ cimport numpy as np
 cimport cython
 from libc.math cimport sin, cos, sqrt, pow
 
-ctypedef np.float64_t FLT
-
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dadt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT esq = e * e
+def dadt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double esq = e * e
     return -64 / 5 * eps_gw / (pow(1 - esq, 3.5) * pow(a, 3)) * (
         1 + 73 * esq / 24 + 37 * esq * esq / 96)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dedt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
+def dedt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
     return j * pow(a, 1.5) / 64 * (
         120 * e * pow(sin(Itot), 2) * sin(2 * w)
         + 15 * eps_oct / 8 * cos(w2) * (
@@ -46,18 +44,18 @@ def dedt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
         1 + 121 * esq / 304)
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dIdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
+def dIdt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
     return -3 * e * pow(a, 1.5) / (32 * j) * (
         10 * sin(2 * Itot) * (e * sin(2 * w)
         + 5 * eps_oct / 8 * (2 + 5 * esq + 7 * esq * cos(2 * w)) * cos(w2) *
@@ -69,18 +67,18 @@ def dIdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
     )
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dWdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
+def dWdt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
     return -3 * pow(a, 1.5) / (32 * sin(I) * j) * (
         2 * (
             (2 + 3 * esq - 5 * esq * cos(2 * w))
@@ -95,19 +93,19 @@ def dWdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
     )
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dwdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
-    cdef FLT jout = sqrt(1 - e2 * e2)
+def dwdt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
+    cdef double jout = sqrt(1 - e2 * e2)
     cdef B = 2 + 5 * esq - 7 * esq * cos(2 * w)
     cdef A = 4 + 3 * esq - 5 * B * pow(sin(Itot), 2) / 2
     cdef cosQ = -cos(w) * cos(w2) - cos(Itot) * sin(w) * sin(w2)
@@ -129,19 +127,19 @@ def dwdt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def de2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-          FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
-    cdef FLT jout = sqrt(1 - e2 * e2)
+def de2dt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+          double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
+    cdef double jout = sqrt(1 - e2 * e2)
     return (
         15 * e * eta * jout * eps_oct * pow(a, 1.5) / (256 * e2)
     ) * (
@@ -156,19 +154,19 @@ def de2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dI2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-          FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
-    cdef FLT jout = sqrt(1 - e2 * e2)
+def dI2dt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+          double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
+    cdef double jout = sqrt(1 - e2 * e2)
     return -(
         3 * e * eta * pow(a, 1.5) / (32 * jout)
     ) * (
@@ -183,19 +181,19 @@ def dI2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
     )
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dw2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-          FLT eta):
-    cdef FLT a = y[0]
-    cdef FLT e = y[1]
-    cdef FLT I = y[2]
-    cdef FLT w = y[4]
-    cdef FLT e2 = y[5]
-    cdef FLT I2 = y[6]
-    cdef FLT w2 = y[8]
-    cdef FLT Itot = I +I2
-    cdef FLT esq = e * e
-    cdef FLT j = sqrt(1 - esq)
-    cdef FLT jout = sqrt(1 - e2 * e2)
+def dw2dt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+          double eta):
+    cdef double a = y[0]
+    cdef double e = y[1]
+    cdef double I = y[2]
+    cdef double w = y[4]
+    cdef double e2 = y[5]
+    cdef double I2 = y[6]
+    cdef double w2 = y[8]
+    cdef double Itot = I +I2
+    cdef double esq = e * e
+    cdef double j = sqrt(1 - esq)
+    cdef double jout = sqrt(1 - e2 * e2)
     cdef B = 2 + 5 * esq - 7 * esq * cos(2 * w)
     cdef A = 4 + 3 * esq - 5 * B * pow(sin(Itot), 2) / 2
     cdef cosQ = -cos(w) * cos(w2) - cos(Itot) * sin(w) * sin(w2)
@@ -217,8 +215,8 @@ def dw2dt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
         )
     )
 
-def dydt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
-         FLT eta):
+def dydt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
+         double eta):
     return [
         dadt(t, y, eps_gw, eps_gr, eps_oct, eta),
         dedt(t, y, eps_gw, eps_gr, eps_oct, eta),
@@ -237,43 +235,43 @@ def dydt(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT eps_oct,
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dydt_vec_bin(FLT t, np.ndarray[FLT, ndim=1] y, FLT m, FLT mm, FLT l, FLT ll,
-                 FLT M1, FLT M2, FLT M3, FLT Itot, FLT INTain, FLT a2, FLT N1,
-                 FLT Mu, FLT J1, FLT J2, FLT T):
-    cdef FLT k = 39.4751488
-    cdef FLT c = 6.32397263e4
-    cdef FLT L1x = y[0]
-    cdef FLT L1y = y[1]
-    cdef FLT L1z = y[2]
-    cdef FLT e1x = y[3]
-    cdef FLT e1y = y[4]
-    cdef FLT e1z = y[5]
-    cdef FLT L2x = y[6]
-    cdef FLT L2y = y[7]
-    cdef FLT L2z = y[8]
-    cdef FLT e2x = y[9]
-    cdef FLT e2y = y[10]
-    cdef FLT e2z = y[11]
+def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, double l, double ll,
+                 double M1, double M2, double M3, double Itot, double INTain, double a2, double N1,
+                 double Mu, double J1, double J2, double T):
+    cdef double k = 39.4751488
+    cdef double c = 6.32397263e4
+    cdef double L1x = y[0]
+    cdef double L1y = y[1]
+    cdef double L1z = y[2]
+    cdef double e1x = y[3]
+    cdef double e1y = y[4]
+    cdef double e1z = y[5]
+    cdef double L2x = y[6]
+    cdef double L2y = y[7]
+    cdef double L2z = y[8]
+    cdef double e2x = y[9]
+    cdef double e2y = y[10]
+    cdef double e2z = y[11]
 
-    cdef FLT LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
-    cdef FLT LOUT = sqrt(L2x**2 + L2y**2 + L2z**2)
-    cdef FLT E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
-    cdef FLT E2 = sqrt(e2x**2 + e2y**2 + e2z**2)
-    cdef FLT AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
-    cdef FLT linx = L1x/LIN
-    cdef FLT liny = L1y/LIN
-    cdef FLT linz = L1z/LIN
-    cdef FLT loutx = L2x/LOUT
-    cdef FLT louty = L2y/LOUT
-    cdef FLT loutz = L2z/LOUT
-    cdef FLT n1 = sqrt((k*(M1 + M2))/AIN**3)
-    cdef FLT tk = 1/n1*((M1 + M2)/M3)*(a2/AIN)**3*(1 - E2**2)**(3.0/2)
-    cdef FLT WLK = m*1/tk
-    cdef FLT Epsilonoct = mm*(M1 - M2)/(M1 + M2)*AIN/a2*E2/(1 - E2**2)
-    cdef FLT WGR = l*(3*k**2*(M1 + M2)**2)/((AIN**2)*(c**2)*sqrt(AIN*k*(M1 + M2))*(1 - E1**2))
-    cdef FLT JGW = -ll*32/5*k**(7.0/2)/c**5*Mu**2/(AIN)**(7.0/2)*(M1 + M2)**(5.0/2)*(
+    cdef double LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
+    cdef double LOUT = sqrt(L2x**2 + L2y**2 + L2z**2)
+    cdef double E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
+    cdef double E2 = sqrt(e2x**2 + e2y**2 + e2z**2)
+    cdef double AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
+    cdef double linx = L1x/LIN
+    cdef double liny = L1y/LIN
+    cdef double linz = L1z/LIN
+    cdef double loutx = L2x/LOUT
+    cdef double louty = L2y/LOUT
+    cdef double loutz = L2z/LOUT
+    cdef double n1 = sqrt((k*(M1 + M2))/AIN**3)
+    cdef double tk = 1/n1*((M1 + M2)/M3)*(a2/AIN)**3*(1 - E2**2)**(3.0/2)
+    cdef double WLK = m*1/tk
+    cdef double Epsilonoct = mm*(M1 - M2)/(M1 + M2)*AIN/a2*E2/(1 - E2**2)
+    cdef double WGR = l*(3*k**2*(M1 + M2)**2)/((AIN**2)*(c**2)*sqrt(AIN*k*(M1 + M2))*(1 - E1**2))
+    cdef double JGW = -ll*32/5*k**(7.0/2)/c**5*Mu**2/(AIN)**(7.0/2)*(M1 + M2)**(5.0/2)*(
        1.0 + 7.0/8*E1**2)/(1 - E1**2)**2
-    cdef FLT EGW = -ll*(304*k**3*M1*M2*(M1 + M2))/(
+    cdef double EGW = -ll*(304*k**3*M1*M2*(M1 + M2))/(
        15*c**5*AIN**4*(1 - E1**2)**(5.0/2))*(1 + 121.0/304*E1**2)
 
     return [
@@ -780,48 +778,47 @@ def dydt_vec_bin(FLT t, np.ndarray[FLT, ndim=1] y, FLT m, FLT mm, FLT l, FLT ll,
              E2)),
      ]
 
-def get_ain_vec_bin(FLT t, np.ndarray[FLT, ndim=1] y, FLT m, FLT mm, FLT l, FLT ll,
-                 FLT M1, FLT M2, FLT M3, FLT Itot, FLT INTain, FLT a2, FLT N1,
-                 FLT Mu, FLT J1, FLT J2, FLT T):
-    cdef FLT k = 39.4751488
-    cdef FLT L1x = y[0]
-    cdef FLT L1y = y[1]
-    cdef FLT L1z = y[2]
-    cdef FLT e1x = y[3]
-    cdef FLT e1y = y[4]
-    cdef FLT e1z = y[5]
+def get_ain_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, double l, double ll,
+                 double M1, double M2, double M3, double Itot, double INTain, double a2, double N1,
+                 double Mu, double J1, double J2, double T):
+    cdef double k = 39.4751488
+    cdef double L1x = y[0]
+    cdef double L1y = y[1]
+    cdef double L1z = y[2]
+    cdef double e1x = y[3]
+    cdef double e1y = y[4]
+    cdef double e1z = y[5]
 
-    cdef FLT LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
-    cdef FLT E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
-    cdef FLT AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
+    cdef double LIN = sqrt(L1x**2 + L1y**2 + L1z**2)
+    cdef double E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
+    cdef double AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
     return AIN
 
 ##########################################
 ######## SYMPY VEC IMPLEMENTATION ########
 ##########################################
-# upshot: needs very high tol to match Bin's accuracy, despite using
-# dimensionless vars!
+# UNUSED EXCEPT IN EXPLORATORY
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def dydt_vec_sympy(FLT t, np.ndarray[FLT, ndim=1] y, FLT eps_gw, FLT eps_gr, FLT
-                   epsilon_oct, FLT eta):
-    cdef FLT j_x = y[0]
-    cdef FLT j_y = y[1]
-    cdef FLT j_z = y[2]
-    cdef FLT e_x = y[3]
-    cdef FLT e_y = y[4]
-    cdef FLT e_z = y[5]
-    cdef FLT j_2x = y[6]
-    cdef FLT j_2y = y[7]
-    cdef FLT j_2z = y[8]
-    cdef FLT e_2x = y[9]
-    cdef FLT e_2y = y[10]
-    cdef FLT e_2z = y[11]
-    cdef FLT e2 = e_x * e_x + e_y * e_y + e_z * e_z
-    cdef FLT e2_2 = e_2x * e_2x + e_2y * e_2y + e_2z * e_2z
-    cdef FLT j2 = 1 - e2
-    cdef FLT j2_2 = 1 - e2_2
+def dydt_vec_sympy(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double
+                   epsilon_oct, double eta):
+    cdef double j_x = y[0]
+    cdef double j_y = y[1]
+    cdef double j_z = y[2]
+    cdef double e_x = y[3]
+    cdef double e_y = y[4]
+    cdef double e_z = y[5]
+    cdef double j_2x = y[6]
+    cdef double j_2y = y[7]
+    cdef double j_2z = y[8]
+    cdef double e_2x = y[9]
+    cdef double e_2y = y[10]
+    cdef double e_2z = y[11]
+    cdef double e2 = e_x * e_x + e_y * e_y + e_z * e_z
+    cdef double e2_2 = e_2x * e_2x + e_2y * e_2y + e_2z * e_2z
+    cdef double j2 = 1 - e2
+    cdef double j2_2 = 1 - e2_2
 
     cdef double x_0 = pow(j2_2, -1.0/2.0)
     cdef double x_1 = j_2x*x_0
