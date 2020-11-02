@@ -256,12 +256,10 @@ def get_emax_series(idx, q, I0, tf):
         a2=a2,
         E20=E2,
         TOL=1e-9,
-        w1=0,
-        w2=0,
-        W=0
-        # w1=np.random.rand() * 2 * np.pi,
-        # w2=np.random.rand() * 2 * np.pi,
-        # W=np.random.rand() * 2 * np.pi,
+        method='Radau',
+        w1=np.random.rand() * 2 * np.pi,
+        w2=np.random.rand() * 2 * np.pi,
+        W=np.random.rand() * 2 * np.pi,
     )
     evec = ret.y[3:6, :]
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
@@ -294,26 +292,12 @@ def get_emax_series(idx, q, I0, tf):
     print('Ran for', idx, q)
     return np.array(ts), np.array(emaxes)
 
-def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
-                 fn='q_sweep_935'):
+def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     folder = '1emax_q'
     mkdirp(folder)
-    p = Pool(10)
+    p = Pool(60)
 
-    fig, _axs = plt.subplots(
-        3, 2,
-        figsize=(12, 9),
-        sharex=True, sharey=True)
-    axs = _axs.flat
-    axmap = {
-        0.2: axs[0],
-        0.3: axs[1],
-        0.4: axs[2],
-        0.5: axs[3],
-        0.7: axs[4],
-        1.0: axs[5],
-    }
-    q_arr = list(axmap.keys())
+    q_arr = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
 
     eps = get_eps(25, 25, 30, 100, 4500, 0.6)
     # my epsilons above assume e2 = 0
@@ -342,46 +326,8 @@ def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             dat = pickle.load(f)
-
-    colors = ['k', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
-              'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
-              'tab:olive', 'tab:cyan']
-    num_plotted = {q:0 for q in q_arr}
-    for q, t, emaxes in zip(*dat):
-        ax = axmap[q]
-        idx = num_plotted[q]
-        if q == 1.0:
-            if idx == 0:
-                emax_quad = np.mean(emaxes)
-            elif idx > 0:
-                continue # do not plot q=1.0 more than once
-        num_plotted[q] += 1
-        c = colors[idx % len(colors)]
-        ax.semilogy(t / tf * 10, 1 - emaxes,
-                    c=c, marker='o', ms=2.5, lw=0, ls='')
-        ax.plot(t / tf * 10, 1 - emaxes,
-                c=c, ls=':', lw=0.7)
-    for q, ax in axmap.items():
-        ax.axhline(1 - elim, c='k', ls='--', lw=1.0)
-        ax.axhline(1 - emax_quad, c='b', ls='--', lw=1.0)
-    # text last, after lims are set
-    for q, ax in axmap.items():
-        ax.text(ax.get_xlim()[0] + 0.2, ax.get_ylim()[1] / 3, 'q=%.1f' % q)
-    axs[0].set_ylabel(r'$1 - e_{\max}$')
-    axs[2].set_ylabel(r'$1 - e_{\max}$')
-    axs[4].set_ylabel(r'$1 - e_{\max}$')
-    axs[4].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
-    axs[5].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
-
-    plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
-
-    plt.tight_layout()
-    fig.subplots_adjust(hspace=0.03, wspace=0.03)
-    plt.savefig(filename, dpi=300)
-    plt.close()
-
-    # do it again, but hist the emaxes
-
+    if plt is None:
+        return
     fig, _axs = plt.subplots(
         3, 2,
         figsize=(12, 9),
@@ -395,12 +341,67 @@ def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
         0.7: axs[4],
         1.0: axs[5],
     }
+
+    colors = ['k', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
+              'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
+              'tab:olive', 'tab:cyan']
+    # plot actual trajectories (too messy for longer times)
+    # num_plotted = {q:0 for q in q_arr}
+    # for q, t, emaxes in zip(*dat):
+    #     ax = axmap[q]
+    #     idx = num_plotted[q]
+    #     if q == 1.0:
+    #         if idx == 0:
+    #             emax_quad = np.median(emaxes)
+    #         elif idx > 0:
+    #             continue # do not plot q=1.0 more than once
+    #     num_plotted[q] += 1
+    #     c = colors[idx % len(colors)]
+    #     ax.semilogy(t / tf * 10, 1 - emaxes,
+    #                 c=c, marker='o', ms=2.5, lw=0, ls='')
+    #     ax.plot(t / tf * 10, 1 - emaxes,
+    #             c=c, ls=':', lw=0.7)
+    # for q, ax in axmap.items():
+    #     ax.axhline(1 - elim, c='k', ls='--', lw=1.0)
+    #     ax.axhline(1 - emax_quad, c='b', ls='--', lw=1.0)
+    # # text last, after lims are set
+    # for q, ax in axmap.items():
+    #     ax.text(ax.get_xlim()[0] + 0.2, ax.get_ylim()[1] / 3, 'q=%.1f' % q)
+    # axs[0].set_ylabel(r'$1 - e_{\max}$')
+    # axs[2].set_ylabel(r'$1 - e_{\max}$')
+    # axs[4].set_ylabel(r'$1 - e_{\max}$')
+    # axs[4].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
+    # axs[5].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
+
+    # plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
+
+    # plt.tight_layout()
+    # fig.subplots_adjust(hspace=0.03, wspace=0.03)
+    # plt.savefig(filename, dpi=300)
+    # plt.close()
+
+    # # do it again, but hist the emaxes
+
+    # fig, _axs = plt.subplots(
+    #     3, 2,
+    #     figsize=(12, 9),
+    #     sharex=True, sharey=True)
+    axs = _axs.flat
+    axmap = {
+        0.2: axs[0],
+        0.3: axs[1],
+        0.4: axs[2],
+        0.5: axs[3],
+        0.7: axs[4],
+        1.0: axs[5],
+    }
     hist_vals = defaultdict(list)
     for q, t, emaxes in zip(*dat):
         ax = axmap[q]
-        idx = num_plotted[q]
-        if q == 1.0 and len(hist_vals[q]) > 0:
-            continue
+        if q == 1.0:
+            if len(hist_vals[q]) > 0:
+                continue
+            emax_quad = np.median(emaxes)
         hist_vals[q].extend(np.log10(1 - emaxes))
 
     # use global hist bins
@@ -411,7 +412,9 @@ def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
         ax.axvline(np.log10(1 - elim), c='k', ls='--', lw=1.0)
         ax.axvline(np.log10(1 - emax_quad), c='b', ls='--', lw=1.0)
     for q, ax in axmap.items():
-        ax.text(ax.get_xlim()[1] - 0.45, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
+        xlim = ax.get_xlim()
+        xpos = xlim[1] - (xlim[1] - xlim[0]) / 8
+        ax.text(xpos, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
     axs[4].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
     axs[5].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
     plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
@@ -429,11 +432,11 @@ if __name__ == '__main__':
 
     # sweeper_comp(nthreads=4, nruns=10000)
     plot_emax_dq(I0=93, fn='q_sweep93')
-    plot_emax_dq()
-    plot_emax_dq(I0=95, fn='q_sweep_95')
-    plot_emax_dq(I0=96.5, fn='q_sweep_965')
-    plot_emax_dq(I0=97, fn='q_sweep_97')
-    plot_emax_dq(I0=99, fn='q_sweep_99')
+    # plot_emax_dq(I0=93.5, fn='q_sweep_935')
+    # plot_emax_dq(I0=95, fn='q_sweep_95')
+    # plot_emax_dq(I0=96.2, fn='q_sweep_962')
+    # plot_emax_dq(I0=97, fn='q_sweep_97')
+    # plot_emax_dq(I0=99, fn='q_sweep_99')
 
     # testing elim calculation
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
