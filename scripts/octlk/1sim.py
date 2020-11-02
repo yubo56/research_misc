@@ -273,7 +273,11 @@ def get_emax_series(idx, q, I0, tf):
     dx=10
     demag = evec_mags[2 * dx: ] - evec_mags[ :-2 * dx]
     demag_ts = ret.t[dx:-dx]
-    t_idxs = np.where(abs(demag) < 1e-6)[0] + 10
+    t_idxs = np.where(abs(demag) < 1e-5)[0] + 10
+
+    if len(t_idxs) == 0:
+        print('Ran for', idx, q, 'no maxima??')
+        return np.array(ts), np.array(emaxes)
 
     blockstartidx = t_idxs[0]
     for t_idx, next_t_idx in zip(t_idxs, np.concatenate((t_idxs[1: ], [-1]))):
@@ -281,8 +285,11 @@ def get_emax_series(idx, q, I0, tf):
             continue
         # t_idx is the last in its block
         emax_idx = np.argmax(evec_mags[blockstartidx:next_t_idx]) + blockstartidx
+        emax = evec_mags[emax_idx]
+        if emax < 0.3: # eliminate minima from calculation
+            continue
         ts.append(ret.t[emax_idx])
-        emaxes.append(evec_mags[emax_idx])
+        emaxes.append(emax)
         blockstartidx = next_t_idx
     print('Ran for', idx, q)
     return np.array(ts), np.array(emaxes)
@@ -355,9 +362,11 @@ def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
         ax.plot(t / tf * 10, 1 - emaxes,
                 c=c, ls=':', lw=0.7)
     for q, ax in axmap.items():
-        ax.text(ax.get_xlim()[0] + 0.1, ax.get_ylim()[1] / 4, 'q=%.1f' % q)
         ax.axhline(1 - elim, c='k', ls='--', lw=1.0)
         ax.axhline(1 - emax_quad, c='b', ls='--', lw=1.0)
+    # text last, after lims are set
+    for q, ax in axmap.items():
+        ax.text(ax.get_xlim()[0] + 0.2, ax.get_ylim()[1] / 3, 'q=%.1f' % q)
     axs[0].set_ylabel(r'$1 - e_{\max}$')
     axs[2].set_ylabel(r'$1 - e_{\max}$')
     axs[4].set_ylabel(r'$1 - e_{\max}$')
@@ -401,6 +410,8 @@ def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
         ax.hist(hist_vals[q], bins=bin_edges)
         ax.axvline(np.log10(1 - elim), c='k', ls='--', lw=1.0)
         ax.axvline(np.log10(1 - emax_quad), c='b', ls='--', lw=1.0)
+    for q, ax in axmap.items():
+        ax.text(ax.get_xlim()[1] - 0.45, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
     axs[4].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
     axs[5].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
     plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
@@ -417,12 +428,12 @@ if __name__ == '__main__':
     # sweep(nthreads=50)
 
     # sweeper_comp(nthreads=4, nruns=10000)
-    plot_emax_dq(I0=93, fn='1emax_q_sweep')
+    plot_emax_dq(I0=93, fn='q_sweep93')
     plot_emax_dq()
-    plot_emax_dq(I0=95, fn='1emax_q_sweep_95')
-    plot_emax_dq(I0=96.5, fn='1emax_q_sweep_965')
-    plot_emax_dq(I0=97, fn='1emax_q_sweep_97')
-    plot_emax_dq(I0=99, fn='1emax_q_sweep_99')
+    plot_emax_dq(I0=95, fn='q_sweep_95')
+    plot_emax_dq(I0=96.5, fn='q_sweep_965')
+    plot_emax_dq(I0=97, fn='q_sweep_97')
+    plot_emax_dq(I0=99, fn='q_sweep_99')
 
     # testing elim calculation
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
