@@ -8,6 +8,11 @@ cimport numpy as np
 cimport cython
 from libc.math cimport sin, cos, sqrt, pow
 
+##########################################
+###### ORB IMPLEMENTATION ################
+##########################################
+# unused for now, seems wrong
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 def dadt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double eps_oct,
@@ -793,144 +798,3 @@ def get_ain_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm,
     cdef double E1 = sqrt(e1x**2 + e1y**2 + e1z**2)
     cdef double AIN = LIN**2/((Mu**2)*k*(M1 + M2)*(1 - E1**2) )
     return AIN
-
-##########################################
-######## SYMPY VEC IMPLEMENTATION ########
-##########################################
-# UNUSED EXCEPT IN EXPLORATORY
-
-@cython.boundscheck(False)
-@cython.wraparound(False)
-def dydt_vec_sympy(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, double
-                   epsilon_oct, double eta):
-    cdef double j_x = y[0]
-    cdef double j_y = y[1]
-    cdef double j_z = y[2]
-    cdef double e_x = y[3]
-    cdef double e_y = y[4]
-    cdef double e_z = y[5]
-    cdef double j_2x = y[6]
-    cdef double j_2y = y[7]
-    cdef double j_2z = y[8]
-    cdef double e_2x = y[9]
-    cdef double e_2y = y[10]
-    cdef double e_2z = y[11]
-    cdef double e2 = e_x * e_x + e_y * e_y + e_z * e_z
-    cdef double e2_2 = e_2x * e_2x + e_2y * e_2y + e_2z * e_2z
-    cdef double j2 = 1 - e2
-    cdef double j2_2 = 1 - e2_2
-
-    cdef double x_0 = pow(j2_2, -1.0/2.0)
-    cdef double x_1 = j_2x*x_0
-    cdef double x_2 = j_2y*x_0
-    cdef double x_3 = j_2z*x_0
-    cdef double x_4 = j_x*x_1 + j_y*x_2 + j_z*x_3
-    cdef double x_5 = (3.0/4.0)*x_4/pow(j2_2, 2)
-    cdef double x_6 = j_2z*x_5
-    cdef double x_7 = pow(e_2x, 2)
-    cdef double x_8 = pow(e_2y, 2)
-    cdef double x_9 = pow(e_2z, 2)
-    cdef double x_10 = x_7 + x_8 + x_9
-    cdef double x_11 = pow(x_10, -1.0/2.0)
-    cdef double x_12 = e_x*x_1
-    cdef double x_13 = e_y*x_2
-    cdef double x_14 = e_z*x_3
-    cdef double x_15 = 10*x_12 + 10*x_13 + 10*x_14
-    cdef double x_16 = x_15*x_4
-    cdef double x_17 = x_11*x_16
-    cdef double x_18 = e_x*x_11
-    cdef double x_19 = e_y*x_11
-    cdef double x_20 = e_z*x_11
-    cdef double x_21 = e_2x*x_18 + e_2y*x_19 + e_2z*x_20
-    cdef double x_22 = 10*x_4
-    cdef double x_23 = x_21*x_22
-    cdef double x_24 = j_x*x_11
-    cdef double x_25 = j_y*x_11
-    cdef double x_26 = j_z*x_11
-    cdef double x_27 = e_2x*x_24 + e_2y*x_25 + e_2z*x_26
-    cdef double x_28 = x_15*x_27
-    cdef double x_29 = pow(j2_2, -3.0/2.0)
-    cdef double x_30 = (15.0/64.0)*epsilon_oct*x_29
-    cdef double x_31 = x_30*(e_2z*x_17 + x_23*x_3 + x_28*x_3)
-    cdef double x_32 = x_31 - x_6
-    cdef double x_33 = j_2y*x_5
-    cdef double x_34 = x_30*(e_2y*x_17 + x_2*x_23 + x_2*x_28)
-    cdef double x_35 = x_33 - x_34
-    cdef double x_36 = x_12 + x_13 + x_14
-    cdef double x_37 = x_3*x_36
-    cdef double x_38 = (1.0/8.0)*x_29
-    cdef double x_39 = x_38*(-12*e_z + 30*x_37)
-    cdef double x_40 = x_22*x_27
-    cdef double x_41 = 8*pow(e_x, 2) + 8*pow(e_y, 2) + 8*pow(e_z, 2) - 35*pow(x_36, 2) + 5*pow(x_4, 2) - 1
-    cdef double x_42 = x_11*x_41
-    cdef double x_43 = x_30*(e_2z*x_42 + x_21*(16*e_z - 70*x_37) + x_3*x_40)
-    cdef double x_44 = x_39 + x_43
-    cdef double x_45 = x_2*x_36
-    cdef double x_46 = x_38*(-12*e_y + 30*x_45)
-    cdef double x_47 = x_30*(e_2y*x_42 + x_2*x_40 + x_21*(16*e_y - 70*x_45))
-    cdef double x_48 = -x_46 - x_47
-    cdef double x_49 = -x_31 + x_6
-    cdef double x_50 = j_2x*x_5
-    cdef double x_51 = x_30*(e_2x*x_17 + x_1*x_23 + x_1*x_28)
-    cdef double x_52 = -x_50 + x_51
-    cdef double x_53 = -x_39 - x_43
-    cdef double x_54 = x_1*x_36
-    cdef double x_55 = x_38*(-12*e_x + 30*x_54)
-    cdef double x_56 = x_30*(e_2x*x_42 + x_1*x_40 + x_21*(16*e_x - 70*x_54))
-    cdef double x_57 = x_55 + x_56
-    cdef double x_58 = -x_33 + x_34
-    cdef double x_59 = x_50 - x_51
-    cdef double x_60 = x_46 + x_47
-    cdef double x_61 = -x_55 - x_56
-    cdef double x_62 = pow(x_10, -3.0/2.0)
-    cdef double x_63 = e_2x*e_2z*x_62
-    cdef double x_64 = e_2y*x_62
-    cdef double x_65 = e_2z*x_64
-    cdef double x_66 = x_62*x_9
-    cdef double x_67 = x_30*(x_16*(-j_x*x_63 - j_y*x_65 - j_z*x_66 + x_26) + x_41*(-e_x*x_63 - e_y*x_65 - e_z*x_66 + x_20))
-    cdef double x_68 = e_2x*x_64
-    cdef double x_69 = x_62*x_8
-    cdef double x_70 = x_16*(-j_x*x_68 - j_y*x_69 - j_z*x_65 + x_25) + x_41*(-e_x*x_68 - e_y*x_69 - e_z*x_65 + x_19)
-    cdef double x_71 = e_2z*x_30
-    cdef double x_72 = x_0*x_36
-    cdef double x_73 = e_z*x_72
-    cdef double x_74 = j_z*x_0
-    cdef double x_75 = x_4*x_74
-    cdef double x_76 = x_38*(30*x_73 - 6*x_75)
-    cdef double x_77 = x_0*x_40
-    cdef double x_78 = x_30*(e_z*x_77 + x_21*(-70*x_73 + 10*x_75) + x_28*x_74)
-    cdef double x_79 = x_76 + x_78
-    cdef double x_80 = e_y*x_72
-    cdef double x_81 = j_y*x_0
-    cdef double x_82 = x_4*x_81
-    cdef double x_83 = x_38*(30*x_80 - 6*x_82)
-    cdef double x_84 = x_30*(e_y*x_77 + x_21*(-70*x_80 + 10*x_82) + x_28*x_81)
-    cdef double x_85 = -x_83 - x_84
-    cdef double x_86 = x_62*x_7
-    cdef double x_87 = x_16*(-j_x*x_86 - j_y*x_68 - j_z*x_63 + x_24) + x_41*(-e_x*x_86 - e_y*x_68 - e_z*x_63 + x_18)
-    cdef double x_88 = -x_76 - x_78
-    cdef double x_89 = e_x*x_72
-    cdef double x_90 = j_x*x_0
-    cdef double x_91 = x_4*x_90
-    cdef double x_92 = x_38*(30*x_89 - 6*x_91)
-    cdef double x_93 = x_30*(e_x*x_77 + x_21*(-70*x_89 + 10*x_91) + x_28*x_90)
-    cdef double x_94 = x_92 + x_93
-    cdef double x_95 = x_30*x_70
-    cdef double x_96 = x_30*x_87
-    cdef double x_97 = x_83 + x_84
-    cdef double x_98 = -x_92 - x_93
-
-    return [
-            -e_y*x_44 - e_z*x_48 - j_y*x_32 - j_z*x_35,
-            -e_x*x_53 - e_z*x_57 - j_x*x_49 - j_z*x_52,
-            -e_x*x_60 - e_y*x_61 - j_x*x_58 - j_y*x_59,
-            -e_y*x_32 - e_z*x_35 - j_y*x_44 - j_z*x_48,
-            -e_x*x_49 - e_z*x_52 - j_x*x_53 - j_z*x_57,
-            -e_x*x_58 - e_y*x_59 - j_x*x_60 - j_y*x_61,
-            -eta*(e_2y*x_67 + j_2y*x_79 + j_2z*x_85 - x_70*x_71),
-            -eta*(-e_2x*x_67 + j_2x*x_88 + j_2z*x_94 + x_71*x_87),
-            -eta*(e_2x*x_95 - e_2y*x_96 + j_2x*x_97 + j_2y*x_98),
-            -eta*(e_2y*x_79 + e_2z*x_85 + j_2y*x_67 - j_2z*x_95),
-            -eta*(e_2x*x_88 + e_2z*x_94 - j_2x*x_67 + j_2z*x_96),
-            -eta*(e_2x*x_97 + e_2y*x_98 + j_2x*x_95 - j_2y*x_96),
-    ]

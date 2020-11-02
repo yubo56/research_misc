@@ -1,3 +1,4 @@
+from collections import defaultdict
 import time
 from utils import *
 import numpy as np
@@ -8,7 +9,7 @@ import os
 import pickle
 
 from scipy.integrate import solve_ivp
-from scipy.optimize import brenth, root
+
 try:
     import matplotlib
     matplotlib.use('Agg')
@@ -23,13 +24,6 @@ except:
 
 AF = 5e-3 # in units of the initial a
 TOL = 1e-11
-
-def get_I1(I0, eta):
-    ''' given total inclination between Lout and L, returns I_tot '''
-    def I2_constr(_I2):
-        return np.sin(_I2) - eta * np.sin(I0 - _I2)
-    I2 = brenth(I2_constr, 0, np.pi, xtol=1e-12)
-    return np.degrees(I0 - I2)
 
 def test_orbs():
     m1, m2, m3, a, a2, e2 = 20, 30, 30, 100, 6000, 0.6
@@ -68,84 +62,7 @@ def test_orbs():
     plt.clf()
 
 def test_vec():
-    k = 39.4751488
-    c = 6.32397263*10**4
-    m = 1
-    mm = 1
-    l = 1
-    ll = 1
-
-    # length = AU
-    # c = 1AU / 499s
-    # unit of time = 499s * 6.32e4 = 1yr
-    # unit of mass = solar mass, solve for M using N1 + distance in correct units
-    M1 = 30
-    M2 = 20
-    M3 = 30
-    Itot = 93.5
-    INTain = 100
-    a2 = 6000
-    N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
-    Mu = (M1*M2)/(M1 + M2)
-    J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
-    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
-    T = 1e10
-
-    w1 = 0
-    w2 = 0.7
-    W = 0
-
-    E10 = 1e-3
-    E20 = 0.6
-    GTOT = np.sqrt(
-        (J1*np.sqrt(1 - E10**2))**2 + (J2*np.sqrt(1 - E20**2))**2 +
-         2*J1*np.sqrt(1 - E10**2)*J2*np.sqrt(1 - E20**2)*np.cos(np.radians(Itot)))
-    def f(y):
-        i1, i2 = y
-        return [
-            J1*np.sqrt(1 - E10**2)*np.cos(np.radians(90 - i1)) -
-          J2*np.sqrt(1 - E20**2)*np.cos(np.radians(90 - i2)),
-         J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
-           J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
-        ]
-    I1, I2 = root(f, [60, 0]).x
-
-    L1x00 = np.sin(np.radians(I1))*np.sin(W)
-    L1y00 = -np.sin(np.radians(I1))*np.cos(W)
-    L1z00 = np.cos(np.radians(I1))
-    e1x00 = np.cos(w1)*np.cos(W) - np.sin(w1)*np.cos(np.radians(I1))*np.sin(W)
-    e1y00 = np.cos(w1)*np.sin(W) + np.sin(w1)*np.cos(np.radians(I1))*np.cos(W)
-    e1z00 = np.sin(w1)*np.sin(np.radians(I1))
-    L2x00 = np.sin(np.radians(I2))*np.sin(W - np.pi)
-    L2y00 = -np.sin(np.radians(I2))*np.cos(W - np.pi)
-    L2z00 = np.cos(np.radians(I2))
-    e2x00 = np.cos(w2)*np.cos(W - np.pi) - np.sin(w2)*np.cos(np.radians(I2))*np.sin(W - np.pi)
-    e2y00 = np.cos(w2)*np.sin(W - np.pi) + np.sin(w2)*np.cos(np.radians(I2))*np.cos(W - np.pi)
-    e2z00 = np.sin(w2)*np.sin(np.radians(I2))
-
-    L1x0 = J1*np.sqrt(1 - E10**2)*(L1x00)
-    L1y0 = J1*np.sqrt(1 - E10**2)*(L1y00)
-    L1z0 = J1*np.sqrt(1 - E10**2)*(L1z00)
-    e1x0 = E10*(e1x00)
-    e1y0 = E10*(e1y00)
-    e1z0 = E10*(e1z00)
-    L2x0 = J2*np.sqrt(1 - E20**2)*(L2x00)
-    L2y0 = J2*np.sqrt(1 - E20**2)*(L2y00)
-    L2z0 = J2*np.sqrt(1 - E20**2)*(L2z00)
-    e2x0 = E20*(e2x00)
-    e2y0 = E20*(e2y00)
-    e2z0 = E20*(e2z00)
-
-    y0 = np.array([L1x0, L1y0, L1z0, e1x0, e1y0, e1z0, L2x0, L2y0, L2z0, e2x0,
-                   e2y0, e2z0])
-    def a_term_event(*args):
-        ain = get_ain_vec_bin(*args)
-        return ain - AF * INTain
-    a_term_event.terminal = True
-    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
-    ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
-                    events=[a_term_event],
-                    method='LSODA', atol=TOL, rtol=TOL)
+    ret = run_vec()
     lin = ret.y[ :3, :]
     lin_mag = np.sqrt(np.sum(lin**2, axis=0))
     evec = ret.y[3:6, :]
@@ -199,86 +116,23 @@ def sweeper(idx, q, t_final, tlk0, a0, e0, I0, e2, eps):
     print(idx, q, np.degrees(I0), tf)
     return tf
 
-# manually codify a0, a
+# manually codify a0, a, M12
 def sweeper_bin(idx, q, t_final, _tlk0, a0, e0, I0, e2, _eps):
-    k = 39.4751488
-    c = 6.32397263*10**4
-    m = 1
-    mm = 1
-    l = 1
-    ll = 1
-
-    # length = AU
-    # c = 1AU / 499s
-    # unit of time = 499s * 6.32e4 = 1yr
-    # unit of mass = solar mass, solve for M using N1 + distance in correct units
-    M1 = 50 / (1 + q)
-    M2 = 50 - M1
-    M3 = 30
-    Itot = np.degrees(I0)
-    INTain = 100
-    a2 = 4500
-    N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
-    Mu = (M1*M2)/(M1 + M2)
-    J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
-    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
-    T = 1e10
-
     np.random.seed(idx + int(time.time()))
-    w1 = np.random.rand() * 2 * np.pi
-    w2 = np.random.rand() * 2 * np.pi
-    W = np.random.rand() * 2 * np.pi
-
-    E10 = e0
-    E20 = e2
-    GTOT = np.sqrt(
-        (J1*np.sqrt(1 - E10**2))**2 + (J2*np.sqrt(1 - E20**2))**2 +
-         2*J1*np.sqrt(1 - E10**2)*J2*np.sqrt(1 - E20**2)*np.cos(np.radians(Itot)))
-    def f(y):
-        i1, i2 = y
-        return [
-            J1*np.sqrt(1 - E10**2)*np.cos(np.radians(90 - i1)) -
-          J2*np.sqrt(1 - E20**2)*np.cos(np.radians(90 - i2)),
-         J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
-           J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
-        ]
-    I1, I2 = root(f, [60, 0]).x
-
-    L1x00 = np.sin(np.radians(I1))*np.sin(W)
-    L1y00 = -np.sin(np.radians(I1))*np.cos(W)
-    L1z00 = np.cos(np.radians(I1))
-    e1x00 = np.cos(w1)*np.cos(W) - np.sin(w1)*np.cos(np.radians(I1))*np.sin(W)
-    e1y00 = np.cos(w1)*np.sin(W) + np.sin(w1)*np.cos(np.radians(I1))*np.cos(W)
-    e1z00 = np.sin(w1)*np.sin(np.radians(I1))
-    L2x00 = np.sin(np.radians(I2))*np.sin(W - np.pi)
-    L2y00 = -np.sin(np.radians(I2))*np.cos(W - np.pi)
-    L2z00 = np.cos(np.radians(I2))
-    e2x00 = np.cos(w2)*np.cos(W - np.pi) - np.sin(w2)*np.cos(np.radians(I2))*np.sin(W - np.pi)
-    e2y00 = np.cos(w2)*np.sin(W - np.pi) + np.sin(w2)*np.cos(np.radians(I2))*np.cos(W - np.pi)
-    e2z00 = np.sin(w2)*np.sin(np.radians(I2))
-
-    L1x0 = J1*np.sqrt(1 - E10**2)*(L1x00)
-    L1y0 = J1*np.sqrt(1 - E10**2)*(L1y00)
-    L1z0 = J1*np.sqrt(1 - E10**2)*(L1z00)
-    e1x0 = E10*(e1x00)
-    e1y0 = E10*(e1y00)
-    e1z0 = E10*(e1z00)
-    L2x0 = J2*np.sqrt(1 - E20**2)*(L2x00)
-    L2y0 = J2*np.sqrt(1 - E20**2)*(L2y00)
-    L2z0 = J2*np.sqrt(1 - E20**2)*(L2z00)
-    e2x0 = E20*(e2x00)
-    e2y0 = E20*(e2y00)
-    e2z0 = E20*(e2z00)
-
-    y0 = np.array([L1x0, L1y0, L1z0, e1x0, e1y0, e1z0, L2x0, L2y0, L2z0, e2x0,
-                   e2y0, e2z0])
-    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
-    def a_term_event(*args):
-        return get_ain_vec_bin(*args) - AF * INTain
-    a_term_event.terminal = True
-    ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
-                    events=[a_term_event],
-                    method='LSODA', atol=TOL, rtol=TOL)
+    M1 = 50 / (1 + q)
+    ret = run_vec(
+        T=1e10,
+        M1=M1,
+        M2=50 - M1,
+        Itot=np.degrees(I0),
+        INTain=100,
+        a2=4500,
+        E10=e0,
+        E20=e2,
+        w1=np.random.rand() * 2 * np.pi,
+        w2=np.random.rand() * 2 * np.pi,
+        W=np.random.rand() * 2 * np.pi,
+    )
     tf = ret.t[-1]
     print(idx, q, np.degrees(I0), tf / 1e9)
     return tf
@@ -380,193 +234,197 @@ def sweeper_comp(nthreads=1, nruns=1000):
     plt.savefig('1sweep/sweeper_comp', dpi=300)
     plt.close()
 
-def vec_comp():
-    k = 39.4751488
-    c = 6.32397263*10**4
-    m = 1
-    mm = 1
-    l = 0
-    ll = 0
-
-    # length = AU
-    # c = 1AU / 499s
-    # unit of time = 499s * 6.32e4 = 1yr
-    # unit of mass = solar mass, solve for M using N1 + distance in correct units
-    M1 = 30
-    M2 = 20
+def get_emax_series(idx, q, I0, tf):
+    np.random.seed(idx + int(time.time()))
+    M1 = 50 / (1 + q)
+    M2 = 50 - M1
     M3 = 30
-    Itot = 93.5
-    INTain = 100
-    a2 = 6000
-    N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
-    Mu = (M1*M2)/(M1 + M2)
-    J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
-    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
-    w1 = 0
-    w2 = 0.7
-    W = 0
-    E10 = 1e-3
-    E20 = 0.6
+    ain = 100
+    a2 = 4500
+    E2 = 0.6
+    n1 = np.sqrt((k*(M1 + M2))/ain ** 3)
+    tk = 1/n1*((M1 + M2)/M3)*(a2/ain)**3*(1 - E2**2)**(3.0/2)
 
-    T = 1e9
-    n1 = sqrt((k*(M1 + M2))/INTain**3)
-    tk = 1/n1*((M1 + M2)/M3)*(a2/INTain)**3
-    print('Running to', T, 'tlk is', tk)
-
-    GTOT = np.sqrt(
-        (J1*np.sqrt(1 - E10**2))**2 + (J2*np.sqrt(1 - E20**2))**2 +
-         2*J1*np.sqrt(1 - E10**2)*J2*np.sqrt(1 - E20**2)*np.cos(np.radians(Itot)))
-    def f(y):
-        i1, i2 = y
-        return [
-            J1*np.sqrt(1 - E10**2)*np.cos(np.radians(90 - i1)) -
-          J2*np.sqrt(1 - E20**2)*np.cos(np.radians(90 - i2)),
-         J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
-           J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
-        ]
-    I1, I2 = root(f, [60, 0]).x
-
-    L1x00 = np.sin(np.radians(I1))*np.sin(W)
-    L1y00 = -np.sin(np.radians(I1))*np.cos(W)
-    L1z00 = np.cos(np.radians(I1))
-    e1x00 = np.cos(w1)*np.cos(W) - np.sin(w1)*np.cos(np.radians(I1))*np.sin(W)
-    e1y00 = np.cos(w1)*np.sin(W) + np.sin(w1)*np.cos(np.radians(I1))*np.cos(W)
-    e1z00 = np.sin(w1)*np.sin(np.radians(I1))
-    L2x00 = np.sin(np.radians(I2))*np.sin(W - np.pi)
-    L2y00 = -np.sin(np.radians(I2))*np.cos(W - np.pi)
-    L2z00 = np.cos(np.radians(I2))
-    e2x00 = np.cos(w2)*np.cos(W - np.pi) - np.sin(w2)*np.cos(np.radians(I2))*np.sin(W - np.pi)
-    e2y00 = np.cos(w2)*np.sin(W - np.pi) + np.sin(w2)*np.cos(np.radians(I2))*np.cos(W - np.pi)
-    e2z00 = np.sin(w2)*np.sin(np.radians(I2))
-
-    L1x0 = J1*np.sqrt(1 - E10**2)*(L1x00)
-    L1y0 = J1*np.sqrt(1 - E10**2)*(L1y00)
-    L1z0 = J1*np.sqrt(1 - E10**2)*(L1z00)
-    e1x0 = E10*(e1x00)
-    e1y0 = E10*(e1y00)
-    e1z0 = E10*(e1z00)
-    L2x0 = J2*np.sqrt(1 - E20**2)*(L2x00)
-    L2y0 = J2*np.sqrt(1 - E20**2)*(L2y00)
-    L2z0 = J2*np.sqrt(1 - E20**2)*(L2z00)
-    e2x0 = E20*(e2x00)
-    e2y0 = E20*(e2y00)
-    e2z0 = E20*(e2z00)
-
-    # sympy vecs
-    eps = get_eps(M2, M1, M3, INTain, a2, E20)
-    y0 = np.array([
-        np.sqrt(1 - E10**2)*(L1x00),
-        np.sqrt(1 - E10**2)*(L1y00),
-        np.sqrt(1 - E10**2)*(L1z00),
-        E10*(e1x00),
-        E10*(e1y00),
-        E10*(e1z00),
-        np.sqrt(1 - E20**2)*(L2x00),
-        np.sqrt(1 - E20**2)*(L2y00),
-        np.sqrt(1 - E20**2)*(L2z00),
-        E20*(e2x00),
-        E20*(e2y00),
-        E20*(e2z00),
-    ])
-    y0_bin = np.array([
-        L1x0,
-        L1y0,
-        L1z0,
-        e1x0,
-        e1y0,
-        e1z0,
-        L2x0,
-        L2y0,
-        L2z0,
-        e2x0,
-        e2y0,
-        e2z0,
-    ])
-    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
-    def wrap(t, y, *_args):
-        scaledy = np.array(y)
-        scaledy[ :3] /= J1
-        scaledy[6:9] /= J2
-        ret = np.array(dydt_vec_sympy(t, scaledy, *eps))
-        ret[ :3] *= J1
-        ret[6:9] *= J2
-        ret /= tk
-        return ret
-    start = time.time()
-    # ret = solve_ivp(dydt_vec_sympy, (0, T / tk), y0, args=eps,
-    #                 method='LSODA', atol=TOL, rtol=TOL)
-    # print('Sympy took', time.time() - start, len(ret.t))
-    start = time.time()
-    ret = solve_ivp(wrap, (0, T), y0_bin, args=eps,
-                    method='LSODA', atol=TOL, rtol=TOL)
-    print('Sympywrap took', time.time() - start, len(ret.t))
-    lin = ret.y[ :3, :]
-    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    ret = run_vec(
+        ll=0,
+        T=tf,
+        M1=M1,
+        M2=M2,
+        M3=M3,
+        Itot=I0,
+        INTain=ain,
+        a2=a2,
+        E20=E2,
+        TOL=1e-9,
+        w1=0,
+        w2=0,
+        W=0
+        # w1=np.random.rand() * 2 * np.pi,
+        # w2=np.random.rand() * 2 * np.pi,
+        # W=np.random.rand() * 2 * np.pi,
+    )
     evec = ret.y[3:6, :]
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
-    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
-    print(1 - evec_mags.max())
 
-    fig, (ax2, ax3) = plt.subplots(
-        2, 1,
-        figsize=(8, 12),
-        sharex=True)
+    # extract emaxes by looking in windows where de/dt is small. assume emaxes
+    # are well separated by > 0.1 * tk
+    ts = []
+    emaxes = []
+    dx=10
+    demag = evec_mags[2 * dx: ] - evec_mags[ :-2 * dx]
+    demag_ts = ret.t[dx:-dx]
+    t_idxs = np.where(abs(demag) < 1e-6)[0] + 10
 
-    ax2.semilogy(ret.t * tk / 1e8, 1 - evec_mags)
-    ax2.set_ylabel(r'$1 - e$')
-    ax3.plot(ret.t * tk / 1e8, I)
-    ax3.set_ylabel(r'$I_{\rm tot}$ (Deg)')
-    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+    blockstartidx = t_idxs[0]
+    for t_idx, next_t_idx in zip(t_idxs, np.concatenate((t_idxs[1: ], [-1]))):
+        if next_t_idx != -1 and ret.t[next_t_idx] - ret.t[t_idx] < 0.1 * tk:
+            continue
+        # t_idx is the last in its block
+        emax_idx = np.argmax(evec_mags[blockstartidx:next_t_idx]) + blockstartidx
+        ts.append(ret.t[emax_idx])
+        emaxes.append(evec_mags[emax_idx])
+        blockstartidx = next_t_idx
+    print('Ran for', idx, q)
+    return np.array(ts), np.array(emaxes)
+
+def plot_emax_dq(I0=93.5, tf=1e9, num_reps=10,
+                 fn='q_sweep_935'):
+    folder = '1emax_q'
+    mkdirp(folder)
+    p = Pool(10)
+
+    fig, _axs = plt.subplots(
+        3, 2,
+        figsize=(12, 9),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    axmap = {
+        0.2: axs[0],
+        0.3: axs[1],
+        0.4: axs[2],
+        0.5: axs[3],
+        0.7: axs[4],
+        1.0: axs[5],
+    }
+    q_arr = list(axmap.keys())
+
+    eps = get_eps(25, 25, 30, 100, 4500, 0.6)
+    # my epsilons above assume e2 = 0
+    elim = get_elim(eps[3] / np.sqrt(1 - 0.6**2),
+                    eps[1] * (1 - 0.6**2)**(3/2))
+
+    filename = folder + '/' + fn
+    pkl_fn = filename + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+
+        # just run 1.0 once
+        args = [(q, I0, tf) for q in q_arr[ :-1]]
+        args_full = [(idx, *args[idx // num_reps])
+                     for idx in range(num_reps * len(args))]
+        args_full.append((-1, 1.0, I0, tf))
+        ret = p.starmap(get_emax_series, args_full)
+
+        q_full = np.repeat(q_arr, num_reps)
+        ts = [k[0] for k in ret]
+        emax_arr = [k[1] for k in ret]
+        dat = (q_full, ts, emax_arr)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump(dat, f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            dat = pickle.load(f)
+
+    colors = ['k', 'tab:blue', 'tab:orange', 'tab:green', 'tab:red',
+              'tab:purple', 'tab:brown', 'tab:pink', 'tab:gray',
+              'tab:olive', 'tab:cyan']
+    num_plotted = {q:0 for q in q_arr}
+    for q, t, emaxes in zip(*dat):
+        ax = axmap[q]
+        idx = num_plotted[q]
+        if q == 1.0:
+            if idx == 0:
+                emax_quad = np.mean(emaxes)
+            elif idx > 0:
+                continue # do not plot q=1.0 more than once
+        num_plotted[q] += 1
+        c = colors[idx % len(colors)]
+        ax.semilogy(t / tf * 10, 1 - emaxes,
+                    c=c, marker='o', ms=2.5, lw=0, ls='')
+        ax.plot(t / tf * 10, 1 - emaxes,
+                c=c, ls=':', lw=0.7)
+    for q, ax in axmap.items():
+        ax.text(ax.get_xlim()[0] + 0.1, ax.get_ylim()[1] / 4, 'q=%.1f' % q)
+        ax.axhline(1 - elim, c='k', ls='--', lw=1.0)
+        ax.axhline(1 - emax_quad, c='b', ls='--', lw=1.0)
+    axs[0].set_ylabel(r'$1 - e_{\max}$')
+    axs[2].set_ylabel(r'$1 - e_{\max}$')
+    axs[4].set_ylabel(r'$1 - e_{\max}$')
+    axs[4].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
+    axs[5].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
+
+    plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
 
     plt.tight_layout()
-    fig.subplots_adjust(hspace=0.03)
-    plt.savefig('/tmp/sympy_vec', dpi=300)
-    plt.clf()
+    fig.subplots_adjust(hspace=0.03, wspace=0.03)
+    plt.savefig(filename, dpi=300)
+    plt.close()
 
-    def a_term_event(*args):
-        ain = get_ain_vec_bin(*args)
-        return ain - AF * INTain
-    a_term_event.terminal = True
-    start = time.time()
-    ret = solve_ivp(dydt_vec_bin, (0, T), y0_bin, args=args,
-                    events=[a_term_event],
-                    method='LSODA', atol=TOL, rtol=TOL)
-    print('Bin took', time.time() - start, len(ret.t))
+    # do it again, but hist the emaxes
 
-    emax_y = ret.y[:, np.argmax(evec_mags)]
-    print(wrap(0, emax_y, *eps))
-    print(dydt_vec_bin(0, emax_y, *args))
+    fig, _axs = plt.subplots(
+        3, 2,
+        figsize=(12, 9),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    axmap = {
+        0.2: axs[0],
+        0.3: axs[1],
+        0.4: axs[2],
+        0.5: axs[3],
+        0.7: axs[4],
+        1.0: axs[5],
+    }
+    hist_vals = defaultdict(list)
+    for q, t, emaxes in zip(*dat):
+        ax = axmap[q]
+        idx = num_plotted[q]
+        if q == 1.0 and len(hist_vals[q]) > 0:
+            continue
+        hist_vals[q].extend(np.log10(1 - emaxes))
 
-    lin = ret.y[ :3, :]
-    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
-    evec = ret.y[3:6, :]
-    evec_mags = np.sqrt(np.sum(evec**2, axis=0))
-    print(1 - evec_mags.max())
-    a = lin_mag**2/((Mu**2)*k*(M1 + M2)*(1 - evec_mags**2))
-    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
-
-    fig, (ax2, ax3) = plt.subplots(
-        2, 1,
-        figsize=(8, 12),
-        sharex=True)
-
-    ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
-    ax2.set_ylabel(r'$1 - e$')
-    ax3.plot(ret.t / 1e8, I)
-    ax3.set_ylabel(r'$I_{\rm tot}$ (Deg)')
-    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+    # use global hist bins
+    _, bin_edges = np.histogram([v for x in hist_vals.values() for v in x],
+                                bins=100)
+    for q, ax in axmap.items():
+        ax.hist(hist_vals[q], bins=bin_edges)
+        ax.axvline(np.log10(1 - elim), c='k', ls='--', lw=1.0)
+        ax.axvline(np.log10(1 - emax_quad), c='b', ls='--', lw=1.0)
+    axs[4].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
+    axs[5].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
+    plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
 
     plt.tight_layout()
-    fig.subplots_adjust(hspace=0.03)
-    plt.savefig('/tmp/bin_vec', dpi=300)
-    plt.clf()
+    fig.subplots_adjust(hspace=0.03, wspace=0.03)
+    plt.savefig(filename + 'hist', dpi=300)
+    plt.close()
 
 if __name__ == '__main__':
     # timing_tests()
-    # vec_comp()
 
     # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
     # sweep(nthreads=50)
 
     # sweeper_comp(nthreads=4, nruns=10000)
+    plot_emax_dq(I0=93, fn='1emax_q_sweep')
+    plot_emax_dq()
+    plot_emax_dq(I0=95, fn='1emax_q_sweep_95')
+    plot_emax_dq(I0=96.5, fn='1emax_q_sweep_965')
+    plot_emax_dq(I0=97, fn='1emax_q_sweep_97')
+    plot_emax_dq(I0=99, fn='1emax_q_sweep_99')
+
+    # testing elim calculation
+    # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
+    # print(1 - np.mean(emaxes))
     pass

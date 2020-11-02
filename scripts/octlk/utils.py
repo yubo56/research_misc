@@ -1,5 +1,25 @@
 import numpy as np
 import os
+from cython_utils import *
+
+from scipy.integrate import solve_ivp
+from scipy.optimize import brenth, root
+
+def get_I1(I0, eta):
+    ''' given total inclination between Lout and L, returns I_tot '''
+    def I2_constr(_I2):
+        return np.sin(_I2) - eta * np.sin(I0 - _I2)
+    I2 = brenth(I2_constr, 0, np.pi, xtol=1e-12)
+    return np.degrees(I0 - I2)
+
+def get_elim(eta=0, eps_gr=0):
+    def jlim_criterion(j): # eq 44, satisfied when j = jlim
+        return (
+            3/8 * (j**2 - 1) * (
+                - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
+            + eps_gr * (1 - 1 / j))
+    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15)
+    return np.sqrt(1 - jlim**2)
 
 # by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
 # NB: slight confusion here: to compute epsilon + timescales, we use AU as the
@@ -35,6 +55,74 @@ def get_tlk0(m1, m2, m3, a0, a2):
 def mkdirp(path):
     if not os.path.exists(path):
         os.mkdir(path)
+
+k = 39.4751488
+c = 6.32397263*10**4
+# length = AU
+# c = 1AU / 499s
+# unit of time = 499s * 6.32e4 = 1yr
+# unit of mass = solar mass, solve for M using N1 + distance in correct units
+def run_vec(
+        m=1, mm=1, l=1, ll=1,
+        M1=30, M2=20, M3=30, Itot=93.5, INTain=100, a2=6000,
+        T=1e10, w1=0, w2=0.7, W=0, E10=1e-3, E20=0.6,
+        TOL=1e-11, AF=5e-3, method='LSODA',
+):
+    N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
+    Mu = (M1*M2)/(M1 + M2)
+    J1 = (M2*M1)/(M2 + M1)*np.sqrt(k*(M2 + M1)*INTain)
+    J2 = ((M2 + M1)*M3)/(M3 + M1 + M2) * np.sqrt(k*(M3 + M1 + M2)*a2 )
+
+    GTOT = np.sqrt(
+        (J1*np.sqrt(1 - E10**2))**2 + (J2*np.sqrt(1 - E20**2))**2 +
+         2*J1*np.sqrt(1 - E10**2)*J2*np.sqrt(1 - E20**2)*np.cos(np.radians(Itot)))
+    def f(y):
+        i1, i2 = y
+        return [
+            J1*np.sqrt(1 - E10**2)*np.cos(np.radians(90 - i1)) -
+          J2*np.sqrt(1 - E20**2)*np.cos(np.radians(90 - i2)),
+         J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
+           J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
+        ]
+    I1, I2 = root(f, [Itot, 0]).x
+
+    L1x00 = np.sin(np.radians(I1))*np.sin(W)
+    L1y00 = -np.sin(np.radians(I1))*np.cos(W)
+    L1z00 = np.cos(np.radians(I1))
+    e1x00 = np.cos(w1)*np.cos(W) - np.sin(w1)*np.cos(np.radians(I1))*np.sin(W)
+    e1y00 = np.cos(w1)*np.sin(W) + np.sin(w1)*np.cos(np.radians(I1))*np.cos(W)
+    e1z00 = np.sin(w1)*np.sin(np.radians(I1))
+    L2x00 = np.sin(np.radians(I2))*np.sin(W - np.pi)
+    L2y00 = -np.sin(np.radians(I2))*np.cos(W - np.pi)
+    L2z00 = np.cos(np.radians(I2))
+    e2x00 = np.cos(w2)*np.cos(W - np.pi) - np.sin(w2)*np.cos(np.radians(I2))*np.sin(W - np.pi)
+    e2y00 = np.cos(w2)*np.sin(W - np.pi) + np.sin(w2)*np.cos(np.radians(I2))*np.cos(W - np.pi)
+    e2z00 = np.sin(w2)*np.sin(np.radians(I2))
+
+    L1x0 = J1*np.sqrt(1 - E10**2)*(L1x00)
+    L1y0 = J1*np.sqrt(1 - E10**2)*(L1y00)
+    L1z0 = J1*np.sqrt(1 - E10**2)*(L1z00)
+    e1x0 = E10*(e1x00)
+    e1y0 = E10*(e1y00)
+    e1z0 = E10*(e1z00)
+    L2x0 = J2*np.sqrt(1 - E20**2)*(L2x00)
+    L2y0 = J2*np.sqrt(1 - E20**2)*(L2y00)
+    L2z0 = J2*np.sqrt(1 - E20**2)*(L2z00)
+    e2x0 = E20*(e2x00)
+    e2y0 = E20*(e2y00)
+    e2z0 = E20*(e2z00)
+
+    y0 = np.array([L1x0, L1y0, L1z0, e1x0, e1y0, e1z0, L2x0, L2y0, L2z0, e2x0,
+                   e2y0, e2z0])
+    def a_term_event(*args):
+        ain = get_ain_vec_bin(*args)
+        return ain - AF * INTain
+    a_term_event.terminal = True
+    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
+    ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
+                    events=[a_term_event] if ll == 1 else [],
+                    method=method, atol=TOL, rtol=TOL)
+    return ret
 
 # Python version of orbital elements code
 # ran into bugs on Radau/BDF, maybe repro later
