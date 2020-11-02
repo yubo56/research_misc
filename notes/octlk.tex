@@ -259,5 +259,49 @@ important.
         merger window to be where $T_{\rm m} \leq 10^10\;\mathrm{yr}$.
 \end{itemize}
 
+\section{11/02/20}
+
+We've done a lot more inquiry on this, read the Nov 3 weekly for a recap. In
+summary though, there should roughly be two ways to have LK-induced mergers:
+\begin{itemize}
+    \item Quadrupole LK-induced mergers. The $e_{\max}$ of these systems is well
+        understood, however, and the merger fraction should be easy to
+        calculate: we can get the merger time using the $T_m \propto \p{1 -
+        e_{\max}}^{-3}$ physically-justified fitting law from LL18 in the
+        LK-induced regime, and we just have to evaluate where it crosses
+        $10\;\mathrm{Gyr}$.
+
+    \item Octupole LK-induced mergers. For these, there is a characteristic
+        initial inclination range for which orbit flipping occurs, which is a
+        function of $\epsilon_{\rm oct}$. This can likely be calculated
+        analytically, but I'm not sure yet.
+
+        For these systems, there is a characteristic orbit flipping timescale
+        that is robust up to a factor of a few (since $K$ oscillates on a fixed
+        timescale, and orbit flips occur whenever $K$ crosses $-\eta/2$), call
+        this $t_{\rm ELK}$. Thus, octupole LK-induced mergers occur over
+        characteristic times $t_{\rm ELK}$ within the desired inclination window
+        (as once the system reaches an orbit flipping eccentricity, it executes
+        a one-shot merger, approximately). It is well known that $t_{\rm ELK}$
+        depends on $\epsilon_{\rm oct}$, see e.g.\ Antognini 2015.
+
+        There is some small variability, however, in this picture, according to
+        my plots. This can likely be attributed to the exact history of
+        eccentricity maxima prior to the one-shot maximum, since particularly
+        dissipative sequences (i.e.\ many large eccentricity maxima prior to
+        undergoing ``the big one'') can shrink the orbit and change the LK cycle
+        pattern.
+\end{itemize}
+
+Armed with this, we should have enough information to compute the indicator
+function $\mathbb{I}_{\rm merge}\p{a_{\rm in}, I_0, t_{\rm LK}, \epsilon_{\rm
+oct}}$, whether a system will merge, by simply computing the two ranges of $I_0$
+from above. This should be valid wherever we are in a strongly LK-induced
+regime, i.e.\ very large eccentricities are necessary to merge.
+
+In fact, there's a possibility the critical $\epsilon_{\rm oct}$ can be
+calculated analytically, see Katz et.\ al.\ 2011 for the test particle case. Is
+this generalizable?
+
 \end{document}
 

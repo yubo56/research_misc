@@ -184,7 +184,7 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
             plt.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
             plt.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
             plt.xlabel(r'$I_0$')
-            plt.ylabel(r'$T_m$ (Gyr)')
+            plt.ylabel(r'$T_m$ (yr)')
             plt.savefig(fn, dpi=300)
             plt.close()
 
@@ -593,7 +593,7 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
+    sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
 
     plot_emax_dq(I0=93, fn='q_sweep93')
     plot_emax_dq(I0=93.5, fn='q_sweep_935')
