@@ -12,6 +12,17 @@ def get_I1(I0, eta):
     I2 = brenth(I2_constr, 0, np.pi, xtol=1e-12)
     return np.degrees(I0 - I2)
 
+def get_emax(eta=0, eps_gr=0, I=0):
+    def jmin_criterion(j): # eq 42, satisfied when j = jmin
+        return (
+            3/8 * (j**2 - 1) / j**2 * (
+                5 * (np.cos(I) + eta / 2)**2
+                - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
+                + eta**2 * j**4)
+            + eps_gr * (1 - 1 / j))
+    jmin = brenth(jmin_criterion, 1e-15, 1 - 1e-15)
+    return np.sqrt(1 - jmin**2)
+
 def get_elim(eta=0, eps_gr=0):
     def jlim_criterion(j): # eq 44, satisfied when j = jlim
         return (

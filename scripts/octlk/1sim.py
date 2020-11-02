@@ -53,7 +53,7 @@ def test_orbs():
     axs[1].semilogy(t, 1 - ret.y[1])
     axs[1].set_ylabel(r'$1 - e$')
     axs[2].plot(t, np.degrees(ret.y[2]))
-    axs[2].set_ylabel(r'$I_{\rm tot}$')
+    axs[2].set_ylabel(r'$I$')
     axs[2].set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     plt.tight_layout()
@@ -61,8 +61,8 @@ def test_orbs():
     plt.savefig('1fiducial', dpi=300)
     plt.clf()
 
-def test_vec():
-    ret = run_vec()
+def test_vec(fn='1fiducial_vec', **kwargs):
+    ret = run_vec(**kwargs)
     lin = ret.y[ :3, :]
     lin_mag = np.sqrt(np.sum(lin**2, axis=0))
     evec = ret.y[3:6, :]
@@ -80,12 +80,12 @@ def test_vec():
     ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
     ax2.set_ylabel(r'$1 - e$')
     ax3.plot(ret.t / 1e8, I)
-    ax3.set_ylabel(r'$I_{\rm tot}$ (Deg)')
+    ax3.set_ylabel(r'$I$ (Deg)')
     ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
-    plt.savefig('1fiducial_vec', dpi=300)
+    plt.savefig(fn, dpi=300)
     plt.clf()
 
 def timing_tests():
@@ -180,9 +180,10 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
         merged = np.where(tmerges < 9.9e9)[0]
         nmerged = np.where(tmerges > 9.9e9)[0]
         if plt is not None:
+            plt.title(r'$q = %.1f$' % q)
             plt.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
             plt.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
-            plt.xlabel(r'$I_{\rm tot, 0}$')
+            plt.xlabel(r'$I_0$')
             plt.ylabel(r'$T_m$ (Gyr)')
             plt.savefig(fn, dpi=300)
             plt.close()
@@ -264,10 +265,15 @@ def get_emax_series(idx, q, I0, tf):
     evec = ret.y[3:6, :]
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
 
+    lin = ret.y[ :3, :]
+    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
+
     # extract emaxes by looking in windows where de/dt is small. assume emaxes
     # are well separated by > 0.1 * tk
     ts = []
     emaxes = []
+    Ivals = []
     dx=10
     demag = evec_mags[2 * dx: ] - evec_mags[ :-2 * dx]
     demag_ts = ret.t[dx:-dx]
@@ -288,14 +294,14 @@ def get_emax_series(idx, q, I0, tf):
             continue
         ts.append(ret.t[emax_idx])
         emaxes.append(emax)
+        Ivals.append(I[emax_idx])
         blockstartidx = next_t_idx
     print('Ran for', idx, q)
-    return np.array(ts), np.array(emaxes)
+    return np.array(ts), np.array(emaxes), np.array(Ivals)
 
 def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     folder = '1emax_q'
     mkdirp(folder)
-    p = Pool(60)
 
     q_arr = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
 
@@ -308,6 +314,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     pkl_fn = filename + '.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
+        p = Pool(64)
 
         # just run 1.0 once
         args = [(q, I0, tf) for q in q_arr[ :-1]]
@@ -319,7 +326,8 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         q_full = np.repeat(q_arr, num_reps)
         ts = [k[0] for k in ret]
         emax_arr = [k[1] for k in ret]
-        dat = (q_full, ts, emax_arr)
+        I_arr = [k[2] for k in ret]
+        dat = (q_full, ts, emax_arr, I_arr)
         with open(pkl_fn, 'wb') as f:
             pickle.dump(dat, f)
     else:
@@ -347,7 +355,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
               'tab:olive', 'tab:cyan']
     # plot actual trajectories (too messy for longer times)
     # num_plotted = {q:0 for q in q_arr}
-    # for q, t, emaxes in zip(*dat):
+    # for q, t, emaxes, I_vals in zip(*dat):
     #     ax = axmap[q]
     #     idx = num_plotted[q]
     #     if q == 1.0:
@@ -373,19 +381,18 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     # axs[4].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
     # axs[5].set_xlabel(r'$t$ ($10^{%d}$ Gyr)' % (np.round(np.log10(tf)) - 1))
 
-    # plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
+    # plt.suptitle(r'$I = %.1f$' % I0, fontsize=20)
 
     # plt.tight_layout()
     # fig.subplots_adjust(hspace=0.03, wspace=0.03)
     # plt.savefig(filename, dpi=300)
     # plt.close()
 
-    # # do it again, but hist the emaxes
-
-    # fig, _axs = plt.subplots(
-    #     3, 2,
-    #     figsize=(12, 9),
-    #     sharex=True, sharey=True)
+    # hist the emaxes
+    fig, _axs = plt.subplots(
+        3, 2,
+        figsize=(12, 9),
+        sharex=True, sharey=True)
     axs = _axs.flat
     axmap = {
         0.2: axs[0],
@@ -396,13 +403,13 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         1.0: axs[5],
     }
     hist_vals = defaultdict(list)
-    for q, t, emaxes in zip(*dat):
+    hist_incs = defaultdict(list)
+    for q, t, emaxes, Ivals in zip(*dat):
         ax = axmap[q]
         if q == 1.0:
-            if len(hist_vals[q]) > 0:
-                continue
             emax_quad = np.median(emaxes)
         hist_vals[q].extend(np.log10(1 - emaxes))
+        hist_incs[q].extend(Ivals)
 
     # use global hist bins
     _, bin_edges = np.histogram([v for x in hist_vals.values() for v in x],
@@ -417,28 +424,185 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         ax.text(xpos, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
     axs[4].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
     axs[5].set_xlabel(r'$\log_{10}(1 - e_{\max})$')
-    plt.suptitle(r'$I_{\rm tot} = %.1f$' % I0, fontsize=20)
+    plt.suptitle(r'$I = %.1f$' % I0, fontsize=20)
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03, wspace=0.03)
     plt.savefig(filename + 'hist', dpi=300)
     plt.close()
 
+    # hist the inclinations
+    fig, _axs = plt.subplots(
+        3, 2,
+        figsize=(12, 9),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    axmap = {
+        0.2: axs[0],
+        0.3: axs[1],
+        0.4: axs[2],
+        0.5: axs[3],
+        0.7: axs[4],
+        1.0: axs[5],
+    }
+    # use global hist bins
+    _, inc_bin_edges = np.histogram([v for x in hist_incs.values() for v in x],
+                                bins=100)
+    for q, ax in axmap.items():
+        ax.hist(hist_incs[q], bins=inc_bin_edges)
+    for q, ax in axmap.items():
+        xlim = ax.get_xlim()
+        xpos = xlim[1] - (xlim[1] - xlim[0]) / 8
+        ax.text(xpos, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
+    axs[4].set_xlabel(r'$I(e_{\max})$ (Deg)')
+    axs[5].set_xlabel(r'$I(e_{\max})$ (Deg)')
+    plt.suptitle(r'$I = %.1f$' % I0, fontsize=20)
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03, wspace=0.03)
+    plt.savefig(filename + 'histinc', dpi=300)
+    plt.close()
+
+    # plot delay time distributions
+    fig, _axs = plt.subplots(
+        3, 2,
+        figsize=(12, 9),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    axmap = {
+        0.2: axs[0],
+        0.3: axs[1],
+        0.4: axs[2],
+        0.5: axs[3],
+        0.7: axs[4],
+        1.0: axs[5],
+    }
+    # q -> map[eccentricity_idx] -> [first_time_hit]
+    times_map = {
+        0.2: [list() for _ in range(len(bin_edges))],
+        0.3: [list() for _ in range(len(bin_edges))],
+        0.4: [list() for _ in range(len(bin_edges))],
+        0.5: [list() for _ in range(len(bin_edges))],
+        0.7: [list() for _ in range(len(bin_edges))],
+        1.0: [list() for _ in range(len(bin_edges))],
+    }
+    for q, t, emaxes, I_vals in zip(*dat):
+        ax = axmap[q]
+        for idx, ecc in enumerate(bin_edges):
+            idxs = np.where((np.log10(1 - emaxes)) < ecc)[0]
+            if len(idxs) == 0:
+                continue
+            times_map[q][idx].append(t[idxs[0]])
+    # y-axis = median time to arrive at eccentricity x
+    pow10_yr = int(np.log10(tf)) - 1
+    for q, ax in axmap.items():
+        median_times = [
+            np.median(l) / 10**(pow10_yr)
+            if len(l) > 0 else tf / 10**(pow10_yr)
+            for l in times_map[q]
+        ]
+        ax.plot(-bin_edges, median_times)
+        ax.axvline(-np.log10(1 - elim), c='k', ls='--', lw=1.0)
+        ax.axvline(-np.log10(1 - emax_quad), c='b', ls='--', lw=1.0)
+    for q, ax in axmap.items():
+        xlim = ax.get_xlim()
+        xpos = xlim[0] + (xlim[1] - xlim[0]) / 8
+        ax.text(xpos, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
+    axs[0].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
+    axs[2].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
+    axs[4].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
+    axs[4].set_xlabel(r'$-\log_{10}(1 - e_{\max})$')
+    axs[5].set_xlabel(r'$-\log_{10}(1 - e_{\max})$')
+    plt.suptitle(r'$I = %.1f$' % I0, fontsize=20)
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03, wspace=0.03)
+    plt.savefig(filename + 'delays', dpi=300)
+    plt.close()
+
+def run_nogw_vec(fn='1nogw_vec', **kwargs):
+    a2 = 4500
+    Itot = kwargs.get('Itot', 93.5)
+    eps = get_eps(20, 30, 30, 100, a2, 0.6)
+    eta_ecc = eps[3] / np.sqrt(1 - 0.6**2)
+
+    ret = run_vec(a2=a2, **kwargs)
+    lin = ret.y[ :3, :]
+    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    lout = ret.y[6:9, :]
+    lout_mag = np.sqrt(np.sum(lout**2, axis=0))
+    evec = ret.y[3:6, :]
+    evec_mags = np.sqrt(np.sum(evec**2, axis=0))
+    eoutvec = ret.y[9:12, :]
+    eoutvec_mags = np.sqrt(np.sum(eoutvec**2, axis=0))
+    Mu = 30 * 20 / 50
+    a = lin_mag**2/((Mu**2)*k*50*(1 - evec_mags**2))
+    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
+    Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
+
+    # kozai constant (LL18.37)
+    eta = eps[3] / np.sqrt(1 - eoutvec_mags**2)
+    K = (
+        np.sqrt(1 - evec_mags**2) * np.cos(np.radians(I + Iout))
+        - eta * evec_mags**2/2
+    )
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+        2, 2,
+        figsize=(12, 9),
+        sharex=True)
+
+    ax1.plot(ret.t / 1e8, eoutvec_mags)
+    ax1.set_ylabel(r'$e_{\rm out}$')
+    ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
+    ax2.set_ylabel(r'$1 - e$')
+    ax3.plot(ret.t / 1e8, I + Iout)
+    ax3.set_ylabel(r'$I$ (Deg)')
+    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+    ax4.plot(ret.t / 1e8, K)
+    ax4.axhline(-eta[0] / 2, c='k', ls=':', lw=2)
+    ax4.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
+    ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+
+    # try to predict eout_max & bounds of oscillation of K?
+    # emax = get_emax(eta_ecc, eps[1] * (1 - 0.6**2)**(3/2), I=np.radians(Itot))
+    # elim = get_elim(eta_ecc, eps[1] * (1 - 0.6**2)**(3/2))
+    # jmin = np.sqrt(1 - emax**2)
+    # jlim = np.sqrt(1 - elim**2)
+    # delta_jout = np.cos(np.radians(np.max(I))) * eta_ecc * (jmin - jlim)
+    # jout0 = np.sqrt(1 - 0.6**2)
+    # jout_min = delta_jout + jout0
+    # eout_max = np.sqrt(1 - jout_min**2)
+    # eta_min = eps[3] / np.sqrt(1 - eout_max**2)
+    # Kmin = -eta_min / 2
+    # ax1.axhline(eout_max, c='r', ls=':', lw=2)
+    # ax4.axhline(Kmin, c='r', ls=':', lw=2)
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03)
+    plt.savefig(fn, dpi=300)
+    plt.clf()
+
 if __name__ == '__main__':
+    # UNUSED
     # timing_tests()
-
-    # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
-    # sweep(nthreads=50)
-
     # sweeper_comp(nthreads=4, nruns=10000)
-    plot_emax_dq(I0=93, fn='q_sweep93')
-    # plot_emax_dq(I0=93.5, fn='q_sweep_935')
-    # plot_emax_dq(I0=95, fn='q_sweep_95')
-    # plot_emax_dq(I0=96.2, fn='q_sweep_962')
-    # plot_emax_dq(I0=97, fn='q_sweep_97')
-    # plot_emax_dq(I0=99, fn='q_sweep_99')
+    # sweep(nthreads=50)
 
     # testing elim calculation
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
+
+    # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
+
+    plot_emax_dq(I0=93, fn='q_sweep93')
+    plot_emax_dq(I0=93.5, fn='q_sweep_935')
+    plot_emax_dq(I0=95, fn='q_sweep_95')
+    plot_emax_dq(I0=96.2, fn='q_sweep_962')
+    plot_emax_dq(I0=97, fn='q_sweep_97')
+    plot_emax_dq(I0=99, fn='q_sweep_99')
+
+    # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9)
+    # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9, fn='1nogw_vec95',
+    #              Itot=96)
     pass

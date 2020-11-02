@@ -1,0 +1,274 @@
+    \documentclass[11pt,
+        usenames, % allows access to some tikz colors
+        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+    ]{article}
+    \usepackage{
+        amsmath,
+        amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        xcolor, % colored text
+        cancel % can cancel things out!
+    }
+    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rdil}[2]{\mathrm{d}#1 / \mathrm{d}#2}
+    \newcommand*{\pdil}[2]{\partial#1 / \partial#2}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\uv}[1]{\hat{\bm{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+    \newcommand*{\bra}[1]{\left<#1\right|}
+    \newcommand*{\ket}[1]{\left|#1\right>}
+    \newcommand*{\abs}[1]{\left|#1\right|}
+    \newcommand*{\ev}[1]{\langle#1\rangle}
+    \newcommand*{\p}[1]{\left(#1\right)}
+    \newcommand*{\s}[1]{\left[#1\right]}
+    \newcommand*{\z}[1]{\left\{#1\right\}}
+
+    \newtheorem{theorem}{Theorem}[section]
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \colorlet{Corr}{red}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\onehalfspacing
+
+\pagestyle{fancy}
+\rfoot{Yubo Su}
+\rhead{}
+\cfoot{\thepage/\pageref{LastPage}}
+
+I adapted Bin's equations from his Mathematica notebook for use in Python.
+
+\textbf{Executive Summary:} For sufficiently wide initial binaries,
+octupole-induced mergers occur due to the extremely high eccentricities
+encountered during orbital flips (where $I$ changes from $> 90^\circ$ to
+$<90^\circ$ or vice versa). A clean, though incomplete, analytical criterion can
+be derived by considering oscillations in the generalized Kozai constant
+\begin{equation}
+    K = j_{\rm in}\cos I - \eta\frac{e_{\rm in}^2}{2},
+        \label{eq:K}
+\end{equation}
+which is constant to quadrupolar order but not to octupolar order.
+
+\section{Results of Simulations}
+
+For each of the $6$ $q$ values I explored last week, I again show the merger
+time distribution. The fiducial values used were:
+\begin{align*}
+    m_{12} &= 50M_{\odot}, &
+    m_3 &= 30 M_{\odot}, &
+    a_{1,0} &= 100\;\mathrm{AU}, \\
+    a_2 &= 4500\;\mathrm{AU},&
+    e_{1, 0} &= 10^{-3}, &
+    e_{2, 0} &= 0.6.
+\end{align*}
+$q = m_1 / m_2$ and $I_0$, the mutual inclination between $\bm{L}_{\rm in}$ and
+$\bm{L}_{\rm out}$ were varied, and $\omega_{\rm in}$, $\omega_{\rm out}$, and
+$\Omega$ were randomly chosen. The new plots are shown in
+Fig.~\ref{fig:mergers}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p2dist.png}
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p3dist.png}
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p4dist.png}
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p5dist.png}
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p7dist.png}
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1equaldist.png}
+    \caption{Merger time distributions as a function of $I_0$. In each plot,
+    $200$ different $I_0$ are considered, and $20$ different realisations with
+    random $\omega, \Omega$ are used. Note that there is actually not much
+    probabilistic behavior, as there are distinct regions where mergers occur
+    and do not occur. There is also curious resemblance among the plots, which
+    is consistent with our further analysis.}\label{fig:mergers}
+\end{figure}
+
+\section{Exploration}
+
+There is clearly a lot of similar structure seen in Fig.~\ref{fig:mergers}. In
+this section, we explore the origin of this behavior.
+
+\subsection{Exploratory Plotting: $e_{\max}$ Distribution without GW}
+
+We first consider the distribution of eccentricity maxima for the different $q$
+when GW radiation is turned off. We pick a few representative $I_0$ for this
+experiment: each $I_0$ has one fewer $q$ for which ELK-induced mergers are
+possible (see Fig.~\ref{fig:mergers}).For each $q, I_0$, we pick $100$ random
+different $\omega, \Omega$ and evolve to $3\;\mathrm{Gyr}$ without GW\@. We then
+identify all eccentricity maxima. The distribution of these $e_{\max}$ is
+given below in Figs.~\ref{fig:hists} and~\ref{fig:hists2}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep93hist.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_935hist.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_95hist.png}
+    \caption{Histogram of eccentricity maxima under ELK, no GW\@. In each panel,
+    the vertical blue line is the quadrupole $e_{\max}$, while the vertical
+    black line is $e_{\lim}$. For each successive inclination, one fewer $q$
+    value from Fig.~\ref{fig:mergers} exhibits mergers at that $q$ (i.e.\ for $I
+    = 93^\circ$, all $q$ merge, while for $I = 95^\circ$, all but $2$ values of
+    $q$ merge).}\label{fig:hists}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_962hist.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_97hist.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_99hist.png}
+    \caption{Histogram of eccentricity maxima under ELK, no GW,
+    continued.}\label{fig:hists2}
+\end{figure}
+
+These plots show something very important: \emph{once the ELK effect is
+strong beyond some threshold, the $e_{\max}$ distributions are insensitive to
+even stronger $\epsilon_{\rm oct}$. Furthermore, this characteristic difference
+in distributions corresponds exactly to the threshold required to induce merger
+via the ELK effect.}
+
+For completeness, we also provide the delay time distributions of these
+$e_{\max}$ in Figs.~\ref{fig:delays} and~\ref{fig:delays2}, though it is not
+essential to this story (see end).
+
+\subsection{Origin of Dichotomy: Inclination Flipping}
+
+In the previous section, we found a dichotomy of $e_{\max}$ distributions,
+depending on $q, I$. We show two representative simulations over
+$3\;\mathrm{Gyr}$ from the above, from either part of the dichotomy, in
+Fig.~\ref{fig:fiducial}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\columnwidth]{../scripts/octlk/1nogw_vec.png}
+    \includegraphics[width=0.7\columnwidth]{../scripts/octlk/1nogw_vec95.png}
+    \caption{Two fiducial simulations showing the origin of the $e_{\max}$
+    dichotomy. Here, $q = 2/3$. In the fourth panels of both simulations, the
+    horizontal black dotted line gives $K = -\eta_0/2$.}\label{fig:fiducial}
+\end{figure}
+
+It is clear that the $I_0 = 93.5^\circ$ exhibits orbit flipping, and it is
+during these orbit flips that the eccentricity reaches large values (nearing
+$e_{\lim}$).
+
+This can also be seen in histograms of $I\p{e_{\rm in} = e_{\max}}$, shown in
+Figs.~\ref{fig:histinc} and~\ref{fig:histinc2}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep93histinc.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_935histinc.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_95histinc.png}
+    \caption{Same as Fig.~\ref{fig:hists} but for inclinations.}\label{fig:histinc}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_962histinc.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_97histinc.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_99histinc.png}
+    \caption{Same as Fig.~\ref{fig:hists2} but for inclinations.}\label{fig:histinc2}
+\end{figure}
+
+\subsection{Tentative Analytical Explanation}
+
+As the evolution in Fig.~\ref{fig:fiducial} is not very chaotic (quasiperiodic
+only?), we can attempt to to understand when orbit flips occur. In
+Fig.~\ref{fig:fiducial}, we ploted in the bottom right panels the generalized
+Kozai constant given by Eq.~\eqref{eq:K}. $K$ gives us information on when orbit
+flips occur:
+\begin{align}
+    K &= j_{\rm in}\cos I - \eta \frac{e_{\rm in}^2}{2},\\
+    \sgn\p{\cos I} &= \sgn\p{K - \eta \frac{e_{\rm in}^2}{2}},\\
+    \at{\sgn\p{\cos I}}_{e_{\rm in} = e_{\max}}
+        &\approx \sgn\p{K - \frac{\eta}{2}},\nonumber\\
+        &\approx \sgn\p{K - \frac{\eta(e_{\rm out} = e_{\rm out, 0})}{2}}
+        \equiv \sgn\p{K - \frac{\eta_0}{2}}
+\end{align}
+In the last line, we take advantage of the fact that $e_{\rm out}$ has only
+small oscillations. Thus, orbit flips occur whenever $K - \eta_0/2$ changes
+signs. This is thus a sufficient and necessary condition for ELK-induced
+mergers.
+
+\textbf{TODO:} Is there any simple argument for how much $K$ can vary as a
+function of $\epsilon_{\rm oct}$? If so, it immediately gives the condition for
+where ELK-induced mergers can occur. I spent a bit of time on this but not too
+long.
+
+\textbf{NB:} In the test particle limit, Antognini 2015 shows that orbit flips
+always occur in the TP limit, over timescales $\propto \epsilon_{\rm
+oct}^{-1/2}$. Unsurprisingly, there is something special about a finite mass
+inner companion that stabilizes the orbit.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep93delays.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_935delays.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_95delays.png}
+    \caption{Delay time distribution for eccentricity maxima. Vertical blue line
+    is quadrupolar $e_{\max}$ and vertical black line is $e_{\lim}$.}\label{fig:delays}
+\end{figure}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_962delays.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_97delays.png}
+    \includegraphics[width=0.55\columnwidth]{../scripts/octlk/1emax_q/q_sweep_99delays.png}
+    \caption{Delay time distribution for eccentricity maxima, pt 2.}\label{fig:delays2}
+\end{figure}
+
+\end{document}
+
