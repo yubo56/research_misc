@@ -115,6 +115,7 @@ def timing_tests():
 def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
     np.random.seed(idx + int(time.time()))
     M1 = 50 / (1 + q)
+    AF = 0.5 / a0
     ret = run_vec(
         T=t_final,
         M1=M1,
@@ -126,6 +127,7 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
         E20=e2,
         method='Radau',
         TOL=1e-9,
+        AF=AF,
         w1=np.random.rand() * 2 * np.pi,
         w2=np.random.rand() * 2 * np.pi,
         W=np.random.rand() * 2 * np.pi,
@@ -134,19 +136,41 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
     print(idx, q, t_final / 1e9, a0, a2, e0, e2, np.degrees(I0))
     return tf
 
-# def sweep(num_trials=50, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
-def sweep(num_trials=3, num_trials_purequad=1, num_i=50, t_hubb_gyr=10,
-          folder='1sweep', nthreads=60):
+# def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
+def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
+          folder='1sweepbin', nthreads=60):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
-    # to_plot = plt is not None
-    to_plot = False
+    to_plot = plt is not None
+    # to_plot = False
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # Bin's weird case
         # [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)],
+
+        # exploratory, find the right inclination range to restrict to
+        [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
+        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
+        [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
+        [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
+        [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
+        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
+
+        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
+        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
+        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
+        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
+        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
+        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
+
+        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
+        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
+        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
+        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
+        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
+        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
 
         # a2 = 4500, e2 = 0.6
         # [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
@@ -169,21 +193,6 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=50, t_hubb_gyr=10,
         # [0.5, 0.9, 'e91p5dist', 91, 98, 100, 3600],
         # [0.7, 0.9, 'e91p7dist', 91, 95, 100, 3600],
         # [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
-
-        # exploratory, find the right inclination range to restrict to
-        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
-        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
-        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
-        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
-        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
-        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
-
-        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
-        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
-        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
-        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
-        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
-        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
     ]
     total_merge_fracs = []
     for cfg in run_cfgs:
@@ -252,7 +261,7 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=50, t_hubb_gyr=10,
         return
     q_vals = np.array([cfg[0] for cfg in run_cfgs])
     total_merge_fracs = np.array(total_merge_fracs)
-    eps_oct0 = get_eps(0, m12, m3, a, a2, e2)[2]
+    eps_oct0 = get_eps(0, m12, m3, a0, a2, e2)[2]
     eps_oct = (1 - q_vals) / (1 + q_vals) * eps_oct0
     plt.plot(eps_oct * 100, total_merge_fracs * 100, 'bo')
     plt.xlabel(r'$100\epsilon_{\rm oct}$')
@@ -954,8 +963,8 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', nthreads=60)
-    plot_emax_sweep(nthreads=10)
+    sweep(folder='1sweepbin', nthreads=60)
+    # plot_emax_sweep(nthreads=10)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')

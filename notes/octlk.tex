@@ -462,9 +462,10 @@ constraint
 \begin{equation}
     \frac{5c^5a_0^4}{256G^3m_{12}^2\mu} > 10\;\mathrm{Gyr}.
 \end{equation}
-If we fix $m_3 = 30M_{\odot}$, so $m_{12}^2\mu = q(1+q)\p{30M_{\odot}}^3$, then
+If we fix $m_3 = 30M_{\odot}$, so $m_{12}^2\mu = q / (1+q)^2\p{30M_{\odot}}^3$,
+then
 \begin{equation}
-    \frac{a_0}{0.202\;\mathrm{AU}}\p{\frac{2}{q(1+q)}}^{1/4} > 1.
+    \frac{a_0}{0.202\;\mathrm{AU}}\p{\frac{2(1 + q)^2}{q}}^{1/4} > 1.
 \end{equation}
 This is a very weak constraint.
 
@@ -487,14 +488,15 @@ merger}^{\pm}$ since these are very smooth mergers. Then, since $j_{\min}^6 =
         &\approx \frac{\sqrt{60}}{5}\p{\frac{10\;\mathrm{Gyr}}{T_{m, 0}}}^{1/6}
             + \mathcal{O}\p{\eta j_{\min}},\\
         &\approx \frac{\sqrt{60}}{5}\p{\frac{0.202\;\mathrm{AU}}{a_0}}^{2/3}
-            \p{\frac{q(1+q)}{2}}^{1/6}
+            \p{\frac{q}{2(1+q)^2}}^{1/6}
             + \mathcal{O}\p{\eta j_{\min}}.
 \end{align}
 For $I_{\rm 0, merger} \sim 90^\circ$, we can replace $\cos(x) \approx 90^\circ
 - x$, and so the difference of these cosines is just the negative difference of
 their arguments. For $q = 2/3$ and $a_0 = 100\;\mathrm{AU}$, this gives $\Delta
-I_{\rm 0, merger} = 1.231^\circ$, while LL18 obtain $1.20^\circ$. Thus, this is
-the right scaling.
+I_{\rm 0, merger} = 0.996^\circ$, while LL18 obtain $1.20^\circ$. Thus, this
+seems to be the right scaling, and something more accurate can prboably be
+obtained by using a more accurate $e_{\max}$.
 
 \subsection{Origin of Probabilistic Wings}
 
@@ -511,6 +513,39 @@ origin of the criterion I am thinking about above, for whether orbits can flip)
 and has some small extra bit of wander. Maybe the degree of wander can be
 quantified, in which case the behavior of these small probabilistic transition
 zones can be understood.
+
+\section{11/04/20}
+
+We mentioned that when changing $q$ that the quadrupole strength. This could
+have entailed holding $t_{\rm LK}$, $\epsilon_{\rm GR}$, $\epsilon_{\rm GW}$,
+and $\eta$ constant, where
+\begin{align}
+    t_{\rm LK} &= \frac{1}{n_{\rm in}}\frac{m_{12}}{m_3}\p{\frac{a_{\rm out}\sqrt{1 -
+        e_{\rm out}^2}}{a_{\rm in}}}^3,\\
+    \eta &= \frac{\mu}{\mu_{\rm out}} \sqrt{\frac{m_{12}a_{\rm in}}{
+        m_{123}a_{\rm out}\p{1 - e_{\rm out}^2}}},\\
+    \epsilon_{\rm GR} &= \frac{3Gm_{12}^2a_{\rm out}^3}{m_3c^2a_0^4},\\
+    \epsilon_{\rm GW} &\equiv \frac{G^3\mu m_{12}^3
+        a_{\rm out}^3}{m_3c^5a_0^7 n_{\rm in}}.
+\end{align}
+However, this is a bit contrived. Instead, we will just vary $q$ with everything
+fixed, and also consider varying $e_{\rm out}$ such that $t_{\rm LK}$ remains
+fixed. We also should think about
+\begin{align}
+    \epsilon_{\rm oct} &= \frac{1 - q}{1 + q}\frac{a}{a_{\rm out}}
+        \frac{e_{\rm out}}{1 - e_{\rm out}^2},\\
+        &= \frac{1 - q}{1 + q}\frac{a}{a_{\rm out, eff}}
+        \frac{e_{\rm out}}{\sqrt{1 - e_{\rm out}^2}}
+\end{align}
+where $a_{\rm out, eff} \equiv a_{\rm out}\sqrt{1 - e_{\rm out}^2}$.
+
+So the goal will be to continue running with all my current $q \in [0.2, 0.3,
+0.4, 0.5, 0.7, 1.0]$, but also give some different $e_{\rm out}$ while holding
+$a_{\rm out, eff}$ constant. Let's try $e_{\rm out} = [0.6, 0.8, 0.9]$. Since
+used $a_{\rm out} = 4500\;\mathrm{AU}$ for $e_{\rm out} = 0.6$, we will stick to
+$a_{\rm out, eff} = 3600\;\mathrm{AU}$, the corresponding $a_{\rm out}$ that we
+need are $a_{\rm out} = [4500, 6000, 8259]\;\mathrm{AU}$. This corresponds to
+increasing $e_{\rm out}$ by roughly $3\times$.
 
 \end{document}
 
