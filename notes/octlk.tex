@@ -1,7 +1,4 @@
-    \documentclass[10pt,
-        twocolumn,
-        fleqn,
-    ]{revtex4-2}% chktex 8
+    \documentclass[10pt]{article}% chktex 8
     \usepackage{
         amsmath,
         amssymb,
@@ -18,6 +15,7 @@
         labelfont=bf, % caption names are labeled in bold
         font=scriptsize % smaller font for captions
     ]{caption}
+    \usepackage[margin=1.0in]{geometry}
 
     \newcommand*{\scinot}[2]{#1\times10^{#2}}
     \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
@@ -64,7 +62,6 @@
 \begin{document}
 
 \linespread{1.15}
-\setlength{\mathindent}{0pt}
 
 \title{Octupole-order Lidov-Kozai Population Statistics}
 \author{Yubo Su}
@@ -302,6 +299,173 @@ regime, i.e.\ very large eccentricities are necessary to merge.
 In fact, there's a possibility the critical $\epsilon_{\rm oct}$ can be
 calculated analytically, see Katz et.\ al.\ 2011 for the test particle case. Is
 this generalizable?
+
+\subsection{The Quadrupole Conserved Quantity}
+
+This is a quick derivation. To quadrupolar order, $L_{\rm out}$ is conserved, as
+is the total angular momentum, so
+\begin{align}
+    L_{\rm tot}^2 &= L_{\rm out}^2 + L_{\rm in}^2 + 2L_{\rm out}L_{\rm in}
+            \cos I,\\
+    \frac{L_{\rm tot}^2 - L_{\rm out}^2}{L_{\rm out}L_{\rm in, 0}} &=
+        \eta j_{\rm in}^2 + 2j_{\rm in}\cos I,\\
+    \frac{1}{2}\s{\frac{L_{\rm tot}^2 - L_{\rm out}^2}{L_{\rm out}L_{\rm in, 0}}
+        - \eta} &= j_{\rm in}\cos I - \eta \frac{e_{\rm in}^2}{2}.
+\end{align}
+This is the form of the constant given in LL18. Note that $\eta = \eta_0 /
+j_{\rm out}$, where $\eta_0$ is evaluated at $e_{\rm out} = 0$ as well.
+
+\section{11/03/20}
+
+We found out that the critical inclination window has a clean fitting formula in
+the test particle limit, MLL16 (which agrees with the leading order expansion of
+Katz et al 2011). If we take $\epsilon_{\rm oct}$ to be small, then
+\begin{align}
+    \cos^2 I_0 &\leq \frac{\epsilon_{\rm oct}}{0.4},\\
+    \Delta I_0 &\leq \sqrt{\frac{\epsilon_{\rm oct}}{0.4}}.
+\end{align}
+This marks the inclination window in which the octupole-order effects are
+expected to be dominant, if the inclination window is similar to the test
+particle case (it's not exactly, since with finite $\eta$ the window is offset
+to larger $I_0$ than $I_{0, \lim}$)
+
+We will make two simplifying assumptions:
+\begin{itemize}
+    \item DA is valid.
+    \item $e_{\lim}$ is sufficiently large that one-shot mergers occur.
+\end{itemize}
+If we assume that DA is valid, then
+\begin{align}
+    t_{\rm LK}\sqrt{1 - e_{\max}^2} &\gtrsim \frac{1}{n_{\rm out}},\\
+    \frac{a^{3/2}}{a_{\rm out}^{3/2}}\frac{m_{12}}{m_3}
+        \p{\frac{a_{\rm out}}{a}}^{3}\sqrt{1 - e_{\max}^2}
+            \p{1 - e_{\rm out}^2}^{3/2} &\gtrsim 1,\\
+    \frac{a_{\rm out}}{a} &\gtrsim \frac{1}{j_{\min}^{2/3}}.
+\end{align}
+In the last line, we take $e_{\rm out} \sim 0.6$ for which $\p{1 - e_{\rm
+out}^2}^{3/2} = 0.5$, and $m_{12} / m_3 = 2$. For some reference $e_{\max} =
+10^{-4}$, $j_{\min}^{2/3} = 0.058$ (it's okay for DA to break down at
+$e_{\lim}$, since one shot mergers should occur). TODO this should probably be
+evaluated for $e_{\max}$ near the edge of the quadrupole merger window.
+
+Recall also that
+\begin{equation}
+    \epsilon_{\rm oct} = \frac{1 - q}{1 + q}\frac{a}{a_{\rm out}}
+        \frac{e_{\rm out}}{1 - e_{\rm out}^2}.
+\end{equation}
+Thus, in the DA regime, we can explicitly write down the merger window for
+ELK-induced mergers
+\begin{equation}
+    f_{\rm oct} \equiv \frac{2\Delta I_0}{\pi}
+        \lesssim \sqrt{\frac{1 - q}{1 + q}\frac{1}{2}\frac{e_{\rm out}}{1 -
+            e_{\rm out}^2}}.
+\end{equation}
+This isn't great, since my data suggest that $\Delta I_0$ should be linear in
+$(1-q)/(1+q)$, where $\epsilon_{\rm oct} \simeq 0.01$ should be small enough to
+satisfy the assumptions. Bin's data also agree with this, at least up to $e_{\rm
+out} = 0.6$ ($25^\circ$, $15^\circ$, $10^\circ$ degree merger windows for $q =
+0.2$, $0.4$, $0.6$ respectively).
+
+So it's clear that the ELK-active window should be revised for the finite-$\eta$
+case.
+
+\subsection{Differentiating $K$}
+
+We showed earlier that the quadrupole-conserved quantity is
+\begin{equation}
+    K = j \cos I + j^2\eta = \frac{1}{2}\frac{L_{\rm tot}^2 - L_{\rm out}^2}{
+        L_{\rm out}L_{\rm in, 0}}.
+\end{equation}
+Differentiating the second expression, we obtain that
+\begin{align}
+    \rd{K}{t} &= \frac{1}{2L_{\in, 0}}
+        \p{\frac{-L_{\rm tot}^2}{L_{\rm out}^2} \rd{L_{\rm out}}{t}
+            - \rd{L_{\rm out}}{t}},\\
+        &= -\frac{1 + L_{\rm tot}^2 / L_{\rm out}^2}{2L_{\rm in, 0}}
+            \uv{L}_{\rm out} \cdot \rd{\bm{L}_{\rm out}}{t}.
+\end{align}
+Indeed, from LML15, we see that this term vanishes to quadrupolar order, and
+that the only terms that survive are (I use $1$ for in and $2$ for out somewhat
+interchangeably, due to the source materials I'm pulling from)
+\begin{align}
+    \frac{\uv{L}_{\rm out}}{L_{\rm in}} \cdot \rd{\bm{L}_{\rm out}}{t}
+        &= -\frac{75\epsilon_{\rm oct}}{64}\s{
+            2\p{\bm{e}_1 \cdot \uv{n}_2}\p{\bm{j}_1 \cdot \uv{n}_2}
+                \uv{L}_2 \cdot \p{\uv{u}_2 \times \bm{j}_1}
+            + \s{\frac{8}{5}e_1^2 - \frac{1}{5}
+                - 7\p{\bm{e}_1 \cdot \uv{n}_2}^2
+                + \p{\bm{j}_1 \cdot \uv{n}_2}^2}
+                \uv{L}_2 \cdot \p{\uv{u}_2 \times \bm{e}_1}
+            }.
+\end{align}
+Triple products let us simplify a little bit to be in terms of $\uv{v}_2 =
+\uv{L}_2 \times \uv{e}_2$ as in LML15. But this won't be useful: if we don't
+have the second derivative as well, we can't compute a characteristic
+oscillation frequency.
+
+We can make one more approximation though: all of the $\bm{j}_1 \cdot \uv{n}_2$
+terms are generally small, since they are of order $j_{1z}$ which is not
+conserved exactly but remains small (this is similar to Katz's approximation).
+This means we're left with
+\begin{align}
+    \rd{K}{t}
+        &\approx \p{1 + \frac{\eta^2}{4}}
+        \frac{75\epsilon_{\rm oct}}{64}
+            \s{\frac{8}{5}e_1^2 - \frac{1}{5}
+                - 7\p{\bm{e}_1 \cdot \uv{n}_2}^2}
+                \bm{e}_1 \cdot \uv{v}_2.
+\end{align}
+We've assumed $L_{\rm tot}^2 / L_{\rm out}^2 \sim 1 + \eta^2/2$, since typically
+$\bm{L}_{\rm in}$ and $\bm{L}_{\rm out}$ are misaligned by $I \simeq 90^\circ$.
+This is again in agreement with the Katz formula except now $\bm{n}_2$ and
+$\bm{v}_2$ are permitted to vary (and our prefactor).
+
+Now, their $\Omega_{\rm e}$ is such that $e_z / e = \cos \Omega_{\rm e}$. This
+is a bit more difficult to generalize for us, but it shouldn't be impossible. We
+will return later if it proves interesting.
+
+\subsection{Timescale Analysis}
+
+Let's suppose we only consider systems with $T_{\rm m, 0} > 10\;\mathrm{Gyr}$,
+that cannot merge in a Hubble time. For simplicity, we also require DA hold, and
+all three masses be comparable ($m_{12} = 2m_3$, say). Then this places
+constraint
+\begin{equation}
+    \frac{5c^5a_0^4}{256G^3m_{12}^2\mu} > 10\;\mathrm{Gyr}.
+\end{equation}
+If we fix $m_3 = 30M_{\odot}$, so $m_{12}^2\mu = q(1+q)\p{30M_{\odot}}^3$, then
+\begin{equation}
+    \frac{a_0}{0.202\;\mathrm{AU}}\p{\frac{2}{q(1+q)}}^{1/4} > 1.
+\end{equation}
+This is a very weak constraint.
+
+Nevertheless, if we are firmly in the LK-induced regime, LL18 can be used to
+easily compute the quadrupole merger window, $I_{\rm 0, merger}^+ - I_{\rm 0,
+merger}^-$ by just using their Eq.~(42) to compute $e_{\max}$. We know that in
+the LK-induced regime, $\epsilon_{\rm GR}$ is very weak except for at very large
+$e_{\max}$, so we can likely omit it when computing the $I_{\rm 0,
+merger}^{\pm}$ since these are very smooth mergers. Then, since $j_{\min}^6 =
+10\;\mathrm{Gyr} / T_{\rm m, 0}$, we can obtain
+\begin{align}
+    \cos I_{\rm 0, merger}^- - \cos I_{\rm 0, merger}^+
+        &= \frac{1}{5}\sqrt{
+            \p{5\eta - 4\eta j_{\min}^2}^2
+            - 20\p{\frac{5\eta^2}{4}
+                - j_{\min}^2\p{3 + \frac{9\eta^2}{4}}
+                + \eta^2j_{\min}^4}},\\
+        &\approx \frac{j_{\min}\sqrt{60}}{5}
+            + \mathcal{O}\p{\eta j_{\min}},\\
+        &\approx \frac{\sqrt{60}}{5}\p{\frac{10\;\mathrm{Gyr}}{T_{m, 0}}}^{1/6}
+            + \mathcal{O}\p{\eta j_{\min}},\\
+        &\approx \frac{\sqrt{60}}{5}\p{\frac{0.202\;\mathrm{AU}}{a_0}}^{2/3}
+            \p{\frac{q(1+q)}{2}}^{1/6}
+            + \mathcal{O}\p{\eta j_{\min}}.
+\end{align}
+For $I_{\rm 0, merger} \sim 90^\circ$, we can replace $\cos(x) \approx 90^\circ
+- x$, and so the difference of these cosines is just the negative difference of
+their arguments. For $q = 2/3$ and $a_0 = 100\;\mathrm{AU}$, this gives $\Delta
+I_{\rm 0, merger} = 1.231^\circ$, while LL18 obtain $1.20^\circ$. Thus, this is
+the right scaling.
 
 \end{document}
 

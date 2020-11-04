@@ -110,6 +110,14 @@ be derived by considering oscillations in the generalized Kozai constant
 \end{equation}
 which is constant to quadrupolar order but not to octupolar order.
 
+The resulting merger fraction plot that we obtain is shown in
+Fig.~\ref{fig:merges}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{../scripts/octlk/1sweepbin/total_merger_fracs.png}
+    \caption{Total merger fractions}\label{fig:merges}
+\end{figure}
+
 \section{Results of Simulations}
 
 For each of the $6$ $q$ values I explored last week, I again show the merger
@@ -125,22 +133,27 @@ time distribution. The fiducial values used were:
 $q = m_1 / m_2$ and $I_0$, the mutual inclination between $\bm{L}_{\rm in}$ and
 $\bm{L}_{\rm out}$ were varied, and $\omega_{\rm in}$, $\omega_{\rm out}$, and
 $\Omega$ were randomly chosen. The new plots are shown in
-Fig.~\ref{fig:mergers}.
+Fig.~\ref{fig:mergers} and~\ref{fig:mergers2}.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p2dist.png}
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p3dist.png}
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p4dist.png}
+    \caption{Merger probabilities (top) and time distributions as a function of
+    $I_0$. In each plot, $200$ different $I_0$ are considered, and $20$
+    different realisations with random $\omega, \Omega$ are used. Note that
+    there is actually not much probabilistic behavior, as there are distinct
+    regions where mergers occur and do not occur. There is also curious
+    resemblance among the plots, which is consistent with our further
+    analysis.}\label{fig:mergers}
+\end{figure}
+\begin{figure}
+    \centering
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p5dist.png}
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1p7dist.png}
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1sweepbin/1equaldist.png}
-    \caption{Merger time distributions as a function of $I_0$. In each plot,
-    $200$ different $I_0$ are considered, and $20$ different realisations with
-    random $\omega, \Omega$ are used. Note that there is actually not much
-    probabilistic behavior, as there are distinct regions where mergers occur
-    and do not occur. There is also curious resemblance among the plots, which
-    is consistent with our further analysis.}\label{fig:mergers}
+    \caption{Continuation of Fig.~\ref{fig:mergers}}\label{fig:mergers2}
 \end{figure}
 
 \section{Exploration}

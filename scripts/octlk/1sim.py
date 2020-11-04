@@ -144,14 +144,17 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
     m12, m3, a, a2, e0, e2 = 50, 30, 100, 4500, 1e-3, 0.6
     p = Pool(nthreads)
 
-    for q, base_fn, ilow, ihigh in [
-            [0.2, '1p2dist', 89.5, 105],
-            [0.3, '1p3dist', 90.5, 100],
-            [0.4, '1p4dist', 90.5, 98],
-            [0.5, '1p5dist', 91, 98],
-            [0.7, '1p7dist', 91, 95],
-            [1.0, '1equaldist', 92, 93.5],
-    ]:
+    run_cfgs = [
+        [0.2, '1p2dist', 89.5, 105],
+        [0.3, '1p3dist', 90.5, 100],
+        [0.4, '1p4dist', 90.5, 98],
+        [0.5, '1p5dist', 91, 98],
+        [0.7, '1p7dist', 91, 95],
+        [1.0, '1equaldist', 92, 93.5],
+    ]
+    total_merge_fracs = []
+    for q, base_fn, ilow, ihigh in run_cfgs:
+        I0s = np.radians(np.linspace(ilow, ihigh, num_i))
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
         if not os.path.exists(pkl_fn):
@@ -162,7 +165,6 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
             tlk0 = get_tlk0(m1, m2, m3, a, a2) / 1e9
             t_final = t_hubb_gyr / tlk0
 
-            I0s = np.radians(np.linspace(ilow, ihigh, num_i))
             I_plots = np.repeat(I0s, num_trials)
             args = [
                 (idx, q, t_final, tlk0, a0, e0, I0, e2, eps)
@@ -179,14 +181,82 @@ def sweep(num_trials=20, num_i=200, t_hubb_gyr=10,
         tmerges = np.array(tmerges)
         merged = np.where(tmerges < 9.9e9)[0]
         nmerged = np.where(tmerges > 9.9e9)[0]
-        if plt is not None:
-            plt.title(r'$q = %.1f$' % q)
-            plt.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
-            plt.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
-            plt.xlabel(r'$I_0$')
-            plt.ylabel(r'$T_m$ (yr)')
+
+        # calculate histogram of merged vs not merged
+        merge_probs = []
+        for I in I0s:
+            merge_probs.append(
+                len(np.where(I_plots[merged] == I)[0]) /
+                len(np.where(I_plots == I)[0]))
+        total_merge_fracs.append(
+            (ihigh - ilow) / 180 * np.sum(merge_probs) / len(I0s)
+        )
+        # if plt is not None:
+        if False:
+            fig, (ax1, ax2) = plt.subplots(
+                2, 1,
+                figsize=(9, 12),
+                gridspec_kw={'height_ratios': [1, 2]},
+                sharex=True)
+            ax1.set_title(r'$q = %.1f$' % q)
+            ax1.plot(np.degrees(I0s), merge_probs, 'k')
+            ax1.set_ylabel(r'Merge Prob')
+
+            # plot actual merger times
+            ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
+            ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
+            ax2.set_xlabel(r'$I_0$')
+            ax2.set_ylabel(r'$T_m$ (yr)')
+            plt.tight_layout()
+
+            fig.subplots_adjust(wspace=0.03)
             plt.savefig(fn, dpi=300)
             plt.close()
+    q_vals = np.array([cfg[0] for cfg in run_cfgs])
+    total_merge_fracs = np.array(total_merge_fracs)
+    eps_oct0 = get_eps(0, m12, m3, a, a2, e2)[2]
+    eps_oct = (1 - q_vals) / (1 + q_vals) * eps_oct0
+    plt.plot(eps_oct * 100, total_merge_fracs * 100, 'bo')
+    plt.xlabel(r'$100\epsilon_{\rm oct}$')
+    plt.ylabel(r'$f_{\rm merger}$ [\%]')
+
+    # plot quadrupole merger fraction
+    plt.ylim(bottom=0)
+    # I have the explicit formula in my notes...
+    f_merge_quad = 1.231 / 180
+    plt.axhline(f_merge_quad * 100, c='r', ls=':')
+
+    # plot the naive fit using MLL16's fit
+    # awful fit...
+    #
+    # ilims = np.arccos(np.sqrt(
+    #     0.26 * (eps_oct / 0.1)
+    #     - 0.536 * (eps_oct / 0.1)**2
+    #     + 12.05 * (eps_oct / 0.1)**3
+    #     -16.78 * (eps_oct / 0.1)**4
+    # ))
+    # delta_ilims = np.pi / 2 - ilims
+    # f_merge_mll = (delta_ilims / np.pi) / 2
+    # plt.plot(eps_oct * 100, f_merge_mll * 100, 'g')
+
+    # linear fiducial
+    # plt.plot([0, 100 * eps_oct[0]],
+    #          [0, total_merge_fracs[0] * 100],
+    #          'k', lw=0.5)
+
+    plt.title(r'$e_{\rm out} = 0.6$')
+
+    plt.tight_layout()
+
+    curr_ax = plt.gca()
+    ax3 = curr_ax.twiny()
+    ax3.set_xlim(curr_ax.get_xlim())
+    ax3.set_xticks(eps_oct * 100)
+    ax3.set_xticklabels(['%.1f' % q for q in q_vals])
+    ax3.set_ylabel(r'$q$')
+
+    plt.savefig('1sweepbin/total_merger_fracs', dpi=300)
+    plt.close()
 
 def sweeper_comp(nthreads=1, nruns=1000):
     mkdirp('1sweep')
@@ -235,7 +305,7 @@ def sweeper_comp(nthreads=1, nruns=1000):
     plt.savefig('1sweep/sweeper_comp', dpi=300)
     plt.close()
 
-def get_emax_series(idx, q, I0, tf):
+def get_emax_series(idx, q, I0, tf, inits={}):
     np.random.seed(idx + int(time.time()))
     M1 = 50 / (1 + q)
     M2 = 50 - M1
@@ -258,9 +328,9 @@ def get_emax_series(idx, q, I0, tf):
         E20=E2,
         TOL=1e-9,
         method='Radau',
-        w1=np.random.rand() * 2 * np.pi,
-        w2=np.random.rand() * 2 * np.pi,
-        W=np.random.rand() * 2 * np.pi,
+        w1=inits.get('w1', np.random.rand() * 2 * np.pi),
+        w2=inits.get('w2', np.random.rand() * 2 * np.pi),
+        W=inits.get('W', np.random.rand() * 2 * np.pi),
     )
     evec = ret.y[3:6, :]
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
@@ -491,23 +561,26 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         for idx, ecc in enumerate(bin_edges):
             idxs = np.where((np.log10(1 - emaxes)) < ecc)[0]
             if len(idxs) == 0:
+                times_map[q][idx].append(np.inf)
                 continue
             times_map[q][idx].append(t[idxs[0]])
     # y-axis = median time to arrive at eccentricity x
     pow10_yr = int(np.log10(tf)) - 1
     for q, ax in axmap.items():
-        median_times = [
+        median_times = np.array([
             np.median(l) / 10**(pow10_yr)
             if len(l) > 0 else tf / 10**(pow10_yr)
             for l in times_map[q]
-        ]
-        ax.plot(-bin_edges, median_times)
+        ])
+        wherenoninf = np.where(median_times < np.inf)[0]
+        ax.plot(-bin_edges[wherenoninf], median_times[wherenoninf])
         ax.axvline(-np.log10(1 - elim), c='k', ls='--', lw=1.0)
         ax.axvline(-np.log10(1 - emax_quad), c='b', ls='--', lw=1.0)
     for q, ax in axmap.items():
         xlim = ax.get_xlim()
         xpos = xlim[0] + (xlim[1] - xlim[0]) / 8
         ax.text(xpos, ax.get_ylim()[1] * 0.9, 'q=%.1f' % q)
+        ax.set_ylim(top=31)
     axs[0].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
     axs[2].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
     axs[4].set_ylabel(r'$t$ ($10^{%d}$ Gyr)' % pow10_yr)
@@ -583,6 +656,145 @@ def run_nogw_vec(fn='1nogw_vec', **kwargs):
     plt.savefig(fn, dpi=300)
     plt.clf()
 
+def emax_omega_sweep(fn='1sweep/emax_omega_sweep'):
+    q, I0, tf = 0.7, 91.7, 1e9
+    inits = {'w2':0, 'W': 0}
+    pkl_fn = fn + '.pkl'
+    num_pts = 100
+    w1s = np.arange(num_pts) / num_pts * np.pi
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        p = Pool(10)
+        args = [(idx, q, I0, tf, dict(inits, w1=w1s[idx]))
+                for idx in range(num_pts)]
+        rets = p.starmap(get_emax_series, args)
+        emaxes = [np.max(ret[1]) for ret in rets]
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((emaxes), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            emaxes = pickle.load(f)
+    emaxes = np.array(emaxes)
+    plt.semilogy(w1s, 1 - emaxes, 'bo')
+    plt.xlabel(r'$\omega_{1,0}$')
+    plt.ylabel(r'$1 - \max(e_{\max})$')
+    plt.savefig(fn, dpi=300)
+
+def k_sweep_runner(idx, q, I0, tf):
+    np.random.seed(idx + int(time.time()))
+    M1 = 50 / (1 + q)
+    M2 = 50 - M1
+    M3 = 30
+    ain = 100
+    a2 = 4500
+    E2 = 0.6
+    n1 = np.sqrt((k*(M1 + M2))/ain ** 3)
+    ret = run_vec(
+        ll=0,
+        T=tf,
+        M1=M1,
+        M2=M2,
+        M3=M3,
+        Itot=I0,
+        INTain=ain,
+        a2=a2,
+        E20=E2,
+        TOL=1e-9,
+        method='Radau',
+        w1=np.random.rand() * 2 * np.pi,
+        w2=np.random.rand() * 2 * np.pi,
+        W=np.random.rand() * 2 * np.pi,
+    )
+
+    lin = ret.y[ :3, :]
+    lin_mag = np.sqrt(np.sum(lin**2, axis=0))
+    lout = ret.y[6:9, :]
+    lout_mag = np.sqrt(np.sum(lout**2, axis=0))
+    evec = ret.y[3:6, :]
+    evec_mags = np.sqrt(np.sum(evec**2, axis=0))
+    eoutvec = ret.y[9:12, :]
+    eoutvec_mags = np.sqrt(np.sum(eoutvec**2, axis=0))
+    Mu = 30 * 20 / 50
+    a = lin_mag**2/((Mu**2)*k*50*(1 - evec_mags**2))
+    I = np.degrees(np.arccos(ret.y[2] / lin_mag))
+    Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
+
+    # kozai constant (LL18.37)
+    eps = get_eps(20, 30, 30, 100, a2, 0.6)
+    eta_ecc = eps[3] / np.sqrt(1 - 0.6**2)
+    eta = eps[3] / np.sqrt(1 - eoutvec_mags**2)
+    K = (
+        np.sqrt(1 - evec_mags**2) * np.cos(np.radians(I + Iout))
+        - eta * evec_mags**2/2
+    )
+    deltaK = np.max(K) - np.min(K)
+    print('Ran for (%d, %.1f, %.1f)' % (idx, q, I0), deltaK)
+    return deltaK
+
+def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
+    '''
+    try to see whether delta K has any discernable scaling with either I or q
+    '''
+    q_vals = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
+    I_vals = [90, 92, 94, 96, 98, 100]
+    # equally spaced in eps_oct =  (1-q)/(1+q) \in [0,
+    eps_arr = np.linspace(0, (1 - q_vals[0]) / (1 + q_vals[0]), n_pts)
+    q_arr = (1 - eps_arr) / (1 + eps_arr)
+    I_arr = np.linspace(np.min(I_vals), np.max(I_vals), n_pts)
+    args = []
+    for q in q_vals:
+        for rep in range(n_reps):
+            args.extend([(q, I, tf) for idx, I in enumerate(I_arr)])
+    for I in I_vals:
+        for rep in range(n_reps):
+            args.extend([(q, I, tf) for idx, q in enumerate(q_arr)])
+
+    pkl_fn = fn + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        p = Pool(10)
+        full_args = [(idx, *q) for idx, q in enumerate(args)]
+        dat = p.starmap(k_sweep_runner, full_args)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((dat), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            dat = pickle.load(f)
+
+    args = np.array(args)
+    dat = np.array(dat)
+    for q in q_vals:
+        to_plot_idxs = np.where([arg[0] == q for arg in args])[0]
+        plt.plot(args[to_plot_idxs, 1],
+                 dat[to_plot_idxs],
+                 ls='',
+                 marker='o',
+                 ms=2.0,
+                 label=str(q))
+    plt.legend(loc='upper left', ncol=2, fontsize=14)
+    plt.xlabel(r'$I_0$')
+    plt.ylabel(r'$\Delta K$')
+    plt.savefig(fn + 'vsq', dpi=300)
+    plt.close()
+
+    for I in I_vals:
+        to_plot_idxs = np.where([arg[1] == I for arg in args])[0]
+        q_dat = args[to_plot_idxs, 0]
+        eps_dat = (1 - q_dat) / (1 + q_dat)
+        plt.plot(eps_dat,
+                 dat[to_plot_idxs],
+                 ls='',
+                 marker='o',
+                 ms=2.0,
+                 label=str(I))
+    plt.legend(loc='upper left', ncol=2, fontsize=14)
+    plt.xlabel(r'$\epsilon_{\rm oct} / \epsilon_{\rm oct}(q = 0)$')
+    plt.ylabel(r'$\Delta K$')
+    plt.savefig(fn + 'vsI', dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -595,14 +807,16 @@ if __name__ == '__main__':
 
     sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
 
-    plot_emax_dq(I0=93, fn='q_sweep93')
-    plot_emax_dq(I0=93.5, fn='q_sweep_935')
-    plot_emax_dq(I0=95, fn='q_sweep_95')
-    plot_emax_dq(I0=96.2, fn='q_sweep_962')
-    plot_emax_dq(I0=97, fn='q_sweep_97')
-    plot_emax_dq(I0=99, fn='q_sweep_99')
+    # plot_emax_dq(I0=93, fn='q_sweep93')
+    # plot_emax_dq(I0=93.5, fn='q_sweep_935')
+    # plot_emax_dq(I0=95, fn='q_sweep_95')
+    # plot_emax_dq(I0=96.2, fn='q_sweep_962')
+    # plot_emax_dq(I0=97, fn='q_sweep_97')
+    # plot_emax_dq(I0=99, fn='q_sweep_99')
 
     # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9)
     # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9, fn='1nogw_vec95',
     #              Itot=96)
+    # emax_omega_sweep()
+    # k_sweep()
     pass
