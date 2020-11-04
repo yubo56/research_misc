@@ -1,21 +1,34 @@
-    \documentclass[10pt]{article}% chktex 8
+    \documentclass[11pt,
+        usenames, % allows access to some tikz colors
+        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+    ]{article}
     \usepackage{
         amsmath,
         amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
         hyperref, % various links
+        setspace, % line spacing
         amsthm, % newtheorem and proof environment
         mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
         enumerate, % Allow custom enumerate numbering
         graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
         booktabs, % \bottomrule instead of hline apparently
         xcolor, % colored text
-        wasysym
+        cancel % can cancel things out!
     }
+    \usepackage[margin=1in]{geometry} % page geometry
     \usepackage[
         labelfont=bf, % caption names are labeled in bold
         font=scriptsize % smaller font for captions
     ]{caption}
-    \usepackage[margin=1.0in]{geometry}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
 
     \newcommand*{\scinot}[2]{#1\times10^{#2}}
     \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
@@ -28,7 +41,6 @@
     \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
     \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
     \newcommand*{\svec}[1]{\vec{#1}\;\!}
-    \let\bm\undefined
     \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
     \newcommand*{\uv}[1]{\hat{\bm{#1}}}
     \newcommand*{\ang}[0]{\;\text{\AA}}
@@ -41,6 +53,8 @@
     \newcommand*{\p}[1]{\left(#1\right)}
     \newcommand*{\s}[1]{\left[#1\right]}
     \newcommand*{\z}[1]{\left\{#1\right\}}
+
+    \newtheorem{theorem}{Theorem}[section]
 
     \let\Re\undefined
     \let\Im\undefined
@@ -58,6 +72,21 @@
     \DeclareMathOperator{\diag}{diag\;}
 
     \colorlet{Corr}{red}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
 
 \begin{document}
 
@@ -466,6 +495,22 @@ For $I_{\rm 0, merger} \sim 90^\circ$, we can replace $\cos(x) \approx 90^\circ
 their arguments. For $q = 2/3$ and $a_0 = 100\;\mathrm{AU}$, this gives $\Delta
 I_{\rm 0, merger} = 1.231^\circ$, while LL18 obtain $1.20^\circ$. Thus, this is
 the right scaling.
+
+\subsection{Origin of Probabilistic Wings}
+
+I had a guess that may the origin of the probabilistic wings would be due to
+separatrix breaking due to $\epsilon_{\rm oct}$, where the IC would either be
+circulating or librating depending on $\omega_{\rm in}$. However, running some
+data, this does not appear to be the case (\lstinline{emax_omega_sweep}), since
+the distribution of emaxes between small and large values changes as a function
+of time. This suggests that there is some characteristic timescale over which
+systems in this intermediate probabilistic zone (where $I_0$ gives a probability
+of merging within $10\;\mathrm{Gyr}$) encounter ELK-induced orbit flips. This is
+not very surprising: it seems like $K$ basically oscillates sinusoidally (the
+origin of the criterion I am thinking about above, for whether orbits can flip)
+and has some small extra bit of wander. Maybe the degree of wander can be
+quantified, in which case the behavior of these small probabilistic transition
+zones can be understood.
 
 \end{document}
 

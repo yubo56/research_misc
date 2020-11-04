@@ -657,7 +657,7 @@ def run_nogw_vec(fn='1nogw_vec', **kwargs):
     plt.clf()
 
 def emax_omega_sweep(fn='1sweep/emax_omega_sweep'):
-    q, I0, tf = 0.7, 91.7, 1e9
+    q, I0, tf = 0.234, 98, 3e9
     inits = {'w2':0, 'W': 0}
     pkl_fn = fn + '.pkl'
     num_pts = 100
@@ -668,17 +668,29 @@ def emax_omega_sweep(fn='1sweep/emax_omega_sweep'):
         args = [(idx, q, I0, tf, dict(inits, w1=w1s[idx]))
                 for idx in range(num_pts)]
         rets = p.starmap(get_emax_series, args)
-        emaxes = [np.max(ret[1]) for ret in rets]
+        rets = [ret for ret in rets]
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((emaxes), f)
+            pickle.dump((rets), f)
     else:
         with open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
-            emaxes = pickle.load(f)
-    emaxes = np.array(emaxes)
-    plt.semilogy(w1s, 1 - emaxes, 'bo')
-    plt.xlabel(r'$\omega_{1,0}$')
-    plt.ylabel(r'$1 - \max(e_{\max})$')
+            rets = pickle.load(f)
+
+    fig, axs = plt.subplots(
+        2, 2,
+        figsize=(8, 8),
+        sharex=True, sharey=True)
+    times = np.array([1, 2, 4, 8]) * tf / 8
+    for t_end, ax in zip(times, axs.flat):
+        for w1, (t, emaxes, _) in zip(w1s, rets):
+            emaxes_before_end = emaxes[np.where(t < t_end)[0]]
+            ax.semilogy(w1, 1 - np.max(emaxes_before_end), 'bo')
+    axs[1][0].set_xlabel(r'$\omega_{1,0}$')
+    axs[1][1].set_xlabel(r'$\omega_{1,0}$')
+    axs[0][0].set_ylabel(r'$1 - \max(e_{\max})$')
+    axs[1][0].set_ylabel(r'$1 - \max(e_{\max})$')
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.03, wspace=0.03)
     plt.savefig(fn, dpi=300)
 
 def k_sweep_runner(idx, q, I0, tf):
@@ -805,7 +817,7 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
+    # sweep(folder='1sweepbin', func=sweeper_bin, nthreads=50)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
@@ -817,6 +829,6 @@ if __name__ == '__main__':
     # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9)
     # run_nogw_vec(ll=0, T=3e9, method='Radau', TOL=1e-9, fn='1nogw_vec95',
     #              Itot=96)
-    # emax_omega_sweep()
+    emax_omega_sweep()
     # k_sweep()
     pass
