@@ -144,6 +144,7 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
 
     # to_plot = plt is not None
     to_plot = False
+    bin_aeff = 700 * np.sqrt(1 - 0.9**2)
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
@@ -182,27 +183,26 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
         [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
         [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
         [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # DONE
-        # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # RERUNNING (exo2)
-        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # RERUNNING (exo4-2)
+        # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # TODO
+        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # TODO
         [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
-        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # RUNNING (exo2a)
-        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (exo2a)
+        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
+        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
 
-        # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # RERUNNING (exo4)
+        # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # TODO
         [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
         [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
-        # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # RERUNNING (exo4)
+        # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # TODO
         [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
-        # [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # RERUNNING (exo4-2)
+        # [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # TODO
         [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
         [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # DONE
 
         # Bin's case
-        # [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)], # RUNNING
-        # [1.0, 0.9, 'bindistequal', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)],
+        # [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
+        # [1.0, 0.9, 'bindistequal', 70, 110, 10, bin_aeff], # TODO
     ]
-    total_merge_fracs = []
     for cfg in run_cfgs:
         q, e2, base_fn, ilow, ihigh, a0, a2eff = cfg
         a2 = a2eff / np.sqrt(1 - e2**2)
@@ -234,95 +234,10 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
                 print('Loading %s' % pkl_fn)
                 I_plots, tmerges = pickle.load(f)
 
-        tmerges = np.array(tmerges)
-        merged = np.where(tmerges < 9.9e9)[0]
-        nmerged = np.where(tmerges > 9.9e9)[0]
-
-        # calculate histogram of merged vs not merged
-        merge_probs = []
-        for I in I0s:
-            merge_probs.append(
-                len(np.where(np.abs(I_plots[merged] - I) < 1e-6)[0]) /
-                len(np.where(np.abs(I_plots - I) < 1e-6)[0]))
-        total_merge_fracs.append(
-            (ihigh - ilow) / 180 * np.sum(merge_probs) / len(I0s)
-        )
-        if to_plot:
-            fig, (ax1, ax2) = plt.subplots(
-                2, 1,
-                figsize=(9, 12),
-                gridspec_kw={'height_ratios': [1, 2]},
-                sharex=True)
-            ax1.set_title(r'$q = %.1f$' % q)
-            ax1.plot(np.degrees(I0s), merge_probs, 'k')
-            ax1.set_ylabel(r'Merge Prob')
-
-            # plot actual merger times
-            ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
-            ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
-            ax2.set_xlabel(r'$I_0$')
-            ax2.set_ylabel(r'$T_m$ (yr)')
-            plt.tight_layout()
-
-            fig.subplots_adjust(wspace=0.03)
-            plt.savefig(fn, dpi=300)
-            plt.close()
-    return # not ready to do merger fractions yet
-    if not to_plot:
-        return
-    q_vals = np.array([cfg[0] for cfg in run_cfgs])
-    total_merge_fracs = np.array(total_merge_fracs)
-    eps_oct0 = get_eps(0, m12, m3, a0, a2, e2)[2]
-    eps_oct = (1 - q_vals) / (1 + q_vals) * eps_oct0
-    plt.plot(eps_oct * 100, total_merge_fracs * 100, 'bo')
-    plt.xlabel(r'$100\epsilon_{\rm oct}$')
-    plt.ylabel(r'$f_{\rm merger}$ [\%]')
-
-    # plot quadrupole merger fraction
-    plt.ylim(bottom=0)
-    # I have the explicit formula in my notes...
-    f_merge_quad = 1.231 / 180
-    plt.axhline(f_merge_quad * 100, c='r', ls=':')
-
-    # plot the naive fit using MLL16's fit
-    # awful fit...
-    #
-    # ilims = np.arccos(np.sqrt(
-    #     0.26 * (eps_oct / 0.1)
-    #     - 0.536 * (eps_oct / 0.1)**2
-    #     + 12.05 * (eps_oct / 0.1)**3
-    #     -16.78 * (eps_oct / 0.1)**4
-    # ))
-    # delta_ilims = np.pi / 2 - ilims
-    # f_merge_mll = (delta_ilims / np.pi) / 2
-    # plt.plot(eps_oct * 100, f_merge_mll * 100, 'g')
-
-    # linear fiducial
-    # plt.plot([0, 100 * eps_oct[0]],
-    #          [0, total_merge_fracs[0] * 100],
-    #          'k', lw=0.5)
-
-    plt.title(r'$e_{\rm out} = 0.6$')
-
-    plt.tight_layout()
-
-    curr_ax = plt.gca()
-    ax3 = curr_ax.twiny()
-    ax3.set_xlim(curr_ax.get_xlim())
-    ax3.set_xticks(eps_oct * 100)
-    ax3.set_xticklabels(['%.1f' % q for q in q_vals])
-    ax3.set_ylabel(r'$q$')
-
-    plt.savefig('1sweepbin/total_merger_fracs', dpi=300)
-    plt.close()
-
-def plot_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
-                    folder='1sweepbin_emax', nthreads=1):
+def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
+                   folder='1sweepbin_emax', nthreads=1):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
-
-    to_plot = plt is not None
-    # to_plot = False
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
@@ -387,66 +302,6 @@ def plot_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
                 rets = pickle.load(f)
-        I_vals = []
-        emaxes = []
-        emeans = []
-        emeds = []
-        for arg_lst, ret in zip(args, rets):
-            I_vals.append(arg_lst[2])
-            e_vals = np.array(ret[1])
-            if len(e_vals) == 0:
-                emaxes.append(e0)
-                emeans.append(e0)
-                meds.append(e0)
-                continue
-            e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
-            emaxes.append(np.max(e_vals))
-            # approx 1 + 73e^2/24... \approx 4.427 is constant
-            jmean = np.mean((1 - e_vals**2)**3)**(1/6)
-            emean = np.sqrt(1 - jmean**2)
-            emeans.append(emean)
-            jmed = np.median((1 - e_vals**2)**3)**(1/6)
-            emeds.append(np.sqrt(1 - jmed**2))
-
-        j_eff_crit = 0.01461 * (100 / a0)**(2/3)
-        e_eff_crit = np.sqrt(1 - j_eff_crit**2)
-        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
-            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
-        e_os = np.sqrt(1 - j_os**2)
-        _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
-        Ilimd = get_Ilim(eta, eps_gr)
-
-        ilimd_MLL = 90 - np.degrees(np.arccos(np.sqrt(
-            0.26 * (eps_oct / 0.1)
-            - 0.536 * (eps_oct / 0.1)**2
-            + 12.05 * (eps_oct / 0.1)**3
-            -16.78 * (eps_oct / 0.1)**4
-        )))
-
-        if to_plot:
-            plt.semilogy(I_vals, 1 - np.array(emaxes), 'bo', ms=0.5,
-                         label=r'$e_{\max}$')
-            # plt.semilogy(I_vals, 1 - np.array(emeds), 'go', ms=0.5,
-            plt.semilogy(I_vals, 1 - np.array(emeans), 'go', ms=0.5,
-                         label=r'$\langle e_{\rm eff} \rangle$')
-            plt.axhline(1 - e_eff_crit, c='g', ls=':')
-            plt.axhline(1 - e_os, c='b')
-
-            plt.axvline(Ilimd, c='k', ls='--', lw=1.2)
-
-            # interestingly, 2/3 * ilimd_MLL predicts the outer edge of the
-            # right zone and the *inner* edge of the left one?
-            plt.axvline(90 + ilimd_MLL * 2/3, c='m', lw=1.0)
-            plt.axvline(90 - ilimd_MLL * 2/3, c='m', lw=1.0)
-
-            plt.xlabel(r'$I_0$')
-            plt.ylabel(r'$1 - e_{\max}$')
-            ticks = [50, 70, 90, 110, 130]
-            plt.xticks(ticks, labels=[r'$%d$' % d for d in ticks])
-            plt.legend(fontsize=14)
-            plt.tight_layout()
-            plt.savefig(fn, dpi=300)
-            plt.close()
 
 # default tf is 500 tk, if tf == None
 def get_emax_series(idx, q, I0, tf, inits={}):
@@ -525,8 +380,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
 
     eps = get_eps(25, 25, 30, 100, 4500, 0.6)
     # my epsilons above assume e2 = 0
-    elim = get_elim(eps[3] / np.sqrt(1 - 0.6**2),
-                    eps[1] * (1 - 0.6**2)**(3/2))
+    elim = get_elim(eps[3], eps[1])
 
     filename = folder + '/' + fn
     pkl_fn = filename + '.pkl'
@@ -745,7 +599,7 @@ def run_nogw_vec(fn='1nogw_vec', **kwargs):
     a2 = 4500
     Itot = kwargs.get('Itot', 93.5)
     eps = get_eps(20, 30, 30, 100, a2, 0.6)
-    eta_ecc = eps[3] / np.sqrt(1 - 0.6**2)
+    eta_ecc = eps[3]
 
     ret = run_vec(a2=a2, **kwargs)
     lin = ret.y[ :3, :]
@@ -762,7 +616,7 @@ def run_nogw_vec(fn='1nogw_vec', **kwargs):
     Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
 
     # kozai constant (LL18.37)
-    eta = eps[3] / np.sqrt(1 - eoutvec_mags**2)
+    eta = eps[3]
     K = (
         np.sqrt(1 - evec_mags**2) * np.cos(np.radians(I + Iout))
         - eta * evec_mags**2/2
@@ -881,8 +735,8 @@ def k_sweep_runner(idx, q, I0, tf):
 
     # kozai constant (LL18.37)
     eps = get_eps(20, 30, 30, 100, a2, 0.6)
-    eta_ecc = eps[3] / np.sqrt(1 - 0.6**2)
-    eta = eps[3] / np.sqrt(1 - eoutvec_mags**2)
+    eta_ecc = eps[3]
+    eta = eps[3] * np.sqrt(1 - 0.6**2) / np.sqrt(1 - eoutvec_mags**2)
     K = (
         np.sqrt(1 - evec_mags**2) * np.cos(np.radians(I + Iout))
         - eta * evec_mags**2/2
@@ -954,6 +808,281 @@ def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
     plt.savefig(fn + 'vsI', dpi=300)
     plt.close()
 
+def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
+                   num_i=1000):
+    # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
+    m12, m3, e0 = 50, 30, 1e-3
+    all_cfgs = [
+        [
+            [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
+            [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
+            [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
+        ],
+        [
+            [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
+            [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
+            [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
+        ],
+        [
+            [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
+            [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
+        ],
+        [
+            [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
+            [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
+        ],
+        [
+            [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
+            [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
+        ],
+        [
+            [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
+            [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
+        ],
+        [
+            [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
+            [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
+            [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
+        ],
+        [
+            [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
+            [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
+            [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # DONE
+        ],
+        # [
+        #     [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
+        #     [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # TODO
+        #     [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # TODO
+        # ],
+        [
+            [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
+            [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
+        ],
+        # [
+        #     [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
+        #     [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
+        # ],
+        # [
+        #     [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
+        #     [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
+        # ],
+        # [
+        #     [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
+        #     [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # TODO
+        #     [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
+        # ],
+        # [
+        #     [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
+        #     [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
+        #     [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # TODO
+        # ],
+        # [
+        #     [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
+        #     [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
+        #     [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # TODO
+        # ],
+        [
+            [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
+            [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
+        ],
+        [
+            [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
+            [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
+        ],
+        [
+            [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
+            [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # DONE
+        ],
+        # [
+        #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
+        #     [1.0, 0.9, 'bindistequal', 70, 110, 10, bin_aeff], # TODO
+        # ],
+    ]
+    total_merger_fracs = []
+    for cfgs in all_cfgs:
+        # load everything first
+        explore_cfg = cfgs[0]
+        q, e2, explore_fn, _, _, a0, a2eff = explore_cfg
+        a2 = a2eff / np.sqrt(1 - e2**2)
+        other_cfgs = cfgs[1: ]
+        with open('%s/%s.pkl' % (fldr, explore_fn), 'rb') as f:
+            explore_ret = pickle.load(f)
+        emax_fn = '%s/%s.pkl' % (emax_fldr, explore_fn.replace('explore_', ''))
+        with open(emax_fn, 'rb') as f:
+            emax_ret = pickle.load(f)
+        other_rets = []
+        for cfg in other_cfgs:
+            with open('%s/%s.pkl' % (fldr, cfg[2]), 'rb') as f:
+                other_rets.append(pickle.load(f))
+
+        # join explore_ret w/ other_rets
+        I_plots = []
+        tmerges = []
+        # first, join in all the explores not in other_rets intervals
+        starts = [explore_ret[0].min()] + [r[0].max() for r in other_rets]
+        ends = [r[0].min() for r in other_rets] + [explore_ret[0].max()]
+        for start, end in zip(starts, ends):
+            in_interval = np.where(np.logical_and(
+                explore_ret[0] < end,
+                explore_ret[0] > start,
+            ))[0]
+            I_plots.extend(np.array(explore_ret[0])[in_interval])
+            tmerges.extend(np.array(explore_ret[1])[in_interval])
+        # add in other_rets
+        for other_incs, other_merges in other_rets:
+            I_plots.extend(other_incs)
+            tmerges.extend(other_merges)
+
+        # sort them for plotting
+        I_plots = np.array(I_plots)
+        tmerges = np.array(tmerges)
+        sort_idx = np.argsort(I_plots)
+        I_plots = I_plots[sort_idx]
+        tmerges = tmerges[sort_idx]
+        merged = np.where(tmerges < 9.9e9)[0]
+        nmerged = np.where(tmerges > 9.9e9)[0]
+
+        # compute merger probabilities
+        I0s = np.unique(I_plots)
+        weights = np.gradient(I0s)
+        weights[0] /= 2
+        weights[-1] /= 2
+        merge_probs = []
+        for I in zip(I0s):
+            merge_probs.append(
+                len(np.where(np.abs(I_plots[merged] - I) < 1e-6)[0]) /
+                len(np.where(np.abs(I_plots - I) < 1e-6)[0]))
+        total_merger_fracs.append(
+            np.sum(np.array(merge_probs) * weights) / np.pi
+        )
+        continue
+
+        fig, (ax1, ax2, ax3) = plt.subplots(
+            3, 1,
+            figsize=(9, 15),
+            sharex=True)
+
+        ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
+                      % (explore_cfg[0], explore_cfg[1]))
+        ax1.plot(np.degrees(I0s), merge_probs, 'k')
+        ax1.set_ylabel(r'Merge Prob')
+
+        # plot actual merger times
+        ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
+        ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
+
+        # now plot emaxes
+        I0s = np.linspace(50, 130, num_i)
+        if explore_cfg[0] == 1.0:
+            I_plots = I0s
+        else:
+            I_plots = np.repeat(I0s, 5)
+        emaxes = []
+        emeans = []
+        for ret in emax_ret:
+            e_vals = np.array(ret[1])
+            if len(e_vals) == 0:
+                emaxes.append(e0)
+                emeans.append(e0)
+                continue
+            e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
+            emaxes.append(np.max(e_vals))
+            # approx 1 + 73e^2/24... \approx 4.427 is constant
+            jmean = np.mean((1 - e_vals**2)**3)**(1/6)
+            emean = np.sqrt(1 - jmean**2)
+            emeans.append(emean)
+
+        m2 = m12 / (1 + q)
+        m1 = m12 - m2
+        j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+        e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+        e_os = np.sqrt(1 - j_os**2)
+        _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
+        Ilimd = get_Ilim(eta, eps_gr)
+        elim = get_elim(eta, eps_gr)
+
+        ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        )))
+        ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        )))
+
+        ax3.semilogy(I_plots, 1 - np.array(emaxes), 'bo', ms=0.5,
+                     label=r'$e_{\max}$')
+        ax3.semilogy(I_plots, 1 - np.array(emeans), 'go', ms=0.5,
+                     label=r'$\langle e_{\rm eff} \rangle$')
+        ax3.axhline(1 - e_eff_crit, c='g', ls=':')
+        ax3.axhline(1 - e_os, c='b')
+        ax3.axhline(1 - elim, c='k', ls='--')
+
+        # overplot MLL fit for reference
+        ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
+        ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
+
+        # overplot emax due to quadrupole
+        emaxes4 = []
+        for I in I0s:
+            emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
+        ax3.plot(I0s, 1 - np.array(emaxes4), 'k--', lw=1.0)
+
+        ax3.set_xlabel(r'$I_0$')
+        ax3.set_ylabel(r'$1 - e_{\max}$')
+        ticks = [50, 70, 90, 110, 130]
+        ax3.set_xticks(ticks)
+        ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
+        ax3.legend(fontsize=14)
+
+        plt.tight_layout()
+        fig.subplots_adjust(hspace=0.02)
+        composite_fn = fldr + '/' + explore_fn.replace('explore', 'composite')
+        print('Saving', composite_fn)
+        plt.savefig(composite_fn, dpi=300)
+        plt.close()
+
+    total_fn = fldr + '/' + 'total_merger_fracs'
+    qs = np.array([cfgs[0][0] for cfgs in all_cfgs])
+    e2s = np.array([cfgs[0][1] for cfgs in all_cfgs])
+    a0s = np.array([cfgs[0][5] for cfgs in all_cfgs])
+    a2effs = np.array([cfgs[0][6] for cfgs in all_cfgs])
+    eps_octs = np.array([get_eps(q / (1 + q) * m12,
+                                 m12 / (1 + q),
+                                 m3,
+                                 a0,
+                                 a2eff / np.sqrt(1 - e2**2),
+                                 e2)[2]
+                         for q, e2, a0, a2eff in zip(qs, e2s, a0s, a2effs)])
+    # group by e2
+    total_merger_fracs = np.array(total_merger_fracs)
+    markers = ['o', 'X', 'd']
+    sorted_qs = sorted(np.unique(qs))
+    colors = ['k', 'b', 'c', 'g', 'm', 'r']
+    for e2, m in zip(np.unique(e2s), markers):
+        plot_idxs = np.where(e2s == e2)[0][::-1]
+        c = [colors[sorted_qs.index(q)] for q in qs[plot_idxs]]
+        plt.scatter(100 * eps_octs[plot_idxs],
+                    100 * total_merger_fracs[plot_idxs],
+                    c=c,
+                    marker=m,
+                    alpha=0.5,
+                    label=r'$%.1f$' % e2)
+    plt.legend()
+    plt.xlabel(r'$100\epsilon_{\rm oct}$')
+    plt.ylabel(r'$f_{\rm merger}$ [\%]')
+
+    plt.tight_layout()
+    print('Saving', total_fn)
+    plt.savefig(total_fn, dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -963,7 +1092,8 @@ if __name__ == '__main__':
     # print(1 - np.mean(emaxes))
 
     # sweep(folder='1sweepbin', nthreads=8)
-    plot_emax_sweep(nthreads=12)
+    # run_emax_sweep(nthreads=12)
+    plot_composite()
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')

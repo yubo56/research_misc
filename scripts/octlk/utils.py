@@ -25,7 +25,7 @@ def get_emax(eta=0, eps_gr=0, I=0):
                 - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
                 + eta**2 * j**4)
             + eps_gr * (1 - 1 / j))
-    jmin = brenth(jmin_criterion, 1e-15, 1 - 1e-15)
+    jmin = brenth(jmin_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jmin**2)
 
 def get_elim(eta=0, eps_gr=0):
@@ -34,7 +34,7 @@ def get_elim(eta=0, eps_gr=0):
             3/8 * (j**2 - 1) * (
                 - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
             + eps_gr * (1 - 1 / j))
-    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15)
+    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jlim**2)
 
 def get_Ilim(eta=0, eps_gr=0):
@@ -55,8 +55,9 @@ def get_eps(m1, m2, m3, a0, a2, e2):
     m123 = m12 + m3
     mu_out = m12 * m3 / m123
     n = np.sqrt(G * m12 / a0**3)
-    eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
-    eps_gr = (m12 / m3) * (a2**3 / a0**4) * 3 * G * m12
+    a2eff = a2 * np.sqrt(1 - e2**2)
+    eps_gw = (1 / n) * (m12 / m3) * (a2eff**3 / a0**7) * G**3 * mu * m12**2
+    eps_gr = (m12 / m3) * (a2eff**3 / a0**4) * 3 * G * m12
     eps_oct = ((m2 - m1) / m12) * (a0 / a2) * (e2 / (1 - e2**2))
     eta = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2 * (1 - e2**2)))
     return [eps_gw, eps_gr, eps_oct, eta]
