@@ -136,66 +136,71 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
     print(idx, q, t_final / 1e9, a0, a2, e0, e2, np.degrees(I0))
     return tf
 
-# def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
-def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
+def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
+# def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
           folder='1sweepbin', nthreads=60):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
-    to_plot = plt is not None
-    # to_plot = False
+    # to_plot = plt is not None
+    to_plot = False
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
-        # Bin's weird case
-        # [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)],
-
         # exploratory, find the right inclination range to restrict to
-        # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
-        # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
-        # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
-        # [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
-        # [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
-        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
+        # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
+        # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
+        # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
+        # [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
+        # [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
+        # [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
 
-        # [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
-        # [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
-        # [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
-        # [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
-        # [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
-        # [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
+        # [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
+        # [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
+        # [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
+        # [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
+        # [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
+        # [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
 
-        # [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
-        # [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
-        # [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
-        # [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
-        # [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
-        # [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
+        # [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
+        # [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
+        # [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
+        # [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
+        # [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
+        # [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
 
-        # a2 = 4500, e2 = 0.6
-        # [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
-        # [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
-        # [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600],
-        # [0.5, 0.6, '1p5dist', 91, 98, 100, 3600],
-        # [0.7, 0.6, '1p7dist', 91, 95, 100, 3600],
-        # [1.0, 0.6, '1equaldist', 92.1, 93.5, 100, 3600],
-        # [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600],
-        # [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
+        # [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
+        # [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
+        # [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
+        # [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
+        # [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
+        # [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
+        # [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
+        # [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
 
-        # [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600],
-        # [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600],
-        # [0.3, 0.8, 'e81p3dist', 90.5, 100, 100, 3600],
-        # [0.4, 0.8, 'e81p4dist', 90.5, 98, 100, 3600],
-        # [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
-        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
-        # [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
+        # [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
+        # [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
+        # [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
+        # [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # RERUNNING (exo4)
+        # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # RERUNNING (exo2)
+        [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # RERUNNING (exo4-2)
+        # [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # RUNNING (exo2a)
+        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # RUNNING (exo2a)
+        # [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (desktop)
 
-        # [0.2, 0.9, 'e91p2dist', 89.5, 105, 100, 3600],
-        # [0.3, 0.9, 'e91p3dist', 90.5, 100, 100, 3600],
-        # [0.4, 0.9, 'e91p4dist', 90.5, 98, 100, 3600],
-        # [0.5, 0.9, 'e91p5dist', 91, 98, 100, 3600],
-        # [0.7, 0.9, 'e91p7dist', 91, 95, 100, 3600],
-        # [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
+        # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # RERUNNING (exo4)
+        # [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
+        # [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
+        # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # RERUNNING (exo4)
+        # [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
+        [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # RERUNNING (exo4-2)
+        # [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
+        # [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
+        # [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # RUNNING (exo4)
+
+        # Bin's case
+        # [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)], # RUNNING
+        # [1.0, 0.9, 'bindistequal', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)],
     ]
     total_merge_fracs = []
     for cfg in run_cfgs:
@@ -211,17 +216,26 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
         if not os.path.exists(pkl_fn):
+            # print('Not exists: %s' % pkl_fn)
+            # continue
             print('Running %s' % pkl_fn)
             p = Pool(nthreads)
             m2 = m12 / (1 + q)
             m1 = m12 - m2
+            # randomize these so that a few threads don't run all the longest
+            # running ones
             args = [
                 (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0)
                 for idx, I0 in enumerate(I_plots)
             ]
-            tmerges = p.starmap(sweeper_bin, args)
+            args_idx = np.arange(len(args))
+            np.random.shuffle(args_idx)
+            shuffled_args = [args[i] for i in args_idx]
+            tmerges = p.starmap(sweeper_bin, shuffled_args)
+            inverse_shuffle = inverse_permutation(args_idx)
+            tmerges_ordered = [tmerges[i] for i in inverse_shuffle]
             with open(pkl_fn, 'wb') as f:
-                pickle.dump((I_plots, tmerges), f)
+                pickle.dump((I_plots, tmerges_ordered), f)
         else:
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
@@ -260,6 +274,7 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
             fig.subplots_adjust(wspace=0.03)
             plt.savefig(fn, dpi=300)
             plt.close()
+    return # not ready to do merger fractions yet
     if not to_plot:
         return
     q_vals = np.array([cfg[0] for cfg in run_cfgs])
@@ -308,46 +323,47 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
     plt.savefig('1sweepbin/total_merger_fracs', dpi=300)
     plt.close()
 
-def plot_emax_sweep(num_trials=4, num_trials_purequad=1, num_i=2000,
+def plot_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
                     folder='1sweepbin_emax', nthreads=1):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
-    # to_plot = plt is not None
-    to_plot = False
+    to_plot = plt is not None
+    # to_plot = False
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # a2 = 4500, e2 = 0.6
+        [1.0, 0.6, '1equaldist', 100, 3600],
         [0.2, 0.6, '1p2dist', 100, 3600],
         [0.3, 0.6, '1p3dist', 100, 3600],
         [0.4, 0.6, '1p4dist', 100, 3600],
         [0.5, 0.6, '1p5dist', 100, 3600],
         [0.7, 0.6, '1p7dist', 100, 3600],
-        [1.0, 0.6, '1equaldist', 100, 3600],
 
+        [1.0, 0.8, 'e81equaldist', 100, 3600],
         [0.2, 0.8, 'e81p2dist', 100, 3600],
         [0.3, 0.8, 'e81p3dist', 100, 3600],
         [0.4, 0.8, 'e81p4dist', 100, 3600],
         [0.5, 0.8, 'e81p5dist', 100, 3600],
         [0.7, 0.8, 'e81p7dist', 100, 3600],
-        [1.0, 0.8, 'e81equaldist', 100, 3600],
 
+        [1.0, 0.9, 'e91equaldist', 100, 3600],
         [0.2, 0.9, 'e91p2dist', 100, 3600],
         [0.3, 0.9, 'e91p3dist', 100, 3600],
         [0.4, 0.9, 'e91p4dist', 100, 3600],
         [0.5, 0.9, 'e91p5dist', 100, 3600],
         [0.7, 0.9, 'e91p7dist', 100, 3600],
-        [1.0, 0.9, 'e91equaldist', 100, 3600],
 
         # Bin's weird case
-        [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)],
+        [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
+        [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
     ]
     for cfg in run_cfgs:
         q, e2, base_fn, a0, a2eff = cfg
         a2 = a2eff / np.sqrt(1 - e2**2)
 
-        I0s = np.radians(np.linspace(50, 130, num_i))
+        I0s = np.linspace(50, 130, num_i)
         fn = '%s/%s' % (folder, base_fn)
         pkl_fn = fn + '.pkl'
 
@@ -367,6 +383,8 @@ def plot_emax_sweep(num_trials=4, num_trials_purequad=1, num_i=2000,
             for idx, I0 in enumerate(I_plots)
         ]
         if not os.path.exists(pkl_fn):
+            print('Not exists %s' % pkl_fn)
+            continue
             print('Running %s' % pkl_fn)
             p = Pool(nthreads)
             rets = p.starmap(get_emax_series, args)
@@ -378,14 +396,62 @@ def plot_emax_sweep(num_trials=4, num_trials_purequad=1, num_i=2000,
                 rets = pickle.load(f)
         I_vals = []
         emaxes = []
+        emeans = []
+        emeds = []
         for arg_lst, ret in zip(args, rets):
-            I = np.degrees(arg_lst[2])
-            emaxes = np.max(ret[1])
+            I_vals.append(arg_lst[2])
+            e_vals = np.array(ret[1])
+            if len(e_vals) == 0:
+                emaxes.append(e0)
+                emeans.append(e0)
+                meds.append(e0)
+                continue
+            e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
+            emaxes.append(np.max(e_vals))
+            # approx 1 + 73e^2/24... \approx 4.427 is constant
+            jmean = np.mean((1 - e_vals**2)**3)**(1/6)
+            emean = np.sqrt(1 - jmean**2)
+            emeans.append(emean)
+            jmed = np.median((1 - e_vals**2)**3)**(1/6)
+            emeds.append(np.sqrt(1 - jmed**2))
+
+        j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+        e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+        e_os = np.sqrt(1 - j_os**2)
+        _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
+        Ilimd = get_Ilim(eta, eps_gr)
+
+        ilimd_MLL = 90 - np.degrees(np.arccos(np.sqrt(
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        )))
 
         if to_plot:
-            plt.semilogy(I_vals, 1 - emaxes, 'bo', ms=1)
+            plt.semilogy(I_vals, 1 - np.array(emaxes), 'bo', ms=0.5,
+                         label=r'$e_{\max}$')
+            # plt.semilogy(I_vals, 1 - np.array(emeds), 'go', ms=0.5,
+            plt.semilogy(I_vals, 1 - np.array(emeans), 'go', ms=0.5,
+                         label=r'$\langle e_{\rm eff} \rangle$')
+            plt.axhline(1 - e_eff_crit, c='g', ls=':')
+            plt.axhline(1 - e_os, c='b')
+
+            plt.axvline(Ilimd, c='k', ls='--', lw=1.2)
+
+            # interestingly, 2/3 * ilimd_MLL predicts the outer edge of the
+            # right zone and the *inner* edge of the left one?
+            plt.axvline(90 + ilimd_MLL * 2/3, c='m', lw=1.0)
+            plt.axvline(90 - ilimd_MLL * 2/3, c='m', lw=1.0)
+
             plt.xlabel(r'$I_0$')
             plt.ylabel(r'$1 - e_{\max}$')
+            ticks = [50, 70, 90, 110, 130]
+            plt.xticks(ticks, labels=[r'$%d$' % d for d in ticks])
+            plt.legend(fontsize=14)
+            plt.tight_layout()
             plt.savefig(fn, dpi=300)
             plt.close()
 
@@ -435,7 +501,7 @@ def get_emax_series(idx, q, I0, tf, inits={}):
     dx=10
     demag = evec_mags[2 * dx: ] - evec_mags[ :-2 * dx]
     demag_ts = ret.t[dx:-dx]
-    t_idxs = np.where(abs(demag) < 1e-5)[0] + 10
+    t_idxs = np.where(abs(demag) < 1e-4)[0] + 10
 
     if len(t_idxs) == 0:
         print('Ran for', idx, q, 'no maxima??')
@@ -903,8 +969,8 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', nthreads=12)
-    # plot_emax_sweep(nthreads=4)
+    sweep(folder='1sweepbin', nthreads=27)
+    # plot_emax_sweep(nthreads=12)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
@@ -923,7 +989,8 @@ if __name__ == '__main__':
     # I think width ~ 1/epsoct^p, probably random walk timescale?
 
     # exo3 is running bindist
-    # exo2a is running all the rest of the explores
-    # exo15c is running emax_sweeps
-    # exo4 is running 1p2distp2, 1p3distp2, e81p2dist, e81p2distp2
+    # exo2a is running e8
+    # exo4: e9 (TODO, on exo15c already)
+    # exo15c is running emax_sweeps (rsync from curr)
+    # self: run last two explores
 

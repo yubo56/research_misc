@@ -5,6 +5,11 @@ from cython_utils import *
 from scipy.integrate import solve_ivp
 from scipy.optimize import brenth, root
 
+def inverse_permutation(a):
+    b = np.arange(a.shape[0])
+    b[a] = b.copy()
+    return b
+
 def get_I1(I0, eta):
     ''' given total inclination between Lout and L, returns I_tot '''
     def I2_constr(_I2):
@@ -31,6 +36,12 @@ def get_elim(eta=0, eps_gr=0):
             + eps_gr * (1 - 1 / j))
     jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15)
     return np.sqrt(1 - jlim**2)
+
+def get_Ilim(eta=0, eps_gr=0):
+    elim = get_elim(eta=eta, eps_gr=eps_gr)
+    jlim = np.sqrt(1 - elim**2)
+    Ilim = np.arccos(eta / 2 * (4 * jlim**2 / 5 - 1))
+    return np.degrees(Ilim)
 
 # by convention, use solar masses, AU, and set c = 1, in which case G = 9.87e-9
 # NB: slight confusion here: to compute epsilon + timescales, we use AU as the

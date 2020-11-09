@@ -49,7 +49,7 @@
     \newcommand*{\bra}[1]{\left<#1\right|}
     \newcommand*{\ket}[1]{\left|#1\right>}
     \newcommand*{\abs}[1]{\left|#1\right|}
-    \newcommand*{\ev}[1]{\langle#1\rangle}
+    \newcommand*{\ev}[1]{\left\langle#1\right\rangle}
     \newcommand*{\p}[1]{\left(#1\right)}
     \newcommand*{\s}[1]{\left[#1\right]}
     \newcommand*{\z}[1]{\left\{#1\right\}}
@@ -407,7 +407,7 @@ We showed earlier that the quadrupole-conserved quantity is
 \end{equation}
 Differentiating the second expression, we obtain that
 \begin{align}
-    \rd{K}{t} &= \frac{1}{2L_{\in, 0}}
+    \rd{K}{t} &= \frac{1}{2L_{\rm in, 0}}
         \p{\frac{-L_{\rm tot}^2}{L_{\rm out}^2} \rd{L_{\rm out}}{t}
             - \rd{L_{\rm out}}{t}},\\
         &= -\frac{1 + L_{\rm tot}^2 / L_{\rm out}^2}{2L_{\rm in, 0}}
@@ -546,6 +546,137 @@ used $a_{\rm out} = 4500\;\mathrm{AU}$ for $e_{\rm out} = 0.6$, we will stick to
 $a_{\rm out, eff} = 3600\;\mathrm{AU}$, the corresponding $a_{\rm out}$ that we
 need are $a_{\rm out} = [4500, 6000, 8259]\;\mathrm{AU}$. This corresponds to
 increasing $e_{\rm out}$ by roughly $3\times$.
+
+\section{11/08/20}
+
+While the above simulations are running, we observe three new ideas:
+\begin{itemize}
+    \item Notice that, for most parameters, if $e_{\rm in}$ can attain the
+        critical value $e_{\lim}$ in the absence of GW, mergers occur when GW
+        is turned on. This can be quantitatively evaluated, the one-shot merger
+        eccentricity $e_{\rm os}$. Consider the scaling
+        \begin{align}
+            \rd{\ln a}{t} &= -\frac{64}{5j^7(e)}\p{1 + \frac{73}{24}e^2 +
+                \frac{37}{96}e^4}\frac{G^3 \mu m_{12}^2}{c^5a^4},\\
+                &\sim -j\p{e_{\max}}\frac{64}{5j^7(e_{\max})}
+                    (4) \frac{G^3\mu m_{12}^2}{c^5a^4}.
+        \end{align}
+        We then seek where $\rdil{\ln a}{t} \sim -1 / t_{\rm LK}$, giving
+        \begin{align}
+            j^6\p{e_{\rm os}} \equiv j_{\rm os}
+                &= \frac{256}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
+                    \frac{1}{n}\frac{m_{12}}{m_3}\p{\frac{a_{\rm out,
+                    eff}}{a}}^3,\\
+                &= \frac{256}{5}\frac{G^3 \mu m_{12}^3}{m_3c^5a^4n}
+                    \p{\frac{a_{\rm out, eff}}{a}}^3.
+        \end{align}
+        Recall that $n = \sqrt{Gm_{12} / a^3}$.
+
+        Then if $j_{\lim} \lesssim j_{\rm os}$ (i.e.\ $e_{\max} > e_{\rm os}$),
+        then one shot mergers occur. We can derive a scaling relation
+        \begin{align}
+            0 &= \frac{3}{8}\p{j_{\lim}^2 - 1}\p{-3 + \frac{\eta^2}{4}
+                \p{\frac{4}{5}j_{\lim}^2 - 1}} + \epsilon_{\rm GR}
+                    \p{1 - 1/j_{\lim}},\\
+            j_{\lim} &\approx \frac{8\epsilon_{\rm GR}}{9 + 3\eta^2/4}.
+        \end{align}
+        This holds when $\epsilon_{\rm GR}, j_{\lim} \ll 1$. Matching the two
+        expressions, we obtain the criterion for one shot mergers occuring at
+        $e_{\lim}$:
+        \begin{align}
+            256 \frac{G^{5/2}a_{\rm out, eff}^3 m_{12}^{5/2}\mu}{
+                5a^{11/2}c^5 m_3}
+                &\gtrsim \p{\frac{8}{9 + 3\eta^2/4}
+                    \frac{3Gm_{12}^2a_{\rm out, eff}^3}{c^2a^4m_3}}^6,\\
+            a^{37/2} &\gtrsim 5 \cdot 1024 \frac{G^{7/2}a_{\rm out, eff}^{15}
+                m_{12}^{19/2}}{c^7 m_3^5 \mu \p{3 + \eta^2/4}^6},\\
+            \p{\frac{a}{a_{\rm out, eff}}} &\gtrsim
+                0.0118
+                \p{\frac{a_{\rm out, eff}}{3600\;\mathrm{AU}}}^{-7/37}
+                \p{\frac{m_{12}}{50M_{\odot}}}^{17/37}
+                \p{\frac{30M_{\odot}}{m_3}}^{10/37}
+                \p{\frac{q / (1 + q)^2}{1/4}}^{-2/37}.
+        \end{align}
+        where we have taken $q = 1$. In practice, we need a marginally smaller
+        $a$ than this, since in the one-shot merger regime, GW has to strongly
+        modify the trajectory near $e_{\max}$. Note that both my parameters ($a
+        = 100\;\mathrm{AU}$, $a_{\rm out, eff} = 3600\;\mathrm{AU}$) and Bin's
+        ($a = 10\;\mathrm{AU}$, $a_{\rm out, eff} = 300\;\mathrm{AU}$) roughly
+        satisfy this.
+
+    \item The above addresses the case of ELK-induced mergers, effectively
+        ($e_{\lim}$ induced by ELK). Instead, we can consider the case of
+        ELK-\emph{enhanced} mergers, in analogy with the quadrupole case. Here,
+        quadrupole LK cannot merge the system alone, but with eccentricity
+        cycles, the system is still able to merge. We can quantify this by
+        computing an effective eccentricity over ELK-induced cycles:
+        \begin{align}
+            \ev{\rd{\ln a}{t}} &= -\ev{\frac{a}{t_{\rm GW}}},\\
+                &\approx -\frac{a}{t_{\rm GW, 0}}
+                    \ev{\frac{1 + 73e_{\max}^2/24 + 37e_{\max}^4/96}
+                        {j^6(e_{\max})}},\\
+                &\equiv -\frac{a}{t_{\rm GW,0}}
+                    \underbrace{\p{\frac{1 + 73e_{\rm eff}^2/24 + 37e_{\rm
+                    eff}^4/96}{j^6(e_{\rm eff})}}}_{f\p{e_{\rm eff}}}.
+        \end{align}
+        where the average is taken over many LK cycles, and $t_{\rm GW, 0}$
+        denotes the $e = 0$ evaluation.
+
+        We can then ask what level of $e_{\rm eff}$ is required to induce
+        merger within a Hubble time $t_{\rm Hubb}$. This can also be estimated
+        \begin{align}
+            \frac{t_{\rm GW, 0}}{t_{\rm Hubb}}\frac{1}{f\p{e_{\rm eff}}}
+                &\lesssim 1,\\
+            \p{\frac{4t_{\rm Hubb}}{t_{\rm GW, 0}}}^{1/6}
+                &\gtrsim j\p{e_{\rm eff}},\\
+            0.01461\p{\frac{100\;\mathrm{AU}}{a}}^{2/3} &\gtrsim
+                j\p{e_{\rm eff}},\\
+            1 - e_{\rm eff} &\lesssim 1.068 \times 10^{-4}.
+        \end{align}
+
+    \item Finally, we notice in the data that the zone of ELK excitation seems
+        to exhibit a gap near $I_0 \approx 90^\circ$, unlike in the test mass
+        limit, for which ELK is symmetric about $I_0 = 90^\circ$. We can
+        understand this: the ELK-induced eccentricity oscillations in the
+        massless limit occur due to ELK-induced oscillations in the
+        quadrupole-conserved quantity $j_z = j\cos I$.
+
+        When $\eta > 0$, the conserved quantity is instead $j\cos I + \eta j^2$
+        (LL18, or earlier in notes). Thus, we can understand that if $I_0$ is
+        such that $j\cos I \lesssim \eta j^2$, that $\eta$ suppresses ELK
+        oscillations. This can be solved to estimate the range over which the
+        conserved quantity is dominated by the $\eta$ contribution:
+        \begin{equation}
+            \abs{\cos I} \lesssim \eta.
+        \end{equation}
+        Within this range, we expect any oscillations in $j$ to be suppressed.
+
+        NB\@: I don't think $j \cos I + \eta j^2$ is the ``generalization'' of
+        $j_z$, since it is the $z$ component of the total angular momentum.
+        Instead, the generalization should be something like $-j\cos I + \eta
+        j^2$, i.e.\ the $z$ component of $\bm{L}_{\rm out} - \bm{L}_{\rm in}$,
+        which is only conserved when $\eta \to 0$.
+\end{itemize}
+
+With the above, it seems we should be able to characterize what shapes the
+$T_{\rm m}$ behavior:
+\begin{itemize}
+    \item In the very center, near $I_{\lim}$, we have a quadrupole merger
+        window.
+
+    \item At the very edge of the quadrupole merger window (towards $I >
+        90^\circ$, as the other direction is $\eta$-suppressed), we have some
+        small ELK enhancement of the merger rate due to eccentricity
+        oscillations.
+
+    \item Farther away from the quadrupole merger window, there are ELK-induced
+        orbit flips, which merger since $e_{\lim} < e_{\rm os}$.
+
+    \item On the boundaries of the ELK orbit flipping region, there are some
+        other ELK-enhanced mergers. This region is generally probabilistic,
+        where the $e_{\max}$ distribution is bimodal. This is expected to be
+        wider for smaller $a$, as a result.
+\end{itemize}
 
 \end{document}
 
