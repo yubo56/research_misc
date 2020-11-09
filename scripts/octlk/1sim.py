@@ -142,8 +142,6 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
-    # to_plot = plt is not None
-    to_plot = False
     bin_aeff = 700 * np.sqrt(1 - 0.9**2)
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
@@ -315,6 +313,8 @@ def get_emax_series(idx, q, I0, tf, inits={}):
     n1 = np.sqrt((k*(M1 + M2))/ain ** 3)
     tk = 1/n1*((M1 + M2)/M3)*(a2/ain)**3*(1 - E2**2)**(3.0/2)
 
+    tgw = k**3 * M1 * M2 * (M1 + M2) / (c**5 * ain**4)
+
     if tf == None:
         tf = 500 * tk
 
@@ -410,7 +410,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         return
     fig, _axs = plt.subplots(
         3, 2,
-        figsize=(12, 9),
+        figsize=(8, 6),
         sharex=True, sharey=True)
     axs = _axs.flat
     axmap = {
@@ -955,11 +955,11 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         total_merger_fracs.append(
             np.sum(np.array(merge_probs) * weights) / np.pi
         )
-        continue
 
         fig, (ax1, ax2, ax3) = plt.subplots(
             3, 1,
-            figsize=(9, 15),
+            figsize=(9, 12),
+            gridspec_kw={'height_ratios': [0.3, 1, 1]},
             sharex=True)
 
         ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
@@ -970,6 +970,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         # plot actual merger times
         ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
         ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
+        ax2.set_ylabel(r'$T_m$ (yr)')
 
         # now plot emaxes
         I0s = np.linspace(50, 130, num_i)
@@ -988,7 +989,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
             emaxes.append(np.max(e_vals))
             # approx 1 + 73e^2/24... \approx 4.427 is constant
-            jmean = np.mean((1 - e_vals**2)**3)**(1/6)
+            jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
             emean = np.sqrt(1 - jmean**2)
             emeans.append(emean)
 
@@ -1035,7 +1036,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax3.plot(I0s, 1 - np.array(emaxes4), 'k--', lw=1.0)
 
         ax3.set_xlabel(r'$I_0$')
-        ax3.set_ylabel(r'$1 - e_{\max}$')
+        ax3.set_ylabel(r'$1 - e$')
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
@@ -1067,10 +1068,10 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
     colors = ['k', 'b', 'c', 'g', 'm', 'r']
     for e2, m in zip(np.unique(e2s), markers):
         plot_idxs = np.where(e2s == e2)[0][::-1]
-        c = [colors[sorted_qs.index(q)] for q in qs[plot_idxs]]
+        color_lst = [colors[sorted_qs.index(q)] for q in qs[plot_idxs]]
         plt.scatter(100 * eps_octs[plot_idxs],
                     100 * total_merger_fracs[plot_idxs],
-                    c=c,
+                    c=color_lst,
                     marker=m,
                     alpha=0.5,
                     label=r'$%.1f$' % e2)
