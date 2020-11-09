@@ -148,55 +148,55 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # exploratory, find the right inclination range to restrict to
-        # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
-        # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
-        # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
-        # [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
-        # [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
-        # [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
+        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
+        [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
+        [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
+        [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
+        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
 
-        # [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
-        # [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
-        # [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
-        # [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
-        # [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
-        # [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
+        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
+        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
+        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
+        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
+        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
 
-        # [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
-        # [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
-        # [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
-        # [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
-        # [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
-        # [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
+        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
+        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
+        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
+        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
+        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
 
-        # [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
-        # [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
-        # [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
-        # [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
-        # [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
-        # [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
-        # [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
-        # [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
+        [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
+        [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
+        [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
+        [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
+        [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
+        [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
+        [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
+        [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
 
-        # [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
-        # [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
-        # [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
-        # [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # RERUNNING (exo4)
+        [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
+        [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
+        [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
+        [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # DONE
         # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # RERUNNING (exo2)
-        [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # RERUNNING (exo4-2)
-        # [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # RUNNING (exo2a)
+        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # RERUNNING (exo4-2)
+        [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
         # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # RUNNING (exo2a)
-        # [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (desktop)
+        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (exo2a)
 
         # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # RERUNNING (exo4)
-        # [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
-        # [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
+        [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
+        [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
         # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # RERUNNING (exo4)
-        # [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
-        [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # RERUNNING (exo4-2)
-        # [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
-        # [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
-        # [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # RUNNING (exo4)
+        [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
+        # [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # RERUNNING (exo4-2)
+        [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
+        [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
+        [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # DONE
 
         # Bin's case
         # [0.4, 0.9, 'bindist', 70, 110, 10, 700 * np.sqrt(1 - 0.9**2)], # RUNNING
@@ -222,20 +222,13 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
             p = Pool(nthreads)
             m2 = m12 / (1 + q)
             m1 = m12 - m2
-            # randomize these so that a few threads don't run all the longest
-            # running ones
             args = [
                 (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0)
                 for idx, I0 in enumerate(I_plots)
             ]
-            args_idx = np.arange(len(args))
-            np.random.shuffle(args_idx)
-            shuffled_args = [args[i] for i in args_idx]
-            tmerges = p.starmap(sweeper_bin, shuffled_args)
-            inverse_shuffle = inverse_permutation(args_idx)
-            tmerges_ordered = [tmerges[i] for i in inverse_shuffle]
+            tmerges = p.starmap(sweeper_bin, args)
             with open(pkl_fn, 'wb') as f:
-                pickle.dump((I_plots, tmerges_ordered), f)
+                pickle.dump((I_plots, tmerges), f)
         else:
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
@@ -969,8 +962,8 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    sweep(folder='1sweepbin', nthreads=27)
-    # plot_emax_sweep(nthreads=12)
+    # sweep(folder='1sweepbin', nthreads=8)
+    plot_emax_sweep(nthreads=12)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')

@@ -58,7 +58,7 @@ def get_eps(m1, m2, m3, a0, a2, e2):
     eps_gw = (1 / n) * (m12 / m3) * (a2**3 / a0**7) * G**3 * mu * m12**2
     eps_gr = (m12 / m3) * (a2**3 / a0**4) * 3 * G * m12
     eps_oct = ((m2 - m1) / m12) * (a0 / a2) * (e2 / (1 - e2**2))
-    eta = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2))
+    eta = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2 * (1 - e2**2)))
     return [eps_gw, eps_gr, eps_oct, eta]
 
 def get_tlk0(m1, m2, m3, a0, a2):
