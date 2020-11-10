@@ -185,9 +185,9 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
         # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # TODO
         [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
         # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
-        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
+        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # DONE
 
-        # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # TODO
+        [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # DONE
         [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
         [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
         # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # TODO
@@ -410,7 +410,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
         return
     fig, _axs = plt.subplots(
         3, 2,
-        figsize=(8, 6),
+        figsize=(12, 9),
         sharex=True, sharey=True)
     axs = _axs.flat
     axmap = {
@@ -862,15 +862,15 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         #     [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
         #     [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
         # ],
-        # [
-        #     [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
-        #     [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
-        # ],
-        # [
-        #     [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
-        #     [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # TODO
-        #     [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
-        # ],
+        [
+            [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
+            [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
+        ],
+        [
+            [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
+            [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # DONE
+            [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
+        ],
         # [
         #     [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
         #     [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
@@ -955,10 +955,11 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         total_merger_fracs.append(
             np.sum(np.array(merge_probs) * weights) / np.pi
         )
+        continue
 
         fig, (ax1, ax2, ax3) = plt.subplots(
             3, 1,
-            figsize=(9, 12),
+            figsize=(7, 10),
             gridspec_kw={'height_ratios': [0.3, 1, 1]},
             sharex=True)
 
@@ -1076,6 +1077,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                     alpha=0.5,
                     label=r'$%.1f$' % e2)
     plt.legend()
+    # plt.yscale('log')
     plt.xlabel(r'$100\epsilon_{\rm oct}$')
     plt.ylabel(r'$f_{\rm merger}$ [\%]')
 
@@ -1092,7 +1094,7 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', nthreads=8)
+    # sweep(folder='1sweepbin', nthreads=4)
     # run_emax_sweep(nthreads=12)
     plot_composite()
 

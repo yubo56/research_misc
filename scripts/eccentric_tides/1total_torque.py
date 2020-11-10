@@ -117,9 +117,9 @@ def plot_spin(e=0.9, num_pts=1000):
     totals = np.array(totals)
     totals_integ = np.array(totals_integ)
 
-    plt.xlabel(r'$\Omega_s / \Omega$')
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
     plt.ylabel(r'$\tau / \hat{\tau}$')
-    plt.title(r'$e = %.1f$' % e)
+    # plt.title(r'$e = %.1f$' % e)
     pos_idxs = np.where(totals > 0)[0]
     neg_idxs = np.where(totals < 0)[0]
     plt.semilogy(w_vals[pos_idxs], totals[pos_idxs], 'b+',
@@ -253,9 +253,9 @@ def plot_spin_energy(e=0.9, num_pts=300):
     totals = np.array(totals)
     totals_integ = np.array(totals_integ)
 
-    plt.xlabel(r'$\Omega_s / \Omega$')
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
     plt.ylabel(r'$\dot{E}_{in} / \hat{\tau}\Omega$')
-    plt.title(r'$e = %.1f$' % e)
+    # plt.title(r'$e = %.1f$' % e)
 
     pos_idxs = np.where(totals > 0)[0]
     neg_idxs = np.where(totals < 0)[0]
@@ -302,7 +302,7 @@ def plot_spin_energy(e=0.9, num_pts=300):
                  label='Asymptotic')
     plt.semilogy(w_vals[red_idx], red[red_idx], 'r', ms=ms, alpha=af)
     plt.ylim(ylims)
-    plt.ylim(bottom=1e9)
+    plt.ylim(bottom=3e9)
 
     plt.legend()
     plt.tight_layout()
@@ -330,11 +330,11 @@ def plot_pseudo():
         print(e, res, res2)
         w_syncs.append(res)
         w_syncs_sum.append(res2)
-    # plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
+    plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
     plt.loglog(1 - e_vals**2, w_syncs_sum, label='Sum')
-    plt.loglog(1 - e_vals**2, eta2 / 0.691, label=r'$\eta_2 / 0.691$')
-    plt.loglog(1 - e_vals**2, np.sqrt(1 + e_vals) / (1 - e_vals**2)**(3/2),
-               label=r'$N_{\rm peri}$')
+    plt.loglog(1 - e_vals**2, eta2 / 0.691, label=r'$\eta_2 / \gamma_\tau$')
+    # plt.loglog(1 - e_vals**2, np.sqrt(1 + e_vals) / (1 - e_vals**2)**(3/2),
+    #            label=r'$N_{\rm peri}$')
     plt.xlabel(r'$1 - e^2$')
     plt.ylabel(r'$\Omega_{\rm s, sync} / \Omega$')
     plt.legend()
@@ -358,7 +358,7 @@ def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
     plt.plot(spins, disp_spins)
     plt.axhline(-obs_disp, c='r', ls='dashed', lw=1.5)
     plt.axhline(obs_disp, c='r', ls='dashed', lw=1.5)
-    plt.xlabel(r'$\Omega_s / \Omega_o$')
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega_o$')
     plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{\tau} \Omega)$')
     plt.savefig('1%s_disps' % prefix)
     plt.clf()
@@ -372,7 +372,7 @@ def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
     print('edot_rot, retro', '%.3e' % edot_rot[retrospin_idx])
     print('edot_rot, pro', '%.3e' % edot_rot[prospin_idx])
     plt.plot(spins, edot_rot)
-    plt.xlabel(r'$\Omega_s / \Omega_o$')
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega_o$')
     plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{\tau} \Omega)$')
     plt.savefig('1%s_heating' % prefix)
     plt.clf()
@@ -380,10 +380,10 @@ def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
 if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
-    # plot_spin()
+    plot_spin()
     # plot_energy()
     # plot_energy(400)
-    # plot_spin_energy(e=0.9)
+    plot_spin_energy(e=0.9)
     plot_pseudo()
     # plot_7319()
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')

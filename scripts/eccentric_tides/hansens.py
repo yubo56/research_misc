@@ -153,7 +153,7 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     #     r'$(F_{N2} = %.3fN^{%d}e^{-N/%.3f})$' % tuple(params),
     #     color='r',
     #     size=12)
-    plt.legend(fontsize=12, ncol=3, loc='upper center')
+    plt.legend(fontsize=12, ncol=3, loc='lower center')
     plt.tight_layout()
     plt.savefig(fn, dpi=400)
     plt.close()
