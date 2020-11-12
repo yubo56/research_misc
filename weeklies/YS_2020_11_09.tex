@@ -113,10 +113,11 @@
 \begin{figure}[h]
     \centering
     \includegraphics[width=0.6\columnwidth]{../scripts/octlk/1sweepbin/total_merger_fracs.png}
-    \caption{Total merger fractions. Different symbols denote different $e_{\rm
+    \caption{Total merger fractions as a function of $q$ (left) and
+    $\epsilon_{\rm oct}$ (right). Different symbols denote different $e_{\rm
     out}$ (legend), and different colors denote different $q \in [0.2, 0.3, 0.4,
-    0.5, 0.7, 1.0]$ (darker colors correspond to smaller $q$). I will have $q =
-    1.0, e_{\rm out} = 0.9$ ready by tomorrow. }\label{fig:merger_fracs}
+    0.5, 0.7, 1.0]$ (darker colors correspond to smaller $q$). Only $q = 0.4,
+    e_{\rm out} = 0.9$ is missing.}\label{fig:merger_fracs}
 \end{figure}
 
 $10\;\mathrm{AU}$ is hard to run, RAM intensive and takes many cycles to merger.
@@ -125,17 +126,17 @@ on accident, didn't finish. But most of the behavior can be seen in the
 $100\;\mathrm{AU}$ simulations that I ran, which are much faster ($t_{\rm LK}
 \propto a^{3/2}$).
 
-Tried to run wide range of simulations for $\z{q \in [0.2, 0.3, 0.5, 0.7, 1.0]}
-\otimes \z{e_{\rm out} \in [0.6, 0.8, 0.9]}$ while holding $a_{\rm out, eff} =
-3600\;\mathrm{AU}$ ($e_{\rm out} = 0.6$, $a_{\rm out} = 4500\;\mathrm{AU}$)
-constant. The other parameters are, as before:
+Tried to run wide range of simulations for $\z{q \in [0.2, 0.3, 0.4, 0.5, 0.7,
+1.0]} \otimes \z{e_{\rm out} \in [0.6, 0.8, 0.9]}$ while holding $a_{\rm out,
+eff} = 3600\;\mathrm{AU}$ ($e_{\rm out} = 0.6$, $a_{\rm out} =
+4500\;\mathrm{AU}$) constant. The other parameters are, as before:
 \begin{align*}
     m_{12} &= 50M_{\odot}, &
     m_3 &= 30 M_{\odot}, &
     a_{1,0} &= 100\;\mathrm{AU}&
     e_{1, 0} &= 10^{-3}.
 \end{align*}
-Of the $18$ parameter regimes targeted, $13$ have complete data. The current
+Of the $18$ parameter regimes targeted, $17$ have complete data. The current
 merger fraction plot is in Fig.~\ref{fig:merger_fracs}.
 
 However, I do reproduce the ``gap'' that Bin saw. A characteristic plots are
@@ -182,17 +183,18 @@ i.e.\ in one LK cycle. This can be computed:
 \begin{align}
     \rd{\ln a}{t} &= -\frac{64}{5j^7(e)}\p{1 + \frac{73}{24}e^2 +
         \frac{37}{96}e^4}\frac{G^3 \mu m_{12}^2}{c^5a^4},\\
-        &\sim -j\p{e_{\max}}\frac{64}{5j^7(e_{\max})}
-            (4) \frac{G^3\mu m_{12}^2}{c^5a^4},\\
+    \ev{\rd{\ln a}{t}}_{\rm LK} &\sim -j\p{e_{\max}}\frac{64}{5j^7(e_{\max})}
+            (4) \frac{G^3\mu m_{12}^2}{c^5a^4}
+            = \frac{1}{t_{\rm GW, 0}j^6(e_{\max})},\\
     j^6\p{e_{\rm os}} \equiv j_{\rm os}
-        &= \frac{256}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4}
-            \frac{1}{n}\frac{m_{12}}{m_3}\p{\frac{a_{\rm out,
-            eff}}{a}}^3,\\
+        &= \frac{ t_{\rm LK}}{t_{\rm GW, 0}},\\
         &= \frac{256}{5}\frac{G^3 \mu m_{12}^3}{m_3c^5a^4n}
-            \p{\frac{a_{\rm out, eff}}{a}}^3.
+            \p{\frac{a_{\rm out, eff}}{a}}^3,
 \end{align}
+where $t_{\rm GW, 0}$ denotes the $e = 0$ evaluation of the GW inspiral
+timescale, and angle brackets denote averaging over a \emph{single} LK cycle.
 Thus, when systems satisfy $e_{\lim} \gtrsim e_{\rm os}$, all orbit flips will
-lead to mergers. We can approximately solve to find (to be checked)
+immediately lead to mergers. We can estimate
 \begin{align}
     j_{\lim} &\approx \frac{8\epsilon_{\rm GR}}{9 + 3\eta^2/4},\\
     \p{\frac{a}{a_{\rm out, eff}}} &\gtrsim
@@ -202,7 +204,8 @@ lead to mergers. We can approximately solve to find (to be checked)
         \p{\frac{30M_{\odot}}{m_3}}^{10/37}
         \p{\frac{q / (1 + q)^2}{1/4}}^{-2/37}.
 \end{align}
-This is the regime in which ELK-induced mergers is easiest to understand.
+This is the regime in which ELK-induced mergers is easiest to
+understand.
 
 \subsection{Effective Merging Eccentricity}
 
@@ -210,17 +213,21 @@ Some systems can merge even without undergoing orbit flips. These correspond to
 the probabilistic regions. We define an ``effective'' eccentricity, over the
 GW-less simulations, such that the total GW emission is comparable:
 \begin{align}
-    \ev{\rd{\ln a}{t}} &= -\ev{\frac{a}{t_{\rm GW}}},\\
+    \ev{\rd{\ln a}{t}}_{\rm LK} &= -\ev{\frac{a}{t_{\rm GW}}}_{\rm LK},\\
         &\approx -\frac{a}{t_{\rm GW, 0}}
             \ev{\frac{1 + 73e_{\max}^2/24 + 37e_{\max}^4/96}
                 {j^6(e_{\max})}},\\
-        &\equiv -\frac{a}{t_{\rm GW,0}}
+    \ev{\rd{\ln a}{t}}_{\text{Many LK Cycles}} &\equiv -\frac{a}{t_{\rm GW,0}}
             \underbrace{\p{\frac{1 + 73e_{\rm eff}^2/24 + 37e_{\rm
             eff}^4/96}{j^6(e_{\rm eff})}}}_{f\p{e_{\rm eff}}}
             \approx \frac{-4a}{t_{\rm GW, 0}j^6(e_{\rm eff})}\label{eq:e_eff}
 \end{align}
-where the average is taken over many LK cycles, and $t_{\rm GW, 0}$
-denotes the $e = 0$ evaluation.
+where the second average is taken over many LK cycles, as denoted.
+
+\textbf{Comment after meeting:} Note that formulating $e_{\rm eff}$ by averaging
+over just eccentricity \emph{maxima}, rather than the full $e(t)$, may have
+advantages if we are able to estimate the octupole-induced oscillation amplitude
+of $K$ [Eq.~\eqref{eq:K}, see discussion at the end of Section~\ref{ss:gap}].
 
 We can then ask what level of $e_{\rm eff}$ is required to induce
 merger within a Hubble time $t_{\rm Hubb}$. This can also be estimated
@@ -231,8 +238,7 @@ merger within a Hubble time $t_{\rm Hubb}$. This can also be estimated
         &\gtrsim j\p{e_{\rm eff}},\\
     0.01461\p{\frac{100\;\mathrm{AU}}{a}}^{2/3}
         \p{\frac{1/4}{q(1 + q)^2}}^{1/6}
-        &\gtrsim j\p{e_{\rm eff}},\\
-    1 - e_{\rm eff} &\lesssim 1.068 \times 10^{-4}.
+        &\gtrsim j\p{e_{\rm eff}}.
 \end{align}
 
 We can see that the probabilistic regime in the earlier figures is where $e_{\rm
@@ -241,7 +247,7 @@ stochastically attains these large values over timescales $\gg 500 t_{\rm LK}$
 (i.e.\ over time, some fraction of systems will enter a very high
 maximum-eccentricity state).
 
-\subsection{Origin of the Gap}
+\subsection{Origin of the Gap}\label{ss:gap}
 
 We have already reproduced the gap in our simulations. For reference, we can
 also look at $e_{\max}$ distribution for Bin's case from last week $a_{\rm out}
@@ -258,15 +264,32 @@ while Bin used $m_{12} = 60M_{\odot}$).
 The origin of the gap is because $e_{\max}$ oscillations are suppressed near $I
 = 90^\circ$. I think this happens because Katz et.\ al.\ 2011 show that ELK
 oscillations happen due to a feedback between $j_z = j\cos I$ (conserved to
-quadrupole order in the test mass limit) and $\Omega_e$ the co-longitude (?
-azimuthal angle relative to $\uv{z}$) of the inner eccentricity vector. However,
-when $\eta > 0$, we know that the conserved quantity is
+quadrupole order in the test mass limit) and $\Omega_e$ the co-longitude
+(azimuthal angle relative to $\uv{z}$) of the inner eccentricity vector.
+However, when $\eta > 0$, we know that the conserved quantity is (LL18)
 \begin{equation}
-    K \equiv 2j\cos I + \eta j^2.
+    K \equiv j\cos I - \eta \frac{e^2}{2}.\label{eq:K}
 \end{equation}
-This suggests that when $j \cos I \lesssim \eta$, that $\eta$ suppresses the
-feedback and the ELK oscillations. I think this is the right mechanism, but I
-don't have the analytical solution.
+This suggests that when $\abs{j \cos I} \lesssim \eta / 2$, that $\eta$
+suppresses oscillations in $j \cos I$ and the oscillations in the eccentricity
+maxima. I think this is the right mechanism, but I don't have the analytical
+solution.
+
+I add two plots I showed last week, to illustrate the oscillations in $K$ and
+their effect on the behavior of $e_{\max}$, shown in Fig.~\ref{fig:1nogw}. We
+see that $K$ oscillates (albeit somewhat irregularly) over timescales much
+longer than a LK cycle. This may allow us to estimate the $e_{\rm eff}$
+enhancement expected due to octupole effects when orbital flips are not
+observed.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\columnwidth]{../scripts/octlk/1nogw_vec.png}
+    \includegraphics[width=0.7\columnwidth]{../scripts/octlk/1nogw_vec95.png}
+    \caption{Two fiducial simulations showing the behavior of $K$ in the absence
+    of GW radiation. Here, $q = 2/3$. In the fourth panels of both simulations,
+    the horizontal black dotted line gives $K = -\eta_0/2$, where orbital flips
+    are expected.}\label{fig:1nogw}
+\end{figure}
 
 \end{document}
 

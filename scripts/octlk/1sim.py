@@ -147,55 +147,55 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # exploratory, find the right inclination range to restrict to
-        [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
-        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
-        [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
-        [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
-        [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
-        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
+        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
+        [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
+        [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
+        [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
+        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
-        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
-        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
-        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
-        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
-        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
+        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
+        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
+        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
+        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
+        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
-        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
-        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
-        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
-        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
-        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
+        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
+        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
+        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
+        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
+        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
+        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
-        [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
-        [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
-        [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
-        [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
-        [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
-        [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
-        [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
+        [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
+        [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600],
+        [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
+        [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
+        [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600],
+        [0.5, 0.6, '1p5dist', 91, 98, 100, 3600],
+        [0.7, 0.6, '1p7dist', 91, 95, 100, 3600],
+        [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600],
 
-        [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
-        [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
-        [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
-        [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # DONE
-        # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # TODO
-        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # TODO
-        [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
-        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
-        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # DONE
+        [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600],
+        [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600],
+        [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600],
+        [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600],
+        [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600],
+        [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
+        [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
+        [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
+        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
 
-        [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # DONE
-        [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
-        [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
-        # [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # TODO
-        [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
-        # [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # TODO
-        [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
-        [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
-        [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # DONE
+        [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600],
+        [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600],
+        [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600],
+        [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600],
+        [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600],
+        # [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # exo15c
+        [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600],
+        [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600],
+        [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
 
         # Bin's case
         # [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
@@ -240,26 +240,26 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # a2 = 4500, e2 = 0.6
-        [1.0, 0.6, '1equaldist', 100, 3600],
-        [0.2, 0.6, '1p2dist', 100, 3600],
-        [0.3, 0.6, '1p3dist', 100, 3600],
-        [0.4, 0.6, '1p4dist', 100, 3600],
-        [0.5, 0.6, '1p5dist', 100, 3600],
-        [0.7, 0.6, '1p7dist', 100, 3600],
+        # [1.0, 0.6, '1equaldist', 100, 3600],
+        # [0.2, 0.6, '1p2dist', 100, 3600],
+        # [0.3, 0.6, '1p3dist', 100, 3600],
+        # [0.4, 0.6, '1p4dist', 100, 3600],
+        # [0.5, 0.6, '1p5dist', 100, 3600],
+        # [0.7, 0.6, '1p7dist', 100, 3600],
 
-        [1.0, 0.8, 'e81equaldist', 100, 3600],
-        [0.2, 0.8, 'e81p2dist', 100, 3600],
-        [0.3, 0.8, 'e81p3dist', 100, 3600],
-        [0.4, 0.8, 'e81p4dist', 100, 3600],
-        [0.5, 0.8, 'e81p5dist', 100, 3600],
-        [0.7, 0.8, 'e81p7dist', 100, 3600],
+        # [1.0, 0.8, 'e81equaldist', 100, 3600],
+        # [0.2, 0.8, 'e81p2dist', 100, 3600],
+        # [0.3, 0.8, 'e81p3dist', 100, 3600],
+        # [0.4, 0.8, 'e81p4dist', 100, 3600],
+        # [0.5, 0.8, 'e81p5dist', 100, 3600],
+        # [0.7, 0.8, 'e81p7dist', 100, 3600],
 
-        [1.0, 0.9, 'e91equaldist', 100, 3600],
-        [0.2, 0.9, 'e91p2dist', 100, 3600],
-        [0.3, 0.9, 'e91p3dist', 100, 3600],
-        [0.4, 0.9, 'e91p4dist', 100, 3600],
-        [0.5, 0.9, 'e91p5dist', 100, 3600],
-        [0.7, 0.9, 'e91p7dist', 100, 3600],
+        # [1.0, 0.9, 'e91equaldist', 100, 3600],
+        # [0.2, 0.9, 'e91p2dist', 100, 3600],
+        # [0.3, 0.9, 'e91p3dist', 100, 3600],
+        # [0.4, 0.9, 'e91p4dist', 100, 3600],
+        # [0.5, 0.9, 'e91p5dist', 100, 3600],
+        # [0.7, 0.9, 'e91p7dist', 100, 3600],
 
         # Bin's weird case
         [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
@@ -300,6 +300,78 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
                 rets = pickle.load(f)
+
+        if q == 1.0:
+            I_plots = I0s
+        else:
+            I_plots = np.repeat(I0s, 5)
+        emaxes = []
+        emeans = []
+        for ret in rets:
+            e_vals = np.array(ret[1])
+            if len(e_vals) == 0:
+                emaxes.append(e0)
+                emeans.append(e0)
+                continue
+            e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
+            emaxes.append(np.max(e_vals))
+            # approx 1 + 73e^2/24... \approx 4.427 is constant
+            jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+            emean = np.sqrt(1 - jmean**2)
+            emeans.append(emean)
+
+        m2 = m12 / (1 + q)
+        m1 = m12 - m2
+        j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+        e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+        e_os = np.sqrt(1 - j_os**2)
+        _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
+        Ilimd = get_Ilim(eta, eps_gr)
+        elim = get_elim(eta, eps_gr)
+
+        ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        )))
+        ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        )))
+
+        plt.semilogy(I_plots, 1 - np.array(emaxes), 'bo', ms=0.5,
+                     label=r'$e_{\max}$')
+        plt.semilogy(I_plots, 1 - np.array(emeans), 'go', ms=0.5,
+                     label=r'$\langle e_{\rm eff} \rangle$')
+        plt.axhline(1 - e_eff_crit, c='g', ls=':')
+        plt.axhline(1 - e_os, c='b')
+        plt.axhline(1 - elim, c='k', ls='--')
+
+        # overplot MLL fit for reference
+        plt.axvline(ilimd_MLL_L, c='m', lw=1.0)
+        plt.axvline(ilimd_MLL_R, c='m', lw=1.0)
+
+        # overplot emax due to quadrupole
+        emaxes4 = []
+        for I in I0s:
+            emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
+        plt.plot(I0s, 1 - np.array(emaxes4), 'k--', lw=1.0)
+
+        plt.xlabel(r'$I_0$')
+        plt.ylabel(r'$1 - e$')
+        ticks = [50, 70, 90, 110, 130]
+        plt.xticks(ticks,
+                   labels=[r'$%d$' % d for d in ticks])
+        plt.legend(fontsize=14)
+
+        plt.tight_layout()
+        plt.savefig('1sweepbin_emax/' + base_fn, dpi=300)
+        plt.close()
 
 # default tf is 500 tk, if tf == None
 def get_emax_series(idx, q, I0, tf, inits={}):
@@ -809,89 +881,89 @@ def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
     plt.close()
 
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
-                   num_i=1000):
+                   num_i=1000, plot_single=True):
     # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
     m12, m3, e0 = 50, 30, 1e-3
     all_cfgs = [
         [
-            [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600], # DONE
-            [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600], # DONE
-            [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600], # DONE
+            [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
+            [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
+            [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600],
         ],
         [
-            [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600], # DONE
-            [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600], # DONE
-            [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600], # DONE
+            [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
+            [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
+            [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
         ],
         [
-            [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600], # DONE
-            [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600], # DONE
+            [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
+            [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600],
         ],
         [
-            [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600], # DONE
-            [0.5, 0.6, '1p5dist', 91, 98, 100, 3600], # DONE
+            [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
+            [0.5, 0.6, '1p5dist', 91, 98, 100, 3600],
         ],
         [
-            [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600], # DONE
-            [0.7, 0.6, '1p7dist', 91, 95, 100, 3600], # DONE
+            [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
+            [0.7, 0.6, '1p7dist', 91, 95, 100, 3600],
         ],
         [
-            [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600], # DONE
-            [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600], # DONE
+            [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
+            [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600],
         ],
         [
-            [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600], # DONE
-            [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600], # DONE
-            [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600], # DONE
+            [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
+            [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600],
+            [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600],
         ],
         [
-            [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600], # DONE
-            [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600], # DONE
-            [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600], # DONE
+            [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
+            [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600],
+            [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600],
+        ],
+        [
+            [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
+            [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600],
+            [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
+        ],
+        [
+            [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
+            [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
+        ],
+        [
+            [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
+            [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
+        ],
+        [
+            [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
+            [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
+        ],
+        [
+            [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
+            [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600],
+            [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600],
+        ],
+        [
+            [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
+            [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600],
+            [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600],
         ],
         # [
-        #     [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600], # DONE
-        #     [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600], # TODO
-        #     [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600], # TODO
+        #     [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
+        #     [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600],
+        #     [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # Running (exo15c)
         # ],
         [
-            [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600], # DONE
-            [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600], # DONE
-        ],
-        # [
-        #     [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600], # DONE
-        #     [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600], # TODO
-        # ],
-        [
-            [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600], # DONE
-            [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600], # RUNNING (own)
+            [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
+            [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600],
         ],
         [
-            [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600], # DONE
-            [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600], # DONE
-            [0.2, 0.8, 'e91p2distp2', 54, 86.5, 100, 3600], # DONE
-        ],
-        # [
-        #     [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600], # DONE
-        #     [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600], # DONE
-        #     [0.3, 0.8, 'e91p3distp2', 60, 84, 100, 3600], # TODO
-        # ],
-        # [
-        #     [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600], # DONE
-        #     [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600], # DONE
-        #     [0.4, 0.8, 'e91p4distp2', 69, 83, 100, 3600], # TODO
-        # ],
-        [
-            [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600], # DONE
-            [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600], # DONE
+            [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
+            [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600],
         ],
         [
-            [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600], # DONE
-            [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600], # DONE
-        ],
-        [
-            [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600], # DONE
-            [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600], # DONE
+            [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
+            [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
         ],
         # [
         #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
@@ -955,7 +1027,8 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         total_merger_fracs.append(
             np.sum(np.array(merge_probs) * weights) / np.pi
         )
-        continue
+        if not plot_single:
+            continue
 
         fig, (ax1, ax2, ax3) = plt.subplots(
             3, 1,
@@ -1062,24 +1135,41 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                                  a2eff / np.sqrt(1 - e2**2),
                                  e2)[2]
                          for q, e2, a0, a2eff in zip(qs, e2s, a0s, a2effs)])
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2,
+        figsize=(12, 6),
+        sharey=True)
     # group by e2
     total_merger_fracs = np.array(total_merger_fracs)
-    markers = ['o', 'X', 'd']
     sorted_qs = sorted(np.unique(qs))
     colors = ['k', 'b', 'c', 'g', 'm', 'r']
-    for e2, m in zip(np.unique(e2s), markers):
+
+    for e2, c in zip(np.unique(e2s), colors):
         plot_idxs = np.where(e2s == e2)[0][::-1]
         color_lst = [colors[sorted_qs.index(q)] for q in qs[plot_idxs]]
-        plt.scatter(100 * eps_octs[plot_idxs],
-                    100 * total_merger_fracs[plot_idxs],
-                    c=color_lst,
-                    marker=m,
-                    alpha=0.5,
-                    label=r'$%.1f$' % e2)
-    plt.legend()
-    # plt.yscale('log')
-    plt.xlabel(r'$100\epsilon_{\rm oct}$')
-    plt.ylabel(r'$f_{\rm merger}$ [\%]')
+        ax1.plot(qs[plot_idxs],
+                 100 * total_merger_fracs[plot_idxs],
+                 c=c,
+                 alpha=0.5,
+                 lw=1.0,
+                 marker='o',
+                 label=r'$%.1f$' % e2)
+    ax1.legend()
+    ax1.set_xlabel(r'$q$')
+    ax1.set_ylabel(r'$f_{\rm merger}$ [\%]')
+
+    for e2, c in zip(np.unique(e2s), colors):
+        plot_idxs = np.where(e2s == e2)[0][::-1]
+        color_lst = [colors[sorted_qs.index(q)] for q in qs[plot_idxs]]
+        ax2.plot(100 * eps_octs[plot_idxs],
+                 100 * total_merger_fracs[plot_idxs],
+                 c=c,
+                 alpha=0.5,
+                 lw=1.0,
+                 marker='o',
+                 label=r'$%.1f$' % e2)
+    ax2.legend()
+    ax2.set_xlabel(r'$100\epsilon_{\rm oct}$')
 
     plt.tight_layout()
     print('Saving', total_fn)
@@ -1095,8 +1185,8 @@ if __name__ == '__main__':
     # print(1 - np.mean(emaxes))
 
     # sweep(folder='1sweepbin', nthreads=4)
-    # run_emax_sweep(nthreads=12)
-    plot_composite()
+    run_emax_sweep(nthreads=12)
+    # plot_composite(plot_single=False)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
