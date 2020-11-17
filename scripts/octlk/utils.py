@@ -3,7 +3,7 @@ import os
 from cython_utils import *
 
 from scipy.integrate import solve_ivp
-from scipy.optimize import brenth, root
+import scipy.optimize as opt
 
 def inverse_permutation(a):
     b = np.arange(a.shape[0])
@@ -14,7 +14,7 @@ def get_I1(I0, eta):
     ''' given total inclination between Lout and L, returns I_tot '''
     def I2_constr(_I2):
         return np.sin(_I2) - eta * np.sin(I0 - _I2)
-    I2 = brenth(I2_constr, 0, np.pi, xtol=1e-12)
+    I2 = opt.brenth(I2_constr, 0, np.pi, xtol=1e-12)
     return np.degrees(I0 - I2)
 
 def get_emax(eta=0, eps_gr=0, I=0):
@@ -25,7 +25,7 @@ def get_emax(eta=0, eps_gr=0, I=0):
                 - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
                 + eta**2 * j**4)
             + eps_gr * (1 - 1 / j))
-    jmin = brenth(jmin_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
+    jmin = opt.brenth(jmin_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jmin**2)
 
 def get_elim(eta=0, eps_gr=0):
@@ -34,7 +34,7 @@ def get_elim(eta=0, eps_gr=0):
             3/8 * (j**2 - 1) * (
                 - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
             + eps_gr * (1 - 1 / j))
-    jlim = brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
+    jlim = opt.brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jlim**2)
 
 def get_Ilim(eta=0, eps_gr=0):
@@ -61,6 +61,19 @@ def get_eps(m1, m2, m3, a0, a2, e2):
     eps_oct = ((m2 - m1) / m12) * (a0 / a2) * (e2 / (1 - e2**2))
     eta = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2 * (1 - e2**2)))
     return [eps_gw, eps_gr, eps_oct, eta]
+
+def get_eps_eta0(m1, m2, m3, a0, a2, e2):
+    m12 = m1 + m2
+    mu = m1 * m2 / m12
+    m123 = m12 + m3
+    mu_out = m12 * m3 / m123
+    n = np.sqrt(G * m12 / a0**3)
+    a2eff = a2 * np.sqrt(1 - e2**2)
+    eps_gw = (1 / n) * (m12 / m3) * (a2eff**3 / a0**7) * G**3 * mu * m12**2
+    eps_gr = (m12 / m3) * (a2eff**3 / a0**4) * 3 * G * m12
+    eps_oct = ((m2 - m1) / m12) * (a0 / a2) * (e2 / (1 - e2**2))
+    eta0 = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2))
+    return [eps_gw, eps_gr, eps_oct, eta0]
 
 def get_tlk0(m1, m2, m3, a0, a2):
     ''' calculates a bunch of physically relevant values '''
@@ -107,7 +120,7 @@ def run_vec(
          J1*np.sqrt(1 - E10**2)*np.sin(np.radians(90 - i1)) +
            J2*np.sqrt(1 - E20**2)*np.sin(np.radians(90 - i2)) - GTOT
         ]
-    I1, I2 = root(f, [Itot, 0]).x
+    I1, I2 = opt.root(f, [Itot, 0]).x
 
     L1x00 = np.sin(np.radians(I1))*np.sin(W)
     L1y00 = -np.sin(np.radians(I1))*np.cos(W)
@@ -146,6 +159,25 @@ def run_vec(
                     events=[a_term_event] if ll == 1 else [],
                     method=method, atol=TOL, rtol=TOL)
     return ret
+
+def get_I2(e1, I1, e2, eta0):
+    return np.arcsin(
+        eta0 * np.sqrt((1 - e1**2) / (1 - e2**2)) * np.sin(I1)
+    )
+def ltot(e1, I1, e2, eta0):
+    ''' returns Ltot**2 / G2**2 '''
+    Itot = I1 + get_I2(e1, I1, e2, eta0)
+    return (
+        (1 - e2**2)
+        + eta0**2 * (1 - e1**2)
+        + 2 * eta0 * np.sqrt((1 - e2**2) * (1 - e1**2)) * np.cos(Itot)
+    )
+def get_eI2(e1, I1, eta0, ltot_i):
+    ''' uses law of sines + conservation of Ltot to give e2, I2 '''
+    opt_func = lambda e2: ltot(e1, I1, e2, eta0) - ltot_i
+    e2 = opt.brenth(opt_func, 0, 0.99)
+    I2 = get_I2(e1, I1, e2, eta0)
+    return e2, I2
 
 # Python version of orbital elements code
 # ran into bugs on Radau/BDF, maybe repro later

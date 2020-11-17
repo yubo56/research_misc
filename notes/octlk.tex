@@ -678,5 +678,91 @@ $T_{\rm m}$ behavior:
         wider for smaller $a$, as a result.
 \end{itemize}
 
+\section{11/15/20}
+
+We have a new idea. While the system is nonintegrable, it can only explore a
+bounded area of phase space, according to our simulations. We try to obtain a
+bound using the Hamiltonian. Consider the full Hamiltonian, which is $H\p{e_1,
+\omega_1, I_1, e_2, \omega_2, I_2}$. We omit the $\Omega$ dependencies since we
+are just evaluating it as a constant of motion, not trying to get EOMs. There
+are two primary simplifications:
+\begin{itemize}
+    \item By the law of sines, $L_1 \sin I_1 = L_2 \sin I_2$, where $L_1 =
+        \mu\sqrt{Gm_{12}a_{\rm in}(1 - e_1^2)}$ and for $L_2$.
+
+    \item By conservation of total angular momentum:
+        \begin{equation}
+            \frac{L_{\rm tot}^2}{L_{\rm out, 0}^2}
+                = j_{\rm out}^2 + \eta_0^2 j_{\rm in}^2
+                    + 2j_{\rm in} j_{\rm out} \eta_0 \cos I_{\rm tot},
+        \end{equation}
+        where $\eta_0 = L_{1,0} / L_{2,0}$ is the angular momentum ratio at zero
+        eccentricity.
+\end{itemize}
+Putting together these two constraints, these implicitly give $(e_2, I_2)$ as a
+function of $\p{e_1, I_1, \eta_0, L_{\rm tot, i}}$, the initial total angular
+momentum. Thus, the Hamiltonian is reduced to $H\p{e_1, \omega_1, I_1,
+\omega_2}$. Of these, the quadrupole term does not depend on $\omega_2$, so we
+see that to obtain the Hamiltonian of the entire system to quadrupolar order, we
+only need to specify $e_1, \omega_1, I_1$. This already hints that oscillations
+in $e_2$ are bounded, and that indeed for systems sufficiently far from
+$I_{\lim}$, they cannot be driven to $I_{\lim}$ by octupole-induced DA
+oscillations.
+
+To understand whether a system can be driven to flip orbits, we assume that
+$H_{\rm quad}$ evolves non-integrably within some bound region, and we wish to
+understand whether the bound region contains $H_{\lim} \equiv H_{\rm quad}\p{0,
+0, I_{\lim}}$. Indeed, if octupole-order effects act slowly, within each orbit,
+the system should execute an approximately quadrupolar oscillation, so the only
+way it will reach $e_{\lim}$ is if it starts from $I_{\lim}$ (this is accurate
+so long as the $\epsilon_{\rm GR}$-induced flatness in the $e_{\max}$ curve can
+be neglected; maybe we can incorporate the $\Phi_{\rm GR}$ into the Hamiltonian?
+unlikely).
+
+A simple criterion exists to compare the two. We assume that $H_{\rm quad}$
+evolves randomly within an interval of magnitude $H_{\rm oct}$. By inspection,
+we can read off the values for which $H_{\rm oct}$ is maximized/minimized:
+\begin{align}
+    H_{\rm oct} &\propto e_1 e_2 \p{
+        A \cos \phi + 10 \cos I_{\rm tot} \sin^2 I_{\rm tot} j_1^2
+        \sin \omega_1 \sin \omega_2},\\
+    A &= 4 + 3e_1^{2} - \frac{5(2 + 5e_1^2 - 7e_1^2 \cos 2\omega_1)}{2}
+        \sin I_{\rm tot},\\
+    \cos \phi &= -\cos \omega_1 \cos \omega_2 - \cos I_{\rm tot} \sin \omega_1
+        \sin \omega_2.
+\end{align}
+Let's assume $e_2 = e_{2, 0}$ for simplicity, accurate to leading order. We can
+then bound $H_{\rm oct}$ by numerically solving. This proves to be quite
+good at reproducing the MLL16 fitting formula, I think (to be checked
+quantitatively)!
+
+\section{11/15/20}
+
+A clear problem arises though. When we are trying to reach $I_{\lim} = 90^\circ$
+like in the TP limit, everything is fine. However, when $\eta > 0$, $I_{\lim} >
+90^\circ$. To leading order, everything makes sense: an ELK-active region
+expands about $I_{\lim}$, and we can probably predict this (TODO try).
+
+However, a conundrum arises: $H$ is symmetric in $I$. If $\abs{H_{\rm oct}}$ is
+large enough, everything within a zone centered on $90^\circ$ should be able to
+access $I_{\lim}$. What is the origin of the gapped region then?
+
+My current hypothesis is that this has to do with the actual amplitude of
+oscillations in $K$ (returning to an early plot I made). Katz11 shows that
+$\rdil{K}{t} \propto -K$ roughly, so it's likely that $K$ cannot reach
+$K(I_{\lim})$ when it starts too near zero. This still doesn't explain why the
+ELK window itself is asymmetric though. It's surprising this becomes
+insufficient when $\eta > 0$.
+
+For today/tomorrow, our goal will just be to show that this reproduces the
+correct formula in the TP limit, then we will also make a plot of $\Delta K(I)$
+in the nonzero-$\eta$ case, and use this to support our notion of a ``gap.'' I
+don't think I can come up with anything quantitative, especially since I've
+basically only had the weekend to think about this.
+
+Edit (11/17/20): I made a plot of the $\Delta K(I)$ plot and it turned out
+exactly as expected. It remains to be seen whether an obvious analytical bound
+can be written down, but it may not be necessary for the purposes of this paper.
+
 \end{document}
 

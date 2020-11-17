@@ -1,0 +1,287 @@
+    \documentclass[11pt,
+        usenames, % allows access to some tikz colors
+        dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
+    ]{article}
+    \usepackage{
+        amsmath,
+        amssymb,
+        fouriernc, % fourier font w/ new century book
+        fancyhdr, % page styling
+        lastpage, % footer fanciness
+        hyperref, % various links
+        setspace, % line spacing
+        amsthm, % newtheorem and proof environment
+        mathtools, % \Aboxed for boxing inside aligns, among others
+        float, % Allow [H] figure env alignment
+        enumerate, % Allow custom enumerate numbering
+        graphicx, % allow includegraphics with more filetypes
+        wasysym, % \smiley!
+        upgreek, % \upmu for \mum macro
+        listings, % writing TrueType fonts and including code prettily
+        tikz, % drawing things
+        booktabs, % \bottomrule instead of hline apparently
+        xcolor, % colored text
+        cancel % can cancel things out!
+    }
+    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[
+        labelfont=bf, % caption names are labeled in bold
+        font=scriptsize % smaller font for captions
+    ]{caption}
+    \usepackage[font=scriptsize]{subcaption} % subfigures
+
+    \newcommand*{\scinot}[2]{#1\times10^{#2}}
+    \newcommand*{\dotp}[2]{\left<#1\,\middle|\,#2\right>}
+    \newcommand*{\rd}[2]{\frac{\mathrm{d}#1}{\mathrm{d}#2}}
+    \newcommand*{\pd}[2]{\frac{\partial#1}{\partial#2}}
+    \newcommand*{\rdil}[2]{\mathrm{d}#1 / \mathrm{d}#2}
+    \newcommand*{\pdil}[2]{\partial#1 / \partial#2}
+    \newcommand*{\rtd}[2]{\frac{\mathrm{d}^2#1}{\mathrm{d}#2^2}}
+    \newcommand*{\ptd}[2]{\frac{\partial^2 #1}{\partial#2^2}}
+    \newcommand*{\md}[2]{\frac{\mathrm{D}#1}{\mathrm{D}#2}}
+    \newcommand*{\pvec}[1]{\vec{#1}^{\,\prime}}
+    \newcommand*{\svec}[1]{\vec{#1}\;\!}
+    \newcommand*{\bm}[1]{\boldsymbol{\mathbf{#1}}}
+    \newcommand*{\uv}[1]{\hat{\bm{#1}}}
+    \newcommand*{\ang}[0]{\;\text{\AA}}
+    \newcommand*{\mum}[0]{\;\upmu \mathrm{m}}
+    \newcommand*{\at}[1]{\left.#1\right|}
+    \newcommand*{\bra}[1]{\left<#1\right|}
+    \newcommand*{\ket}[1]{\left|#1\right>}
+    \newcommand*{\abs}[1]{\left|#1\right|}
+    \newcommand*{\ev}[1]{\left\langle#1\right\rangle}
+    \newcommand*{\p}[1]{\left(#1\right)}
+    \newcommand*{\s}[1]{\left[#1\right]}
+    \newcommand*{\z}[1]{\left\{#1\right\}}
+
+    \newtheorem{theorem}{Theorem}[section]
+
+    \let\Re\undefined
+    \let\Im\undefined
+    \DeclareMathOperator{\Res}{Res}
+    \DeclareMathOperator{\Re}{Re}
+    \DeclareMathOperator{\Im}{Im}
+    \DeclareMathOperator{\Log}{Log}
+    \DeclareMathOperator{\Arg}{Arg}
+    \DeclareMathOperator{\Tr}{Tr}
+    \DeclareMathOperator{\E}{E}
+    \DeclareMathOperator{\Var}{Var}
+    \DeclareMathOperator*{\argmin}{argmin}
+    \DeclareMathOperator*{\argmax}{argmax}
+    \DeclareMathOperator{\sgn}{sgn}
+    \DeclareMathOperator{\diag}{diag\;}
+
+    \colorlet{Corr}{red}
+
+    % \everymath{\displaystyle} % biggify limits of inline sums and integrals
+    \tikzstyle{circ} % usage: \node[circ, placement] (label) {text};
+        = [draw, circle, fill=white, node distance=3cm, minimum height=2em]
+    \definecolor{commentgreen}{rgb}{0,0.6,0}
+    \lstset{
+        basicstyle=\ttfamily\footnotesize,
+        frame=single,
+        numbers=left,
+        showstringspaces=false,
+        keywordstyle=\color{blue},
+        stringstyle=\color{purple},
+        commentstyle=\color{commentgreen},
+        morecomment=[l][\color{magenta}]{\#}
+    }
+
+\begin{document}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{../scripts/octlk/1sweepbin/total_merger_fracs.png}
+    \caption{Updated merger fractions since last week (added three points).
+    }\label{fig:merger_fracs}
+\end{figure}
+
+\section{Double Averaging}
+
+Last week, we mentioned wanting to verify that double averaging still holds at
+$e_{\lim}$ in the regime I am studying. Just to verify, I have computed a few
+quantities of interest for my fiducial parameter regime $a_{\rm in} =
+100\;\mathrm{AU}$, $a_{\rm out, eff} = 3600\;\mathrm{AU}$:
+\begin{align}
+    \eta &= 0.098\p{\frac{q / (1 + q)^2}{1/4}}\p{1 - e_{\rm out}^2}^{1/4}
+        \p{\frac{a_{\rm in}}{100\;\mathrm{AU}}}^{1/2}
+        \p{\frac{3600\;\mathrm{AU}}{a_{\rm out, eff}}}^{1/2},\\
+    t_{\rm LK} &= \scinot{3.42}{7}\;\mathrm{yr},\\
+    P_{\rm in} &= 22\;\mathrm{yr},\\
+    P_{\rm out} &= 5300\;\mathrm{yr},\\
+    1 - e_{\max, \rm DA} &= 1 - \sqrt{1 - \p{\frac{P_{\rm out}}{t_{\rm LK}}}^2}
+        \approx \scinot{1.23}{-6}.
+\end{align}
+Note that, for the fiducial parameter regime, $e_{\lim} \approx \scinot{5}{-7}$,
+but $e_{\rm os} \approx \scinot{2}{-6}$. Thus, while our GW-free simulations
+violate the DA criterion, the with-GW simulations are likely perfectly fine.
+
+In fact, if we compare the expressions for $e_{\rm os}$ and $e_{\max, \rm DA}$
+(or, more simply, $j = \sqrt{1 - e^2}$ for each), we find:
+\begin{align}
+    j_{\rm os} &\sim \p{\frac{t_{\rm LK}}{t_{\rm GW, 0}}}^{1/6},\\
+    j_{\min, \rm DA} &\sim \frac{P_{\rm out}}{t_{\rm LK}}.
+\end{align}
+Thus, DA is okay when $j_{\rm os} \gtrsim j_{\min, \rm DA}$ (i.e.\ the
+binary will merge before DA breaks down). Maybe it's worth expressing this more
+carefully?
+
+\section{Effect on Observed Distribution of $q$}
+
+We start with a uniform distribution in $q \in [0.2, 1.0]$, and then we weight
+each $q$ by its merger fraction in Fig.~\ref{fig:merger_fracs} to get the
+observed distribution over $q$. In other words,
+\begin{equation}
+    P_{\rm merge}(q) = \frac{P_{\rm primordial}(q) f\p{e_{\rm out}, q}}{
+        \int\limits_0^1 P_{\rm primordial}(q) f\p{e_{\rm out}, q}\;\mathrm{d}q},
+\end{equation}
+where $f\p{e_{\rm out}, q}$ is the merger probability in
+Fig.~\ref{fig:merger_fracs}. The resulting plot is shown in
+Fig.~\ref{fig:massratio}.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.6\columnwidth]{../scripts/octlk/1massratio.png}
+    \caption{Normalized probability density functions for different $e_{\rm
+    out}$ and $q$ among binaries that merge.}\label{fig:massratio}
+\end{figure}
+
+\section{Trying to Understand the $e_{\max}$ Curve}
+
+This is a tentative section. I saw that the $e_{\max}$ curve had a lot of
+structure, even in the broad band sections (a clear maximum eccentricity during
+the sections where $e_{\max} < e_{\lim}$). I thought that maybe there could be a
+conserved quantity analysis that yields this bound analytically. My first idea
+is very simple, but it doesn't produce the right results for nonzero $\eta$ yet.
+
+\subsection{Test Mass Experiment}
+
+I describe it below, where I disregard SRFs for now:
+\begin{itemize}
+    \item Consider the Hamiltonian
+        \begin{equation}
+            H\p{e_1, I_1, \omega_1, e_2, I_2, \omega_2} = H_{\rm quad}\p{e_1,
+            I_1, \omega_1, e_2, I_2} + \epsilon_{\rm oct} H_{\rm oct}\p{e_1,
+            I_1, \omega_1, e_2, I_2, \omega_2}.
+        \end{equation}
+        Analytical forms for these exist in Naoz et al.\ 2011. By using the law
+        of sines and conservation of total angular momentum, we can invert to
+        find $e_2\p{e_1, I_1}$ and $I_2\p{e_1, I_1}$ as a function of $\eta_0 =
+        L_{\rm in, 0} / L_{\rm out, 0}$. Thus, the Hamiltonian can be
+        re-expressed implicitly
+        \begin{equation}
+            H\p{e_1, I_1, \omega_1, \omega_2} = H_{\rm quad}\p{e_1,
+            I_1, \omega_1} + \epsilon_{\rm oct} H_{\rm oct}\p{e_1,
+            I_1, \omega_1, \omega_2}.
+        \end{equation}
+
+    \item $H$ is conserved. Examining the expressions in Naoz et al.\ 2011 (I
+        think they have an extra factor of $e2$ in their octupole potential? I
+        may have misread, I haven't been very careful), it is clear that $H_{\rm
+        oct} / \epsilon_{\rm oct}$ is bounded. Let's first assume that, over
+        time, $H_{\rm oct}$ explores all available values.
+
+        Under this assumption, we can quantify whether an initial $H_{\rm quad}$
+        is ``sufficiently close'' to $H_{\rm quad, \lim}$ (which, for simplicity,
+        we take $H_{\rm quad, \lim} = H_{\rm quad}(0, 90^\circ, 0)$). In other
+        words, one seemingly necessary condition for being in the
+        octupole-active window is
+        \begin{equation}
+            H_{\rm quad, 0} - H_{\rm quad, \lim} \leq H_{\rm oct, \max} - H_{\rm
+                oct, 0},\label{eq:H_criterion}
+        \end{equation}
+        where $H_{\rm oct, \max}$ is taken over all values of $\p{e_1, I_1,
+        \omega_1, \omega_2}$ for simplicity (this is obviously not quite
+        correct). For each $\epsilon_{\rm oct}$, the $I_0$ (mutual inclinations)
+        for which this condition is satisfied is shown in Fig.~\ref{fig:ilim}.
+\end{itemize}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{../scripts/octlk/2_ilim_eta0.png}
+    \caption{$I_{\lim}$ window for test particle case, using criterion
+    Eq.~\eqref{eq:H_criterion}, compared to MLL fitting formula. While
+    inaccurate, the qualitative behavior is mildly encouraging.}\label{fig:ilim}
+\end{figure}
+
+At first glance, this suggests that there is a chance we can bound the
+octupole-induced $e_{\max}$ oscillations. There are a few caveats:
+\begin{itemize}
+    \item We maximized $H_{\rm oct}$ for all $e_1, I_1$, which includes
+        unreasonable values like $e_1 = 1, I_1 \approx 90^\circ$. When
+        $\epsilon_{\rm oct}$ is not too large, each individual LK cycle retains
+        its shape, which suggests that the maximum attainable $H_{\rm oct}$ is
+        somewhere around $I_1 \approx 90^\circ$, $e_1 = e_{\min} \lesssim 0.5$.
+        This can be confirmed with our old plots.
+
+    \item When my window is too wide, a simple explanation exists: $H_{\rm oct}$
+        doesn't fully explore its paramater regime (also, the above effect means
+        I overpredict the actual accessible $H_{\rm oct, \max}$).
+
+    \item When instead my window is too small, this is possibly because the
+        actual $e_{\lim}$ window is slightly larger than $I = 90^\circ$. In my
+        model, $e_{\lim} = 1$. Generalizing to $e_{\lim} < 1$ is not hard, we
+        just have to add a constant offset to $H_{\rm quad, \lim}$ in
+        Eq.~\eqref{eq:H_criterion}.
+\end{itemize}
+
+\subsection{Failure with Finite Mass}
+
+However, this clearly fails to produce certain features of the $\eta > 0$
+regime:
+\begin{itemize}
+    \item $H$ is symmetric about $I = 90^\circ$, the mutual inclination. We know
+        that the actual $e_{\max}$ curve is maximized at $I_{\lim} >
+        90^\circ$.
+
+    \item $H$ is quadratic in $I$, so it has only one minimum. This means that
+        the criterion Eq.~\eqref{eq:H_criterion} must predict a single
+        octupole-active zone, near the minimum. We observe a gap.
+\end{itemize}
+
+I would like some more ideas if possible! One I noticed is that the Katz, Dong,
+\& Malhotra result has equations like
+\begin{align}
+    \rd{(j \cos I)}{t} &\propto \epsilon_{\rm oct} \sin \theta, &
+    \rd{\theta}{t} &\propto (j \cos I).
+\end{align}
+This implies that, if $I \approx 90^\circ$, the quadrupole-conserved quantity
+(in the test mass case) executes small oscillations near $90^\circ$.
+
+\subsection{Numerical Exploration of Octupole-induced $K$ Oscillations
+(New)}
+
+Motivated by the above observation, we consider the range of oscillations in the
+quadrupole-conserved quantity for nonzero $\eta$:
+\begin{equation}
+    K \equiv j \cos I - \eta_0 \frac{e^2}{2j_{\rm out}}.
+\end{equation}
+We have expressed in terms of $\eta_0$ because $j_{\rm out}$ can vary with
+octupole terms. We perform a similar analysis to the above: to quadrupolar
+order, $K$ is constant, but including octupole effects, $K$ oscillates. By
+attempting to bound the range of oscillation, we can understand which regions
+can reach
+\begin{equation}
+    K_{\rm crit} \equiv K\p{e = 0, I = I_{\lim}}.
+\end{equation}
+It is suspected that for $I$ sufficiently near $90^\circ$, the range of
+oscillation goes to zero, and $K$ cannot reach $K_{\rm crit}$. This is indeed
+the picture borne out by numerical simulations, as seen in
+Fig.~\ref{fig:K_amps}.
+\begin{figure}
+    \centering
+    \includegraphics[width=0.6\columnwidth]{../scripts/octlk/1sweepbin_emax/1p2dist.png}
+    \caption{Plot of $e_{\max}$ (top panel) and the range of oscillation of $K$
+    (evaluated at eccentricity maxima) for $q = 0.2$ and $e_{\rm out, 0} = 0.6$.
+    Each $I_0$ is run 5 times. The black dashed line is $K$ evaluated for
+    initial conditions, and the horizontal red line is $K_{\rm crit}$. It is
+    clear that the origin of the gap is due to the limited oscillation in
+    $K$.}\label{fig:K_amps}
+\end{figure}
+
+It is clear that there is a lot of structure to this $K$ plot, and that indeed
+there should be some sort of analytical bound the range of oscillation in $K$.
+However, unlike the analysis for $H$, it is not evident how the octupole-induced
+oscillations in $K$ can be bound.
+
+\end{document}
+
