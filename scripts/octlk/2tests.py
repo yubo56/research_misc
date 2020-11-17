@@ -70,7 +70,7 @@ def calculate_elim_regions():
     a2 = 100
     e10 = 1e-3
 
-    e2_vals = np.linspace(0, 0.57, 300)
+    e2_vals = np.linspace(0, 0.57, 20)
     Icrits = []
     for idx, e2 in enumerate(e2_vals):
         eps_gw, eps_gr, eps_oct, eta0 = get_eps_eta0(0, 1, 0.04, 6, 100, e2)
@@ -85,33 +85,34 @@ def calculate_elim_regions():
                 get_H(e2, I_test, eta0, e1=0, eps_naoz=0) - Hlim
                 - hoct_max * 15 / 4 * eps_oct
             )
-        Icrit = brenth(opt_func, np.radians(50), np.radians(90))
+        Icrit = opt.brenth(opt_func, np.radians(50), np.radians(90))
         Icrits.append(Icrit)
 
-        # fig = plt.figure(figsize=(6, 6))
-        # I_plot = np.radians(np.linspace(89, 90, 20))
-        # H_plot = []
-        # for I in I_plot:
-        #     H_plot.append(get_H(e2, I, eta0, e1=0, eps_naoz=0))
-        # plt.plot(np.degrees(I_plot), H_plot)
+        fig = plt.figure(figsize=(6, 6))
+        I_plot = np.radians(np.linspace(50, 130, 100))
+        H_plot = []
+        for I in I_plot:
+            H_plot.append(get_H(e2, I, eta0, e1=0, eps_naoz=0))
+            # H_plot.append(get_H(e2, I, eta0, e1=1e-2, eps_quad=0, eps_naoz=1))
+        plt.plot(np.degrees(I_plot), H_plot)
         # plt.axhline(Hlim + hoct_max * 15 / 4 * eps_oct)
-        # plt.savefig('/tmp/foo' + str(idx))
-        # plt.close()
+        plt.savefig('/tmp/foo' + str(idx))
+        plt.close()
 
-    fig = plt.figure(figsize=(6, 6))
-    eps_oct_plot = a0 / a2 * e2_vals / (1 - e2_vals**2)
-    plt.plot(eps_oct_plot, np.degrees(Icrits), label='Me')
-    plt.plot(eps_oct_plot, np.degrees(np.arccos(np.sqrt(
-        0.26 * (eps_oct_plot / 0.1)
-        - 0.536 * (eps_oct_plot / 0.1)**2
-        + 12.05 * (eps_oct_plot / 0.1)**3
-        -16.78 * (eps_oct_plot / 0.1)**4
-    ))), label='MLL16')
-    plt.legend(fontsize=14)
-    plt.xlabel(r'$\epsilon_{\rm oct}$')
-    plt.ylabel(r'$I_{0, \lim}$ (Deg)')
-    plt.savefig('2_ilim_eta0', dpi=300)
-    plt.close()
+    # fig = plt.figure(figsize=(6, 6))
+    # eps_oct_plot = a0 / a2 * e2_vals / (1 - e2_vals**2)
+    # plt.plot(eps_oct_plot, np.degrees(Icrits), label='Me')
+    # plt.plot(eps_oct_plot, np.degrees(np.arccos(np.sqrt(
+    #     0.26 * (eps_oct_plot / 0.1)
+    #     - 0.536 * (eps_oct_plot / 0.1)**2
+    #     + 12.05 * (eps_oct_plot / 0.1)**3
+    #     -16.78 * (eps_oct_plot / 0.1)**4
+    # ))), label='MLL16')
+    # plt.legend(fontsize=14)
+    # plt.xlabel(r'$\epsilon_{\rm oct}$')
+    # plt.ylabel(r'$I_{0, \lim}$ (Deg)')
+    # plt.savefig('2_ilim_eta0', dpi=300)
+    # plt.close()
 
 def minimize_hoct(e2=0.6, to_print=False):
     '''

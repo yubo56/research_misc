@@ -335,6 +335,8 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
                 get_eI2(emax, Imax, eta0, ltot_i)
                 for emax, Imax in zip(e_vals, I1_vals)
             ]).T
+            # e2_vals = np.full_like(e_vals, e2) # temp
+            # I2_vals = np.zeros_like(e_vals)
             K_vals = (
                 np.sqrt(1 - e_vals**2) * np.cos(I1_vals + I2_vals)
                 - eta0 * e_vals**2 / (2 * np.sqrt(1 - e2_vals**2))
@@ -358,19 +360,6 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
         Ilimd = get_Ilim(eta, eps_gr)
         elim = get_elim(eta, eps_gr)
 
-        ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
-            0.26 * (eps_oct / 0.1)
-            - 0.536 * (eps_oct / 0.1)**2
-            + 12.05 * (eps_oct / 0.1)**3
-            -16.78 * (eps_oct / 0.1)**4
-        )))
-        ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(
-            0.26 * (eps_oct / 0.1)
-            - 0.536 * (eps_oct / 0.1)**2
-            + 12.05 * (eps_oct / 0.1)**3
-            -16.78 * (eps_oct / 0.1)**4
-        )))
-
         fig, (ax1, ax2) = plt.subplots(
             2, 1,
             figsize=(9, 7),
@@ -384,8 +373,30 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
         ax1.axhline(1 - elim, c='k', ls='--')
 
         # overplot MLL fit for reference
-        ax1.axvline(ilimd_MLL_L, c='m', lw=1.0)
-        ax1.axvline(ilimd_MLL_R, c='m', lw=1.0)
+        # ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
+        #     0.26 * (eps_oct / 0.1)
+        #     - 0.536 * (eps_oct / 0.1)**2
+        #     + 12.05 * (eps_oct / 0.1)**3
+        #     -16.78 * (eps_oct / 0.1)**4
+        # )))
+        # ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(
+        #     0.26 * (eps_oct / 0.1)
+        #     - 0.536 * (eps_oct / 0.1)**2
+        #     + 12.05 * (eps_oct / 0.1)**3
+        #     -16.78 * (eps_oct / 0.1)**4
+        # )))
+        # test using Antognini-like criterion? Doesn't work
+        # def get_cross_lambda(crit):
+        #     return lambda I_test: np.sqrt(1 - e0**2) * (
+        #         - np.cos(I_test)
+        #         + eta0 * np.sqrt(1 - e0**2) / (2 * np.sqrt(1 - e2**2))
+        #     )**2 - crit
+        # ilimd_MLL_L = np.degrees(opt.brenth(
+        #     get_cross_lambda(0.05), 0, np.pi / 2))
+        # ilimd_MLL_R = np.degrees(opt.brenth(
+        #     get_cross_lambda(0.05), np.pi / 2, np.pi))
+        # ax1.axvline(ilimd_MLL_L, c='m', lw=1.0)
+        # ax1.axvline(ilimd_MLL_R, c='m', lw=1.0)
 
         # overplot emax due to quadrupole
         emaxes4 = []
@@ -1280,8 +1291,9 @@ if __name__ == '__main__':
     # emax_omega_sweep()
     # k_sweep()
 
-    # m1, m2, m3, a, a2, e2 = 25, 25, 30, 100, 12800, 0.9
-    # eps = get_eps(m1, m2, m3, a, a2, e2)
+    # m1, m2, m3, a, a2, e2 = 25, 25, 30, 100, 4500, 0.6
+    # eps = get_eps(50 / 3, 100 / 3, m3, a, a2, e2)
+    # print(eps[2])
     # print('eta', eps[3])
     # tlk0 = get_tlk0(m1, m2, m3, a, a2 * (1 - 0.9**2)**(1/2))
     # print('tlk', tlk0)
