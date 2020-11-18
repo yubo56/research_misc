@@ -283,9 +283,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
 
         # auto-determine tf
         args = [
-            (idx, q, I0, None, dict(
-                a0=a0, a2=a2, e2=e2,
-            ))
+            (idx, q, I0, None, dict(a0=a0, a2=a2, e2=e2))
             for idx, I0 in enumerate(I_plots)
         ]
         if not os.path.exists(pkl_fn):
@@ -1263,6 +1261,65 @@ def plot_massratio_sample():
     plt.savefig('1massratio', dpi=300)
     plt.close()
 
+def pop_synth(a2eff=3600, ntrials=2000, base_fn='a2eff3600'):
+    '''
+    Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
+    sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
+    merger fraction(abarouteff), histograms of observed q
+    calculate using uniform grid in cos I
+    store e_in @ 0.5AU (can postprocess to get merger e)
+    '''
+
+    folder = '1popsynth'
+    t_hubb_gyr = 10
+    m12 = 50
+    m3 = 30
+    a0 = 100
+    e0 = 1e-3
+
+    mkdirp(folder)
+
+    qs = np.random.uniform(0.2, 1, ntrials)
+    e2s = np.random.uniform(0, 0.9, ntrials)
+    m2 = m12 / (1 + qs)
+    m1 = m12 - m2
+    a2s = a2eff / np.sqrt(1 - e2s**2)
+    # only draw from ~50-130
+    Imin, Imax = np.radians([50, 130])
+    I0s = np.degrees(np.arccos(np.random(np.cos(Imax), np.cos(Imin), ntrials)))
+
+    fn = '%s/%s' % (folder, base_fn)
+    pkl_fn = fn + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        p = Pool(32)
+        args = [
+            (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0)
+            for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
+        ]
+        start = time.time()
+        tmerges = p.starmap(sweeper_bin, args)
+        tmerge_time_elapsed = time.time() - start
+
+        args2 = [
+            (idx, q, np.degrees(I0), None, dict(a0=a0, a2=a2, e2=e2))
+            for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
+        ]
+        start = time.time()
+        emax_rets = p.starmap(get_emax_series, args2)
+        emax_time_elapsed = time.time() - start
+
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((args, tmerges, emax_rets, tmerge_time_elapsed,
+                         emax_time_elapsed), f)
+    else:
+        print('Loading %s' % pkl_fn)
+        with open(pkl_fn, 'rb') as f:
+            ret = pickle.load(f)
+    args, tmerges, emax_rets, tmerge_time_elapsed, emax_time_elapsed = ret
+    print('TMerge took', tmerge_time_elapsed)
+    print('Emax took', emax_time_elapsed)
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -1272,7 +1329,7 @@ if __name__ == '__main__':
     # print(1 - np.mean(emaxes))
 
     # sweep(folder='1sweepbin', nthreads=4)
-    run_emax_sweep(nthreads=12)
+    # run_emax_sweep(nthreads=12)
     # plot_composite(plot_single=False)
     # plot_massratio_sample()
 
@@ -1315,4 +1372,11 @@ if __name__ == '__main__':
     # exo15c is running emax_sweeps (rsync from curr)
     # self: run last two explores
 
+    pop_synth()
+    pop_synth(a2eff=2800, base_fn='a2eff2800')
+    pop_synth(a2eff=4500, base_fn='a2eff4500')
+    pop_synth(a2eff=1200, base_fn='a2eff1200')
+    pop_synth(a2eff=7000, base_fn='a2eff7000')
+    pop_synth(a2eff=2000, base_fn='a2eff2000')
+    pop_synth(a2eff=5500, base_fn='a2eff5500')
     pass
