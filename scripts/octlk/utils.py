@@ -103,6 +103,7 @@ def run_vec(
         M1=30, M2=20, M3=30, Itot=93.5, INTain=100, a2=6000,
         T=1e10, w1=0, w2=0.7, W=0, E10=1e-3, E20=0.6,
         TOL=1e-11, AF=5e-3, method='LSODA',
+        k2=0, R2=0,
 ):
     N1 = np.sqrt((k*(M1 + M2))/INTain ** 3)
     Mu = (M1*M2)/(M1 + M2)
@@ -154,7 +155,8 @@ def run_vec(
         ain = get_ain_vec_bin(*args)
         return ain - AF * INTain
     a_term_event.terminal = True
-    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T]
+    args = [m, mm, l, ll, M1, M2, M3, Itot, INTain, a2, N1, Mu, J1, J2, T, k2,
+            R2]
     ret = solve_ivp(dydt_vec_bin, (0, T), y0, args=args,
                     events=[a_term_event] if ll == 1 else [],
                     method=method, atol=TOL, rtol=TOL)

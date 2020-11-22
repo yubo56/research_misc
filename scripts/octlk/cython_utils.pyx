@@ -242,7 +242,7 @@ def dydt(double t, np.ndarray[double, ndim=1] y, double eps_gw, double eps_gr, d
 @cython.wraparound(False)
 def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, double l, double ll,
                  double M1, double M2, double M3, double Itot, double INTain, double a2, double N1,
-                 double Mu, double J1, double J2, double T):
+                 double Mu, double J1, double J2, double T, double k2, double R2):
     cdef double k = 39.4751488
     cdef double c = 6.32397263e4
     cdef double L1x = y[0]
@@ -274,6 +274,9 @@ def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, do
     cdef double WLK = m*1/tk
     cdef double Epsilonoct = mm*(M1 - M2)/(M1 + M2)*AIN/a2*E2/(1 - E2**2)
     cdef double WGR = l*(3*k**2*(M1 + M2)**2)/((AIN**2)*(c**2)*sqrt(AIN*k*(M1 + M2))*(1 - E1**2))
+    cdef double Wtide = 7.5 * k2 * M1 / M2 * (R2 / AIN)**5 * (
+            1 + 1.5 * E1**2 + E1**4 / 8) / (1 - E1**2)**5 * n1
+    cdef double WSRF = WGR + Wtide
     cdef double JGW = -ll*32/5*k**(7.0/2)/c**5*Mu**2/(AIN)**(7.0/2)*(M1 + M2)**(5.0/2)*(
        1.0 + 7.0/8*E1**2)/(1 - E1**2)**2
     cdef double EGW = -ll*(304*k**3*M1*M2*(M1 + M2))/(
@@ -394,7 +397,7 @@ def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, do
              7*(loutx*e1x + louty*e1y + loutz*e1z)*((
                 e1x*e2x)/E2 + (e1y*e2y)/E2 + (
                 e1z*e2z)/E2))),
-      WGR*(-linz*e1y + liny*e1z)
+      WSRF*(-linz*e1y + liny*e1z)
         + (3*WLK*sqrt(1 - E1**2))/
         4*(2*(-linz*e1y + liny*e1z) + (linx*loutx + liny*louty +
              linz*loutz)*(loutz*e1y - louty*e1z) -
@@ -435,7 +438,7 @@ def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, do
              7*(loutx*e1x + louty*e1y + loutz*e1z)*((
                 e1x*e2x)/E2 + (e1y*e2y)/E2 + (
                 e1z*e2z)/E2))),
-      WGR*(linz*e1x - linx*e1z)
+      WSRF*(linz*e1x - linx*e1z)
          + (3*WLK*sqrt(1 - E1**2))/
         4*(2*(linz*e1x - linx*e1z) + (linx*loutx + liny*louty +
              linz*loutz)*(-loutz*e1x + loutx*e1z) -
@@ -476,7 +479,7 @@ def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, do
              7*(loutx*e1x + louty*e1y + loutz*e1z)*((
                 e1x*e2x)/E2 + (e1y*e2y)/E2 + (
                 e1z*e2z)/E2))),
-      WGR*(-liny*e1x +
+      WSRF*(-liny*e1x +
           linx*e1y) + (
         3*WLK*sqrt(1 - E1**2))/
         4*(2*(-liny*e1x + linx*e1y) + (linx*loutx + liny*louty +

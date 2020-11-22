@@ -428,16 +428,18 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
         plt.close()
 
 # default tf is 500 tk, if tf == None
-def get_emax_series(idx, q, I0, tf, inits={}):
+def get_emax_series(idx, q, I0, tf, kwargs={}):
     np.random.seed(idx + int(time.time()))
-    M1 = 50 / (1 + q)
-    M2 = 50 - M1
-    M3 = 30
-    ain = inits.get('a0', 100)
-    a2 = inits.get('a2', 4500)
-    E2 = inits.get('e2', 0.6)
+    M1 = kwargs.get('M12', 50) / (1 + q)
+    M2 = kwargs.get('M12', 50) - M1
+    M3 = kwargs.get('M3', 30)
+    ain = kwargs.get('a0', 100)
+    a2 = kwargs.get('a2', 4500)
+    E2 = kwargs.get('e2', 0.6)
     n1 = np.sqrt((k*(M1 + M2))/ain ** 3)
     tk = 1/n1*((M1 + M2)/M3)*(a2/ain)**3*(1 - E2**2)**(3.0/2)
+    k2 = kwargs.get('k2', 0)
+    R2 = kwargs.get('R2', 0)
 
     tgw = k**3 * M1 * M2 * (M1 + M2) / (c**5 * ain**4)
 
@@ -455,10 +457,12 @@ def get_emax_series(idx, q, I0, tf, inits={}):
         a2=a2,
         E20=E2,
         TOL=1e-9,
+        k2=k2,
+        R2=R2,
         method='Radau',
-        w1=inits.get('w1', np.random.rand() * 2 * np.pi),
-        w2=inits.get('w2', np.random.rand() * 2 * np.pi),
-        W=inits.get('W', np.random.rand() * 2 * np.pi),
+        w1=kwargs.get('w1', np.random.rand() * 2 * np.pi),
+        w2=kwargs.get('w2', np.random.rand() * 2 * np.pi),
+        W=kwargs.get('W', np.random.rand() * 2 * np.pi),
     )
     evec = ret.y[3:6, :]
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
@@ -1381,6 +1385,49 @@ def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32):
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
 
+# num_i total inclinations, use stride + offsets to control which ones to run
+def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
+                 folder='1laetitia', base_fn='e2_6', nthreads=4,
+                 M1=1,
+                 M2=1e-3,
+                 M3=1e-3,
+                 a0=5,
+                 a2=50,
+                 E10=1e-3,
+                 e2=0.6,
+                 ):
+    mkdirp(folder)
+    M12 = M1 + M2
+    q = M2 / M1
+    kwargs_dict = dict(
+        M12=M12,
+        M3=M3,
+        a0=a0,
+        a2=a2,
+        e2=e2,
+        k2 = 0.37,
+        R2 = 4.676e-4,
+    )
+    I0d_vals_tot = np.linspace(40, 140, num_i)
+    for offset in offsets:
+        _I0d_vals = I0d_vals_tot[offset::stride]
+        I0d_vals = np.repeat(_I0d_vals, ntrials)
+        pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
+        if not os.path.exists(pkl_fn):
+            print('Running %s' % pkl_fn)
+            args = [
+                (idx, q, I0d, None, kwargs_dict)
+                for idx, I0d in enumerate(I0d_vals)
+            ]
+            p = Pool(nthreads)
+            emax_rets = p.starmap(get_emax_series, args)
+            with open(pkl_fn, 'wb') as f:
+                pickle.dump((emax_rets), f)
+        else:
+            with open(pkl_fn, 'rb') as f:
+                print('Loading %s' % pkl_fn)
+                emax_rets = pickle.load(f)
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -1435,9 +1482,23 @@ if __name__ == '__main__':
 
     # pop_synth()
     # pop_synth(a2eff=2800, base_fn='a2eff2800', ntrials=2000)
-    pop_synth(a2eff=4500, base_fn='a2eff4500', ntrials=2000)
+    # pop_synth(a2eff=4500, base_fn='a2eff4500', ntrials=2000)
     # pop_synth(a2eff=1200, base_fn='a2eff1200', ntrials=2000)
     # pop_synth(a2eff=7000, base_fn='a2eff7000', ntrials=2000)
     # pop_synth(a2eff=2000, base_fn='a2eff2000', ntrials=2000)
-    pop_synth(a2eff=5500, base_fn='a2eff5500', ntrials=2000)
+    # pop_synth(a2eff=5500, base_fn='a2eff5500', ntrials=2000)
+
+    # 0.456 Gyr = 500 Tk
+    run_laetitia(nthreads=11)
+    run_laetitia(nthreads=11, e2=0.1, base_fn='e2_1')
+    run_laetitia(nthreads=11, e2=0.3, base_fn='e2_3')
+    run_laetitia(nthreads=11, e2=0.5, base_fn='e2_5')
+    run_laetitia(nthreads=11, e2=0.8, base_fn='e2_8')
+    run_laetitia(nthreads=11, e2=0.9, base_fn='e2_9')
+    run_laetitia(nthreads=11, offsets=np.arange(10))
+    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
+    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
+    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
+    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
+    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
     pass
