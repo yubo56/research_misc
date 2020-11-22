@@ -113,7 +113,7 @@ def timing_tests():
     return tf
 
 # manually codify a, M12
-def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
+def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
     np.random.seed(idx + int(time.time()))
     M1 = 50 / (1 + q)
     AF = 0.5 / a0
@@ -135,6 +135,8 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0):
     )
     tf = ret.t[-1]
     print(idx, q, t_final / 1e9, a0, a2, e0, e2, np.degrees(I0))
+    if return_final:
+        return tf, ret.y[ :, -1]
     return tf
 
 def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
@@ -1261,7 +1263,7 @@ def plot_massratio_sample():
     plt.savefig('1massratio', dpi=300)
     plt.close()
 
-def pop_synth(a2eff=3600, ntrials=2000, base_fn='a2eff3600'):
+def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
     sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
@@ -1278,27 +1280,30 @@ def pop_synth(a2eff=3600, ntrials=2000, base_fn='a2eff3600'):
     e0 = 1e-3
 
     mkdirp(folder)
-
-    qs = np.random.uniform(0.2, 1, ntrials)
-    e2s = np.random.uniform(0, 0.9, ntrials)
-    m2 = m12 / (1 + qs)
-    m1 = m12 - m2
-    a2s = a2eff / np.sqrt(1 - e2s**2)
-    # only draw from ~50-130
-    Imin, Imax = np.radians([50, 130])
-    I0s = np.degrees(np.arccos(np.random(np.cos(Imax), np.cos(Imin), ntrials)))
+    to_plot = False
 
     fn = '%s/%s' % (folder, base_fn)
     pkl_fn = fn + '.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        p = Pool(32)
+        qs = np.random.uniform(0.2, 1, ntrials)
+        e2s = np.random.uniform(0, 0.9, ntrials)
+        m2 = m12 / (1 + qs)
+        m1 = m12 - m2
+        a2s = a2eff / np.sqrt(1 - e2s**2)
+        # only draw from ~50-130
+        Imin, Imax = np.radians([50, 130])
+        I0s = np.arccos(
+            np.random.uniform(np.cos(Imax), np.cos(Imin), ntrials)
+        )
+
+        p = Pool(nthreads)
         args = [
-            (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0)
+            (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0, True)
             for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
         ]
         start = time.time()
-        tmerges = p.starmap(sweeper_bin, args)
+        tmerge_rets = p.starmap(sweeper_bin, args)
         tmerge_time_elapsed = time.time() - start
 
         args2 = [
@@ -1310,15 +1315,71 @@ def pop_synth(a2eff=3600, ntrials=2000, base_fn='a2eff3600'):
         emax_time_elapsed = time.time() - start
 
         with open(pkl_fn, 'wb') as f:
-            pickle.dump((args, tmerges, emax_rets, tmerge_time_elapsed,
-                         emax_time_elapsed), f)
+            ret = (args, tmerge_rets, emax_rets, tmerge_time_elapsed,
+                   emax_time_elapsed)
+            pickle.dump(ret, f)
     else:
         print('Loading %s' % pkl_fn)
         with open(pkl_fn, 'rb') as f:
             ret = pickle.load(f)
-    args, tmerges, emax_rets, tmerge_time_elapsed, emax_time_elapsed = ret
+    args, tmerge_rets, emax_rets, tmerge_time_elapsed, emax_time_elapsed = ret
     print('TMerge took', tmerge_time_elapsed)
     print('Emax took', emax_time_elapsed)
+
+    # PDF of q among merged systems
+    j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+    e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+
+    all_q = []
+    merged_q = []
+    merged_q_nongw = []
+    for arg, tmerge_ret, emax_ret in zip(args, tmerge_rets, emax_rets):
+        _, q, _, _, _, _, e2, I0d, _ = arg
+        tmerge, yf = tmerge_ret
+        all_q.append(q)
+
+        if tmerge < 9.9e9:
+            merged_q.append(q)
+        I0 = np.radians(I0d)
+        e_vals = np.array(emax_ret[1])
+        where_idx = np.where(e_vals >= 0.3)[0]
+        e_vals = e_vals[where_idx]
+
+        if len(e_vals) == 0:
+            continue
+        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+        e_os = np.sqrt(1 - j_os**2)
+
+        # approx 1 + 73e^2/24... \approx 4.427 is constant
+        jmean = np.mean(4 * (1 - e_vals**2)**(-3))**(-1/6)
+        emean = np.sqrt(1 - jmean**2)
+        if np.max(e_vals) > e_os or emean > e_eff_crit:
+            print(q, e2, I0d, tmerge)
+            merged_q_nongw.append(q)
+
+    if to_plot and plt is not None:
+        fig, (ax1, ax2) = plt.subplots(
+            2, 1,
+            figsize=(6, 8),
+            sharex=True)
+
+        counts, bin_edges = np.histogram(all_q, bins=30)
+        merged_q_counts, _ = np.histogram(merged_q, bins=bin_edges)
+        merged_q_nongw_counts, _ = np.histogram(merged_q_nongw, bins=bin_edges)
+        bin_centers = (bin_edges[ :-1] + bin_edges[1: ]) / 2
+        ax1.plot(bin_centers,
+                 np.array(merged_q_counts) / np.array(counts) * 100)
+        ax2.plot(bin_centers,
+                 np.array(merged_q_nongw_counts) / np.array(counts) * 100)
+        ax1.set_ylabel('Prob. (Merger Time)')
+        ax2.set_ylabel('Prob. (GW-less)')
+        ax2.set_xlabel(r'$q$')
+        plt.tight_layout()
+
+        fig.subplots_adjust(hspace=0.02)
+        plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
+        plt.close()
 
 if __name__ == '__main__':
     # UNUSED
@@ -1372,11 +1433,11 @@ if __name__ == '__main__':
     # exo15c is running emax_sweeps (rsync from curr)
     # self: run last two explores
 
-    pop_synth()
-    pop_synth(a2eff=2800, base_fn='a2eff2800')
-    pop_synth(a2eff=4500, base_fn='a2eff4500')
-    pop_synth(a2eff=1200, base_fn='a2eff1200')
-    pop_synth(a2eff=7000, base_fn='a2eff7000')
-    pop_synth(a2eff=2000, base_fn='a2eff2000')
-    pop_synth(a2eff=5500, base_fn='a2eff5500')
+    # pop_synth()
+    # pop_synth(a2eff=2800, base_fn='a2eff2800', ntrials=2000)
+    pop_synth(a2eff=4500, base_fn='a2eff4500', ntrials=2000)
+    # pop_synth(a2eff=1200, base_fn='a2eff1200', ntrials=2000)
+    # pop_synth(a2eff=7000, base_fn='a2eff7000', ntrials=2000)
+    # pop_synth(a2eff=2000, base_fn='a2eff2000', ntrials=2000)
+    pop_synth(a2eff=5500, base_fn='a2eff5500', ntrials=2000)
     pass
