@@ -746,11 +746,14 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
     a = lin_mag**2/((Mu**2)*k*50*(1 - evec_mags**2))
     I = np.degrees(np.arccos(ret.y[2] / lin_mag))
     Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
+    Ie = np.degrees(np.arccos(ret.y[5] / evec_mags))
 
     n2hat = lout / lout_mag
     u2hat = eoutvec / eoutvec_mags
     v2hat = ts_cross(n2hat, u2hat)
     We = np.degrees(np.arctan2(ts_dot(evec, v2hat), ts_dot(evec, u2hat)))
+
+    w1 = np.unwrap(np.arcsin(evec[2] / (evec_mags * np.sin(np.radians(I)))))
 
     # kozai constant (LL18.37)
     eta = eps[3]
@@ -759,22 +762,28 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
         - eta * evec_mags**2/2
     )
 
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
-        2, 2,
-        figsize=(12, 9),
+    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(
+        2, 3,
+        figsize=(14, 9),
         sharex=True)
 
-    ax1.plot(ret.t / 1e8, We, 'ko', ms=0.7)
-    ax1.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
-    ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
-    ax2.set_ylabel(r'$1 - e$')
-    ax3.plot(ret.t / 1e8, I + Iout)
-    ax3.set_ylabel(r'$I$ (Deg)')
+    ax1.semilogy(ret.t / 1e8, 1 - evec_mags)
+    ax1.set_ylabel(r'$1 - e$')
+    ax2.plot(ret.t / 1e8, I + Iout)
+    ax2.set_ylabel(r'$I$ (Deg)')
+    ax3.plot(ret.t / 1e8, K)
+    ax3.axhline(-eta / 2, c='k', ls=':', lw=2)
+    ax3.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
     ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
-    ax4.plot(ret.t / 1e8, K)
-    ax4.axhline(-eta / 2, c='k', ls=':', lw=2)
-    ax4.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
+    ax4.plot(ret.t / 1e8, np.degrees(w1), 'ko', ms=0.7)
+    ax4.set_ylabel(r'$\omega_1$')
     ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+    ax5.plot(ret.t / 1e8, We, 'ko', ms=0.7)
+    ax5.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
+
+    ax6.plot(ret.t / 1e8, Ie)
+    ax6.set_ylabel(r'$I_{\rm e}$ (Deg)')
+    ax6.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     # try to predict eout_max & bounds of oscillation of K?
     # emax = get_emax(eta_ecc, eps[1] * (1 - 0.6**2)**(3/2), I=np.radians(Itot))
@@ -792,6 +801,7 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.03)
+    print('Saving', fn)
     plt.savefig(fn, dpi=300)
     plt.clf()
 
