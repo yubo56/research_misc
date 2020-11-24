@@ -1286,7 +1286,7 @@ def plot_massratio_sample():
     plt.savefig('1massratio', dpi=300)
     plt.close()
 
-def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32,
+def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
               to_plot=True):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
@@ -1307,9 +1307,10 @@ def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32,
 
     fn = '%s/%s' % (folder, base_fn)
     pkl_fn = fn + '.pkl'
+    q_vals = np.linspace(0.2, 1, 19)
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        qs = np.random.uniform(0.2, 1, ntrials)
+        qs = np.repeat(q_vals, ntrials // len(q_vals))
         e2s = np.random.uniform(0, 0.9, ntrials)
         m2 = m12 / (1 + qs)
         m1 = m12 - m2
@@ -1383,7 +1384,7 @@ def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32,
     f_cos = 100 * (np.cos(np.radians(50)) - np.cos(np.radians(130))) / 2
     tot_perc = len(merged_q) / len(all_q) * f_cos
     if to_plot and plt is not None:
-        counts, bin_edges = np.histogram(all_q, bins=50)
+        counts, bin_edges = np.histogram(all_q, bins=len(q_vals))
         merged_q_counts, _ = np.histogram(merged_q, bins=bin_edges)
         merged_q_nongw_counts, _ = np.histogram(merged_q_nongw, bins=bin_edges)
         bin_centers = (bin_edges[ :-1] + bin_edges[1: ]) / 2
@@ -1446,8 +1447,8 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         I0d_vals = np.repeat(_I0d_vals, ntrials)
         pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
         if not os.path.exists(pkl_fn):
-            print('Skipping %s' % pkl_fn)
-            continue
+            # print('Skipping %s' % pkl_fn)
+            # continue
             print('Running %s' % pkl_fn)
             args = [
                 (idx, q, I0d, None, kwargs_dict)
@@ -1589,43 +1590,48 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    # a2effs = [2000, 2800, 3600, 4500, 5500, 7000]
-    # # a2effs = [1200, 2000, 2800, 3600, 4500, 5500, 7000]
-    # tot_frac = []
-    # for a2eff in a2effs:
-    #     ntrials = 10000 if a2eff == 3600 else 2000
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff,
-    #                      ntrials=ntrials, to_plot=True)
-    #     tot_frac.append(frac)
-    # plt.plot(a2effs, tot_frac, 'ko')
-    # plt.xlabel(r'$a_{\rm out, eff}$')
-    # plt.ylabel(r'Merger Fraction (\%)')
-    # plt.savefig('1popsynth/total', dpi=300)
-    # plt.close()
+    a2effs = [3600, 5500, 7000, 2800]
+    tot_frac = []
+    for a2eff in a2effs:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+        tot_frac.append(frac)
+    plt.plot(a2effs, tot_frac, 'ko')
+    plt.xlabel(r'$a_{\rm out, eff}$')
+    plt.ylabel(r'Merger Fraction (\%)')
+    plt.savefig('1popsynth/total', dpi=300)
+    plt.close()
 
     # 0.456 Gyr = 500 Tk
-    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
-    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
-    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
-    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
-    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
-    run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
-    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.1, base_fn='e2_1tp')
-    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.3, base_fn='e2_3tp')
-    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.5, base_fn='e2_5tp')
-    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.6, base_fn='e2_6tp')
-    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.8, base_fn='e2_8tp')
-    run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                 e2=0.9, base_fn='e2_9tp')
-    run_laetitia(nthreads=4, offsets=[0], M3=1, a2=500,
-                 e2=0.6, base_fn='e2_6tp_w0',
-                 w1=0, w2=0, W=0,
-                 ntrials=1)
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
+    # run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
+    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.1, base_fn='e2_1tp')
+    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.3, base_fn='e2_3tp')
+    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.5, base_fn='e2_5tp')
+    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.6, base_fn='e2_6tp')
+    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.8, base_fn='e2_8tp')
+    # run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.9, base_fn='e2_9tp')
+    # run_laetitia(nthreads=4, offsets=[0], M3=1, a2=500,
+    #              e2=0.6, base_fn='e2_6tp_w0',
+    #              w1=0, w2=0, W=0,
+    #              ntrials=1)
+    # run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-2,
+    #              a2=50 * (10**(1/3)), e2=0.6, base_fn='e2_6_m10')
+    # run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=3e-2,
+    #              a2=50 * (30**(1/3)), e2=0.6, base_fn='e2_6_m30')
+    # run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-2,
+    #              a2=50 * (10**(1/3)), e2=0.8, base_fn='e2_8_m10')
+    # run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=3e-2,
+    #              a2=50 * (30**(1/3)), e2=0.8, base_fn='e2_8_m30')
 
     # laetitia_kwargs = dict(
     #     ll=0,
