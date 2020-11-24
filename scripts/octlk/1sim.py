@@ -139,13 +139,12 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
         return tf, ret.y[ :, -1]
     return tf
 
+bin_aeff = 700 * np.sqrt(1 - 0.9**2)
 def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
 # def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
           folder='1sweepbin', nthreads=60):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
-
-    bin_aeff = 700 * np.sqrt(1 - 0.9**2)
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
@@ -201,7 +200,7 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
 
         # Bin's case
-        # [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
+        [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
         # [1.0, 0.9, 'bindistequal', 70, 110, 10, bin_aeff], # TODO
     ]
     for cfg in run_cfgs:
@@ -235,38 +234,39 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
                 print('Loading %s' % pkl_fn)
                 I_plots, tmerges = pickle.load(f)
 
-def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1sweepbin_emax', nthreads=1):
+EMAX_CFGS = [
+    # a2 = 4500, e2 = 0.6
+    [1.0, 0.6, '1equaldist', 100, 3600],
+    [0.2, 0.6, '1p2dist', 100, 3600],
+    [0.3, 0.6, '1p3dist', 100, 3600],
+    [0.4, 0.6, '1p4dist', 100, 3600],
+    [0.5, 0.6, '1p5dist', 100, 3600],
+    [0.7, 0.6, '1p7dist', 100, 3600],
+
+    [1.0, 0.8, 'e81equaldist', 100, 3600],
+    [0.2, 0.8, 'e81p2dist', 100, 3600],
+    [0.3, 0.8, 'e81p3dist', 100, 3600],
+    [0.4, 0.8, 'e81p4dist', 100, 3600],
+    [0.5, 0.8, 'e81p5dist', 100, 3600],
+    [0.7, 0.8, 'e81p7dist', 100, 3600],
+
+    [1.0, 0.9, 'e91equaldist', 100, 3600],
+    [0.2, 0.9, 'e91p2dist', 100, 3600],
+    [0.3, 0.9, 'e91p3dist', 100, 3600],
+    [0.4, 0.9, 'e91p4dist', 100, 3600],
+    [0.5, 0.9, 'e91p5dist', 100, 3600],
+    [0.7, 0.9, 'e91p7dist', 100, 3600],
+
+    # Bin's weird case
+    [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
+    [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
+]
+def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
+                   folder='1sweepbin_emax', nthreads=1, run_cfgs=EMAX_CFGS):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
-    run_cfgs = [
-        # a2 = 4500, e2 = 0.6
-        [1.0, 0.6, '1equaldist', 100, 3600],
-        [0.2, 0.6, '1p2dist', 100, 3600],
-        [0.3, 0.6, '1p3dist', 100, 3600],
-        [0.4, 0.6, '1p4dist', 100, 3600],
-        [0.5, 0.6, '1p5dist', 100, 3600],
-        [0.7, 0.6, '1p7dist', 100, 3600],
-
-        [1.0, 0.8, 'e81equaldist', 100, 3600],
-        [0.2, 0.8, 'e81p2dist', 100, 3600],
-        [0.3, 0.8, 'e81p3dist', 100, 3600],
-        [0.4, 0.8, 'e81p4dist', 100, 3600],
-        [0.5, 0.8, 'e81p5dist', 100, 3600],
-        [0.7, 0.8, 'e81p7dist', 100, 3600],
-
-        [1.0, 0.9, 'e91equaldist', 100, 3600],
-        [0.2, 0.9, 'e91p2dist', 100, 3600],
-        [0.3, 0.9, 'e91p3dist', 100, 3600],
-        [0.4, 0.9, 'e91p4dist', 100, 3600],
-        [0.5, 0.9, 'e91p5dist', 100, 3600],
-        [0.7, 0.9, 'e91p7dist', 100, 3600],
-
-        # Bin's weird case
-        [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
-        [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
-    ]
     for cfg in run_cfgs:
         q, e2, base_fn, a0, a2eff = cfg
         a2 = a2eff / np.sqrt(1 - e2**2)
@@ -289,8 +289,8 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000, folder='1swe
             for idx, I0 in enumerate(I_plots)
         ]
         if not os.path.exists(pkl_fn):
-            print('Not exists %s' % pkl_fn)
-            continue
+            # print('Not exists %s' % pkl_fn)
+            # continue
             print('Running %s' % pkl_fn)
             p = Pool(nthreads)
             rets = p.starmap(get_emax_series, args)
@@ -725,12 +725,12 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     plt.savefig(filename + 'delays', dpi=300)
     plt.close()
 
-def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
-    a2 = 4500
+def run_nogw_vec(fn='1nogw_vec', q=2/3, M12=50, M3=30, a0=100, e2=0.6,
+                 a2=4500, **kwargs):
     Itot = kwargs.get('Itot', 93.5)
-    M1 = 50 / (1 + q)
-    M2 = 50 - M1
-    eps = get_eps(M2, M1, 30, 100, a2, 0.6)
+    M1 = M12 / (1 + q)
+    M2 = M12 - M1
+    eps = get_eps(M2, M1, M3, a0, a2, e2)
     eta_ecc = eps[3]
 
     ret = run_vec(a2=a2, M1=M1, M2=M2, **kwargs)
@@ -742,7 +742,7 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
     evec_mags = np.sqrt(np.sum(evec**2, axis=0))
     eoutvec = ret.y[9:12, :]
     eoutvec_mags = np.sqrt(np.sum(eoutvec**2, axis=0))
-    Mu = 30 * 20 / 50
+    Mu = M1 * M2 / M12
     a = lin_mag**2/((Mu**2)*k*50*(1 - evec_mags**2))
     I = np.degrees(np.arccos(ret.y[2] / lin_mag))
     Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
@@ -774,12 +774,12 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
     ax3.plot(ret.t / 1e8, K)
     ax3.axhline(-eta / 2, c='k', ls=':', lw=2)
     ax3.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
-    ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
     ax4.plot(ret.t / 1e8, np.degrees(w1), 'ko', ms=0.7)
     ax4.set_ylabel(r'$\omega_1$')
     ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
     ax5.plot(ret.t / 1e8, We, 'ko', ms=0.7)
     ax5.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
+    ax5.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     ax6.plot(ret.t / 1e8, Ie)
     ax6.set_ylabel(r'$I_{\rm e}$ (Deg)')
@@ -1036,11 +1036,12 @@ COMPOSITE_CFGS = [
         [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
     ],
-    # [
-    #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff], # TODO
-    #     [1.0, 0.9, 'bindistequal', 70, 110, 10, bin_aeff], # TODO
-    # ],
 ]
+# COMPOSITE_CFGS = [
+#     [
+#         [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+#     ],
+# ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                    num_i=1000, plot_single=True, get_mergerfracs=False):
     # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
@@ -1412,6 +1413,7 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                  a2=50,
                  E10=1e-3,
                  e2=0.6,
+                 **kwargs,
                  ):
     mkdirp(folder)
     M12 = M1 + M2
@@ -1422,20 +1424,25 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         a0=a0,
         a2=a2,
         e2=e2,
-        k2 = 0.37,
-        R2 = 4.676e-4,
+        k2=0.37,
+        R2=4.676e-4,
+        **kwargs,
     )
     I0d_vals_tot = np.linspace(40, 140, num_i)
 
     I0d_plot = []
     m1_emaxes = []
+    Kmaxes = []
+    Kmins = []
+    K0s = []
+    eta0 = get_eps_eta0(M1, M2, M3, a0, a2, e2)[3]
     for offset in offsets:
         _I0d_vals = I0d_vals_tot[offset::stride]
         I0d_vals = np.repeat(_I0d_vals, ntrials)
         pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
         if not os.path.exists(pkl_fn):
-            print('Skipping %s' % pkl_fn)
-            continue
+            # print('Skipping %s' % pkl_fn)
+            # continue
             print('Running %s' % pkl_fn)
             args = [
                 (idx, q, I0d, None, kwargs_dict)
@@ -1449,14 +1456,34 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
             with open(pkl_fn, 'rb') as f:
                 # print('Loading %s' % pkl_fn)
                 emax_rets = pickle.load(f)
-        for I0d_vals, emax_ret in zip(I0d_vals, emax_rets):
+        for I0d_val, emax_ret in zip(I0d_vals, emax_rets):
             if len(emax_ret[1]) == 0:
                 continue
-            I0d_plot.append(I0d_vals)
+            I0d_plot.append(I0d_val)
             m1_emaxes.append(1 - np.max(emax_ret[1]))
 
+            I0 = np.radians(I0d_val)
+            e_vals = np.array(emax_ret[1])
+            I1_vals = np.radians(np.array(emax_ret[2]))
+            ltot_i = ltot(E10, I0, e2, eta0)
+
+            e2_vals, I2_vals = np.array([
+                get_eI2(emax, Imax, eta0, ltot_i)
+                for emax, Imax in zip(e_vals, I1_vals)
+            ]).T
+            K_vals = (
+                np.sqrt(1 - e_vals**2) * np.cos(I1_vals + I2_vals)
+                - eta0 * e_vals**2 / (2 * np.sqrt(1 - e2_vals**2))
+            )
+            Kmins.append(K_vals.min())
+            Kmaxes.append(K_vals.max())
+            K0s.append(
+                np.sqrt(1 - E10**2) * np.cos(I0)
+                - eta0 * E10**2 / (2 * np.sqrt(1 - e2**2))
+            )
+
     eps_oct = a0 / a2 * e2 / (1 - e2**2)
-    print(eps_oct)
+    print(base_fn, eps_oct)
     MLL_expr = (
         0.26 * (eps_oct / 0.1)
         - 0.536 * (eps_oct / 0.1)**2
@@ -1466,13 +1493,39 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(MLL_expr)))
     ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(MLL_expr)))
 
-    plt.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5)
-    plt.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
-    plt.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
-    plt.xlabel(r'$I_0$ (Deg)')
-    plt.ylabel(r'$1 - e_{\max}$')
+    _, eps_gr, eps_oct, eta = get_eps(M1, M2, M3, a0, a2, e2)
+    Ilimd = get_Ilim(eta, eps_gr)
+    Kcrit = (
+        np.sqrt(1 - E10**2) * np.cos(np.radians(Ilimd))
+        - eta0 * E10**2 / (2 * np.sqrt(1 - e2**2))
+    )
+
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1,
+        figsize=(7, 8),
+        gridspec_kw={'height_ratios': [1, 1]},
+        sharex=True)
+    ax1.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5)
+    ax1.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
+    ax1.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
+    ax1.set_ylabel(r'$1 - e_{\max}$')
+
+    ax2.plot(I0d_plot, Kmins, 'bo', label=r'$K_{\min}$', ms=0.5,
+             alpha=0.5)
+    ax2.plot(I0d_plot, Kmaxes, 'go', label=r'$K_{\max}$', ms=0.5,
+             alpha=0.5)
+    sort_idx = np.argsort(I0d_plot)
+    ax2.plot(np.array(I0d_plot)[sort_idx],
+             np.array(K0s)[sort_idx],
+             'k--',
+             label=r'$K_0$')
+    ax2.axhline(Kcrit, c='r', lw=1.0)
+    ax2.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
+    ax2.set_xlabel(r'$I_0$ (Deg)')
+
     plt.tight_layout()
-    plt.savefig('%s/%s' % (folder, base_fn))
+    fig.subplots_adjust(hspace=0.02)
+    plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
     plt.close()
 
 if __name__ == '__main__':
@@ -1487,6 +1540,13 @@ if __name__ == '__main__':
     # run_emax_sweep(nthreads=12)
     # plot_composite(plot_single=False)
     # plot_massratio_sample()
+
+    emax_cfgs_short = [
+        [0.3, 0.6, '1p3dist_2800', 100, 2800],
+        [0.3, 0.6, '1p3dist_2000', 100, 2000],
+    ]
+    run_emax_sweep(num_i=200, num_trials=3, nthreads=32,
+                   run_cfgs=emax_cfgs_short)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
@@ -1519,27 +1579,19 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    # I think width ~ 1/epsoct^p, probably random walk timescale?
-
-    # exo3 is running bindist
-    # exo2a is running e8
-    # exo4: e9 (TODO, on exo15c already)
-    # exo15c is running emax_sweeps (rsync from curr)
-    # self: run last two explores
-
-    a2effs = [3600, 2800, 4500, 7000, 5500]
-    # a2effs = [3600, 2800, 4500, 7000, 5500, 2000, 1200]
-    tot_frac = []
-    for a2eff in a2effs:
-        ntrials = 10000 if a2eff == 3600 else 2000
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff,
-                         ntrials=ntrials, to_plot=True)
-        tot_frac.append(frac)
-    plt.plot(a2effs, tot_frac, 'ko')
-    plt.xlabel(r'$a_{\rm out, eff}$')
-    plt.ylabel(r'Merger Fraction (\%)')
-    plt.savefig('1popsynth/total', dpi=300)
-    plt.close()
+    # a2effs = [2000, 2800, 3600, 4500, 5500, 7000]
+    # # a2effs = [1200, 2000, 2800, 3600, 4500, 5500, 7000]
+    # tot_frac = []
+    # for a2eff in a2effs:
+    #     ntrials = 10000 if a2eff == 3600 else 2000
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff,
+    #                      ntrials=ntrials, to_plot=True)
+    #     tot_frac.append(frac)
+    # plt.plot(a2effs, tot_frac, 'ko')
+    # plt.xlabel(r'$a_{\rm out, eff}$')
+    # plt.ylabel(r'Merger Fraction (\%)')
+    # plt.savefig('1popsynth/total', dpi=300)
+    # plt.close()
 
     # 0.456 Gyr = 500 Tk
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
@@ -1548,7 +1600,6 @@ if __name__ == '__main__':
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
     # run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
-
     # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
     #              e2=0.1, base_fn='e2_1tp')
     # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
@@ -1561,5 +1612,49 @@ if __name__ == '__main__':
     #              e2=0.8, base_fn='e2_8tp')
     # run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
     #              e2=0.9, base_fn='e2_9tp')
+    # run_laetitia(nthreads=4, offsets=[0], M3=1, a2=500,
+    #              e2=0.6, base_fn='e2_6tp_w0',
+    #              w1=0, w2=0, W=0,
+    #              ntrials=1)
+
+    # laetitia_kwargs = dict(
+    #     ll=0,
+    #     M12=1+1e-3,
+    #     q=1e-3,
+    #     M3=1,
+    #     INTain=5,
+    #     a2=500,
+    #     E10=1e-3,
+    #     e2=0.6,
+    #     method='Radau',
+    #     T=3e7,
+    #     TOL=1e-9,
+    #     k2=0.37,
+    #     R2=4.67e-4,
+    # )
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1laetitia_tp_90',
+    #              Itot=89.9)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1laetitia_tp_88',
+    #              Itot=88)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1laetitia_tp_87',
+    #              Itot=87)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1laetitia_tp_86',
+    #              Itot=86)
 
     pass

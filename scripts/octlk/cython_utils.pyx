@@ -788,7 +788,7 @@ def dydt_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, do
 
 def get_ain_vec_bin(double t, np.ndarray[double, ndim=1] y, double m, double mm, double l, double ll,
                  double M1, double M2, double M3, double Itot, double INTain, double a2, double N1,
-                 double Mu, double J1, double J2, double T):
+                 double Mu, double J1, double J2, double T, double k2, double R2):
     cdef double k = 39.4751488
     cdef double L1x = y[0]
     cdef double L1y = y[1]

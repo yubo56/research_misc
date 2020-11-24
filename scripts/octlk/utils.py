@@ -180,9 +180,9 @@ def run_vec(
     return ret
 
 def get_I2(e1, I1, e2, eta0):
-    return np.arcsin(
-        eta0 * np.sqrt((1 - e1**2) / (1 - e2**2)) * np.sin(I1)
-    )
+    arg = eta0 * np.sqrt((1 - e1**2) / (1 - e2**2)) * np.sin(I1)
+    assert arg <= 1
+    return np.arcsin(arg)
 def ltot(e1, I1, e2, eta0):
     ''' returns Ltot**2 / G2**2 '''
     Itot = I1 + get_I2(e1, I1, e2, eta0)
@@ -194,7 +194,8 @@ def ltot(e1, I1, e2, eta0):
 def get_eI2(e1, I1, eta0, ltot_i):
     ''' uses law of sines + conservation of Ltot to give e2, I2 '''
     opt_func = lambda e2: ltot(e1, I1, e2, eta0) - ltot_i
-    e2 = opt.brenth(opt_func, 0, 0.99)
+    e2max = np.sqrt(1 - (eta0 * np.sin(I1))**2 * (1 - e1**2))
+    e2 = opt.brenth(opt_func, 0, e2max - 1e-7)
     I2 = get_I2(e1, I1, e2, eta0)
     return e2, I2
 
