@@ -305,7 +305,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         if q == 1.0:
             I_plots = I0s
         else:
-            I_plots = np.repeat(I0s, 5)
+            I_plots = np.repeat(I0s, num_trials)
         emaxes = []
         Kmaxes = [] # K = j * cos(I) - eta0 * e^2 / (2 * j2)
         Kmins = []
@@ -359,6 +359,9 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
         Ilimd = get_Ilim(eta, eps_gr)
         elim = get_elim(eta, eps_gr)
+
+        if plt is None:
+            continue
 
         fig, (ax1, ax2) = plt.subplots(
             2, 1,
@@ -1431,7 +1434,9 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     I0d_vals_tot = np.linspace(40, 140, num_i)
 
     I0d_plot = []
+    I0d_plot2 = []
     m1_emaxes = []
+    m1_emaxes2 = [] # emax over first fifth of sim
     Kmaxes = []
     Kmins = []
     K0s = []
@@ -1441,8 +1446,8 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         I0d_vals = np.repeat(_I0d_vals, ntrials)
         pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
         if not os.path.exists(pkl_fn):
-            # print('Skipping %s' % pkl_fn)
-            # continue
+            print('Skipping %s' % pkl_fn)
+            continue
             print('Running %s' % pkl_fn)
             args = [
                 (idx, q, I0d, None, kwargs_dict)
@@ -1459,8 +1464,12 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         for I0d_val, emax_ret in zip(I0d_vals, emax_rets):
             if len(emax_ret[1]) == 0:
                 continue
+            first_fifth_idx = np.where(emax_ret[0] < emax_ret[0][-1] / 5)[0]
             I0d_plot.append(I0d_val)
             m1_emaxes.append(1 - np.max(emax_ret[1]))
+            if len(emax_ret[1][first_fifth_idx]) > 0:
+                I0d_plot2.append(I0d_val)
+                m1_emaxes2.append(1 - np.max(emax_ret[1][first_fifth_idx]))
 
             I0 = np.radians(I0d_val)
             e_vals = np.array(emax_ret[1])
@@ -1505,7 +1514,8 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         figsize=(7, 8),
         gridspec_kw={'height_ratios': [1, 1]},
         sharex=True)
-    ax1.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5)
+    ax1.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5, alpha=0.5)
+    ax1.semilogy(I0d_plot2, m1_emaxes2, 'b,', alpha=0.5)
     ax1.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
     ax1.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
     ax1.set_ylabel(r'$1 - e_{\max}$')
@@ -1541,12 +1551,12 @@ if __name__ == '__main__':
     # plot_composite(plot_single=False)
     # plot_massratio_sample()
 
-    emax_cfgs_short = [
-        [0.3, 0.6, '1p3dist_2800', 100, 2800],
-        [0.3, 0.6, '1p3dist_2000', 100, 2000],
-    ]
-    run_emax_sweep(num_i=200, num_trials=3, nthreads=32,
-                   run_cfgs=emax_cfgs_short)
+    # emax_cfgs_short = [
+    #     [0.3, 0.6, '1p3dist_2800', 100, 2800],
+    #     [0.3, 0.6, '1p3dist_2000', 100, 2000],
+    # ]
+    # run_emax_sweep(num_i=200, num_trials=3, nthreads=32,
+    #                run_cfgs=emax_cfgs_short)
 
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
@@ -1594,28 +1604,28 @@ if __name__ == '__main__':
     # plt.close()
 
     # 0.456 Gyr = 500 Tk
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
-    # run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
-    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.1, base_fn='e2_1tp')
-    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.3, base_fn='e2_3tp')
-    # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.5, base_fn='e2_5tp')
-    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.6, base_fn='e2_6tp')
-    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.8, base_fn='e2_8tp')
-    # run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.9, base_fn='e2_9tp')
-    # run_laetitia(nthreads=4, offsets=[0], M3=1, a2=500,
-    #              e2=0.6, base_fn='e2_6tp_w0',
-    #              w1=0, w2=0, W=0,
-    #              ntrials=1)
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
+    run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.1, base_fn='e2_1tp')
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.3, base_fn='e2_3tp')
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.5, base_fn='e2_5tp')
+    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.6, base_fn='e2_6tp')
+    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.8, base_fn='e2_8tp')
+    run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.9, base_fn='e2_9tp')
+    run_laetitia(nthreads=4, offsets=[0], M3=1, a2=500,
+                 e2=0.6, base_fn='e2_6tp_w0',
+                 w1=0, w2=0, W=0,
+                 ntrials=1)
 
     # laetitia_kwargs = dict(
     #     ll=0,
