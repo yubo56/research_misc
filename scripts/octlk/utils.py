@@ -10,6 +10,23 @@ def inverse_permutation(a):
     b[a] = b.copy()
     return b
 
+def reg(z):
+    return np.minimum(np.maximum(z, -1), 1)
+
+def ts_dot(x, y):
+    ''' dot product of two time series (is there a better way?) '''
+    z = np.zeros(np.shape(x)[1])
+    for x1, y1 in zip(x, y):
+        z += x1 * y1
+    return reg(z)
+
+def ts_cross(x, y):
+    return np.array([
+        x[1] * y[2] - x[2] * y[1],
+        -x[0] * y[2] + x[2] * y[0],
+        x[0] * y[1] - x[1] * y[0],
+    ])
+
 def get_I1(I0, eta):
     ''' given total inclination between Lout and L, returns I_tot '''
     def I2_constr(_I2):

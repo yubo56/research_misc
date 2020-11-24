@@ -747,6 +747,11 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
     I = np.degrees(np.arccos(ret.y[2] / lin_mag))
     Iout = np.degrees(np.arccos(ret.y[8] / lout_mag))
 
+    n2hat = lout / lout_mag
+    u2hat = eoutvec / eoutvec_mags
+    v2hat = ts_cross(n2hat, u2hat)
+    We = np.degrees(np.arctan2(ts_dot(evec, v2hat), ts_dot(evec, u2hat)))
+
     # kozai constant (LL18.37)
     eta = eps[3]
     K = (
@@ -759,8 +764,8 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, **kwargs):
         figsize=(12, 9),
         sharex=True)
 
-    ax1.plot(ret.t / 1e8, eoutvec_mags)
-    ax1.set_ylabel(r'$e_{\rm out}$')
+    ax1.plot(ret.t / 1e8, We, 'ko', ms=0.7)
+    ax1.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
     ax2.semilogy(ret.t / 1e8, 1 - evec_mags)
     ax2.set_ylabel(r'$1 - e$')
     ax3.plot(ret.t / 1e8, I + Iout)
@@ -1267,7 +1272,8 @@ def plot_massratio_sample():
     plt.savefig('1massratio', dpi=300)
     plt.close()
 
-def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32):
+def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32,
+              to_plot=True):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
     sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
@@ -1284,7 +1290,6 @@ def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32):
     e0 = 1e-3
 
     mkdirp(folder)
-    to_plot = False
 
     fn = '%s/%s' % (folder, base_fn)
     pkl_fn = fn + '.pkl'
@@ -1359,31 +1364,32 @@ def pop_synth(a2eff=3600, ntrials=10000, base_fn='a2eff3600', nthreads=32):
         jmean = np.mean(4 * (1 - e_vals**2)**(-3))**(-1/6)
         emean = np.sqrt(1 - jmean**2)
         if np.max(e_vals) > e_os or emean > e_eff_crit:
-            print(q, e2, I0d, tmerge)
             merged_q_nongw.append(q)
 
+    tot_perc = len(merged_q) / len(all_q) * 100
     if to_plot and plt is not None:
-        fig, (ax1, ax2) = plt.subplots(
-            2, 1,
-            figsize=(6, 8),
-            sharex=True)
-
-        counts, bin_edges = np.histogram(all_q, bins=30)
+        counts, bin_edges = np.histogram(all_q, bins=50)
         merged_q_counts, _ = np.histogram(merged_q, bins=bin_edges)
         merged_q_nongw_counts, _ = np.histogram(merged_q_nongw, bins=bin_edges)
         bin_centers = (bin_edges[ :-1] + bin_edges[1: ]) / 2
-        ax1.plot(bin_centers,
-                 np.array(merged_q_counts) / np.array(counts) * 100)
-        ax2.plot(bin_centers,
-                 np.array(merged_q_nongw_counts) / np.array(counts) * 100)
-        ax1.set_ylabel('Prob. (Merger Time)')
-        ax2.set_ylabel('Prob. (GW-less)')
-        ax2.set_xlabel(r'$q$')
+
+        plt.figure(figsize=(6, 6))
+        plt.plot(bin_centers,
+                 np.array(merged_q_counts) / np.array(counts) * 100,
+                 label='Sim')
+        plt.plot(bin_centers,
+                 np.array(merged_q_nongw_counts) / np.array(counts) * 100,
+                 label='No-GW')
+        plt.legend(fontsize=14)
+        plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
+        plt.xlabel(r'$q$')
+        plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
+                  % (a2eff, ntrials))
         plt.tight_layout()
 
-        fig.subplots_adjust(hspace=0.02)
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
+    return tot_perc
 
 # num_i total inclinations, use stride + offsets to control which ones to run
 def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
@@ -1409,11 +1415,16 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
         R2 = 4.676e-4,
     )
     I0d_vals_tot = np.linspace(40, 140, num_i)
+
+    I0d_plot = []
+    m1_emaxes = []
     for offset in offsets:
         _I0d_vals = I0d_vals_tot[offset::stride]
         I0d_vals = np.repeat(_I0d_vals, ntrials)
         pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
         if not os.path.exists(pkl_fn):
+            print('Skipping %s' % pkl_fn)
+            continue
             print('Running %s' % pkl_fn)
             args = [
                 (idx, q, I0d, None, kwargs_dict)
@@ -1425,8 +1436,33 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                 pickle.dump((emax_rets), f)
         else:
             with open(pkl_fn, 'rb') as f:
-                print('Loading %s' % pkl_fn)
+                # print('Loading %s' % pkl_fn)
                 emax_rets = pickle.load(f)
+        for I0d_vals, emax_ret in zip(I0d_vals, emax_rets):
+            if len(emax_ret[1]) == 0:
+                continue
+            I0d_plot.append(I0d_vals)
+            m1_emaxes.append(1 - np.max(emax_ret[1]))
+
+    eps_oct = a0 / a2 * e2 / (1 - e2**2)
+    print(eps_oct)
+    MLL_expr = (
+        0.26 * (eps_oct / 0.1)
+        - 0.536 * (eps_oct / 0.1)**2
+        + 12.05 * (eps_oct / 0.1)**3
+        -16.78 * (eps_oct / 0.1)**4
+    ) if eps_oct < 0.05 else 0.45
+    ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(MLL_expr)))
+    ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(MLL_expr)))
+
+    plt.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5)
+    plt.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
+    plt.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
+    plt.xlabel(r'$I_0$ (Deg)')
+    plt.ylabel(r'$1 - e_{\max}$')
+    plt.tight_layout()
+    plt.savefig('%s/%s' % (folder, base_fn))
+    plt.close()
 
 if __name__ == '__main__':
     # UNUSED
@@ -1448,10 +1484,10 @@ if __name__ == '__main__':
     # plot_emax_dq(I0=97, fn='q_sweep_97')
     # plot_emax_dq(I0=99, fn='q_sweep_99')
 
-    # run_nogw_vec(ll=0, q=0.2, T=3e8, method='Radau', TOL=1e-9)
-    # run_nogw_vec(ll=0, q=0.2, T=3e8, method='Radau', TOL=1e-9, fn='1nogw_vec80',
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9)
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9, fn='1nogw_vec80',
     #              Itot=80)
-    # run_nogw_vec(ll=0, q=0.2, T=3e8, method='Radau', TOL=1e-9, fn='1nogw_vec88',
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9, fn='1nogw_vec88',
     #              Itot=88)
     # emax_omega_sweep()
     # k_sweep()
@@ -1480,25 +1516,38 @@ if __name__ == '__main__':
     # exo15c is running emax_sweeps (rsync from curr)
     # self: run last two explores
 
-    # pop_synth()
-    # pop_synth(a2eff=2800, base_fn='a2eff2800', ntrials=2000)
-    # pop_synth(a2eff=4500, base_fn='a2eff4500', ntrials=2000)
-    # pop_synth(a2eff=1200, base_fn='a2eff1200', ntrials=2000)
-    # pop_synth(a2eff=7000, base_fn='a2eff7000', ntrials=2000)
-    # pop_synth(a2eff=2000, base_fn='a2eff2000', ntrials=2000)
-    # pop_synth(a2eff=5500, base_fn='a2eff5500', ntrials=2000)
+    # a2effs = [3600, 2800, 4500, 7000, 5500]
+    # # a2effs = [3600, 2800, 4500, 7000, 5500, 2000, 1200]
+    # tot_frac = []
+    # for a2eff in a2effs:
+    #     ntrials = 10000 if a2eff == 3600 else 2000
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff,
+    #                      ntrials=ntrials, to_plot=False)
+    #     tot_frac.append(frac)
+    # plt.plot(a2effs, tot_frac, 'ko')
+    # plt.xlabel(r'$a_{\rm out, eff}$')
+    # plt.ylabel(r'Merger Fraction (\%)')
+    # plt.savefig('1popsynth/total', dpi=300)
+    # plt.close()
 
     # 0.456 Gyr = 500 Tk
-    run_laetitia(nthreads=11)
-    run_laetitia(nthreads=11, e2=0.1, base_fn='e2_1')
-    run_laetitia(nthreads=11, e2=0.3, base_fn='e2_3')
-    run_laetitia(nthreads=11, e2=0.5, base_fn='e2_5')
-    run_laetitia(nthreads=11, e2=0.8, base_fn='e2_8')
-    run_laetitia(nthreads=11, e2=0.9, base_fn='e2_9')
-    run_laetitia(nthreads=11, offsets=np.arange(10))
-    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
-    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
-    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
-    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
-    run_laetitia(nthreads=11, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
+    run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
+    run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
+
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.1, base_fn='e2_1tp')
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.3, base_fn='e2_3tp')
+    run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.5, base_fn='e2_5tp')
+    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.6, base_fn='e2_6tp')
+    run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.8, base_fn='e2_8tp')
+    run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                 e2=0.9, base_fn='e2_9tp')
     pass
