@@ -268,7 +268,8 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
 
     # q, e2, filename, ilow, ihigh, a0, a2eff
     for cfg in run_cfgs:
-        q, e2, base_fn, a0, a2eff = cfg
+        q, e2, base_fn, a0, a2eff = cfg[ :5]
+        override_kwargs = {} if len(cfg) == 5 else cfg[5]
         a2 = a2eff / np.sqrt(1 - e2**2)
 
         I0s = np.linspace(50, 130, num_i)
@@ -285,7 +286,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
 
         # auto-determine tf
         args = [
-            (idx, q, I0, None, dict(a0=a0, a2=a2, e2=e2))
+            (idx, q, I0, None, dict(a0=a0, a2=a2, e2=e2, **override_kwargs))
             for idx, I0 in enumerate(I_plots)
         ]
         if not os.path.exists(pkl_fn):
@@ -412,6 +413,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ax1.set_xticks(ticks)
         ax1.set_xticklabels([r'$%d$' % d for d in ticks])
         ax1.legend(fontsize=14)
+        ax1.set_ylim(bottom=(1 - elim) / 5)
 
         Kcrit = (
             np.sqrt(1 - e0**2) * np.cos(np.radians(Ilimd))
@@ -443,6 +445,7 @@ def get_emax_series(idx, q, I0, tf, kwargs={}):
     tk = 1/n1*((M1 + M2)/M3)*(a2/ain)**3*(1 - E2**2)**(3.0/2)
     k2 = kwargs.get('k2', 0)
     R2 = kwargs.get('R2', 0)
+    l = kwargs.get('l', 1)
 
     tgw = k**3 * M1 * M2 * (M1 + M2) / (c**5 * ain**4)
 
@@ -451,6 +454,7 @@ def get_emax_series(idx, q, I0, tf, kwargs={}):
 
     ret = run_vec(
         ll=0,
+        l=l,
         T=tf,
         M1=M1,
         M2=M2,
@@ -1559,6 +1563,11 @@ if __name__ == '__main__':
     # run_emax_sweep(num_i=200, num_trials=3, nthreads=32,
     #                run_cfgs=emax_cfgs_short)
 
+    emax_cfgs_other = [
+        [0.4, 0.6, '1p4dist_gr0', 100, 3600, dict(l=0)],
+    ]
+    run_emax_sweep(nthreads=11, run_cfgs=emax_cfgs_other)
+
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
     # plot_emax_dq(I0=95, fn='q_sweep_95')
@@ -1590,16 +1599,16 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    a2effs = [3600, 5500, 7000, 2800]
-    tot_frac = []
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
-        tot_frac.append(frac)
-    plt.plot(a2effs, tot_frac, 'ko')
-    plt.xlabel(r'$a_{\rm out, eff}$')
-    plt.ylabel(r'Merger Fraction (\%)')
-    plt.savefig('1popsynth/total', dpi=300)
-    plt.close()
+    # a2effs = [3600, 5500, 7000, 2800]
+    # tot_frac = []
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+    #     tot_frac.append(frac)
+    # plt.plot(a2effs, tot_frac, 'ko')
+    # plt.xlabel(r'$a_{\rm out, eff}$')
+    # plt.ylabel(r'Merger Fraction (\%)')
+    # plt.savefig('1popsynth/total', dpi=300)
+    # plt.close()
 
     # 0.456 Gyr = 500 Tk
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
