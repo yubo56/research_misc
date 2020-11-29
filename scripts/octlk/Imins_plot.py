@@ -1,3 +1,6 @@
+'''
+check whether the I @ the center of the gap trends w/ eps_oct
+'''
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')

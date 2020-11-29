@@ -1681,7 +1681,6 @@ if __name__ == '__main__':
     #     # [0.4, 0.6, '1p4dist_gr0', 100, 3600, dict(l=0)],
     # ]
     # run_emax_sweep(nthreads=6, run_cfgs=emax_cfgs_other)
-
     # plot_emax_dq(I0=93, fn='q_sweep93')
     # plot_emax_dq(I0=93.5, fn='q_sweep_935')
     # plot_emax_dq(I0=95, fn='q_sweep_95')
@@ -1714,6 +1713,16 @@ if __name__ == '__main__':
     # print('1 - elim', 1 - elim)
 
     # a2effs = [3600, 5500]#, 7000, 2800]
+    # tot_frac = []
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+    #     tot_frac.append(frac)
+    # plt.plot(a2effs, tot_frac, 'ko')
+    # plt.xlabel(r'$a_{\rm out, eff}$')
+    # plt.ylabel(r'Merger Fraction (\%)')
+    # plt.savefig('1popsynth/total', dpi=300)
+    # plt.close()
+    # a2effs = [3600, 5500, 7000, 2800]
     # tot_frac = []
     # for a2eff in a2effs:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
