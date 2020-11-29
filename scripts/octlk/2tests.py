@@ -8,6 +8,8 @@ a few test model explorations:
     - overlay the effective merger reion?
 '''
 from utils import *
+import os
+import pickle
 
 import numpy as np
 import matplotlib
@@ -146,7 +148,245 @@ def minimize_hoct(e2=0.6, to_print=False):
         print(ret_neg.x, -ret_neg.fun)
     return ret.fun, -ret_neg.fun # minimum/maximum
 
+def run_one_cycle(q, M12, plot=False, num_periods=1, mm=1e-5, **kwargs):
+    ''' run one cycle, eps_oct = eps_gr = 0 '''
+    M1 = M12 / (1 + q)
+    M2 = M12 - M1
+    M3 = kwargs.get('M3', 30)
+    ain = kwargs.get('a0', 100)
+    a2 = kwargs.get('a2', 4500)
+    E2 = kwargs.get('e2', 0.6)
+    n1 = np.sqrt((k*(M1 + M2))/ain ** 3)
+    tk = 1/n1*((M1 + M2)/M3)*(a2/ain)**3*(1 - E2**2)**(3.0/2)
+    T = 100 * tk
+    kwargs['ll'] = 0 # eps_gw
+    kwargs['mm'] = mm # eps_oct
+    ret = run_vec(M1=M1, M2=M2, T=T, **kwargs)
+
+    Lin_vec = ret.y[ :3]
+    ein_vec = ret.y[3:6]
+    Lout_vec = ret.y[6:9]
+    eout_vec = ret.y[9:12]
+    Lin_mag = np.sqrt(np.sum(Lin_vec**2, axis=0))
+    ein = np.sqrt(np.sum(ein_vec**2, axis=0))
+    Lout_mag = np.sqrt(np.sum(Lout_vec**2, axis=0))
+    eout = np.sqrt(np.sum(eout_vec**2, axis=0))
+    I = np.arccos(Lin_vec[2] / Lin_mag)
+    Iout = np.arccos(Lout_vec[2] / Lout_mag)
+    w = np.arcsin(reg(ein_vec[2] / (ein * np.sin(I))))
+    Linxy_x = Lin_vec[0] / (Lin_mag * np.sin(I))
+    Linxy_y = Lin_vec[1] / (Lin_mag * np.sin(I))
+    W = np.unwrap(np.arctan2(Linxy_y, Linxy_x))
+
+    Ie = np.arccos(ein_vec[2] / ein)
+    einxy_x = ein_vec[0] / (ein * np.sin(Ie))
+    einxy_y = ein_vec[1] / (ein * np.sin(Ie))
+    We = np.unwrap(np.arctan2(einxy_y, einxy_x))
+
+    de = np.gradient(ein)
+    emax_idxs = np.where(np.logical_and(
+        ein > 0.9 * np.max(ein),
+        abs(de) < 1e-4
+    ))[0]
+    dt = np.diff(ret.t[emax_idxs])
+    gaps = np.where(dt > 0.1 * tk)[0]
+    emax_right_tentative = emax_idxs[gaps[num_periods - 1] + 1]
+    emax_left = np.argmax(ein[ :emax_right_tentative])
+    right_search = (
+        emax_idxs[-1] if len(gaps) <= num_periods
+        else emax_idxs[gaps[num_periods] + 1]
+    )
+    emax_right = (
+        np.argmax(ein[emax_right_tentative:right_search])
+        + emax_right_tentative
+    )
+
+    eta = Lin_mag[0] / (Lout_mag * np.sqrt(1 - ein[0]**2))
+    K = np.sqrt(1 - ein**2) * np.cos(I + Iout) - eta * ein**2 / 2
+
+    # relative angles
+    n2hat = Lout_vec / Lout_mag
+    u2hat = eout_vec / eout
+    v2hat = ts_cross(n2hat, u2hat)
+    We_rel = np.arctan2(ts_dot(ein_vec, v2hat), ts_dot(ein_vec, u2hat))
+
+    if plot:
+        plot_slice = np.s_[emax_left:emax_right]
+        # plot_slice = np.s_[::]
+        fig, ((ax1, ax2, ax3), (ax4, ax5, ax6), (ax7, ax8, ax9)) = plt.subplots(
+            3, 3,
+            figsize=(9, 9),
+            sharex=True)
+        ax1.plot(ret.t[plot_slice] / tk,
+                 np.degrees(w[plot_slice]))
+        ax2.semilogy(ret.t[plot_slice] / tk,
+                     1 - ein[plot_slice])
+        ax3.plot(ret.t[plot_slice] / tk,
+                     np.degrees(I[plot_slice]))
+        ax4.plot(ret.t[plot_slice] / tk,
+                 np.degrees(W[plot_slice]))
+        ax5.plot(ret.t[plot_slice] / tk,
+                 np.degrees(We[plot_slice]))
+        ax6.plot(ret.t[plot_slice] / tk,
+                 np.degrees(We_rel[plot_slice]))
+        ax7.plot(ret.t[plot_slice] / tk,
+                 K[plot_slice])
+        ax1.set_ylabel(r'$\omega$')
+        ax2.set_ylabel(r'$1 - e$')
+        ax3.set_ylabel(r'$I$')
+        ax4.set_ylabel(r'$\Omega$')
+        ax5.set_ylabel(r'$\Omega_e$')
+        ax6.set_ylabel(r'$\Omega_e$ (Rel)')
+        ax7.set_ylabel(r'$K$')
+        plt.tight_layout()
+        plt.savefig('/tmp/foo')
+        plt.close()
+
+    dW = np.degrees(W[emax_right] - W[emax_left])
+    dw = np.degrees(w[emax_right] - w[emax_left])
+    dWe = np.degrees(We[emax_right] - We[emax_left])
+    dWe_rel = np.degrees(We_rel[emax_right] - We_rel[emax_left])
+    dK = K[emax_right] - K[emax_left]
+    return dw, dW, dWe, dWe_rel, dK
+
+def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
+               mm=1e-5):
+    folder = '2dW_sweeps'
+    mkdirp(folder)
+    I0ds = np.linspace(80, 100, N)
+    pkl_fn = '%s/%s.pkl' % (folder, base_fn)
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        lib_vals = []
+        circ_vals = []
+        for I0d in I0ds:
+            circ_val = run_one_cycle(q, M12, w1=0, mm=mm, Itot=I0d, E20=e2,
+                                     num_periods=2)
+            circ_vals.append(circ_val[1: ])
+            lib_val = run_one_cycle(q, M12, w1=np.pi / 2, mm=mm,
+                                    Itot=I0d, E20=e2, num_periods=2)
+            lib_vals.append(lib_val[1: ])
+            # if not abs(abs(circ_val[0]) - 180) < 30:
+            #     print('Circ', I0d, circ_val[0])
+            # if not abs(lib_val[0]) < 30:
+            #     print('Lib', I0d, lib_val[0])
+        circ_vals = np.array(circ_vals)
+        lib_vals = np.array(lib_vals)
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump((circ_vals, lib_vals), f)
+    else:
+        with open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            circ_vals, lib_vals = pickle.load(f)
+    dWs_circ, dWes_circ, dWe_rels_circ, dKs_circ = circ_vals.T
+    dWs_lib, dWes_lib, dWe_rels_lib, dKs_lib = lib_vals.T
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
+        2, 2,
+        figsize=(8, 8),
+        sharex=True)
+
+    circ_plot_idxs = np.where(np.logical_and(
+        dWs_circ != -1,
+        dKs_circ > -0.5,
+    ))[0]
+    lib_plot_idxs = np.where(np.logical_and(
+        dWs_lib != -1,
+        dKs_lib > -0.5,
+    ))[0]
+    ax1.plot(I0ds[lib_plot_idxs], dWs_lib[lib_plot_idxs], 'go', label=r'Lib',
+             ms=0.8)
+    ax1.plot(I0ds[circ_plot_idxs], dWs_circ[circ_plot_idxs], 'ro',
+             label=r'Circ',
+             ms=0.8)
+    ax2.plot(I0ds[lib_plot_idxs], dWes_lib[lib_plot_idxs], 'go', ms=0.8)
+    ax2.plot(I0ds[circ_plot_idxs], dWes_circ[circ_plot_idxs], 'ro', ms=0.8)
+
+    ax3.plot(I0ds[lib_plot_idxs], dWe_rels_lib[lib_plot_idxs], 'go', ms=0.8)
+    ax3.plot(I0ds[circ_plot_idxs], dWe_rels_circ[circ_plot_idxs], 'ro', ms=0.8)
+    # eps_oct scaled by 1e-5
+    ax4.plot(I0ds[lib_plot_idxs], 100 / mm * dKs_lib[lib_plot_idxs], 'go',
+             ms=0.8)
+    ax4.plot(I0ds[circ_plot_idxs], 100 / mm * dKs_circ[circ_plot_idxs], 'ro',
+             ms=0.8)
+
+    ax1.legend(fontsize=14)
+
+    ax2.axhline(0, c='k', lw=0.7)
+    ax2.axhline(-180, c='k', lw=0.7)
+    ax2.axhline(180, c='k', lw=0.7)
+    ax3.axhline(0, c='k', lw=0.7)
+    ax3.axhline(-180, c='k', lw=0.7)
+    ax3.axhline(180, c='k', lw=0.7)
+    ax4.axhline(0, c='k', lw=0.7)
+
+    ax1.axvline(Ivert, c='k', lw=0.7)
+    ax2.axvline(Ivert, c='k', lw=0.7)
+    ax3.axvline(Ivert, c='k', lw=0.7)
+    ax4.axvline(Ivert, c='k', lw=0.7)
+
+    ax3.set_xlabel(r'$I_0$ (Deg)')
+    ax4.set_xlabel(r'$I_0$ (Deg)')
+    ax1.set_ylabel(r'$\Delta \Omega$')
+    ax2.set_ylabel(r'$\Delta \Omega_e$')
+    ax3.set_ylabel(r'$\Delta \Omega_e$ (Rel)')
+    ax4.set_ylabel(r'$100 \times K$')
+    if mm == 1e-5:
+        ax4.set_ylim(-0.1, 0.1)
+    else:
+        ax4.set_ylim(-1, 1)
+
+    ax2.yaxis.set_label_position('right')
+    ax4.yaxis.set_label_position('right')
+    ax2.yaxis.tick_right()
+    ax4.yaxis.tick_right()
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.02, wspace=0.02)
+    plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
+    plt.close()
+
+def plot_H(eta=0.1):
+    K0 = np.cos(np.radians(93.3))
+
+    fig = plt.figure(figsize=(8, 8))
+    n_pts = 100
+    emax = 1 - 1e-5
+    log_neg_e = np.linspace(0, np.log10(1 - emax) * 1.05, n_pts)
+    omega = np.linspace(0, np.pi, n_pts)
+    log_neg_e_grid = np.outer(log_neg_e, np.ones_like(omega))
+    omega_grid = np.outer(np.ones_like(log_neg_e), omega)
+    e_grid = 1 - (10**log_neg_e_grid)
+    # K = j * np.cos(I) - eta * e**2 / 2
+    # cos(I) = (K0 + eta * e**2 / 2) / j
+    I_grid = np.arccos(reg((K0 + eta * e_grid)/ np.sqrt(1 - e_grid**2)))
+    H_vals = H_quad(e_grid, omega_grid, I_grid)
+    H0 = H_quad(0, 0, np.arccos(K0))
+    plt.contour(omega_grid, log_neg_e_grid, H_vals, cmap='RdBu_r',
+                levels=10, linewidths=1.0)
+    plt.contour(omega_grid, log_neg_e_grid, H_vals, colors='k',
+                levels=[H0], linewidths=2.0)
+    plt.xlabel(r'$\omega$')
+    plt.ylabel(r'$\log_{10} (1 - e)$')
+    plt.savefig('2H_contour', dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
-    calculate_elim_regions()
+    # calculate_elim_regions()
     # minimize_hoct(0.8, to_print=True)
+    # for w1 in np.linspace(0, np.pi, 10):
+    #     dw = run_one_cycle(2/3, 50, w1=w1)[0]
+    #     print(w1, dw)
+    # print(run_one_cycle(2/3, 50, plot=True, w1=np.pi))
+
+    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
+    # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982)
+    # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788)
+    # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748)
+    # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732)
+    run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1)
+    run_sweeps(q=0.3, base_fn='2_dWsweeps6_3_1', Ivert=88.1981981981982, mm=1)
+    run_sweeps(q=0.4, base_fn='2_dWsweeps6_4_1', Ivert=87.87787787787788, mm=1)
+    run_sweeps(q=0.5, base_fn='2_dWsweeps6_5_1', Ivert=87.47747747747748, mm=1)
+    run_sweeps(q=0.7, base_fn='2_dWsweeps6_7_1', Ivert=87.31731731731732, mm=1)
+    # plot_H()
     pass
