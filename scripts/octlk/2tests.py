@@ -249,6 +249,8 @@ def run_one_cycle(q, M12, plot=False, num_periods=1, mm=1e-5, **kwargs):
     dK = K[emax_right] - K[emax_left]
     return dw, dW, dWe, dWe_rel, dK
 
+def re_angle(arr):
+    return (arr + 720) % 360
 def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
                mm=1e-5):
     folder = '2dW_sweeps'
@@ -261,15 +263,15 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
         circ_vals = []
         for I0d in I0ds:
             circ_val = run_one_cycle(q, M12, w1=0, mm=mm, Itot=I0d, E20=e2,
-                                     num_periods=2)
+                                     num_periods=1)
             circ_vals.append(circ_val[1: ])
             lib_val = run_one_cycle(q, M12, w1=np.pi / 2, mm=mm,
-                                    Itot=I0d, E20=e2, num_periods=2)
+                                    Itot=I0d, E20=e2, num_periods=1)
             lib_vals.append(lib_val[1: ])
-            # if not abs(abs(circ_val[0]) - 180) < 30:
-            #     print('Circ', I0d, circ_val[0])
-            # if not abs(lib_val[0]) < 30:
-            #     print('Lib', I0d, lib_val[0])
+            if mm == 0 and not abs(abs(circ_val[0]) - 180) < 30:
+                print('Circ', I0d, circ_val[0])
+            if mm == 0 and not abs(lib_val[0]) < 30:
+                print('Lib', I0d, lib_val[0])
         circ_vals = np.array(circ_vals)
         lib_vals = np.array(lib_vals)
         with open(pkl_fn, 'wb') as f:
@@ -293,30 +295,35 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
         dWs_lib != -1,
         dKs_lib > -0.5,
     ))[0]
-    ax1.plot(I0ds[lib_plot_idxs], dWs_lib[lib_plot_idxs], 'go', label=r'Lib',
+    ax1.plot(I0ds[lib_plot_idxs], re_angle(dWs_lib[lib_plot_idxs]), 'go',
+             label=r'$\omega_{1,0} = \pi / 2$', ms=0.8)
+    ax1.plot(I0ds[circ_plot_idxs], re_angle(dWs_circ[circ_plot_idxs]), 'ro',
+             label=r'$\omega_{1,0} = 0$', ms=0.8)
+    ax2.plot(I0ds[lib_plot_idxs], re_angle(dWes_lib[lib_plot_idxs]), 'go',
              ms=0.8)
-    ax1.plot(I0ds[circ_plot_idxs], dWs_circ[circ_plot_idxs], 'ro',
-             label=r'Circ',
+    ax2.plot(I0ds[circ_plot_idxs], re_angle(dWes_circ[circ_plot_idxs]), 'ro',
              ms=0.8)
-    ax2.plot(I0ds[lib_plot_idxs], dWes_lib[lib_plot_idxs], 'go', ms=0.8)
-    ax2.plot(I0ds[circ_plot_idxs], dWes_circ[circ_plot_idxs], 'ro', ms=0.8)
 
-    ax3.plot(I0ds[lib_plot_idxs], dWe_rels_lib[lib_plot_idxs], 'go', ms=0.8)
-    ax3.plot(I0ds[circ_plot_idxs], dWe_rels_circ[circ_plot_idxs], 'ro', ms=0.8)
+    ax3.plot(I0ds[lib_plot_idxs], re_angle(dWe_rels_lib[lib_plot_idxs]),
+             'go', ms=0.8)
+    ax3.plot(I0ds[circ_plot_idxs], re_angle(dWe_rels_circ[circ_plot_idxs]),
+             'ro', ms=0.8)
     # eps_oct scaled by 1e-5
+    if mm == 0:
+        mm = 1
     ax4.plot(I0ds[lib_plot_idxs], 100 / mm * dKs_lib[lib_plot_idxs], 'go',
-             ms=0.8)
+             ms=0.8, label=r'$\omega_{1,0} = \pi / 2$')
     ax4.plot(I0ds[circ_plot_idxs], 100 / mm * dKs_circ[circ_plot_idxs], 'ro',
-             ms=0.8)
+             ms=0.8, label=r'$\omega_{1,0} = 0$')
 
-    ax1.legend(fontsize=14)
+    ax4.legend(fontsize=12)
 
-    ax2.axhline(0, c='k', lw=0.7)
-    ax2.axhline(-180, c='k', lw=0.7)
-    ax2.axhline(180, c='k', lw=0.7)
-    ax3.axhline(0, c='k', lw=0.7)
-    ax3.axhline(-180, c='k', lw=0.7)
-    ax3.axhline(180, c='k', lw=0.7)
+    tic_locs = [0, 180, 360]
+    for ax in [ax2, ax3]:
+        ax.set_yticks(tic_locs)
+        ax.set_yticklabels([str(t) for t in tic_locs])
+        for loc in tic_locs:
+            ax.axhline(loc, c='k', lw=0.7)
     ax4.axhline(0, c='k', lw=0.7)
 
     ax1.axvline(Ivert, c='k', lw=0.7)
@@ -345,20 +352,63 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
     plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
     plt.close()
 
+def plot_dW_sweeps(q, base_fn, Ivert):
+    folder = '2dW_sweeps'
+    I0ds = np.linspace(80, 100, 1000)
+    pkl_fn = '%s/%s.pkl' % (folder, base_fn)
+    pkl_fn1 = '%s/%s_1.pkl' % (folder, base_fn)
+    with open(pkl_fn, 'rb') as f:
+        circ_vals_eps0, lib_vals_eps0 = pickle.load(f)
+    with open(pkl_fn1, 'rb') as f:
+        circ_vals_eps1, lib_vals_eps1 = pickle.load(f)
+    dWes_circ0 = re_angle(circ_vals_eps0[ :,1])
+    dWes_lib0 = re_angle(lib_vals_eps0[ :,1])
+    dWes_circ1 = re_angle(circ_vals_eps1[ :,1])
+    dWes_lib1 = re_angle(lib_vals_eps1[ :,1])
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1,
+        figsize=(8, 8),
+        sharex=True, sharey=True
+    )
+    ax1.plot(I0ds, dWes_circ0, 'go', label=r'$\omega_{1,0} = 0$',
+             ms=1.0)
+    ax1.plot(I0ds, dWes_lib0, 'ro', label=r'$\omega_{1,0} = \pi / 2$',
+             ms=1.0)
+    ax2.plot(I0ds, dWes_circ1, 'go', label=r'$\omega_{1,0} = 0$',
+             ms=1.0)
+    ax2.plot(I0ds, dWes_lib1, 'ro', label=r'$\omega_{1,0} = \pi / 2$',
+             ms=1.0)
+    ax2.legend(fontsize=12)
+    ax1.axvline(Ivert, c='k', lw=0.7)
+    ax2.axvline(Ivert, c='k', lw=0.7)
+    ax1.set_yticks([0, 180, 360])
+    ax1.set_yticklabels(['0', '180', '360'])
+    ax1.set_ylabel(r'$\Delta \Omega_e$ (One period)')
+    ax1.grid(True)
+    ax2.grid(True)
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.02)
+    plt_fn = '%s/%s_dual' % (folder, base_fn)
+    print('Saving', plt_fn)
+    plt.savefig(plt_fn, dpi=300)
+    plt.close()
+
 def plot_H(eta=0.1):
-    K0 = np.cos(np.radians(93.3))
+    K0 = np.cos(np.radians(88))
 
     fig = plt.figure(figsize=(8, 8))
     n_pts = 100
-    emax = 1 - 1e-5
+    emax = 1 - 1e-3
     log_neg_e = np.linspace(0, np.log10(1 - emax) * 1.05, n_pts)
     omega = np.linspace(0, np.pi, n_pts)
     log_neg_e_grid = np.outer(log_neg_e, np.ones_like(omega))
     omega_grid = np.outer(np.ones_like(log_neg_e), omega)
     e_grid = 1 - (10**log_neg_e_grid)
+    # e_grid = np.outer(np.linspace(0, 0.01, n_pts), np.ones_like(omega))
+
     # K = j * np.cos(I) - eta * e**2 / 2
     # cos(I) = (K0 + eta * e**2 / 2) / j
-    I_grid = np.arccos(reg((K0 + eta * e_grid)/ np.sqrt(1 - e_grid**2)))
+    I_grid = np.arccos(reg((K0 + eta * e_grid**2 / 2)/ np.sqrt(1 - e_grid**2)))
     H_vals = H_quad(e_grid, omega_grid, I_grid)
     H0 = H_quad(0, 0, np.arccos(K0))
     plt.contour(omega_grid, log_neg_e_grid, H_vals, cmap='RdBu_r',
@@ -378,15 +428,25 @@ if __name__ == '__main__':
     #     print(w1, dw)
     # print(run_one_cycle(2/3, 50, plot=True, w1=np.pi))
 
-    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
-    # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982)
-    # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788)
-    # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748)
-    # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732)
-    run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1)
-    run_sweeps(q=0.3, base_fn='2_dWsweeps6_3_1', Ivert=88.1981981981982, mm=1)
-    run_sweeps(q=0.4, base_fn='2_dWsweeps6_4_1', Ivert=87.87787787787788, mm=1)
-    run_sweeps(q=0.5, base_fn='2_dWsweeps6_5_1', Ivert=87.47747747747748, mm=1)
-    run_sweeps(q=0.7, base_fn='2_dWsweeps6_7_1', Ivert=87.31731731731732, mm=1)
     # plot_H()
+
+    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998, mm=0)
+    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1)
+    plot_dW_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
+
+    # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982, mm=0)
+    # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3_1', Ivert=88.1981981981982, mm=1)
+    plot_dW_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982)
+
+    # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788, mm=0)
+    # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4_1', Ivert=87.87787787787788, mm=1)
+    plot_dW_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788)
+
+    # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748, mm=0)
+    # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5_1', Ivert=87.47747747747748, mm=1)
+    plot_dW_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748)
+
+    # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732, mm=0)
+    # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7_1', Ivert=87.31731731731732, mm=1)
+    plot_dW_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732)
     pass

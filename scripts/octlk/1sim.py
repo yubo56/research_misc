@@ -1468,7 +1468,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
 
         if len(e_vals) == 0:
             continue
-        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+        j_os = 3 * (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
             c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
         e_os = np.sqrt(1 - j_os**2)
 
@@ -1487,6 +1487,8 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
     f_cos = 100 * (np.cos(np.radians(50)) - np.cos(np.radians(130))) / 2
     merged_fracs = np.array(
         [np.sum(arr) / len(arr) for arr in q_counts.values()])
+    uncerts = np.array(
+        [np.sqrt(np.sum(arr)) / len(arr) for arr in q_counts.values()])
     merged_fracs_nogw = np.array(
         [np.sum(arr) / len(arr) for arr in q_counts_nogw.values()])
     # merged_fracs_emaxonly = np.array(
@@ -1499,11 +1501,11 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         # plt.plot(q_counts_emaxonly.keys(), merged_fracs_emaxonly * f_cos, 'r--',
         #          label='Emax-only', lw=1.0)
         plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
-                     yerr=np.sqrt(merged_fracs * f_cos),
-                     fmt='ko', lw=1.0, ms=3.0)
+                     yerr=np.sqrt(uncerts * f_cos),
+                     fmt='ko', lw=1.0, ms=3.0, label='Sim')
         plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
-        plt.ylabel(r'Prob.')
+        plt.ylabel(r'Prob. (\%)')
         plt.xlabel(r'$q$')
         plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
                   % (a2eff, ntrials))
@@ -1656,6 +1658,155 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
     plt.close()
 
+def make_nogw_plots():
+    mkdirp('1nogw_sims')
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+    #              fn='1nogw_sims/1nogw_vec')
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+    #              fn='1nogw_sims/1nogw_vec80', Itot=80)
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+    #              fn='1nogw_sims/1nogw_vec88', Itot=88)
+    # laetitia_kwargs = dict(
+    #     ll=0,
+    #     M12=1+1e-3,
+    #     q=1e-3,
+    #     M3=1,
+    #     INTain=5,
+    #     a2=500,
+    #     E10=1e-3,
+    #     e2=0.6,
+    #     method='Radau',
+    #     T=3e7,
+    #     TOL=1e-9,
+    #     k2=0.37,
+    #     R2=4.67e-4,
+    # )
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1laetitia_tp_90',
+    #              Itot=89.9)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1laetitia_tp_88',
+    #              Itot=88)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1laetitia_tp_87',
+    #              Itot=87)
+    # run_nogw_vec(**laetitia_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1laetitia_tp_86',
+    #              Itot=86)
+    # tp_nosrf_kwargs = dict(
+    #     ll=0,
+    #     l=0,
+    #     M12=1+1e-3,
+    #     q=1e-3,
+    #     M3=1,
+    #     INTain=5,
+    #     a2=500,
+    #     E10=1e-3,
+    #     e2=0.6,
+    #     method='Radau',
+    #     T=3e7,
+    #     TOL=1e-9,
+    # )
+    # run_nogw_vec(**tp_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_tp_90',
+    #              Itot=89.9)
+    # run_nogw_vec(**tp_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_tp_88',
+    #              Itot=88)
+    # run_nogw_vec(**tp_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_tp_87',
+    #              Itot=87)
+    # run_nogw_vec(**tp_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_tp_86',
+    #              Itot=86)
+    # bbh_nosrf_kwargs = dict(
+    #     ll=0,
+    #     l=0,
+    #     M12=50,
+    #     q=0.3,
+    #     M3=30,
+    #     INTain=100,
+    #     a2=4500,
+    #     E10=1e-3,
+    #     e2=0.6,
+    #     method='Radau',
+    #     T=3e8,
+    #     TOL=1e-9,
+    # )
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_90',
+    #              Itot=89.9)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_88',
+    #              Itot=88)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_87',
+    #              Itot=87)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_86',
+    #              Itot=86)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=np.pi / 2,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_86_2',
+    #              Itot=86)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=np.pi / 4,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_86_3',
+    #              Itot=86)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              w1=3 * np.pi / 4,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_86_4',
+    #              Itot=86)
+    # run_nogw_vec(**bbh_nosrf_kwargs,
+    #              mm=0,
+    #              w1=0,
+    #              w2=0,
+    #              W=0,
+    #              fn='1nogw_sims/1nosrf_bbh_86_nooct',
+    #              Itot=86)
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -1688,11 +1839,6 @@ if __name__ == '__main__':
     # plot_emax_dq(I0=97, fn='q_sweep_97')
     # plot_emax_dq(I0=99, fn='q_sweep_99')
 
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9)
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9, fn='1nogw_vec80',
-    #              Itot=80)
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9, fn='1nogw_vec88',
-    #              Itot=88)
     # emax_omega_sweep()
     # k_sweep()
 
@@ -1712,26 +1858,16 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    # a2effs = [3600, 5500]#, 7000, 2800]
-    # tot_frac = []
-    # for a2eff in a2effs:
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
-    #     tot_frac.append(frac)
-    # plt.plot(a2effs, tot_frac, 'ko')
-    # plt.xlabel(r'$a_{\rm out, eff}$')
-    # plt.ylabel(r'Merger Fraction (\%)')
-    # plt.savefig('1popsynth/total', dpi=300)
-    # plt.close()
-    # a2effs = [3600, 5500, 7000, 2800]
-    # tot_frac = []
-    # for a2eff in a2effs:
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
-    #     tot_frac.append(frac)
-    # plt.plot(a2effs, tot_frac, 'ko')
-    # plt.xlabel(r'$a_{\rm out, eff}$')
-    # plt.ylabel(r'Merger Fraction (\%)')
-    # plt.savefig('1popsynth/total', dpi=300)
-    # plt.close()
+    a2effs = [3600, 5500]#, 7000, 2800]
+    tot_frac = []
+    for a2eff in a2effs:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+        tot_frac.append(frac)
+    plt.plot(a2effs, tot_frac, 'ko')
+    plt.xlabel(r'$a_{\rm out, eff}$')
+    plt.ylabel(r'Merger Fraction (\%)')
+    plt.savefig('1popsynth/total', dpi=300)
+    plt.close()
 
     # 0.456 Gyr = 500 Tk
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
@@ -1766,45 +1902,7 @@ if __name__ == '__main__':
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
 
-    # laetitia_kwargs = dict(
-    #     ll=0,
-    #     M12=1+1e-3,
-    #     q=1e-3,
-    #     M3=1,
-    #     INTain=5,
-    #     a2=500,
-    #     E10=1e-3,
-    #     e2=0.6,
-    #     method='Radau',
-    #     T=3e7,
-    #     TOL=1e-9,
-    #     k2=0.37,
-    #     R2=4.67e-4,
-    # )
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1laetitia_tp_90',
-    #              Itot=89.9)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1laetitia_tp_88',
-    #              Itot=88)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1laetitia_tp_87',
-    #              Itot=87)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1laetitia_tp_86',
-    #              Itot=86)
+    # make_nogw_plots()
 
     # plot_emaxgrid(nthreads=32)
     pass
