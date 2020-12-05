@@ -236,7 +236,7 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
                 I_plots, tmerges = pickle.load(f)
-# I(min(deltaK)
+# I(min(deltaK))
 # [1.0, 0.6, '1equaldist', 100, 3600] 89.7997997997998
 # [0.2, 0.6, '1p2dist', 100, 3600] 88.1981981981982
 # [0.3, 0.6, '1p3dist', 100, 3600] 87.87787787787788
@@ -1383,7 +1383,7 @@ def plot_emaxgrid(folder='1sweepbin_emax', nthreads=1, q=0.3, e2=0.6,
     plt.close()
 
 def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
-              to_plot=True):
+              n_qs=19, q_min=2, to_plot=True, run_full=True):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
     sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
@@ -1403,29 +1403,29 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
 
     fn = '%s/%s' % (folder, base_fn)
     pkl_fn = fn + '.pkl'
-    q_vals = np.linspace(0.2, 1, 19)
+    q_vals = np.linspace(q_min, 1, n_qs)
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        qs = np.repeat(q_vals, ntrials // len(q_vals))
-        e2s = np.random.uniform(0, 0.9, ntrials)
+        qs = np.repeat(q_vals, ntrials // n_qs)
+        # only draw from ~50-130
+        Imin, Imax = np.radians([50, 130])
+        if not run_full:
+            e2s = np.random.uniform(0, 0.9, ntrials)
+            I0s = np.arccos(
+                np.random.uniform(np.cos(Imax), np.cos(Imin), ntrials)
+            )
+        else:
+            # for ntrials=10k, I use n_qs=31. Try 3 reps of 19 eouts and 57
+            # inclinations, with a stride of 10 = 10071 trials, close enough
+            _e2s = np.linspace(0, 0.9, 19)
+            _I0s = np.linspace(np.cos(Imax), np.cos(Imin), 57)
+            e2s = np.repeat(np.outer(_e2s, np.ones_like(_I0s)).flatten(), 3)[::10]
+            I0s = np.repeat(np.outer(np.ones_like(_e2s), _I0s).flatten(), 3)[::10]
         m2 = m12 / (1 + qs)
         m1 = m12 - m2
         a2s = a2eff / np.sqrt(1 - e2s**2)
-        # only draw from ~50-130
-        Imin, Imax = np.radians([50, 130])
-        I0s = np.arccos(
-            np.random.uniform(np.cos(Imax), np.cos(Imin), ntrials)
-        )
 
         p = Pool(nthreads)
-        args = [
-            (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0, True)
-            for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
-        ]
-        start = time.time()
-        tmerge_rets = p.starmap(sweeper_bin, args)
-        tmerge_time_elapsed = time.time() - start
-
         args2 = [
             (idx, q, np.degrees(I0), None, dict(a0=a0, a2=a2, e2=e2))
             for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
@@ -1433,6 +1433,17 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         start = time.time()
         emax_rets = p.starmap(get_emax_series, args2)
         emax_time_elapsed = time.time() - start
+
+        args = [
+            (idx, q, t_hubb_gyr * 1e9, a0, a2, e0, e2, I0, True)
+            for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
+        ]
+        start = time.time()
+        if run_full:
+            tmerge_rets = p.starmap(sweeper_bin, args)
+        else:
+            tmerge_rets = emax_rets # for compatibility...
+        tmerge_time_elapsed = time.time() - start
 
         with open(pkl_fn, 'wb') as f:
             ret = (args, tmerge_rets, emax_rets, tmerge_time_elapsed,
@@ -1443,8 +1454,8 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         with open(pkl_fn, 'rb') as f:
             ret = pickle.load(f)
     args, tmerge_rets, emax_rets, tmerge_time_elapsed, emax_time_elapsed = ret
-    print('TMerge took', tmerge_time_elapsed)
     print('Emax took', emax_time_elapsed)
+    print('TMerge took', tmerge_time_elapsed)
 
     # PDF of q among merged systems
     j_eff_crit = 0.01461 * (100 / a0)**(2/3)
@@ -1498,12 +1509,11 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         plt.figure(figsize=(6, 6))
         plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
                  label='No-GW', ms=3.5)
-        # plt.plot(q_counts_emaxonly.keys(), merged_fracs_emaxonly * f_cos, 'r--',
-        #          label='Emax-only', lw=1.0)
-        plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
-                     yerr=np.sqrt(uncerts * f_cos),
-                     fmt='ko', lw=1.0, ms=3.0, label='Sim')
-        plt.legend(fontsize=14)
+        if run_full:
+            plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
+                         yerr=np.sqrt(uncerts * f_cos),
+                         fmt='ko', lw=1.0, ms=3.0, label='Sim')
+            plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
         plt.ylabel(r'Prob. (\%)')
         plt.xlabel(r'$q$')
@@ -1858,12 +1868,23 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    a2effs = [3600, 5500]#, 7000, 2800]
     tot_frac = []
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+    # a2effs = [3600, 5500]#, 7000, 2800]
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+    #     tot_frac.append(frac)
+    # a2effs2 = [2800, 4500, 7000]
+    # for a2eff in a2effs2:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
+    #                      n_qs=7, ntrials=10500)
+    #     tot_frac.append(frac)
+    a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
+    for a2eff in a2effs_nogwonly:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+                         to_plot=True, n_qs=31, q_min=0, ntrials=10000,
+                         run_full=False)
         tot_frac.append(frac)
-    plt.plot(a2effs, tot_frac, 'ko')
+    plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     plt.xlabel(r'$a_{\rm out, eff}$')
     plt.ylabel(r'Merger Fraction (\%)')
     plt.savefig('1popsynth/total', dpi=300)
