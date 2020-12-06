@@ -1,6 +1,9 @@
 import numpy as np
 import os
-from cython_utils import *
+try: # can't compile cython on MacOS...
+    from cython_utils import *
+except:
+    pass
 
 from scipy.integrate import solve_ivp
 import scipy.optimize as opt
