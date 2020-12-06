@@ -1383,7 +1383,7 @@ def plot_emaxgrid(folder='1sweepbin_emax', nthreads=1, q=0.3, e2=0.6,
     plt.close()
 
 def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
-              n_qs=19, q_min=2, to_plot=True, run_full=True):
+              n_qs=19, q_min=0.2, to_plot=True):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
     sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
@@ -1409,18 +1409,10 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         qs = np.repeat(q_vals, ntrials // n_qs)
         # only draw from ~50-130
         Imin, Imax = np.radians([50, 130])
-        if not run_full:
-            e2s = np.random.uniform(0, 0.9, ntrials)
-            I0s = np.arccos(
-                np.random.uniform(np.cos(Imax), np.cos(Imin), ntrials)
-            )
-        else:
-            # for ntrials=10k, I use n_qs=31. Try 3 reps of 19 eouts and 57
-            # inclinations, with a stride of 10 = 10071 trials, close enough
-            _e2s = np.linspace(0, 0.9, 19)
-            _I0s = np.linspace(np.cos(Imax), np.cos(Imin), 57)
-            e2s = np.repeat(np.outer(_e2s, np.ones_like(_I0s)).flatten(), 3)[::10]
-            I0s = np.repeat(np.outer(np.ones_like(_e2s), _I0s).flatten(), 3)[::10]
+        e2s = np.random.uniform(0, 0.9, ntrials)
+        I0s = np.arccos(
+            np.random.uniform(np.cos(Imax), np.cos(Imin), ntrials)
+        )
         m2 = m12 / (1 + qs)
         m1 = m12 - m2
         a2s = a2eff / np.sqrt(1 - e2s**2)
@@ -1439,10 +1431,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
             for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
         ]
         start = time.time()
-        if run_full:
-            tmerge_rets = p.starmap(sweeper_bin, args)
-        else:
-            tmerge_rets = emax_rets # for compatibility...
+        tmerge_rets = p.starmap(sweeper_bin, args)
         tmerge_time_elapsed = time.time() - start
 
         with open(pkl_fn, 'wb') as f:
@@ -1509,12 +1498,123 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         plt.figure(figsize=(6, 6))
         plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
                  label='No-GW', ms=3.5)
-        if run_full:
-            plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
-                         yerr=np.sqrt(uncerts * f_cos),
-                         fmt='ko', lw=1.0, ms=3.0, label='Sim')
-            plt.legend(fontsize=14)
+        plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
+                     yerr=np.sqrt(uncerts * f_cos),
+                     fmt='ko', lw=1.0, ms=3.0, label='Sim')
+        plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
+        plt.ylabel(r'Prob. (\%)')
+        plt.xlabel(r'$q$')
+        plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
+                  % (a2eff, ntrials))
+        plt.tight_layout()
+
+        plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
+        plt.close()
+    return tot_perc
+
+def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
+                   nthreads=32, n_qs=19, q_min=0.2, to_plot=True):
+    '''
+    Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
+    sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
+    merger fraction(abarouteff), histograms of observed q
+    calculate using uniform grid in cos I
+    store e_in @ 0.5AU (can postprocess to get merger e)
+    '''
+
+    folder = '1popsynth'
+    t_hubb_gyr = 10
+    m12 = 50
+    m3 = 30
+    a0 = 100
+    e0 = 1e-3
+
+    mkdirp(folder)
+
+    fn = '%s/%s' % (folder, base_fn)
+    pkl_fn = fn + '.pkl'
+    q_vals = np.linspace(q_min, 1, n_qs)
+    n_e2s = 19
+    n_I0s = 57
+    reps = 3
+    stride = 10
+    ntrials_perq = n_e2s * n_I0s * reps // stride
+    Imin, Imax = np.radians([50, 130])
+    _e2s = np.linspace(0.1, 0.9, n_e2s)
+    _I0s = np.arccos(np.linspace(np.cos(Imax), np.cos(Imin), n_I0s))
+    e2s_perq = np.repeat(
+        np.outer(_e2s, np.ones_like(_I0s)).flatten(), reps)[::stride]
+    I0s_perq = np.repeat(
+        np.outer(np.ones_like(_e2s), _I0s).flatten(), reps)[::stride]
+    e2s = np.repeat(e2s_perq, n_qs)
+    I0s = np.repeat(I0s_perq, n_qs)
+
+    qs = np.repeat(q_vals, ntrials_perq)
+    m2 = m12 / (1 + qs)
+    m1 = m12 - m2
+    a2s = a2eff / np.sqrt(1 - e2s**2)
+
+    args2 = [
+        (idx, q, np.degrees(I0), None, dict(a0=a0, a2=a2, e2=e2))
+        for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
+    ]
+
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        # only draw from ~50-130
+        p = Pool(nthreads)
+        start = time.time()
+        emax_rets = p.starmap(get_emax_series, args2)
+
+        with open(pkl_fn, 'wb') as f:
+            pickle.dump(emax_rets, f)
+    else:
+        print('Loading %s' % pkl_fn)
+        with open(pkl_fn, 'rb') as f:
+            emax_rets = pickle.load(f)
+
+    # PDF of q among merged systems
+    j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+    e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+
+    q_counts_nogw = defaultdict(list)
+    q_counts_emaxonly = defaultdict(list)
+    for arg, emax_ret in zip(args2, emax_rets):
+        _, q, _, _, argdict = arg
+
+        e_vals = np.array(emax_ret[1])
+        where_idx = np.where(e_vals >= 0.3)[0]
+        e_vals = e_vals[where_idx]
+
+        if len(e_vals) == 0:
+            continue
+        j_os = 3 * (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+            c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+        e_os = np.sqrt(1 - j_os**2)
+
+        # approx 1 + 73e^2/24... \approx 4.427 is constant
+        jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+        emean = np.sqrt(1 - jmean**2)
+        if np.max(e_vals) > e_os or emean > e_eff_crit:
+            q_counts_nogw[q].append(1)
+        else:
+            q_counts_nogw[q].append(0)
+        if np.max(e_vals) > e_os:
+            q_counts_emaxonly[q].append(1)
+        else:
+            q_counts_emaxonly[q].append(0)
+
+    f_cos = 100 * (np.cos(np.radians(50)) - np.cos(np.radians(130))) / 2
+    merged_fracs_nogw = np.array(
+        [np.sum(arr) / len(arr) for arr in q_counts_nogw.values()])
+    # merged_fracs_emaxonly = np.array(
+    #     [np.sum(arr) / len(arr) for arr in q_counts_emaxonly.values()])
+    tot_perc = np.mean(merged_fracs_nogw) * f_cos # all bins are equal
+    if to_plot and plt is not None:
+        plt.figure(figsize=(6, 6))
+        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
+                 label='No-GW', ms=3.5)
         plt.ylabel(r'Prob. (\%)')
         plt.xlabel(r'$q$')
         plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
@@ -1880,9 +1980,8 @@ if __name__ == '__main__':
     #     tot_frac.append(frac)
     a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
     for a2eff in a2effs_nogwonly:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-                         to_plot=True, n_qs=31, q_min=0, ntrials=10000,
-                         run_full=False)
+        frac = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+                              to_plot=True, n_qs=31, q_min=1e-2)
         tot_frac.append(frac)
     plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     plt.xlabel(r'$a_{\rm out, eff}$')
