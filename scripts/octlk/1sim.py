@@ -1504,6 +1504,14 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
                      yerr=np.sqrt(uncerts * f_cos),
                      fmt='ko', lw=1.0, ms=3.0, label='Sim')
+
+        nogw_fn = pkl_fn.replace(str(a2eff), "_nogw%d" % a2eff)
+        if os.path.exists(nogw_fn):
+            _, qplots, frac_plots = pop_synth_nogw(
+                a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
+                n_qs=31, q_min=1e-2
+            )
+            plt.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
         plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
         plt.ylabel(r'Prob. (\%)')
@@ -1564,6 +1572,8 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
     ]
 
     if not os.path.exists(pkl_fn):
+        print('Skipping %s' % pkl_fn)
+        return
         print('Running %s' % pkl_fn)
         # only draw from ~50-130
         p = Pool(nthreads)
@@ -1617,16 +1627,16 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
     tot_perc = np.mean(merged_fracs_nogw) * f_cos # all bins are equal
     if to_plot and plt is not None:
         plt.figure(figsize=(6, 6))
-        # plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
-        #          label='No-GW', ms=3.5)
-        # plt.ylabel(r'Prob. (\%)')
-        # plt.xlabel(r'$q$')
-        # plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}$' % a2eff)
-        # plt.tight_layout()
+        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
+                 label='No-GW', ms=3.5)
+        plt.ylabel(r'Prob. (\%)')
+        plt.xlabel(r'$q$')
+        plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}$' % a2eff)
+        plt.tight_layout()
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
-    return tot_perc
+    return tot_perc, q_counts_nogw.keys(), merged_fracs_nogw * f_cos
 
 # num_i total inclinations, use stride + offsets to control which ones to run
 def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
@@ -1972,20 +1982,20 @@ if __name__ == '__main__':
     # print('1 - elim', 1 - elim)
 
     tot_frac = []
-    # a2effs = [3600, 5500]#, 7000, 2800]
-    # for a2eff in a2effs:
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
-    #     tot_frac.append(frac)
+    a2effs = [3600, 5500]#, 7000, 2800]
+    for a2eff in a2effs:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+        tot_frac.append(frac)
     # a2effs2 = [2800, 4500, 7000]
     # for a2eff in a2effs2:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
     #                      n_qs=7, ntrials=10500)
     #     tot_frac.append(frac)
-    a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
-    for a2eff in a2effs_nogwonly:
-        frac = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-                              to_plot=True, n_qs=31, q_min=1e-2)
-        tot_frac.append(frac)
+    # a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
+    # for a2eff in a2effs_nogwonly:
+    #     frac, _, _ = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+    #                                 to_plot=True, n_qs=31, q_min=1e-2)
+    #     tot_frac.append(frac)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
     # plt.ylabel(r'Merger Fraction (\%)')
