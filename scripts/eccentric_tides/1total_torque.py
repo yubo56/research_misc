@@ -330,12 +330,15 @@ def plot_pseudo():
         print(e, res, res2)
         w_syncs.append(res)
         w_syncs_sum.append(res2)
-    plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
     plt.loglog(1 - e_vals**2, w_syncs_sum, label='Sum')
-    plt.loglog(1 - e_vals**2, eta2 / 0.691, label=r'$\eta_2 / \gamma_\tau$')
-    # plt.loglog(1 - e_vals**2, np.sqrt(1 + e_vals) / (1 - e_vals**2)**(3/2),
-    #            label=r'$N_{\rm peri}$')
-    plt.xlabel(r'$1 - e^2$')
+    plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
+    plt.loglog(1 - e_vals**2, eta2 / 0.691,
+               label=r'$\Omega_{\rm s, ps}$')
+    plt.loglog(1 - e_vals**2, f2 / (f5 * (1 - e_vals**2)**(3/2)),
+               label=r'$\Omega_{\rm s, ps}^{\rm (Eq)}$')
+    plt.xticks([1 - 0.99**2, 1 - 0.9**2, 1 - 0.5**2],
+               labels=['0.99', '0.9', '0.5'])
+    plt.xlabel(r'$e$')
     plt.ylabel(r'$\Omega_{\rm s, sync} / \Omega$')
     plt.legend()
     plt.tight_layout()
@@ -380,10 +383,10 @@ def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
 if __name__ == '__main__':
     # plot_ecc()
     # plot_ecc(400)
-    plot_spin()
+    # plot_spin()
     # plot_energy()
     # plot_energy(400)
-    plot_spin_energy(e=0.9)
+    # plot_spin_energy(e=0.9)
     plot_pseudo()
     # plot_7319()
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
