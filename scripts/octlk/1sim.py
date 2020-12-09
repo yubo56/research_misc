@@ -1408,6 +1408,8 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
     pkl_fn = fn + '.pkl'
     q_vals = np.linspace(q_min, 1, n_qs)
     if not os.path.exists(pkl_fn):
+        print('Skipping %s' % pkl_fn)
+        return
         print('Running %s' % pkl_fn)
         qs = np.repeat(q_vals, ntrials // n_qs)
         # only draw from ~50-130
@@ -1509,8 +1511,9 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         if os.path.exists(nogw_fn):
             _, qplots, frac_plots = pop_synth_nogw(
                 a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
-                n_qs=31, q_min=1e-2
+                n_qs=31, q_min=1e-2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
+            print(qplots, frac_plots)
             plt.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
         plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
@@ -1525,7 +1528,8 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
     return tot_perc
 
 def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
-                   nthreads=32, n_qs=41, q_min=0.2, to_plot=True):
+                   nthreads=32, n_qs=41, q_min=0.2, q_max=1, to_plot=True,
+                   q_spread=np.linspace, n_e2s=31, n_I0s=57, stride=10, reps=3):
     '''
     Observation: fix m12 = 50, m3 = 30, a = 100, pick a few abarouteff (5-10),
     sample e_out in [0, 0.9], q in [0.2, 1], scan over cos(I),
@@ -1545,11 +1549,7 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
 
     fn = '%s/%s' % (folder, base_fn)
     pkl_fn = fn + '.pkl'
-    q_vals = np.linspace(q_min, 1, n_qs)
-    n_e2s = 31
-    n_I0s = 57
-    reps = 3
-    stride = 10
+    q_vals = q_spread(q_min, q_max, n_qs)
     ntrials_perq = n_e2s * n_I0s * reps // stride
     Imin, Imax = np.radians([50, 130])
     _e2s = np.linspace(1e-3, 0.9, n_e2s)
@@ -1631,11 +1631,14 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
                  label='No-GW', ms=3.5)
         plt.ylabel(r'Prob. (\%)')
         plt.xlabel(r'$q$')
+        if q_spread == np.geomspace:
+            plt.xscale('log')
         plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}$' % a2eff)
         plt.tight_layout()
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
+    print(merged_fracs_nogw * f_cos)
     return tot_perc, q_counts_nogw.keys(), merged_fracs_nogw * f_cos
 
 # num_i total inclinations, use stride + offsets to control which ones to run
@@ -1982,20 +1985,26 @@ if __name__ == '__main__':
     # print('1 - elim', 1 - elim)
 
     tot_frac = []
-    a2effs = [3600, 5500]#, 7000, 2800]
+    a2effs = [3600]#, 5500]
     for a2eff in a2effs:
         frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
         tot_frac.append(frac)
-    # a2effs2 = [2800, 4500, 7000]
-    # for a2eff in a2effs2:
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
-    #                      n_qs=7, ntrials=10500)
+    a2effs2 = [2800]#, 4500, 7000]
+    for a2eff in a2effs2:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
+                         n_qs=7, ntrials=10500)
+        tot_frac.append(frac)
+    a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
+    for a2eff in a2effs_nogwonly:
+        ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+                             to_plot=True, n_qs=31, q_min=1e-2,
+                             n_e2s=17, n_I0s=41, stride=1, reps=1)
+    #     frac = ret[0]
     #     tot_frac.append(frac)
-    # a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
-    # for a2eff in a2effs_nogwonly:
-    #     frac, _, _ = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-    #                                 to_plot=True, n_qs=31, q_min=1e-2)
-    #     tot_frac.append(frac)
+    # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
+    #                n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
+    #                to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
+    #                nthreads=4)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
     # plt.ylabel(r'Merger Fraction (\%)')
