@@ -1455,6 +1455,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
     j_eff_crit = 0.01461 * (100 / a0)**(2/3)
     e_eff_crit = np.sqrt(1 - j_eff_crit**2)
 
+    # convention: +e2 if merged, -e2 if not
     q_counts = defaultdict(list)
     q_counts_nogw = defaultdict(list)
     q_counts_emaxonly = defaultdict(list)
@@ -1463,9 +1464,9 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         tmerge, yf = tmerge_ret
 
         if tmerge < 9.9e9:
-            q_counts[q].append(1)
+            q_counts[q].append(e2)
         else:
-            q_counts[q].append(0)
+            q_counts[q].append(-e2)
         I0 = np.radians(I0d)
         e_vals = np.array(emax_ret[1])
         where_idx = np.where(e_vals >= 0.3)[0]
@@ -1481,31 +1482,52 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
         emean = np.sqrt(1 - jmean**2)
         if np.max(e_vals) > e_os or emean > e_eff_crit:
-            q_counts_nogw[q].append(1)
+            q_counts_nogw[q].append(e2)
         else:
-            q_counts_nogw[q].append(0)
+            q_counts_nogw[q].append(-e2)
         if np.max(e_vals) > e_os:
-            q_counts_emaxonly[q].append(1)
+            q_counts_emaxonly[q].append(e2)
         else:
-            q_counts_emaxonly[q].append(0)
+            q_counts_emaxonly[q].append(-e2)
 
     f_cos = 100 * (np.cos(np.radians(50)) - np.cos(np.radians(130))) / 2
-    merged_fracs = np.array(
-        [np.sum(arr) / len(arr) for arr in q_counts.values()])
-    uncerts = np.array(
-        [np.sqrt(np.sum(arr)) / len(arr) for arr in q_counts.values()])
-    merged_fracs_nogw = np.array(
-        [np.sum(arr) / len(arr) for arr in q_counts_nogw.values()])
-    # merged_fracs_emaxonly = np.array(
-    #     [np.sum(arr) / len(arr) for arr in q_counts_emaxonly.values()])
+    merged_fracs = []
+    merged_fracs_thermal = []
+    uncerts = []
+    merged_fracs_nogw = []
+    merged_fracs_emaxonly = []
+    for arr, arr_nogw, arr_emaxonly in zip(
+            q_counts.values(), q_counts_nogw.values(),
+            q_counts_emaxonly.values()):
+        # ceil = merged vs not merged weighting
+        merged_fracs.append(
+            np.sum(np.ceil(arr)) / len(arr))
+        uncerts.append(
+            np.sqrt(np.sum(np.ceil(arr))) / len(arr))
+        # abs = thermal total, max(e2, 0) = e2 or zero, thermal weighting
+        merged_fracs_thermal.append(
+            np.sum(np.maximum(arr, np.zeros_like(arr))) /
+            np.sum(np.abs(arr)))
+        merged_fracs_nogw.append(
+            np.sum(np.ceil(arr_nogw)) / len(arr_nogw))
+        merged_fracs_emaxonly.append(
+            np.sum(np.ceil(arr_emaxonly)) / len(arr_emaxonly))
+    merged_fracs = np.array(merged_fracs)
+    merged_fracs_thermal = np.array(merged_fracs_thermal)
+    uncerts = np.array(uncerts)
+    merged_fracs_nogw = np.array(merged_fracs_nogw)
+    merged_fracs_emaxonly = np.array(merged_fracs_emaxonly)
+
     tot_perc = np.mean(merged_fracs) * f_cos # all bins are equal
     if to_plot and plt is not None:
         plt.figure(figsize=(6, 6))
-        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
-                 label='No-GW', ms=3.5)
         plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
                      yerr=np.sqrt(uncerts * f_cos),
                      fmt='ko', lw=1.0, ms=3.0, label='Sim')
+        plt.plot(q_counts.keys(), merged_fracs_thermal * f_cos, 'ro',
+                 label='Thermal', ms=3.5)
+        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
+                 label='No-GW', ms=3.5)
 
         nogw_fn = pkl_fn.replace(str(a2eff), "_nogw%d" % a2eff)
         if os.path.exists(nogw_fn):
@@ -1513,7 +1535,6 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                 a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
                 n_qs=31, q_min=1e-2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
-            print(qplots, frac_plots)
             plt.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
         plt.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
@@ -1638,7 +1659,6 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
-    print(merged_fracs_nogw * f_cos)
     return tot_perc, q_counts_nogw.keys(), merged_fracs_nogw * f_cos
 
 # num_i total inclinations, use stride + offsets to control which ones to run
@@ -1985,20 +2005,20 @@ if __name__ == '__main__':
     # print('1 - elim', 1 - elim)
 
     tot_frac = []
-    a2effs = [3600]#, 5500]
+    a2effs = [3600, 5500]
     for a2eff in a2effs:
         frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
         tot_frac.append(frac)
-    a2effs2 = [2800]#, 4500, 7000]
+    a2effs2 = [2800, 4500, 7000]
     for a2eff in a2effs2:
         frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
                          n_qs=7, ntrials=10500)
         tot_frac.append(frac)
-    a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
-    for a2eff in a2effs_nogwonly:
-        ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-                             to_plot=True, n_qs=31, q_min=1e-2,
-                             n_e2s=17, n_I0s=41, stride=1, reps=1)
+    # a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
+    # for a2eff in a2effs_nogwonly:
+    #     ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+    #                          to_plot=True, n_qs=31, q_min=1e-2,
+    #                          n_e2s=17, n_I0s=41, stride=1, reps=1)
     #     frac = ret[0]
     #     tot_frac.append(frac)
     # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
