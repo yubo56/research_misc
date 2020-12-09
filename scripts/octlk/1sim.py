@@ -15,6 +15,7 @@ import os
 import pickle
 
 from scipy.integrate import solve_ivp
+import scipy.optimize as opt
 from scipy.interpolate import interp1d
 
 try:
@@ -1385,6 +1386,51 @@ def plot_emaxgrid(folder='1sweepbin_emax', nthreads=1, q=0.3, e2=0.6,
     plt.savefig(fn, dpi=300)
     plt.close()
 
+def get_e_mergers(tmerge, yf, M1, M2):
+    ''' given yf of vec simulation, calculate eccentricity @ 0.1Hz, 10Hz '''
+    Lx, Ly, Lz, ex, ey, ez = yf[ :6]
+    L = np.sqrt(Lx**2 + Ly**2 + Lz**2)
+    e0 = np.sqrt(ex**2 + ey**2 + ez**2)
+    mu = M1 * M2 / (M1 + M2)
+    m12 = M1 + M2
+    a0 = L**2 / ((mu**2) * k * (M1 + M2) * (1 - e0**2))
+    # GW frequency = 2x orbital freq = Omega / pi = sqrt(k * m12 / a**3) / pi
+    f_LIGO = 3.154e8 # 10Hz to 1/yr
+    f_LISA = 3.154e6 # 0.1Hz to 1/yr
+    a_LIGO = (k * m12 / (np.pi * f_LIGO)**2)**(1/3)
+    a_LISA = (k * m12 / (np.pi * f_LISA)**2)**(1/3)
+    if tmerge > 9.9e9:
+        return -1, -1
+
+    def dydt(t, y):
+        a, e = y
+        return [(
+            -64 * k**3 * mu * m12**2
+            * (1 + 73 / 24 * e**2 + 37 * e**4 / 96)
+            / (5 * c**5 * a**3 * (1 - e**2)**(7/2))
+        ), (
+            -304 * k**3 * mu * m12**2 * e
+            * (1 + 121 * e**2 / 304)
+            / (15 * c**5 * a**4 * (1 - e**2)**(5/2))
+        )]
+    def term_event(t, y):
+        return y[0] - a_LIGO
+    term_event.terminal = True
+    try:
+        ret = solve_ivp(dydt, (0, np.inf), [a0, e0], events=[term_event],
+                        dense_output=True, method='Radau', atol=1e-9, rtol=1e-9)
+    except ValueError:
+        print(a0, e0)
+        return -1, -1
+    e_LIGO = ret.y[1, -1]
+    try:
+        t_LISA = opt.brenth(lambda t: ret.sol(t)[0] - a_LISA, 0, ret.t[-1])
+    except ValueError:
+        print(ret.sol(0), ret.sol(ret.t[-1]))
+        return -1, -1
+    e_LISA = ret.sol(t_LISA)[1]
+    return e_LIGO, e_LISA
+
 def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
               n_qs=19, q_min=0.2, to_plot=True):
     '''
@@ -1448,6 +1494,25 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         with open(pkl_fn, 'rb') as f:
             ret = pickle.load(f)
     args, tmerge_rets, emax_rets, tmerge_time_elapsed, emax_time_elapsed = ret
+
+    pkl_eccs = pkl_fn.replace('.pkl', '_eccs.pkl')
+    if not os.path.exists(pkl_eccs):
+        print('Running %s' % pkl_eccs)
+        args_ecc = [
+            (tmerge_ret[0], tmerge_ret[1],
+             m12 / (1 + arg[1]), arg[1] * m12 / (1 + arg[1]))
+            for arg, tmerge_ret in zip(args, tmerge_rets)
+        ]
+        # rets = [get_e_mergers(*_arg) for _arg in args_ecc]
+        p = Pool(8)
+        rets = p.starmap(get_e_mergers, args_ecc)
+        e_LIGOs, e_LISAs = np.array(rets).T
+        with open(pkl_eccs, 'wb') as f:
+            pickle.dump((e_LIGOs, e_LISAs), f)
+    else:
+        with open(pkl_eccs, 'rb') as f:
+            print('Loading %s' % pkl_eccs)
+            e_LIGOs, e_LISAs = pickle.load(f)
     print('Emax took', emax_time_elapsed)
     print('TMerge took', tmerge_time_elapsed)
 
@@ -1520,13 +1585,16 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
 
     tot_perc = np.mean(merged_fracs) * f_cos # all bins are equal
     if to_plot and plt is not None:
-        plt.figure(figsize=(6, 6))
-        plt.errorbar(q_counts.keys(), merged_fracs * f_cos,
+        fig, (ax1, ax2) = plt.subplots(
+            2, 1,
+            figsize=(6, 8),
+            sharex=True)
+        ax1.errorbar(q_counts.keys(), merged_fracs * f_cos,
                      yerr=np.sqrt(uncerts * f_cos),
                      fmt='ko', lw=1.0, ms=3.0, label='Sim')
-        plt.plot(q_counts.keys(), merged_fracs_thermal * f_cos, 'ro',
+        ax1.plot(q_counts.keys(), merged_fracs_thermal * f_cos, 'ro',
                  label='Thermal', ms=3.5)
-        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
+        ax1.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
                  label='No-GW', ms=3.5)
 
         nogw_fn = pkl_fn.replace(str(a2eff), "_nogw%d" % a2eff)
@@ -1535,14 +1603,30 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                 a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
                 n_qs=31, q_min=1e-2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
-            plt.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
-        plt.legend(fontsize=14)
+            ax1.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
+        ax1.legend(fontsize=14)
         # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
-        plt.ylabel(r'Prob. (\%)')
-        plt.xlabel(r'$q$')
-        plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
+        ax1.set_ylabel(r'Prob. (\%)')
+
+        q_arr = [arg[1] for e_LIGO, arg in zip(e_LIGOs, args)
+                 if e_LIGO > 0]
+        e_LIGOsm = e_LIGOs[np.where(e_LIGOs > 0)[0]]
+        e_LISAsm = e_LISAs[np.where(e_LIGOs > 0)[0]]
+        ax2.plot(q_arr, e_LIGOsm, 'ro', ms=0.5, label='10 Hz', alpha=0.3)
+        ax2.plot(q_arr, e_LISAsm, 'bo', ms=0.5, label='0.1 Hz', alpha=0.3)
+        for q in q_vals:
+            ax2.plot(q, np.exp(np.mean(np.log(
+                e_LIGOsm[np.where(q_arr == q)[0]]))), 'ro', ms=3.0)
+            ax2.plot(q, np.exp(np.mean(np.log(
+                e_LISAsm[np.where(q_arr == q)[0]]))), 'bo', ms=3.0)
+        ax2.legend(fontsize=12)
+        ax2.set_ylabel(r'$e$')
+        ax2.set_xlabel(r'$q$')
+        ax2.set_yscale('log')
+        plt.suptitle(r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$'
                   % (a2eff, ntrials))
         plt.tight_layout()
+        fig.subplots_adjust(hspace=0.03)
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
@@ -2004,16 +2088,16 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    tot_frac = []
+    # tot_frac = []
     a2effs = [3600, 5500]
     for a2eff in a2effs:
         frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
-        tot_frac.append(frac)
-    a2effs2 = [2800, 4500, 7000]
-    for a2eff in a2effs2:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
-                         n_qs=7, ntrials=10500)
-        tot_frac.append(frac)
+    #     tot_frac.append(frac)
+    # a2effs2 = [2800, 4500, 7000]
+    # for a2eff in a2effs2:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True,
+    #                      n_qs=7, ntrials=10500)
+    #     tot_frac.append(frac)
     # a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
     # for a2eff in a2effs_nogwonly:
     #     ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
