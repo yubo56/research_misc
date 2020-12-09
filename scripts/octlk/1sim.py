@@ -2089,9 +2089,9 @@ if __name__ == '__main__':
     # print('1 - elim', 1 - elim)
 
     # tot_frac = []
-    a2effs = [3600, 5500]
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
+    # a2effs = [3600, 5500]
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=True)
     #     tot_frac.append(frac)
     # a2effs2 = [2800, 4500, 7000]
     # for a2eff in a2effs2:
@@ -2105,10 +2105,10 @@ if __name__ == '__main__':
     #                          n_e2s=17, n_I0s=41, stride=1, reps=1)
     #     frac = ret[0]
     #     tot_frac.append(frac)
-    # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
-    #                n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
-    #                to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
-    #                nthreads=4)
+    pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
+                   n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
+                   to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
+                   nthreads=4)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
     # plt.ylabel(r'Merger Fraction (\%)')

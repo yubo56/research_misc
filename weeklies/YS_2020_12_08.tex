@@ -147,17 +147,24 @@ obtain the $a$ criterion for one-shot mergers
 \end{align}
 Note that $\mu / m_{12} = m_1m_2 / m_{12}^2 = q / (1 + q)^2$. Thus, if $a$ is
 fixed, $q$ must decrease dramatically to cause the system to transition from
-$e_{\lim} \gtrsim e_{\rm os}$ to $e_{\lim} \lesssim e_{\rm os}$.
+$e_{\lim} \gtrsim e_{\rm os}$ to $e_{\lim} \lesssim e_{\rm os}$. For instance,
+even going down to $q = 10^{-5}$ produces very little effect as seen in
+Fig.~\ref{fig:lowq} (very coarse sampling).
 
-% TODO add plot?
+\begin{figure}
+    \centering
+    \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1popsynth/a2eff_nogw_lowq3600.png}
+    \caption{Merger fraction at low $q$. Indeed, little effect.}\label{fig:lowq}
+\end{figure}
 
-\section{$P(q)$ with fewer bins \& Thermal Distribution}
+\section{$P(q)$ with fewer bins \& Thermal Distribution \& Merger Eccentricity}
 
 There was some computer downtime, but I was able to get one $P(q)$ plot with
 fewer bins, see Fig.~\ref{fig:popsynths}. I also include the distributions if
 the distribution of $e_2$ is thermal in red dots. I also tried using the GW-only
 simulations to uniformly scan a grid of $(I_0, e_{\rm out})$ for each $q$, using
-a much denser grid of $q$, shown in the blue line.
+a much denser grid of $q$, shown in the blue line. Finally, the eccentricities
+in the LISA/LIGO band for merging binaries is shown.
 \begin{figure}
     \centering
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/1popsynth/a2eff3600.png}
@@ -165,6 +172,10 @@ a much denser grid of $q$, shown in the blue line.
     \caption{$P(q; a_{\rm out} = 3600\;\mathrm{AU})$ with $19$ bins, and $P\p{q;
     a_{\rm out}} = 2800\;\mathrm{AU}$ with $7$ bins.}\label{fig:popsynths}
 \end{figure}
+
+For merger eccentricity, I just used the Peters formulas. I defined LISA/LIGO to
+be $f = 0.1, 10\;\mathrm{Hz}$ respectively, where $f = n / \pi = \sqrt{Gm_{12} /
+a_{\rm in}^3} / \pi$.
 
 \section{Comparison of Merger Fraction to LL18}
 
@@ -179,10 +190,6 @@ is equivalent to requiring $j\p{e_{\rm eff}} \lesssim j_{\rm eff, crit}$, where
 $j_{\rm eff, crit}$ is the effective maximum eccentricity of the LK cycle (equal
 to the quadrupole $e_{\max}$ when octupole effects are small). I haven't checked
 this against data.
-
-\section{LISA/LIGO Band Eccentricities}
-
-I will generate these plots in time for the meeting. %TODO
 
 \section{Primordial $q$ distribution in HM binaries}
 
