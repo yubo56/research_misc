@@ -1,0 +1,79 @@
+    \documentclass[11pt]{article}
+    \usepackage[margin=1in]{geometry}
+    \usepackage{
+        amsmath,
+        amssymb,
+        graphicx,
+    }
+    \newcommand*{\p}[1]{\left(#1\right)}
+    \newcommand*{\s}[1]{\left[#1\right]}
+    \newcommand*{\z}[1]{\left\{#1\right\}}
+
+\begin{document}
+
+However, when both
+% Eq.~\eqref{}
+Eq.~(2) is not satisfied and $\varepsilon_{\rm oct}$ is not negligible,
+the inclination window observed by MLL16
+% \citet{Munoz_etal}
+cannot predict whether the inner orbit reaches very high eccentricities.
+To understand the critical value of $\eta$ below which the prescription of MLL16
+% TODO define \eta? or no?
+is accurate, we simulate the evolution of the inner and outer binary to
+octupole-order. We also include general relativistic periastron advance and
+tidal distortion of the Jupiter following LML15.
+% \citet{LML15}
+We ignore the orbital decay of the inner Jupiter due to tidal dissipation (which
+is expected to occur over long timescales). To isolate the impact of different
+values of $\eta$, we vary $m_{\rm p}$ and $a_{\rm p}$ such that the quadrupole
+order Lidov-Kozai timescale, given by (see e.g.\ LML15)
+% \citep[see e.g.][]{LML15}
+\begin{equation}
+    t_{\rm LK}^{-1} \equiv \frac{m_{\rm p}}{M_1 + m_{\rm J}}
+        \frac{a_{\rm J}^3}{a_{\rm p}^3\p{1 - e_{\rm p}^2}^{3/2}}n_{\rm J},
+        \label{eq:t_LK}
+\end{equation}
+is constant. In particular, we fix $e_{\rm p} = 0.6$ and the initial $e_{\rm J0}
+= 10^{-3}$ and consider six values of $m_{\rm p}$: $m_{\rm p} = \z{1, 2, 3, 5,
+10} \times M_{\rm Jup}$ and $m_{\rm p} = M_{\odot}$, while adjusting $a_{\rm p}$
+accordingly. For each value of $m_{\rm p}$, we further consider $2000$ uniformly
+spaced initial inclinations $I_0 \in \s{40^\circ, 140^\circ}$. Then, for each
+inclination, we run three simulations while choosing $\Omega, \omega \in [0,
+2\pi)$ for both the inner and outer orbits, the longitude of the ascending node
+and argument of periapsis respectively, totaling $6000$ simulations per
+combination of $m_{\rm p}$ and $a_{\rm p}$. We run each simulation for $500
+t_{\rm LK}$ and measure the maximum eccentricity attained by the inner planet.
+Figure~\ref{fig:YS_emaxes} shows that the inclination window
+predicted by MLL16 is accurate when
+\begin{equation}
+    \eta \lesssim 0.1,
+\end{equation}
+so we restrict our attention to systems satisfying this criterion.
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=\columnwidth]{Su_HJs.png}
+    \caption{Maximum eccentricity of the Jupiter (as $1 - e_{\rm J, \max}$)
+    versus initial inclination $i_{\rm p}$ for different values of $m_{\rm p}$
+    (labelled) and $a_{\rm p}$ such that $t_{\rm LK}$ [Eq.~\eqref{eq:t_LK}] is
+    held constant. In all cases, we choose $e_{\rm p} = 0.6$, $M_1 = M_{\odot}$,
+    $m_{\rm J} = M_{\rm Jup}$, $a_{\rm J} = 5\;\mathrm{AU}$, and we choose the
+    The longitudes of the ascending node and arguments of pericenter are chosen
+    randomly in $[0, 2\pi)$. The blue dots denote the maximum eccentricities
+    attained by $m_{\rm J}$ when the vectorial secular equations are integrated
+    for $500 t_{\rm LK}$. The green line illustrates the analytical $e_{\rm J,
+    \max}(i_{\rm p})$ curve
+    when the octupole effect is neglected [see Eq.~50 of LML15].
+    %\citep[see Eq.~50 of][]{LML15}.
+    The purple vertical lines denote the inclination
+    window predicted using the fitting formula of MLL16 (see Eq.~7 of MLL16; for
+    the simulated systems, $\epsilon_{\rm oct} \in [0.01, 0.1]$). The horizontal
+    dashed line denotes $e_{\lim}$ as given by Eq.~(6).
+% Eq.~\eqref{eq:elim}
+    When $m_{\rm p} \lesssim 3M_{\rm J}$, $\eta \gtrsim 0.1$ and is
+    nonnegligible, and it is much more difficult for prograde outer planets
+    ($i_{\rm p} < 90^\circ$) to excite $e_{\rm J}$ to $e_{\lim}$ than it is for
+    retrograde outer planets ($i_{\rm p} > 90^\circ$). }\label{fig:YS_emaxes}
+\end{figure}
+
+\end{document}
+

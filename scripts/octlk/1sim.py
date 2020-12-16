@@ -1757,6 +1757,7 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                  e2=0.6,
                  k2=0.37,
                  R2=4.676e-4,
+                 to_plot=False,
                  **kwargs,
                  ):
     plot_k = False
@@ -1845,6 +1846,8 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     ) if eps_oct < 0.05 else 0.45
     ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(MLL_expr)))
     ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(MLL_expr)))
+    if not to_plot:
+        return I0d_plot, m1_emaxes, ilimd_MLL_L, ilimd_MLL_R
 
     _, eps_gr, eps_oct, eta = get_eps(M1, M2, M3, a0, a2, e2)
     Ilimd = get_Ilim(eta, eps_gr)
@@ -1867,6 +1870,17 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     ax1.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
     ax1.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
     ax1.set_ylabel(r'$1 - e_{\max}$')
+
+    # TODO
+    # emaxes_1m = []
+    # eps_tide = get_eps_tide(M1, M2, M3, a0, a2, e2, k2, R2)
+    # for I in I0d_vals_tot:
+    #     emaxes_1m.append(
+    #         1 - get_emax(
+    #             eta=eta, eps_gr=eps_gr, I=np.radians(I), eps_tide=eps_tide))
+    # ax1.plot(I0d_vals_tot, emaxes_1m, 'k--')
+    elim = get_elim_oconnor(M1, M2, M3, a0, a2, e2, k2, R2)
+    ax1.axhline(elim, c='k', ls='--')
 
     if plot_k:
         ax2.plot(I0d_plot, Kmins, 'bo', label=r'$K_{\min}$', ms=0.5,
@@ -2037,6 +2051,70 @@ def make_nogw_plots():
     #              fn='1nogw_sims/1nosrf_bbh_86_nooct',
     #              Itot=86)
 
+def plot_laetitia():
+    rets = [
+        run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6',
+                     to_plot=False) ]
+    for m3_mult in [2, 3, 5, 10]:
+        rets.append(
+            run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
+                         a2=50 * (m3_mult**(1/3)), e2=0.6, to_plot=False,
+                         base_fn='e2_6_m%d' % m3_mult))
+    rets.append(
+        run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+                     e2=0.6, base_fn='e2_6tp'))
+    masses = [1, 2, 3, 5, 10, 1e3]
+    fig, _axs = plt.subplots(
+        2, 3,
+        figsize=(13, 6),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    labels = ['(i)', '(ii)', '(iii)', '(iv)', '(v)', '(vi)']
+    for ret, mass, ax, lbl in zip(rets, masses, axs, labels):
+        I0ds, emaxes_1m, Ilimd_L, Ilimd_R = ret
+
+        _, eps_gr, _, eta = get_eps(1, 1e-3, 1e-3 * mass, 5, 50 * mass**(1/3), 0)
+        eps_tide = get_eps_tide(1, 1e-3, 1e-3 * mass, 5, 50 * mass**(1/3), 0,
+                                0.37, 4.676e-4) / 2
+        om_emaxes_th = []
+        elim = get_elim(eta=eta, eps_gr=eps_gr, eps_tide=eps_tide)
+        I0d_emaxes = []
+        for I0d in I0ds:
+            try:
+                om_emaxes_th.append(1 - get_emax(
+                    eta=eta, eps_gr=eps_gr, I=np.radians(I0d),
+                    eps_tide=eps_tide))
+                I0d_emaxes.append(I0d)
+            except:
+                continue
+        ax.semilogy(I0ds, emaxes_1m, ls='', marker='.', color='tab:blue', ms=0.5)
+        ax.axhline(1 - elim, c='k', ls=':')
+        ax.axvline(Ilimd_L, c='tab:purple', ls='--', lw=1.5)
+        ax.axvline(Ilimd_R, c='tab:purple', ls='--', lw=1.5)
+        idx = np.argsort(I0d_emaxes)
+        ax.plot(np.array(I0d_emaxes)[idx],
+                np.array(om_emaxes_th)[idx],
+                c='tab:green', lw=1.5)
+
+        xticks = np.arange(40, 141, 10)
+        xticks_label = [40, 70, 110, 140]
+        ax.set_xticks(xticks)
+        ax.set_xticklabels([r'$%d$' % t if t in xticks_label else ''
+                            for t in xticks])
+
+        mass_str = r'%dM_{\rm J}' % mass if mass < 100 else r'M_\odot'
+        ax.text(52, 0.5, r'%s $m_p = %s$' % (lbl, mass_str), fontsize=12)
+    _axs[0][0].set_ylabel(r'$1 - e_{\rm J, \max}$', fontsize=18)
+    _axs[1][0].set_ylabel(r'$1 - e_{\rm J, \max}$', fontsize=18)
+    _axs[1][0].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
+    _axs[1][1].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
+    _axs[1][2].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
+    plt.tight_layout()
+
+    fig.subplots_adjust(hspace=0, wspace=0)
+    plt.savefig('1laetitia/plot', dpi=400)
+    plt.close()
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -2105,10 +2183,10 @@ if __name__ == '__main__':
     #                          n_e2s=17, n_I0s=41, stride=1, reps=1)
     #     frac = ret[0]
     #     tot_frac.append(frac)
-    pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
-                   n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
-                   to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
-                   nthreads=4)
+    # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
+    #                n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
+    #                to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
+    #                nthreads=4)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
     # plt.ylabel(r'Merger Fraction (\%)')
@@ -2140,7 +2218,7 @@ if __name__ == '__main__':
     #              ntrials=1)
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3_gr0',
     #              l=0, k2=0, R2=0)
-    # for m3_mult in [3, 5, 8, 10, 30]:
+    # for m3_mult in [2, 3, 5, 8, 10, 30]:
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.6,
     #                  base_fn='e2_6_m%d' % m3_mult)
@@ -2151,4 +2229,6 @@ if __name__ == '__main__':
     # make_nogw_plots()
 
     # plot_emaxgrid(nthreads=32)
+
+    plot_laetitia()
     pass

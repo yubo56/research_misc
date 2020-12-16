@@ -37,25 +37,50 @@ def get_I1(I0, eta):
     I2 = opt.brenth(I2_constr, 0, np.pi, xtol=1e-12)
     return np.degrees(I0 - I2)
 
-def get_emax(eta=0, eps_gr=0, I=0):
+def get_emax(eta=0, eps_gr=0, I=0, eps_tide=0):
     def jmin_criterion(j): # eq 42, satisfied when j = jmin
+        esq = 1 - j**2
         return (
             3/8 * (j**2 - 1) / j**2 * (
                 5 * (np.cos(I) + eta / 2)**2
                 - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
                 + eta**2 * j**4)
-            + eps_gr * (1 - 1 / j))
+            + eps_gr * (1 - 1 / j)
+            + eps_tide / 15 * (1 - (1 + 3 * esq + 3 * esq**2 / 8)/j**9))
     jmin = opt.brenth(jmin_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jmin**2)
 
-def get_elim(eta=0, eps_gr=0):
+def get_elim(eta=0, eps_gr=0, eps_tide=0):
     def jlim_criterion(j): # eq 44, satisfied when j = jlim
+        esq = 1 - j**2
         return (
             3/8 * (j**2 - 1) * (
                 - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
-            + eps_gr * (1 - 1 / j))
+            + eps_gr * (1 - 1 / j)
+            + eps_tide / 15 * (1 - (1 + 3 * esq + 3 * esq**2 / 8)/j**9))
     jlim = opt.brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jlim**2)
+
+def get_elim_simp(eta=0, eps_gr=0, eps_tide=0):
+    def jlim_criterion(j): # eq 44, satisfied when j = jlim
+        return 27 - eps_tide * 7 / j**9
+    jlim = opt.brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
+    return np.sqrt(1 - jlim**2)
+
+def get_elim_oconnor(m1, m2, m3, a0, a2, e2, k2, R2):
+    return (
+        5e-5 * (m1 / 0.6)**(4/9)
+        * (m3 / 0.66)**(-2/9)
+        * (k2 / 0.37)**(2/9)
+        * (R2 / 4.67e-4)**(10/9)
+        * (m2 / 1e-3)**(-2/9)
+        * (a2 * np.sqrt(1 - e2**2) / 1500)**(2/3)
+        * (a0 / 50)**(-16/9))
+
+def get_eps_tide(m1, m2, m3, a0, a2, e2, k2, R2):
+    return (
+        15 * m1 * (m1 + m2) * a2**3 * (1 - e2**2)**(3/2) * k2 * R2**5
+    ) / (a0**8 * m2 * m3)
 
 def get_Ilim(eta=0, eps_gr=0):
     elim = get_elim(eta=eta, eps_gr=eps_gr)
