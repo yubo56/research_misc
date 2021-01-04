@@ -147,8 +147,8 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
     return tf
 
 bin_aeff = 700 * np.sqrt(1 - 0.9**2)
-# def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
-def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
+def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
+# def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
           folder='1sweepbin', nthreads=60):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
@@ -156,7 +156,8 @@ def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # exploratory, find the right inclination range to restrict to
-        [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+        # [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+        [0.01, 0.6, 'tp', 68, 112, 100, 3600],
         # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
         # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
         # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
@@ -1086,6 +1087,7 @@ COMPOSITE_CFGS = [
     ],
     # [
     #     [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+    #     [0.01, 0.6, 'tp', 68, 112, 100, 3600],
     # ],
     # [
     #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
