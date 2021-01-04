@@ -147,8 +147,8 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
     return tf
 
 bin_aeff = 700 * np.sqrt(1 - 0.9**2)
-def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
-# def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
+# def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
+def sweep(num_trials=3, num_trials_purequad=1, num_i=200, t_hubb_gyr=10,
           folder='1sweepbin', nthreads=60):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
@@ -156,58 +156,59 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
     # q, e2, filename, ilow, ihigh, a0, a2eff
     run_cfgs = [
         # exploratory, find the right inclination range to restrict to
-        [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
-        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
-        [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
-        [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
-        [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
-        [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
+        [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+        # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
+        # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
+        # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
+        # [0.5, 0.6, 'explore_1p5dist', 50, 130, 100, 3600],
+        # [0.7, 0.6, 'explore_1p7dist', 50, 130, 100, 3600],
+        # [1.0, 0.6, 'explore_1equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
-        [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
-        [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
-        [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
-        [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
-        [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
+        # [0.2, 0.8, 'explore_e81p2dist', 50, 130, 100, 3600],
+        # [0.3, 0.8, 'explore_e81p3dist', 50, 130, 100, 3600],
+        # [0.4, 0.8, 'explore_e81p4dist', 50, 130, 100, 3600],
+        # [0.5, 0.8, 'explore_e81p5dist', 50, 130, 100, 3600],
+        # [0.7, 0.8, 'explore_e81p7dist', 50, 130, 100, 3600],
+        # [1.0, 0.8, 'explore_e81equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
-        [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
-        [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
-        [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
-        [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
-        [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
+        # [0.2, 0.9, 'explore_e91p2dist', 50, 130, 100, 3600],
+        # [0.3, 0.9, 'explore_e91p3dist', 50, 130, 100, 3600],
+        # [0.4, 0.9, 'explore_e91p4dist', 50, 130, 100, 3600],
+        # [0.5, 0.9, 'explore_e91p5dist', 50, 130, 100, 3600],
+        # [0.7, 0.9, 'explore_e91p7dist', 50, 130, 100, 3600],
+        # [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
 
-        [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
-        [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600],
-        [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
-        [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
-        [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600],
-        [0.5, 0.6, '1p5dist', 91, 98, 100, 3600],
-        [0.7, 0.6, '1p7dist', 91, 95, 100, 3600],
-        [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600],
+        # [0.2, 0.6, '1p2dist', 89.5, 105, 100, 3600],
+        # [0.2, 0.6, '1p2distp2', 66, 87, 100, 3600],
+        # [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
+        # [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
+        # [0.4, 0.6, '1p4dist', 90.5, 98, 100, 3600],
+        # [0.5, 0.6, '1p5dist', 91, 98, 100, 3600],
+        # [0.7, 0.6, '1p7dist', 91, 95, 100, 3600],
+        # [1.0, 0.6, '1equaldist', 92.0, 93.5, 100, 3600],
 
-        [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600],
-        [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600],
-        [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600],
-        [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600],
-        [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600],
-        [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
-        [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
-        [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
-        [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
+        # [0.2, 0.8, 'e81p2dist', 89, 107, 100, 3600],
+        # [0.2, 0.8, 'e81p2distp2', 57, 86.5, 100, 3600],
+        # [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600],
+        # [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600],
+        # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600],
+        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
+        # [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
+        # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
+        # [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
 
-        [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600],
-        [0.2, 0.9, 'e91p2distp2', 54, 86.5, 100, 3600],
-        [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600],
-        [0.3, 0.9, 'e91p3distp2', 60, 84, 100, 3600],
-        [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600],
-        [0.4, 0.9, 'e91p4distp2', 69, 83, 100, 3600],
-        [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600],
-        [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600],
-        [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
+        # [0.2, 0.9, 'e91p2dist', 89.5, 112, 100, 3600],
+        # [0.2, 0.9, 'e91p2distp2', 54, 86.5, 100, 3600],
+        # [0.3, 0.9, 'e91p3dist', 90, 107, 100, 3600],
+        # [0.3, 0.9, 'e91p3distp2', 60, 84, 100, 3600],
+        # [0.4, 0.9, 'e91p4dist', 90.5, 103, 100, 3600],
+        # [0.4, 0.9, 'e91p4distp2', 69, 83, 100, 3600],
+        # [0.5, 0.9, 'e91p5dist', 90.5, 101.5, 100, 3600],
+        # [0.7, 0.9, 'e91p7dist', 91, 98, 100, 3600],
+        # [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
 
         # Bin's case
-        [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+        # [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
         # [1.0, 0.9, 'bindistequal', 70, 110, 10, bin_aeff], # TODO
     ]
     for cfg in run_cfgs:
@@ -263,30 +264,31 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
 # [0.4, 0.9, 'bindist', 10, 305.1229260478471] 86.35635635635636
 EMAX_CFGS = [
     # a2 = 4500, e2 = 0.6
-    [1.0, 0.6, '1equaldist', 100, 3600],
-    [0.2, 0.6, '1p2dist', 100, 3600],
-    [0.3, 0.6, '1p3dist', 100, 3600],
-    [0.4, 0.6, '1p4dist', 100, 3600],
-    [0.5, 0.6, '1p5dist', 100, 3600],
-    [0.7, 0.6, '1p7dist', 100, 3600],
+    [0.01, 0.6, 'tp', 100, 3600],
+    # [1.0, 0.6, '1equaldist', 100, 3600],
+    # [0.2, 0.6, '1p2dist', 100, 3600],
+    # [0.3, 0.6, '1p3dist', 100, 3600],
+    # [0.4, 0.6, '1p4dist', 100, 3600],
+    # [0.5, 0.6, '1p5dist', 100, 3600],
+    # [0.7, 0.6, '1p7dist', 100, 3600],
 
-    [1.0, 0.8, 'e81equaldist', 100, 3600],
-    [0.2, 0.8, 'e81p2dist', 100, 3600],
-    [0.3, 0.8, 'e81p3dist', 100, 3600],
-    [0.4, 0.8, 'e81p4dist', 100, 3600],
-    [0.5, 0.8, 'e81p5dist', 100, 3600],
-    [0.7, 0.8, 'e81p7dist', 100, 3600],
+    # [1.0, 0.8, 'e81equaldist', 100, 3600],
+    # [0.2, 0.8, 'e81p2dist', 100, 3600],
+    # [0.3, 0.8, 'e81p3dist', 100, 3600],
+    # [0.4, 0.8, 'e81p4dist', 100, 3600],
+    # [0.5, 0.8, 'e81p5dist', 100, 3600],
+    # [0.7, 0.8, 'e81p7dist', 100, 3600],
 
-    [1.0, 0.9, 'e91equaldist', 100, 3600],
-    [0.2, 0.9, 'e91p2dist', 100, 3600],
-    [0.3, 0.9, 'e91p3dist', 100, 3600],
-    [0.4, 0.9, 'e91p4dist', 100, 3600],
-    [0.5, 0.9, 'e91p5dist', 100, 3600],
-    [0.7, 0.9, 'e91p7dist', 100, 3600],
+    # [1.0, 0.9, 'e91equaldist', 100, 3600],
+    # [0.2, 0.9, 'e91p2dist', 100, 3600],
+    # [0.3, 0.9, 'e91p3dist', 100, 3600],
+    # [0.4, 0.9, 'e91p4dist', 100, 3600],
+    # [0.5, 0.9, 'e91p5dist', 100, 3600],
+    # [0.7, 0.9, 'e91p7dist', 100, 3600],
 
     # Bin's weird case
-    [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
-    [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
+    # [1.0, 0.9, 'bindistequal', 10, 700 * np.sqrt(1 - 0.9**2)],
+    # [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
 ]
 def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
                    folder='1sweepbin_emax', nthreads=1, run_cfgs=EMAX_CFGS):
@@ -808,28 +810,28 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, M12=50, M3=30, a0=100, e2=0.6,
         - eta * evec_mags**2/2
     )
 
-    fig, ((ax1, ax2, ax3), (ax4, ax5, ax6)) = plt.subplots(
-        2, 3,
-        figsize=(14, 9),
+    fig, (ax1, ax2, ax3, ax4) = plt.subplots(
+        4, 1,
+        figsize=(8, 8),
         sharex=True)
 
-    ax1.semilogy(ret.t / 1e8, 1 - evec_mags)
+    ax1.semilogy(ret.t / 1e8, 1 - evec_mags, 'k', lw=1)
     ax1.set_ylabel(r'$1 - e$')
-    ax2.plot(ret.t / 1e8, I + Iout)
+    if (1 - np.max(evec_mags)) > 1e-4:
+        ax1.set_yticks([1e-3, 1e-2, 1e-1, 1])
+        ax1.set_yticklabels([r'$10^{%d}$' % d for d in [-3, -2, -1, 0]])
+    else:
+        ax1.set_yticks([1e-6, 1e-4, 1e-2, 1])
+        ax1.set_yticklabels([r'$10^{%d}$' % d for d in [-6, -4, -2, 0]])
+    # ax1.locator_params(nbins=3)
+    ax2.plot(ret.t / 1e8, I + Iout, 'k', lw=1)
     ax2.set_ylabel(r'$I$ (Deg)')
-    ax3.plot(ret.t / 1e8, K)
+    ax3.plot(ret.t / 1e8, K, 'k', lw=1)
     ax3.axhline(-eta / 2, c='k', ls=':', lw=2)
-    ax3.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
-    ax4.plot(ret.t / 1e8, np.degrees(w1), 'ko', ms=0.7)
-    ax4.set_ylabel(r'$\omega_1$')
+    ax3.set_ylabel(r'$K$')
+    ax4.plot(ret.t / 1e8, We, 'ko', ms=0.7)
+    ax4.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
     ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
-    ax5.plot(ret.t / 1e8, We, 'ko', ms=0.7)
-    ax5.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
-    ax5.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
-
-    ax6.plot(ret.t / 1e8, Ie)
-    ax6.set_ylabel(r'$I_{\rm e}$ (Deg)')
-    ax6.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     # try to predict eout_max & bounds of oscillation of K?
     # emax = get_emax(eta_ecc, eps[1] * (1 - 0.6**2)**(3/2), I=np.radians(Itot))
@@ -1082,12 +1084,13 @@ COMPOSITE_CFGS = [
         [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
     ],
+    # [
+    #     [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+    # ],
+    # [
+    #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+    # ],
 ]
-# COMPOSITE_CFGS = [
-#     [
-#         [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
-#     ],
-# ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                    num_i=1000, plot_single=True, get_mergerfracs=False):
     # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
@@ -1138,7 +1141,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
 
         # compute merger probabilities
         I0s = np.unique(I_plots)
-        weights = np.gradient(I0s)
+        weights = -np.gradient(np.cos(I0s))
         weights[0] /= 2
         weights[-1] /= 2
         merge_probs = []
@@ -1147,19 +1150,19 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                 len(np.where(np.abs(I_plots[merged] - I) < 1e-6)[0]) /
                 len(np.where(np.abs(I_plots - I) < 1e-6)[0]))
         total_merger_fracs.append(
-            np.sum(np.array(merge_probs) * weights) / np.pi
+            np.sum(np.array(merge_probs) * weights) / 2
         )
         if not plot_single:
             continue
 
-        fig, (ax1, ax2, ax3) = plt.subplots(
+        fig, (ax3, ax1, ax2) = plt.subplots(
             3, 1,
             figsize=(7, 10),
-            gridspec_kw={'height_ratios': [0.3, 1, 1]},
+            gridspec_kw={'height_ratios': [1, 0.3, 1]},
             sharex=True)
 
-        ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
-                      % (explore_cfg[0], explore_cfg[1]))
+        # ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
+        #               % (explore_cfg[0], explore_cfg[1]))
         ax1.plot(np.degrees(I0s), merge_probs, 'k')
         ax1.set_ylabel(r'Merge Prob')
 
@@ -1231,14 +1234,14 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
         ax3.plot(I0s, 1 - np.array(emaxes4), 'k--', lw=1.0)
 
-        ax3.set_xlabel(r'$I_0$')
+        ax1.set_xlabel(r'$I_0$')
         ax3.set_ylabel(r'$1 - e$')
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
         ax3.legend(fontsize=14)
 
-        ax3.set_xlim(Ilimd - 1, Ilimd + 1)
+        # ax3.set_xlim(Ilimd - 1, Ilimd + 1)
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.02)
@@ -1247,7 +1250,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         plt.savefig(composite_fn, dpi=300)
         plt.close()
 
-    return
     total_fn = fldr + '/' + 'total_merger_fracs'
     qs = np.array([cfgs[0][0] for cfgs in COMPOSITE_CFGS])
     e2s = np.array([cfgs[0][1] for cfgs in COMPOSITE_CFGS])
@@ -1757,7 +1759,6 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                  e2=0.6,
                  k2=0.37,
                  R2=4.676e-4,
-                 to_plot=False,
                  **kwargs,
                  ):
     plot_k = False
@@ -1846,8 +1847,6 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     ) if eps_oct < 0.05 else 0.45
     ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(MLL_expr)))
     ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(MLL_expr)))
-    if not to_plot:
-        return I0d_plot, m1_emaxes, ilimd_MLL_L, ilimd_MLL_R
 
     _, eps_gr, eps_oct, eta = get_eps(M1, M2, M3, a0, a2, e2)
     Ilimd = get_Ilim(eta, eps_gr)
@@ -1871,17 +1870,6 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     ax1.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
     ax1.set_ylabel(r'$1 - e_{\max}$')
 
-    # TODO
-    # emaxes_1m = []
-    # eps_tide = get_eps_tide(M1, M2, M3, a0, a2, e2, k2, R2)
-    # for I in I0d_vals_tot:
-    #     emaxes_1m.append(
-    #         1 - get_emax(
-    #             eta=eta, eps_gr=eps_gr, I=np.radians(I), eps_tide=eps_tide))
-    # ax1.plot(I0d_vals_tot, emaxes_1m, 'k--')
-    elim = get_elim_oconnor(M1, M2, M3, a0, a2, e2, k2, R2)
-    ax1.axhline(elim, c='k', ls='--')
-
     if plot_k:
         ax2.plot(I0d_plot, Kmins, 'bo', label=r'$K_{\min}$', ms=0.5,
                  alpha=0.5)
@@ -1904,216 +1892,181 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
 
 def make_nogw_plots():
     mkdirp('1nogw_sims')
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
-    #              fn='1nogw_sims/1nogw_vec')
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
-    #              fn='1nogw_sims/1nogw_vec80', Itot=80)
-    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
-    #              fn='1nogw_sims/1nogw_vec88', Itot=88)
-    # laetitia_kwargs = dict(
-    #     ll=0,
-    #     M12=1+1e-3,
-    #     q=1e-3,
-    #     M3=1,
-    #     INTain=5,
-    #     a2=500,
-    #     E10=1e-3,
-    #     e2=0.6,
-    #     method='Radau',
-    #     T=3e7,
-    #     TOL=1e-9,
-    #     k2=0.37,
-    #     R2=4.67e-4,
-    # )
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1laetitia_tp_90',
-    #              Itot=89.9)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1laetitia_tp_88',
-    #              Itot=88)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1laetitia_tp_87',
-    #              Itot=87)
-    # run_nogw_vec(**laetitia_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1laetitia_tp_86',
-    #              Itot=86)
-    # tp_nosrf_kwargs = dict(
-    #     ll=0,
-    #     l=0,
-    #     M12=1+1e-3,
-    #     q=1e-3,
-    #     M3=1,
-    #     INTain=5,
-    #     a2=500,
-    #     E10=1e-3,
-    #     e2=0.6,
-    #     method='Radau',
-    #     T=3e7,
-    #     TOL=1e-9,
-    # )
-    # run_nogw_vec(**tp_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_tp_90',
-    #              Itot=89.9)
-    # run_nogw_vec(**tp_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_tp_88',
-    #              Itot=88)
-    # run_nogw_vec(**tp_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_tp_87',
-    #              Itot=87)
-    # run_nogw_vec(**tp_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_tp_86',
-    #              Itot=86)
-    # bbh_nosrf_kwargs = dict(
-    #     ll=0,
-    #     l=0,
-    #     M12=50,
-    #     q=0.3,
-    #     M3=30,
-    #     INTain=100,
-    #     a2=4500,
-    #     E10=1e-3,
-    #     e2=0.6,
-    #     method='Radau',
-    #     T=3e8,
-    #     TOL=1e-9,
-    # )
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_90',
-    #              Itot=89.9)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_88',
-    #              Itot=88)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_87',
-    #              Itot=87)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_86',
-    #              Itot=86)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=np.pi / 2,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_86_2',
-    #              Itot=86)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=np.pi / 4,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_86_3',
-    #              Itot=86)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              w1=3 * np.pi / 4,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_86_4',
-    #              Itot=86)
-    # run_nogw_vec(**bbh_nosrf_kwargs,
-    #              mm=0,
-    #              w1=0,
-    #              w2=0,
-    #              W=0,
-    #              fn='1nogw_sims/1nosrf_bbh_86_nooct',
-    #              Itot=86)
+    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec', Itot=93.5)
+    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec88', Itot=88)
+    return
+    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec80', Itot=80)
+    laetitia_kwargs = dict(
+        ll=0,
+        M12=1+1e-3,
+        q=1e-3,
+        M3=1,
+        INTain=5,
+        a2=500,
+        E10=1e-3,
+        e2=0.6,
+        method='Radau',
+        T=3e7,
+        TOL=1e-9,
+        k2=0.37,
+        R2=4.67e-4,
+    )
+    run_nogw_vec(**laetitia_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1laetitia_tp_90',
+                 Itot=89.9)
+    run_nogw_vec(**laetitia_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1laetitia_tp_88',
+                 Itot=88)
+    run_nogw_vec(**laetitia_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1laetitia_tp_87',
+                 Itot=87)
+    run_nogw_vec(**laetitia_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1laetitia_tp_86',
+                 Itot=86)
+    tp_nosrf_kwargs = dict(
+        ll=0,
+        l=0,
+        M12=1+1e-3,
+        q=1e-3,
+        M3=1,
+        INTain=5,
+        a2=500,
+        E10=1e-3,
+        e2=0.6,
+        method='Radau',
+        T=3e7,
+        TOL=1e-9,
+    )
+    run_nogw_vec(**tp_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_tp_90',
+                 Itot=89.9)
+    run_nogw_vec(**tp_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_tp_88',
+                 Itot=88)
+    run_nogw_vec(**tp_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_tp_87',
+                 Itot=87)
+    run_nogw_vec(**tp_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_tp_86',
+                 Itot=86)
+    bbh_nosrf_kwargs = dict(
+        ll=0,
+        l=0,
+        M12=50,
+        q=0.3,
+        M3=30,
+        INTain=100,
+        a2=4500,
+        E10=1e-3,
+        e2=0.6,
+        method='Radau',
+        T=3e8,
+        TOL=1e-9,
+    )
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_90',
+                 Itot=89.9)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_88',
+                 Itot=88)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_87',
+                 Itot=87)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_86',
+                 Itot=86)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=np.pi / 2,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_86_2',
+                 Itot=86)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=np.pi / 4,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_86_3',
+                 Itot=86)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 w1=3 * np.pi / 4,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_86_4',
+                 Itot=86)
+    run_nogw_vec(**bbh_nosrf_kwargs,
+                 mm=0,
+                 w1=0,
+                 w2=0,
+                 W=0,
+                 fn='1nogw_sims/1nosrf_bbh_86_nooct',
+                 Itot=86)
 
-def plot_laetitia():
-    rets = [
-        run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6',
-                     to_plot=False) ]
-    for m3_mult in [2, 3, 5, 10]:
-        rets.append(
-            run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
-                         a2=50 * (m3_mult**(1/3)), e2=0.6, to_plot=False,
-                         base_fn='e2_6_m%d' % m3_mult))
-    rets.append(
-        run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-                     e2=0.6, base_fn='e2_6tp'))
-    masses = [1, 2, 3, 5, 10, 1e3]
-    fig, _axs = plt.subplots(
-        2, 3,
-        figsize=(13, 6),
-        sharex=True, sharey=True)
-    axs = _axs.flat
-    labels = ['(i)', '(ii)', '(iii)', '(iv)', '(v)', '(vi)']
-    for ret, mass, ax, lbl in zip(rets, masses, axs, labels):
-        I0ds, emaxes_1m, Ilimd_L, Ilimd_R = ret
+def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
+                            nruns=2, Imin=50, Imax=130, a2eff=3600, nthreads=32):
+    mkdirp(fldr)
+    qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0][::-1]
+    e2s = [0.6]#, 0.8, 0.9]
+    I0s = np.arccos(
+        np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
+    )
+    for q in qs:
+        for e2 in e2s:
+            pkl_fn = '%s/q%d_e%d.pkl' % (fldr, 10 * q, 10 * e2)
+            args = [
+                (idx, q, 1e10, ain, a2eff / np.sqrt(1 - e2**2), 1e-3, e2, I0, True)
+                for idx in range(nruns)
+                for I0 in I0s
+            ]
+            if not os.path.exists(pkl_fn):
+                print('Running %s' % pkl_fn)
+                p = Pool(nthreads)
+                rets = p.starmap(sweeper_bin, args)
+                with open(pkl_fn, 'wb') as f:
+                    pickle.dump((rets), f)
+            else:
+                with open(pkl_fn, 'rb') as f:
+                    print('Loading %s' % pkl_fn)
+                    rets = pickle.load(f)
 
-        _, eps_gr, _, eta = get_eps(1, 1e-3, 1e-3 * mass, 5, 50 * mass**(1/3), 0)
-        eps_tide = get_eps_tide(1, 1e-3, 1e-3 * mass, 5, 50 * mass**(1/3), 0,
-                                0.37, 4.676e-4) / 2
-        om_emaxes_th = []
-        elim = get_elim(eta=eta, eps_gr=eps_gr, eps_tide=eps_tide)
-        I0d_emaxes = []
-        for I0d in I0ds:
-            try:
-                om_emaxes_th.append(1 - get_emax(
-                    eta=eta, eps_gr=eps_gr, I=np.radians(I0d),
-                    eps_tide=eps_tide))
-                I0d_emaxes.append(I0d)
-            except:
-                continue
-        ax.semilogy(I0ds, emaxes_1m, ls='', marker='.', color='tab:blue', ms=0.5)
-        ax.axhline(1 - elim, c='k', ls=':')
-        ax.axvline(Ilimd_L, c='tab:purple', ls='--', lw=1.5)
-        ax.axvline(Ilimd_R, c='tab:purple', ls='--', lw=1.5)
-        idx = np.argsort(I0d_emaxes)
-        ax.plot(np.array(I0d_emaxes)[idx],
-                np.array(om_emaxes_th)[idx],
-                c='tab:green', lw=1.5)
-
-        xticks = np.arange(40, 141, 10)
-        xticks_label = [40, 70, 110, 140]
-        ax.set_xticks(xticks)
-        ax.set_xticklabels([r'$%d$' % t if t in xticks_label else ''
-                            for t in xticks])
-
-        mass_str = r'%dM_{\rm J}' % mass if mass < 100 else r'M_\odot'
-        ax.text(52, 0.5, r'%s $m_p = %s$' % (lbl, mass_str), fontsize=12)
-    _axs[0][0].set_ylabel(r'$1 - e_{\rm J, \max}$', fontsize=18)
-    _axs[1][0].set_ylabel(r'$1 - e_{\rm J, \max}$', fontsize=18)
-    _axs[1][0].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
-    _axs[1][1].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
-    _axs[1][2].set_xlabel(r'$i_{\rm p}$ [Deg]', fontsize=18)
-    plt.tight_layout()
-
-    fig.subplots_adjust(hspace=0, wspace=0)
-    plt.savefig('1laetitia/plot', dpi=400)
-    plt.close()
 
 if __name__ == '__main__':
     # UNUSED
@@ -2123,9 +2076,9 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', nthreads=4)
-    # run_emax_sweep(nthreads=12)
-    # plot_composite(plot_single=True)
+    # sweep(folder='1sweepbin', nthreads=32)
+    # run_emax_sweep(nthreads=32)
+    # plot_composite(plot_single=False)
     # plot_massratio_sample()
 
     # emax_cfgs_short = [
@@ -2218,7 +2171,7 @@ if __name__ == '__main__':
     #              ntrials=1)
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3_gr0',
     #              l=0, k2=0, R2=0)
-    # for m3_mult in [2, 3, 5, 8, 10, 30]:
+    # for m3_mult in [3, 5, 8, 10, 30]:
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.6,
     #                  base_fn='e2_6_m%d' % m3_mult)
@@ -2226,9 +2179,8 @@ if __name__ == '__main__':
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
 
-    # make_nogw_plots()
+    make_nogw_plots()
 
     # plot_emaxgrid(nthreads=32)
-
-    plot_laetitia()
+    # plot_total_fracs_simple()
     pass

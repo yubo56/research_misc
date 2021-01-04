@@ -31,6 +31,7 @@ epsocts = np.array([
     (1 - q) / (1 + q) / 36 * e2 / np.sqrt(1 - e2**2)
     for q, e2, _ in dat
 ])
+etas = np.array([q / (1 + q) for q, _, _ in dat])
 Imins = np.array([d[2] for d in dat])
 
 cs = ['k', 'b', 'g']
