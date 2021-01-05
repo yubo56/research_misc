@@ -123,7 +123,7 @@ def timing_tests():
 def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
     np.random.seed(idx + int(time.time()))
     M1 = 50 / (1 + q)
-    AF = 0.5 / a0
+    AF = 3 / a0
     ret = run_vec(
         T=t_final,
         M1=M1,
@@ -134,14 +134,14 @@ def sweeper_bin(idx, q, t_final, a0, a2, e0, e2, I0, return_final=False):
         E10=e0,
         E20=e2,
         method='Radau',
-        TOL=1e-9,
+        TOL=1e-8,
         AF=AF,
         w1=np.random.rand() * 2 * np.pi,
         w2=np.random.rand() * 2 * np.pi,
         W=np.random.rand() * 2 * np.pi,
     )
     tf = ret.t[-1]
-    print(idx, q, t_final / 1e9, a0, a2, e0, e2, np.degrees(I0))
+    print(idx, q, t_final / 1e9, tf / 1e9, a0, a2, e0, e2, np.degrees(I0))
     if return_final:
         return tf, ret.y[ :, -1]
     return tf
@@ -412,7 +412,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ax1.semilogy(I_plots, 1 - np.array(emaxes), 'bo', ms=0.5,
                      label=r'$e_{\max}$')
         ax1.semilogy(I_plots, 1 - np.array(emeans), 'go', ms=0.5,
-                     label=r'$\langle e_{\rm eff} \rangle$')
+                     label=r'$e_{\rm eff}$')
         ax1.axhline(1 - e_eff_crit, c='g', ls=':')
         ax1.axhline(1 - e_os, c='b')
         ax1.axhline(1 - elim, c='k', ls='--')
@@ -1085,13 +1085,13 @@ COMPOSITE_CFGS = [
         [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
     ],
-    # [
-    #     [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
-    #     [0.01, 0.6, 'tp', 68, 112, 100, 3600],
-    # ],
-    # [
-    #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
-    # ],
+    [
+        [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+        [0.01, 0.6, 'tp', 68, 112, 100, 3600],
+    ],
+    [
+        [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+    ],
 ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                    num_i=1000, plot_single=True, get_mergerfracs=False):
@@ -1249,7 +1249,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5,
                      label=r'$e_{\max}$')
         ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
-                     label=r'$\langle e_{\rm eff} \rangle$')
+                     label=r'$e_{\rm eff}$')
         ax3.axhline(1 - e_eff_crit, c='g', ls=':')
         ax3.axhline(1 - e_os, c='b')
         ax3.axhline(1 - elim, c='k', ls='--')
@@ -1276,10 +1276,11 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.02)
         composite_fn = fldr + '/' + explore_fn.replace('explore', 'composite')
-        print('Saving', composite_fn)
+        print('Saving', composite_fn, eps_oct, eta)
         plt.savefig(composite_fn, dpi=300)
         plt.close()
 
+    return
     total_fn = fldr + '/' + 'total_merger_fracs'
     qs = np.array([cfgs[0][0] for cfgs in COMPOSITE_CFGS])
     e2s = np.array([cfgs[0][1] for cfgs in COMPOSITE_CFGS])
@@ -1641,9 +1642,9 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
             sharex=True)
         # ax1.errorbar(q_counts.keys(), merged_fracs * f_cos,
         #              yerr=np.sqrt(uncerts * f_cos),
-        #              fmt='ko', lw=1.0, ms=3.0, label='Sim')
+        #              fmt='ko', lw=1.0, ms=3.0, label='Uniform')
         ax1.plot(q_counts.keys(), merged_fracs * f_cos,
-                 'ko', lw=1.0, ms=3.0, label='Sim')
+                 'ko', lw=1.0, ms=3.0, label='Uniform')
         ax1.plot(q_counts.keys(), merged_fracs_thermal * f_cos, 'ro',
                  label='Thermal', ms=3.5)
         ax1.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
@@ -2102,32 +2103,36 @@ def make_nogw_plots():
                  Itot=86)
 
 def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
-                            nruns=2, Imin=50, Imax=130, a2eff=3600, nthreads=32):
+                            nruns=2, Imin=50, Imax=130, a2eff=1800, nthreads=32):
     mkdirp(fldr)
-    qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0][::-1]
-    e2s = [0.6]#, 0.8, 0.9]
+    qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
+    e2s = [0.6, 0.8, 0.9]
     I0s = np.arccos(
         np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
     )
-    for q in qs:
-        for e2 in e2s:
-            pkl_fn = '%s/q%d_e%d.pkl' % (fldr, 10 * q, 10 * e2)
-            args = [
-                (idx, q, 1e10, ain, a2eff / np.sqrt(1 - e2**2), 1e-3, e2, I0, True)
-                for idx in range(nruns)
-                for I0 in I0s
-            ]
-            if not os.path.exists(pkl_fn):
-                print('Running %s' % pkl_fn)
-                p = Pool(nthreads)
-                rets = p.starmap(sweeper_bin, args)
-                with open(pkl_fn, 'wb') as f:
-                    pickle.dump((rets), f)
-            else:
-                with open(pkl_fn, 'rb') as f:
-                    print('Loading %s' % pkl_fn)
-                    rets = pickle.load(f)
-
+    # for plotting
+    q_arr = []
+    epsoct_arr = []
+    frac_arr = []
+    for e2 in e2s:
+        pkl_fn = '%s/e%d.pkl' % (fldr, 10 * e2)
+        a2 = a2eff / np.sqrt(1 - e2**2)
+        args = [
+            (idx, q, 1e10, ain, a2, 1e-3, e2, I0, True)
+            for idx in range(nruns)
+            for I0 in I0s
+            for q in qs
+        ]
+        if not os.path.exists(pkl_fn):
+            print('Running %s' % pkl_fn)
+            p = Pool(nthreads)
+            rets = p.starmap(sweeper_bin, args)
+            with open(pkl_fn, 'wb') as f:
+                pickle.dump((rets), f)
+        else:
+            with open(pkl_fn, 'rb') as f:
+                print('Loading %s' % pkl_fn)
+                rets = pickle.load(f)
 
 if __name__ == '__main__':
     # UNUSED
@@ -2139,7 +2144,7 @@ if __name__ == '__main__':
 
     # sweep(folder='1sweepbin', nthreads=32)
     # run_emax_sweep(nthreads=32)
-    plot_composite(plot_single=False)
+    # plot_composite(plot_single=True)
     # plot_massratio_sample()
 
     # emax_cfgs_short = [
@@ -2180,10 +2185,10 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    # a2effs = [3600, 5500]
-    # plot = True
-    # for a2eff in a2effs:
-    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
+    a2effs = [3600, 5500]
+    plot = True
+    for a2eff in a2effs:
+        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
     # a2effs2 = [2800, 4500]
     # for a2eff in a2effs2:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot,

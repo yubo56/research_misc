@@ -370,15 +370,15 @@ def plot_dW_sweeps(q, base_fn, Ivert):
         figsize=(8, 8),
         sharex=True, sharey=True
     )
-    ax1.plot(I0ds, dWes_circ0, 'go', label=r'$\omega_{1,0} = 0$',
+    ax1.plot(I0ds, dWes_circ0, 'go', label=r'$\omega_0 = 0$',
              ms=1.0)
-    ax1.plot(I0ds, dWes_lib0, 'ro', label=r'$\omega_{1,0} = \pi / 2$',
+    ax1.plot(I0ds, dWes_lib0, 'ro', label=r'$\omega_0 = \pi / 2$',
              ms=1.0)
-    ax2.plot(I0ds, dWes_circ1, 'go', label=r'$\omega_{1,0} = 0$',
+    ax2.plot(I0ds, dWes_circ1, 'go', label=r'$\omega_0 = 0$',
              ms=1.0)
-    ax2.plot(I0ds, dWes_lib1, 'ro', label=r'$\omega_{1,0} = \pi / 2$',
+    ax2.plot(I0ds, dWes_lib1, 'ro', label=r'$\omega_0 = \pi / 2$',
              ms=1.0)
-    ax2.legend(fontsize=12)
+    ax1.legend(fontsize=12)
     ax1.axvline(Ivert, c='k', lw=0.7)
     ax2.axvline(Ivert, c='k', lw=0.7)
     ax1.set_yticks([0, 180, 360])
@@ -432,15 +432,15 @@ if __name__ == '__main__':
 
     # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998, mm=0)
     # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1)
-    plot_dW_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
+    # plot_dW_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
 
     # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982, mm=0)
     # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3_1', Ivert=88.1981981981982, mm=1)
-    plot_dW_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982)
+    # plot_dW_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982)
 
     # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788, mm=0)
     # run_sweeps(q=0.4, base_fn='2_dWsweeps6_4_1', Ivert=87.87787787787788, mm=1)
-    plot_dW_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788)
+    # plot_dW_sweeps(q=0.4, base_fn='2_dWsweeps6_4', Ivert=87.87787787787788)
 
     # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748, mm=0)
     # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5_1', Ivert=87.47747747747748, mm=1)
@@ -448,5 +448,5 @@ if __name__ == '__main__':
 
     # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732, mm=0)
     # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7_1', Ivert=87.31731731731732, mm=1)
-    plot_dW_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732)
+    # plot_dW_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732)
     pass

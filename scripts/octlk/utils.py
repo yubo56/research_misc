@@ -8,6 +8,9 @@ except:
 from scipy.integrate import solve_ivp
 import scipy.optimize as opt
 
+def cosd(ang):
+    return np.cos(np.radians(ang))
+
 def inverse_permutation(a):
     b = np.arange(a.shape[0])
     b[a] = b.copy()
