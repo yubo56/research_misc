@@ -2103,7 +2103,8 @@ def make_nogw_plots():
                  Itot=86)
 
 def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
-                            nruns=2, Imin=50, Imax=130, a2eff=1800, nthreads=32):
+                            nruns=2, Imin=50, Imax=130, a2eff=1800, nthreads=32,
+                            plot_simple=True):
     mkdirp(fldr)
     qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
     e2s = [0.6, 0.8, 0.9]
@@ -2111,10 +2112,13 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
         np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
     )
     # for plotting
-    q_arr = []
-    epsoct_arr = []
-    frac_arr = []
-    for e2 in e2s:
+    colors = ['r', 'b', 'k']
+
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2,
+        figsize=(12, 6),
+        sharey=True)
+    for c, e2 in zip(colors, e2s):
         pkl_fn = '%s/e%d.pkl' % (fldr, 10 * e2)
         a2 = a2eff / np.sqrt(1 - e2**2)
         args = [
@@ -2124,6 +2128,8 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
             for q in qs
         ]
         if not os.path.exists(pkl_fn):
+            print('Not exists %s' % pkl_fn)
+            continue
             print('Running %s' % pkl_fn)
             p = Pool(nthreads)
             rets = p.starmap(sweeper_bin, args)
@@ -2133,6 +2139,34 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
                 rets = pickle.load(f)
+
+        q_arr = []
+        epsoct_arr = []
+        frac_arr = []
+        I0ds = np.degrees([a[-2] for a in args])
+        q_vals = np.array([a[1] for a in args])
+        tmerges = np.array([r[0] for r in rets])
+        for q in qs:
+            q_idxs = np.where(q_vals == q)[0]
+            q_tmerges = tmerges[q_idxs]
+            num_merges = len(np.where(q_tmerges < 9.9e9)[0])
+            q_arr.append(q)
+            frac_arr.append(num_merges / len(q_tmerges)
+                            * (np.cos(Imin) - np.cos(Imax)) / 2 * 100)
+            epsoct_arr.append((1 - q) / (1 + q)
+                           * ain / a2
+                           * e2 / (1 - e2**2) * 100)
+        ax1.plot(q_arr, frac_arr, c=c, alpha=0.5, lw=1.0, marker='o',
+                 label=r'$e_{\rm out} = %.1f$' % e2)
+        ax1.legend()
+        ax1.set_xlabel(r'$q$')
+        ax1.set_ylabel(r'$f_{\rm merger}$ [\%]')
+
+        ax2.plot(epsoct_arr, frac_arr, c=c, alpha=0.5, lw=1.0, marker='o')
+        ax2.set_xlabel(r'$100\epsilon_{\rm oct}$')
+    plt.tight_layout()
+    fig.subplots_adjust(wspace=0.03)
+    plt.savefig(fldr + '/simple', dpi=300)
 
 if __name__ == '__main__':
     # UNUSED
@@ -2185,10 +2219,10 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    a2effs = [3600, 5500]
-    plot = True
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
+    # a2effs = [3600, 5500]
+    # plot = True
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
     # a2effs2 = [2800, 4500]
     # for a2eff in a2effs2:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot,
@@ -2248,5 +2282,5 @@ if __name__ == '__main__':
     # make_nogw_plots()
 
     # plot_emaxgrid(nthreads=32)
-    # plot_total_fracs_simple()
+    plot_total_fracs_simple()
     pass
