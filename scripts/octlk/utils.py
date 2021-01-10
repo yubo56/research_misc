@@ -102,8 +102,6 @@ def get_tlk0(m1, m2, m3, a0, a2):
     ''' calculates a bunch of physically relevant values '''
     m12 = m1 + m2
     m123 = m12 + m3
-    mu = m1 * m2 / m12
-    mu123 = m12 * m3 / m123
 
     # calculate lk time
     n = np.sqrt(G * m12 / a0**3)

@@ -1085,13 +1085,13 @@ COMPOSITE_CFGS = [
         [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
     ],
-    [
-        [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
-        [0.01, 0.6, 'tp', 68, 112, 100, 3600],
-    ],
-    [
-        [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
-    ],
+    # [
+    #     [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+    #     [0.01, 0.6, 'tp', 68, 112, 100, 3600],
+    # ],
+    # [
+    #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+    # ],
 ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                    num_i=1000, plot_single=True, get_mergerfracs=False):
@@ -1220,39 +1220,53 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         if not plot_single:
             continue
 
-        fig, (ax3, ax1, ax2) = plt.subplots(
-            3, 1,
-            figsize=(7, 10),
-            gridspec_kw={'height_ratios': [1, 0.3, 1]},
-            sharex=True)
+        if q != 0.01:
+            fig, (ax3, ax1, ax2) = plt.subplots(
+                3, 1,
+                figsize=(7, 10),
+                gridspec_kw={'height_ratios': [1, 0.3, 1]},
+                sharex=True)
 
-        # ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
-        #               % (explore_cfg[0], explore_cfg[1]))
-        ax1.plot(np.degrees(I0s), merge_probs, 'k')
-        ax1.set_ylabel(r'Merge Prob')
+            # ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
+            #               % (explore_cfg[0], explore_cfg[1]))
+            ax1.plot(np.degrees(I0s), merge_probs, 'k')
+            ax1.set_ylabel(r'$f_{\rm merge}$')
 
-        # plot actual merger times
-        ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go', ms=1)
-        ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
-        ax2.set_ylabel(r'$T_m$ (yr)')
+            # plot actual merger times
+            ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go',
+                         ms=1)
+            ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
+            ax2.set_ylabel(r'$T_m$ (yr)')
+            tlk0 = get_tlk0(m1, m2, m3, a0, a2)
+            ax2.axhline(tlk0, c='k', ls='--')
+            ax2.text(50, 1.3 * tlk0, r'$t_{\rm ZLK}$')
+            if eps_oct > 0:
+                t_ezlk = tlk0 * 128 * np.sqrt(10) / (15 * np.pi * np.sqrt(eps_oct))
+                ax2.axhline(t_ezlk, c='b', ls='--')
+                ax2.text(50, 1.3 * t_ezlk, r'$t_{\rm oct}$', c='b')
 
-        # fill in to the left and right edges (bindist)
-        min_Iplot = np.degrees(np.min(I_plots))
-        max_Iplot = np.degrees(np.max(I_plots))
-        ax1.plot([50, min_Iplot], [0, 0], 'k')
-        ax1.plot([max_Iplot, 130], [0, 0], 'k')
-        ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'b^', ms=1)
-        ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'b^', ms=1)
+            # fill in to the left and right edges (bindist)
+            min_Iplot = np.degrees(np.min(I_plots))
+            max_Iplot = np.degrees(np.max(I_plots))
+            ax1.plot([50, min_Iplot], [0, 0], 'k')
+            ax1.plot([max_Iplot, 130], [0, 0], 'k')
+            ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'b^', ms=1)
+            ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'b^', ms=1)
+            ax2.set_xlabel(r'$I_0$ (Deg)')
+        else:
+            fig, ax3 = plt.subplots(1, 1, figsize=(7, 4))
 
         # now plot emaxes
-
-        ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5,
-                     label=r'$e_{\max}$')
-        ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
+        ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5, alpha=0.5,
                      label=r'$e_{\rm eff}$')
-        ax3.axhline(1 - e_eff_crit, c='g', ls=':')
+        ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5, alpha=0.5,
+                     label=r'$e_{\max}$')
+        ax3.axhline(1 - e_eff_crit, c='g')
         ax3.axhline(1 - e_os, c='b')
-        ax3.axhline(1 - elim, c='k', ls='--')
+        ax3.axhline(1 - elim, c='r', ls='--')
+        ax3.text(50, 1.3 * (1 - e_eff_crit), r'$e_{\rm eff, c}$', c='g')
+        ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
+        ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
 
         # overplot MLL fit for reference
         ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
@@ -1264,7 +1278,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
         ax3.plot(I0s_emax, 1 - np.array(emaxes4), 'k--', lw=1.0)
 
-        ax2.set_xlabel(r'$I_0$ (Deg)')
         ax3.set_ylabel(r'$1 - e$')
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
@@ -1280,7 +1293,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         plt.savefig(composite_fn, dpi=300)
         plt.close()
 
-    return
     total_fn = fldr + '/' + 'total_merger_fracs'
     qs = np.array([cfgs[0][0] for cfgs in COMPOSITE_CFGS])
     e2s = np.array([cfgs[0][1] for cfgs in COMPOSITE_CFGS])
@@ -1310,7 +1322,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax1.plot(qs[plot_idxs],
                  100 * total_merger_fracs[plot_idxs],
                  c=color,
-                 alpha=0.5,
                  lw=1.0,
                  marker='o',
                  label=r'$e_{\rm out} = %.1f$' % e2)
@@ -1330,7 +1341,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax2.plot(100 * eps_octs[plot_idxs],
                  100 * total_merger_fracs[plot_idxs],
                  c=color,
-                 alpha=0.5,
                  lw=1.0,
                  marker='o')
         ax2.plot(100 * eps_octs[plot_idxs],
@@ -2103,22 +2113,29 @@ def make_nogw_plots():
                  Itot=86)
 
 def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
-                            nruns=2, Imin=50, Imax=130, a2eff=1800, nthreads=32):
+                            nruns=2, Imin=50, Imax=130, a2eff=1800,
+                            nthreads=32):
     mkdirp(fldr)
+    e0 = 1e-3
+    m12 = 50
+    m3 = 30
     qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
     e2s = [0.6, 0.8, 0.9]
     I0s = np.arccos(
         np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
     )
     # for plotting
-    q_arr = []
-    epsoct_arr = []
-    frac_arr = []
-    for e2 in e2s:
+    colors = ['r', 'b', 'k']
+
+    fig, (ax1, ax2) = plt.subplots(
+        1, 2,
+        figsize=(12, 6),
+        sharey=True)
+    for color, e2 in zip(colors, e2s):
         pkl_fn = '%s/e%d.pkl' % (fldr, 10 * e2)
         a2 = a2eff / np.sqrt(1 - e2**2)
         args = [
-            (idx, q, 1e10, ain, a2, 1e-3, e2, I0, True)
+            (idx, q, 1e10, ain, a2, e0, e2, I0, True)
             for idx in range(nruns)
             for I0 in I0s
             for q in qs
@@ -2134,6 +2151,98 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
                 print('Loading %s' % pkl_fn)
                 rets = pickle.load(f)
 
+        pkl_fn_nogw = '%s/e%d_nogw.pkl' % (fldr, 10 * e2)
+        args_nogw = [
+            (idx, q, np.degrees(I0), None, dict(a0=ain, a2=a2, e2=e2))
+            for idx in range(nruns)
+            for I0 in I0s
+            for q in qs
+        ]
+        if not os.path.exists(pkl_fn_nogw):
+            # print('Not exists %s' % pkl_fn_nogw)
+            # continue
+            print('Running %s' % pkl_fn_nogw)
+            p = Pool(nthreads)
+            rets_nogw = p.starmap(get_emax_series, args_nogw)
+            with open(pkl_fn_nogw, 'wb') as f:
+                pickle.dump((rets_nogw), f)
+        else:
+            with open(pkl_fn_nogw, 'rb') as f:
+                print('Loading %s' % pkl_fn_nogw)
+                rets_nogw = pickle.load(f)
+        I0ds = np.degrees([a[-2] for a in args])
+
+        emaxes = []
+        emeans = []
+        for I0d, ret in zip(I0ds, rets_nogw):
+            I0 = np.radians(I0d)
+            e_vals = np.array(ret[1])
+            if len(e_vals) == 0:
+                emaxes.append(e0)
+                emeans.append(e0)
+                continue
+            where_idx = np.where(e_vals >= 0.3)[0]
+            e_vals = e_vals[where_idx]
+            if len(e_vals) == 0:
+                emaxes.append(e0)
+                emeans.append(e0)
+                continue
+            emaxes.append(np.max(e_vals))
+            # approx 1 + 73e^2/24... \approx 4.427 is constant
+            jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+            emean = np.sqrt(1 - jmean**2)
+            emeans.append(emean)
+        emeans = np.array(emeans)
+        emaxes = np.array(emaxes)
+
+        q_arr = []
+        epsoct_arr = []
+        frac_arr = []
+        frac_arr_nogw = []
+        q_vals = np.array([a[1] for a in args])
+        tmerges = np.array([r[0] for r in rets])
+
+        for q in qs:
+            q_idxs = np.where(q_vals == q)[0]
+            q_tmerges = tmerges[q_idxs]
+            num_merges = len(np.where(q_tmerges < 9.9e9)[0])
+            q_arr.append(q)
+            frac_arr.append(num_merges / len(q_tmerges)
+                            * (np.cos(Imin) - np.cos(Imax)) / 2 * 100)
+            epsoct_arr.append((1 - q) / (1 + q)
+                           * ain / a2
+                           * e2 / (1 - e2**2) * 100)
+            m2 = m12 / (1 + q)
+            m1 = m12 - m2
+            j_eff_crit = 0.01461 * (100 / ain)**(2/3)
+            e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+            j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+                c**5 * ain**4 * np.sqrt(k * m12 / ain**3) * m3 * ain**3))**(1/6)
+            e_os = np.sqrt(1 - j_os**2)
+
+            num_merges_nogw = len(np.where(np.logical_or(
+                emaxes[q_idxs] > e_os,
+                emeans[q_idxs] > e_eff_crit
+            ))[0])
+            frac_arr_nogw.append(num_merges_nogw / len(q_tmerges)
+                                 * (np.cos(Imin) - np.cos(Imax)) / 2 * 100)
+
+        ax1.plot(q_arr, frac_arr, c=color, lw=1.0, marker='o',
+                 label=r'$e_{\rm out} = %.1f$' % e2)
+        ax1.plot(q_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0, marker='x',
+                 ls=':')
+        ax1.legend()
+        ax1.set_xlabel(r'$q$')
+        ax1.set_ylabel(r'$f_{\rm merger}$ [\%]')
+
+        ax2.plot(epsoct_arr, frac_arr, c=color, lw=1.0, marker='o')
+        ax2.plot(epsoct_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0,
+                 marker='x', ls=':')
+        ax2.set_xlabel(r'$100\epsilon_{\rm oct}$')
+    plt.tight_layout()
+    fig.subplots_adjust(wspace=0.03)
+    plt.savefig(fldr + '/simple', dpi=300)
+
 if __name__ == '__main__':
     # UNUSED
     # timing_tests()
@@ -2144,7 +2253,7 @@ if __name__ == '__main__':
 
     # sweep(folder='1sweepbin', nthreads=32)
     # run_emax_sweep(nthreads=32)
-    # plot_composite(plot_single=True)
+    plot_composite(plot_single=False)
     # plot_massratio_sample()
 
     # emax_cfgs_short = [
@@ -2185,10 +2294,10 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    a2effs = [3600, 5500]
-    plot = True
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
+    # a2effs = [3600, 5500]
+    # plot = True
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
     # a2effs2 = [2800, 4500]
     # for a2eff in a2effs2:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot,
