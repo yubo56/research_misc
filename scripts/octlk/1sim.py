@@ -265,10 +265,11 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
 # [0.4, 0.9, 'bindist', 10, 305.1229260478471] 86.35635635635636
 EMAX_CFGS = [
     # a2 = 4500, e2 = 0.6
-    [0.01, 0.6, 'tp', 100, 3600],
+    # [0.01, 0.6, 'tp', 100, 3600],
     # [1.0, 0.6, '1equaldist', 100, 3600],
     # [0.2, 0.6, '1p2dist', 100, 3600],
     # [0.3, 0.6, '1p3dist', 100, 3600],
+    [0.3, 0.6, '1p3dist_long', 100, 3600, {'tf_mult': 2000}],
     # [0.4, 0.6, '1p4dist', 100, 3600],
     # [0.5, 0.6, '1p5dist', 100, 3600],
     # [0.7, 0.6, '1p7dist', 100, 3600],
@@ -467,7 +468,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ax2.plot(I_plots, K0s, 'k--', label=r'$K_0$')
         ax2.axvline(Imin, c='k')
         ax2.axhline(Kcrit, c='r', lw=1.0)
-        ax2.set_xlabel(r'$I_0$')
+        ax2.set_xlabel(r'$I_0$ (Deg)')
         ax2.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
         ax2.legend(fontsize=14)
         plt.tight_layout()
@@ -775,7 +776,7 @@ def plot_emax_dq(I0=93.5, fn='q_sweep_935', tf=3e9, num_reps=100):
     plt.close()
 
 def run_nogw_vec(fn='1nogw_vec', q=2/3, M12=50, M3=30, a0=100, e2=0.6,
-                 a2=4500, **kwargs):
+                 a2=4500, plot_full=True, **kwargs):
     Itot = kwargs.get('Itot', 93.5)
     M1 = M12 / (1 + q)
     M2 = M12 - M1
@@ -811,10 +812,25 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, M12=50, M3=30, a0=100, e2=0.6,
         - eta * evec_mags**2/2
     )
 
-    fig, (ax1, ax2, ax3, ax4) = plt.subplots(
-        4, 1,
-        figsize=(8, 8),
-        sharex=True)
+    if plot_full:
+        fig, (ax1, ax2, ax3, ax4) = plt.subplots(
+            4, 1,
+            figsize=(8, 8),
+            sharex=True)
+        ax3.plot(ret.t / 1e8, K, 'k', lw=1)
+        ax3.axhline(-eta / 2, c='k', ls=':', lw=2)
+        ax3.set_ylabel(r'$K$')
+        ax4.plot(ret.t / 1e8, We, 'ko', ms=0.7)
+        ax4.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
+        ax3.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+        ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+    else:
+        fig, (ax1, ax2) = plt.subplots(
+            1, 2,
+            figsize=(8, 5),
+            sharex=True)
+        ax1.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
+        ax2.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     ax1.semilogy(ret.t / 1e8, 1 - evec_mags, 'k', lw=1)
     ax1.set_ylabel(r'$1 - e$')
@@ -824,15 +840,8 @@ def run_nogw_vec(fn='1nogw_vec', q=2/3, M12=50, M3=30, a0=100, e2=0.6,
     else:
         ax1.set_yticks([1e-6, 1e-4, 1e-2, 1])
         ax1.set_yticklabels([r'$10^{%d}$' % d for d in [-6, -4, -2, 0]])
-    # ax1.locator_params(nbins=3)
     ax2.plot(ret.t / 1e8, I + Iout, 'k', lw=1)
     ax2.set_ylabel(r'$I$ (Deg)')
-    ax3.plot(ret.t / 1e8, K, 'k', lw=1)
-    ax3.axhline(-eta / 2, c='k', ls=':', lw=2)
-    ax3.set_ylabel(r'$K$')
-    ax4.plot(ret.t / 1e8, We, 'ko', ms=0.7)
-    ax4.set_ylabel(r'$\Omega_{\rm e}$ (Deg)')
-    ax4.set_xlabel(r'Time $(10^8 \;\mathrm{yr})$')
 
     # try to predict eout_max & bounds of oscillation of K?
     # emax = get_emax(eta_ecc, eps[1] * (1 - 0.6**2)**(3/2), I=np.radians(Itot))
@@ -983,7 +992,7 @@ def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
                  ms=2.0,
                  label=str(q))
     plt.legend(loc='upper left', ncol=2, fontsize=14)
-    plt.xlabel(r'$I_0$')
+    plt.xlabel(r'$I_0$ (Deg)')
     plt.ylabel(r'$\Delta K$')
     plt.savefig(fn + 'vsq', dpi=300)
     plt.close()
@@ -1085,24 +1094,30 @@ COMPOSITE_CFGS = [
         [1.0, 0.9, 'explore_e91equaldist', 50, 130, 100, 3600],
         [1.0, 0.9, 'e91equaldist', 92.1, 93.5, 100, 3600],
     ],
-    # [
-    #     [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
-    #     [0.01, 0.6, 'tp', 68, 112, 100, 3600],
-    # ],
-    # [
-    #     [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
-    # ],
+    [
+        [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
+        [0.01, 0.6, 'tp', 68, 112, 100, 3600],
+    ],
+    [
+        [0.4, 0.9, 'bindist', 70, 110, 10, bin_aeff],
+    ],
 ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
-                   num_i=1000, plot_single=True, get_mergerfracs=False):
+                   num_i=1000, plot_single=True, get_mergerfracs=False,
+                   plot_all=False):
     # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
     m12, m3, e0 = 50, 30, 1e-3
     total_merger_fracs = []
     total_mergers_nogw = []
+    all_cfgs = (
+        COMPOSITE_CFGS if plot_single else
+        [c for c in COMPOSITE_CFGS if c[0][0] > 0.1 and c[0][-1] == 3600]
+    )
     for cfgs in COMPOSITE_CFGS:
         # load everything first
         explore_cfg = cfgs[0]
         q, e2, explore_fn, _, _, a0, a2eff = explore_cfg
+
         a2 = a2eff / np.sqrt(1 - e2**2)
         other_cfgs = cfgs[1: ]
         with open('%s/%s.pkl' % (fldr, explore_fn), 'rb') as f:
@@ -1211,39 +1226,47 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             merge_probs_nogw.append(
                 len(np.where(np.abs(I_plotsemax[merged_nogw] - I) < 1e-6)[0]) /
                 len(np.where(np.abs(I_plotsemax - I) < 1e-6)[0]))
+        merge_probs_nogw = np.array(merge_probs_nogw)
         total_merger_fracs.append(
             np.sum(np.array(merge_probs) * weights) / 2
         )
         total_mergers_nogw.append(
-            np.sum(np.array(merge_probs_nogw) * weights_nogw) / 2
+            np.sum(merge_probs_nogw * weights_nogw) / 2
         )
         if not plot_single:
             continue
 
         if q != 0.01:
-            fig, (ax3, ax1, ax2) = plt.subplots(
+            fig, (ax3, ax2, ax1) = plt.subplots(
                 3, 1,
                 figsize=(7, 10),
-                gridspec_kw={'height_ratios': [1, 0.3, 1]},
+                gridspec_kw={'height_ratios': [1, 1, 0.3]},
                 sharex=True)
 
-            # ax1.set_title(r'$q = %.1f, e_{\rm out} = %.1f$'
-            #               % (explore_cfg[0], explore_cfg[1]))
-            ax1.plot(np.degrees(I0s), merge_probs, 'k')
-            ax1.set_ylabel(r'$f_{\rm merge}$')
+            ax1.plot(np.degrees(I0s), merge_probs, 'k', label='Simulation')
+            merge_probs_nogw_smooth = (
+                np.concatenate((merge_probs_nogw[ :1], merge_probs_nogw[ :-1])) +
+                merge_probs_nogw +
+                np.concatenate((merge_probs_nogw[1: ], merge_probs_nogw[-1: ]))
+            ) / 3
+            ax1.plot(I0s_emax[::3], merge_probs_nogw_smooth[::3], 'g',
+                     label='Semi-Analytic')
+            ax1.set_ylabel(r'$P_{\rm merge}$')
+            ax1.legend(fontsize=14)
 
             # plot actual merger times
-            ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'go',
+            ax2.semilogy(np.degrees(I_plots[merged]), tmerges[merged], 'ko',
                          ms=1)
-            ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'b^', ms=1)
-            ax2.set_ylabel(r'$T_m$ (yr)')
+            ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'k^',
+                         ms=1)
+            ax2.set_ylabel(r'$T_{\rm m}$ (yr)')
             tlk0 = get_tlk0(m1, m2, m3, a0, a2)
             ax2.axhline(tlk0, c='k', ls='--')
             ax2.text(50, 1.3 * tlk0, r'$t_{\rm ZLK}$')
             if eps_oct > 0:
                 t_ezlk = tlk0 * 128 * np.sqrt(10) / (15 * np.pi * np.sqrt(eps_oct))
-                ax2.axhline(t_ezlk, c='b', ls='--')
-                ax2.text(50, 1.3 * t_ezlk, r'$t_{\rm oct}$', c='b')
+                ax2.axhline(t_ezlk, c='k', ls='-.')
+                ax2.text(50, 1.3 * t_ezlk, r'$t_{\rm ZLK, oct}$', c='k')
 
             # fill in to the left and right edges (bindist)
             min_Iplot = np.degrees(np.min(I_plots))
@@ -1252,20 +1275,19 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             ax1.plot([max_Iplot, 130], [0, 0], 'k')
             ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'b^', ms=1)
             ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'b^', ms=1)
-            ax2.set_xlabel(r'$I_0$ (Deg)')
+            ax1.set_xlabel(r'$I_0$ (Deg)')
+            ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
+                         alpha=0.5)
+            ax3.axhline(1 - e_eff_crit, c='g')
+            ax3.text(50, 1.3 * (1 - e_eff_crit), r'$e_{\rm eff, c}$', c='g')
+            ax3.axhline(1 - e_os, c='b')
+            ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
         else:
             fig, ax3 = plt.subplots(1, 1, figsize=(7, 4))
 
-        # now plot emaxes
-        ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5, alpha=0.5,
-                     label=r'$e_{\rm eff}$')
-        ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5, alpha=0.5,
-                     label=r'$e_{\max}$')
-        ax3.axhline(1 - e_eff_crit, c='g')
-        ax3.axhline(1 - e_os, c='b')
+        ax3.set_xlabel(r'$I_0$ (Deg)')
+        ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5, alpha=0.5)
         ax3.axhline(1 - elim, c='r', ls='--')
-        ax3.text(50, 1.3 * (1 - e_eff_crit), r'$e_{\rm eff, c}$', c='g')
-        ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
         ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
 
         # overplot MLL fit for reference
@@ -1282,9 +1304,16 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
-        ax3.legend(fontsize=14)
-
-        # ax3.set_xlim(Ilimd - 1, Ilimd + 1)
+        if q != 0.01:
+            # hacky way to make legend plot; I'm too lazy to figure out the
+            # correct syntax
+            ylim = ax3.get_ylim()
+            ax3.semilogy(90, 1e-10, 'go', ms=3,
+                         label=r'$e_{\rm eff}$')
+            ax3.semilogy(90, 1e-10, 'bo', ms=3,
+                         label=r'$e_{\max}$')
+            ax3.set_ylim(ylim)
+            ax3.legend(fontsize=14)
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.02)
@@ -1293,11 +1322,13 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         plt.savefig(composite_fn, dpi=300)
         plt.close()
 
+    if not plot_all:
+        return
     total_fn = fldr + '/' + 'total_merger_fracs'
-    qs = np.array([cfgs[0][0] for cfgs in COMPOSITE_CFGS])
-    e2s = np.array([cfgs[0][1] for cfgs in COMPOSITE_CFGS])
-    a0s = np.array([cfgs[0][5] for cfgs in COMPOSITE_CFGS])
-    a2effs = np.array([cfgs[0][6] for cfgs in COMPOSITE_CFGS])
+    qs = np.array([cfgs[0][0] for cfgs in all_cfgs])
+    e2s = np.array([cfgs[0][1] for cfgs in all_cfgs])
+    a0s = np.array([cfgs[0][5] for cfgs in all_cfgs])
+    a2effs = np.array([cfgs[0][6] for cfgs in all_cfgs])
     eps_octs = np.array([get_eps(q / (1 + q) * m12,
                                  m12 / (1 + q),
                                  m3,
@@ -1334,23 +1365,23 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                  marker='x')
     ax1.legend()
     ax1.set_xlabel(r'$q$')
-    ax1.set_ylabel(r'$f_{\rm merger}$ [\%]')
+    ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
 
     for e2, color in zip(np.unique(e2s), colors):
         plot_idxs = np.where(e2s == e2)[0][::-1]
-        ax2.plot(100 * eps_octs[plot_idxs],
+        ax2.plot(eps_octs[plot_idxs],
                  100 * total_merger_fracs[plot_idxs],
                  c=color,
                  lw=1.0,
                  marker='o')
-        ax2.plot(100 * eps_octs[plot_idxs],
+        ax2.plot(eps_octs[plot_idxs],
                  100 * total_mergers_nogw[plot_idxs],
                  c=color,
                  alpha=0.5,
                  lw=0.7,
                  ls=':',
                  marker='x')
-    ax2.set_xlabel(r'$100\epsilon_{\rm oct}$')
+    ax2.set_xlabel(r'$\epsilon_{\rm oct}$')
 
     plt.tight_layout()
     print('Saving', total_fn)
@@ -1644,6 +1675,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
     merged_fracs_emaxonly = np.array(merged_fracs_emaxonly)
 
     tot_perc = np.mean(merged_fracs) * f_cos # all bins are equal
+
     if to_plot and plt is not None:
         fig, (ax1, ax2, ax3) = plt.subplots(
             3, 1,
@@ -1654,11 +1686,11 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         #              yerr=np.sqrt(uncerts * f_cos),
         #              fmt='ko', lw=1.0, ms=3.0, label='Uniform')
         ax1.plot(q_counts.keys(), merged_fracs * f_cos,
-                 'ko', lw=1.0, ms=3.0, label='Uniform')
+                 'ko', ls='-', lw=1.0, ms=3.0, alpha=0.7, label='Uniform')
         ax1.plot(q_counts.keys(), merged_fracs_thermal * f_cos, 'ro',
-                 label='Thermal', ms=3.5)
-        ax1.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
-                 label='No-GW', ms=3.5)
+                 ls='-', label='Thermal', alpha=0.7, ms=3.5)
+        # ax1.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
+        #          label='No-GW', ms=3.5)
 
         nogw_fn = pkl_fn.replace(str(a2eff), "_nogw%d" % a2eff)
         if os.path.exists(nogw_fn):
@@ -1666,15 +1698,16 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                 a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
                 n_qs=31, q_min=1e-2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
-            ax1.plot(qplots, frac_plots, 'b', lw=1.0, label='Scan')
+            ax1.plot(qplots, frac_plots, 'bx', lw=1.0, ls=':',
+                     alpha=0.5, label='Uniform (Semi-Analytic)')
         ax1.legend(fontsize=14)
-        # plt.ylabel(r'Prob. (Tot $%.1f\%%$)' % tot_perc)
-        ax1.set_ylabel(r'Prob. (\%)')
+        ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
+        ax1.set_ylim(bottom=-0.5)
 
         for q, tm_lst in zip(q_counts.keys(), tmerges_gyr):
             ax2.semilogy(np.full_like(tm_lst, q), tm_lst, 'ko', ms=0.5, alpha=0.3)
             ax2.plot(q, np.median(tm_lst), 'ko', ms=3.0)
-        ax2.set_ylabel(r'Merger Time (yr)')
+        ax2.set_ylabel(r'$T_{\rm m}$')
 
         q_arr = [arg[1] for e_LIGO, arg in zip(e_LIGOs, args)
                  if e_LIGO > 0]
@@ -1696,6 +1729,9 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         ax3.set_ylabel(r'$e$')
         ax3.set_xlabel(r'$q$')
         ax3.set_yscale('log')
+        yticks = [1e-1, 1e-3, 1e-5]
+        ax3.set_yticks(yticks)
+        ax3.set_yticklabels([r'$10^{%d}$' % d for d in np.log10(yticks)])
         # plt.suptitle(
         #     r'$a_{\rm out, eff} = %d\;\mathrm{AU}, N_{\rm trials} = %d$' %
         #     (a2eff, ntrials))
@@ -1806,13 +1842,23 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
     tot_perc = np.mean(merged_fracs_nogw) * f_cos # all bins are equal
     if to_plot and plt is not None:
         plt.figure(figsize=(6, 6))
-        plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'go',
-                 label='No-GW', ms=3.5)
-        plt.ylabel(r'Prob. (\%)')
+        plt.ylabel(r'$f_{\rm merge}$ [\%]')
         plt.xlabel(r'$q$')
         if q_spread == np.geomspace:
+            # steal the full data
+            ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
+                                 to_plot=False, n_qs=31, q_min=1e-2,
+                                 n_e2s=17, n_I0s=41, stride=1, reps=1)
             plt.xscale('log')
-        plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}$' % a2eff)
+
+            x = np.concatenate((list(ret[1]), list(q_counts_nogw.keys())))
+            y = np.concatenate((list(ret[2]), list(merged_fracs_nogw * f_cos)))
+            idx_s = np.argsort(x)
+            plt.plot(x[idx_s], y[idx_s], 'bx', ls=':', ms=3.5)
+        else:
+            plt.plot(q_counts_nogw.keys(), merged_fracs_nogw * f_cos, 'bx',
+                     ls=':', ms=3.5)
+        # plt.title(r'$a_{\rm out, eff} = %d\;\mathrm{AU}$' % a2eff)
         plt.tight_layout()
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
@@ -1964,11 +2010,15 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
 
 def make_nogw_plots():
     mkdirp('1nogw_sims')
+    run_nogw_vec(ll=0, q=1, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec_q1', Itot=93.5, plot_full=False)
+    return
+    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec_q02', Itot=93.5, plot_full=False)
     run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
                  fn='1nogw_sims/1nogw_vec', Itot=93.5)
     run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
                  fn='1nogw_sims/1nogw_vec88', Itot=88)
-    return
     run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
                  fn='1nogw_sims/1nogw_vec80', Itot=80)
     laetitia_kwargs = dict(
@@ -2114,13 +2164,13 @@ def make_nogw_plots():
 
 def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
                             nruns=2, Imin=50, Imax=130, a2eff=1800,
-                            nthreads=32):
+                            nthreads=48, suffix=''):
     mkdirp(fldr)
     e0 = 1e-3
     m12 = 50
     m3 = 30
     qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
-    e2s = [0.6, 0.8, 0.9]
+    e2s = [0.6]#, 0.8, 0.9]
     I0s = np.arccos(
         np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
     )
@@ -2132,7 +2182,7 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
         figsize=(12, 6),
         sharey=True)
     for color, e2 in zip(colors, e2s):
-        pkl_fn = '%s/e%d.pkl' % (fldr, 10 * e2)
+        pkl_fn = '%s/e%d%s.pkl' % (fldr, 10 * e2, suffix)
         a2 = a2eff / np.sqrt(1 - e2**2)
         args = [
             (idx, q, 1e10, ain, a2, e0, e2, I0, True)
@@ -2151,7 +2201,7 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
                 print('Loading %s' % pkl_fn)
                 rets = pickle.load(f)
 
-        pkl_fn_nogw = '%s/e%d_nogw.pkl' % (fldr, 10 * e2)
+        pkl_fn_nogw = '%s/e%d%s_nogw.pkl' % (fldr, 10 * e2, suffix)
         args_nogw = [
             (idx, q, np.degrees(I0), None, dict(a0=ain, a2=a2, e2=e2))
             for idx in range(nruns)
@@ -2211,7 +2261,7 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
                             * (np.cos(Imin) - np.cos(Imax)) / 2 * 100)
             epsoct_arr.append((1 - q) / (1 + q)
                            * ain / a2
-                           * e2 / (1 - e2**2) * 100)
+                           * e2 / (1 - e2**2))
             m2 = m12 / (1 + q)
             m1 = m12 - m2
             j_eff_crit = 0.01461 * (100 / ain)**(2/3)
@@ -2229,19 +2279,20 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
 
         ax1.plot(q_arr, frac_arr, c=color, lw=1.0, marker='o',
                  label=r'$e_{\rm out} = %.1f$' % e2)
-        ax1.plot(q_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0, marker='x',
-                 ls=':')
         ax1.legend()
         ax1.set_xlabel(r'$q$')
-        ax1.set_ylabel(r'$f_{\rm merger}$ [\%]')
+        ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
 
         ax2.plot(epsoct_arr, frac_arr, c=color, lw=1.0, marker='o')
-        ax2.plot(epsoct_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0,
-                 marker='x', ls=':')
-        ax2.set_xlabel(r'$100\epsilon_{\rm oct}$')
+        ax2.set_xlabel(r'$\epsilon_{\rm oct}$')
+        if suffix == '':
+            ax1.plot(q_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0, marker='x',
+                     ls=':')
+            ax2.plot(epsoct_arr, frac_arr_nogw, c=color, alpha=0.5, lw=1.0,
+                     marker='x', ls=':')
     plt.tight_layout()
     fig.subplots_adjust(wspace=0.03)
-    plt.savefig(fldr + '/simple', dpi=300)
+    plt.savefig(fldr + '/simple%s' % suffix, dpi=300)
 
 if __name__ == '__main__':
     # UNUSED
@@ -2252,8 +2303,9 @@ if __name__ == '__main__':
     # print(1 - np.mean(emaxes))
 
     # sweep(folder='1sweepbin', nthreads=32)
-    # run_emax_sweep(nthreads=32)
-    plot_composite(plot_single=False)
+    run_emax_sweep(nthreads=32)
+    # plot_composite(plot_single=True, plot_all=False)
+    # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
 
     # emax_cfgs_short = [
@@ -2313,7 +2365,7 @@ if __name__ == '__main__':
     #     tot_frac.append(frac)
     # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
     #                n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
-    #                to_plot=plot, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
+    #                to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
     #                nthreads=4)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
@@ -2358,4 +2410,5 @@ if __name__ == '__main__':
 
     # plot_emaxgrid(nthreads=32)
     # plot_total_fracs_simple()
+    # plot_total_fracs_simple(a2eff=3600, suffix='outer')
     pass
