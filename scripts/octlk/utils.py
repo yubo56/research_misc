@@ -40,23 +40,29 @@ def get_I1(I0, eta):
     I2 = opt.brenth(I2_constr, 0, np.pi, xtol=1e-12)
     return np.degrees(I0 - I2)
 
-def get_emax(eta=0, eps_gr=0, I=0):
+def get_emax(eta=0, eps_gr=0, I=0, eps_tide=0):
     def jmin_criterion(j): # eq 42, satisfied when j = jmin
+        emax_sq = 1 - j**2
         return (
             3/8 * (j**2 - 1) / j**2 * (
                 5 * (np.cos(I) + eta / 2)**2
                 - (3 + 4 * eta * np.cos(I) + 9 * eta**2 / 4) * j**2
                 + eta**2 * j**4)
-            + eps_gr * (1 - 1 / j))
+            + eps_gr * (1 - 1 / j)
+            + eps_tide/15 * (1 - (1 + 3 * emax_sq + 3 * emax_sq**2 / 8) / j**9)
+        )
     jmin = opt.brenth(jmin_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jmin**2)
 
-def get_elim(eta=0, eps_gr=0):
+def get_elim(eta=0, eps_gr=0, eps_tide=0):
     def jlim_criterion(j): # eq 44, satisfied when j = jlim
+        emax_sq = 1 - j**2
         return (
             3/8 * (j**2 - 1) * (
                 - 3 + eta**2 / 4 * (4 * j**2 / 5 - 1))
-            + eps_gr * (1 - 1 / j))
+            + eps_gr * (1 - 1 / j)
+            + eps_tide/15 * (1 - (1 + 3 * emax_sq + 3 * emax_sq**2 / 8) / j**9)
+        )
     jlim = opt.brenth(jlim_criterion, 1e-15, 1 - 1e-15, xtol=1e-14)
     return np.sqrt(1 - jlim**2)
 
@@ -97,6 +103,11 @@ def get_eps_eta0(m1, m2, m3, a0, a2, e2):
     eps_oct = ((m2 - m1) / m12) * (a0 / a2) * (e2 / (1 - e2**2))
     eta0 = (mu / mu_out) * np.sqrt((m12 * a0) / (m123 * a2))
     return [eps_gw, eps_gr, eps_oct, eta0]
+
+def get_eps_tide(m1, m2, m3, a0, a2, e2, k2, R1):
+    return (
+        15 * m1 * (m1 + m2) * (a2**3) * (1 - e2**2)**(3/2) * k2 * R1**5
+    ) / (2 * a0**8 * m2 * m3)
 
 def get_tlk0(m1, m2, m3, a0, a2):
     ''' calculates a bunch of physically relevant values '''

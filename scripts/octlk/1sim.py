@@ -497,6 +497,7 @@ def get_emax_series(idx, q, I0, tf, kwargs={}):
 
     ret = run_vec(
         ll=0,
+        mm=kwargs.get('mm', 1),
         l=l,
         T=tf,
         M1=M1,
@@ -1876,7 +1877,7 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                  E10=1e-3,
                  e2=0.6,
                  k2=0.37,
-                 R2=4.676e-4,
+                 R2=4.779e-4,
                  **kwargs,
                  ):
     plot_k = False
@@ -1956,7 +1957,7 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
 
     eps_oct = a0 / a2 * e2 / (1 - e2**2)
     eta = eta0 / np.sqrt(1 - e2**2)
-    print(base_fn, 'eps_oct, eta', eps_oct, eta)
+    print(base_fn, 'eps_oct, eta', eps_oct, eta, a2)
     MLL_expr = (
         0.26 * (eps_oct / 0.1)
         - 0.536 * (eps_oct / 0.1)**2
@@ -1982,11 +1983,30 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     else:
         fig = plt.figure(figsize=(7, 5))
         ax1 = plt.gca()
-    ax1.semilogy(I0d_plot, m1_emaxes, 'go', ms=0.5, alpha=0.5)
-    ax1.semilogy(I0d_plot2, m1_emaxes2, 'b,', alpha=0.5)
-    ax1.axvline(ilimd_MLL_L, c='k', lw=1.0, ls=':')
-    ax1.axvline(ilimd_MLL_R, c='k', lw=1.0, ls=':')
+    ax1.set_yscale('log')
+    ax1.scatter(I0d_plot, m1_emaxes, marker='o', s=1.0, edgecolors='tab:blue',
+                facecolors='none', alpha=0.5)
+    # ax1.semilogy(I0d_plot2, m1_emaxes2, 'b,', alpha=0.5)
+    ax1.axvline(ilimd_MLL_L, c='tab:purple', lw=2.5, ls='--')
+    ax1.axvline(ilimd_MLL_R, c='tab:purple', lw=2.5, ls='--')
     ax1.set_ylabel(r'$1 - e_{\max}$')
+
+    eps_tide = get_eps_tide(M1, M2, M3, a0, a2, e2, k2, R2)
+    elim_tide = get_elim(eta=eta, eps_gr=eps_gr, eps_tide=eps_tide)
+    ax1.axhline(1 - elim_tide, c='k', ls=':', lw=2.5)
+    emaxes_arr = []
+    I0d_emax_arr = sorted(I0d_plot)
+
+    for I0d in I0d_emax_arr:
+        try:
+            emaxes_arr.append(
+                get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I0d),
+                         eps_tide=eps_tide)
+            )
+        except:
+            emaxes_arr.append(1e-3)
+    emaxes_arr = np.array(emaxes_arr)
+    plt.plot(I0d_emax_arr, 1 - emaxes_arr, 'g', lw=2.0)
 
     if plot_k:
         ax2.plot(I0d_plot, Kmins, 'bo', label=r'$K_{\min}$', ms=0.5,
@@ -2006,6 +2026,106 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     if plot_k:
         fig.subplots_adjust(hspace=0.02)
     plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
+    plt.close()
+
+def plot_laetitia():
+    folder='1laetitia'
+    num_i = 2000
+    ntrials = 3
+    M1 = 1
+    M2 = 1e-3
+    a0 = 5
+    a2 = 50
+    E10 = 1e-3
+    e2 = 0.6
+    k2 = 0.37
+    R2 = 4.779e-4
+    stride = 10
+    offsets = np.arange(stride)
+
+    mkdirp(folder)
+    M12 = M1 + M2
+    q = M2 / M1
+
+    fig, _axs = plt.subplots(
+        2, 3,
+        figsize=(12, 6),
+        sharex=True, sharey=True)
+    axs = _axs.flat
+    files = ['e2_6', 'e2_6_m2', 'e2_6_m3', 'e2_6_m5', 'e2_6_m10', 'e2_6tp']
+    labels = ['(i)', '(ii)', '(iii)', '(iv)', '(v)', '(vi)']
+    M3s = np.concatenate((np.array([1, 2, 3, 5, 10]) * 1e-3, [1]))
+    for ax, base_fn, M3, label in zip(axs, files, M3s, labels):
+        a2 = 50 * M3**(1/3) * 10
+        I0d_vals_tot = np.linspace(40, 140, num_i)
+        I0d_plot = []
+        m1_emaxes = []
+        for offset in offsets:
+            _I0d_vals = I0d_vals_tot[offset::stride]
+            I0d_vals = np.repeat(_I0d_vals, ntrials)
+            pkl_fn = '%s/%s_%d.pkl' % (folder, base_fn, offset)
+            if not os.path.exists(pkl_fn):
+                continue
+            with open(pkl_fn, 'rb') as f:
+                # print('Loading %s' % pkl_fn)
+                emax_rets = pickle.load(f)
+            for I0d_val, emax_ret in zip(I0d_vals, emax_rets):
+                if len(emax_ret[1]) == 0:
+                    continue
+                I0d_plot.append(I0d_val)
+                m1_emaxes.append(1 - np.max(emax_ret[1]))
+
+        _, eps_gr, eps_oct, eta = get_eps(M2, M1, M3, a0, a2, e2)
+        print(base_fn, 'eps_oct, eta', eps_oct, eta, a2)
+        MLL_expr = (
+            0.26 * (eps_oct / 0.1)
+            - 0.536 * (eps_oct / 0.1)**2
+            + 12.05 * (eps_oct / 0.1)**3
+            -16.78 * (eps_oct / 0.1)**4
+        ) if eps_oct < 0.05 else 0.45
+        ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(MLL_expr)))
+        ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(MLL_expr)))
+
+        ax.set_yscale('log')
+        ax.scatter(I0d_plot, m1_emaxes, marker='o', s=1.0,
+                   edgecolors='tab:blue', facecolors='none', alpha=0.5)
+        ax.axvline(ilimd_MLL_L, c='tab:purple', lw=2.0, ls='--')
+        ax.axvline(ilimd_MLL_R, c='tab:purple', lw=2.0, ls='--')
+
+        eps_tide = get_eps_tide(M1, M2, M3, a0, a2, e2, k2, R2)
+        elim_tide = get_elim(eta=eta, eps_gr=eps_gr, eps_tide=eps_tide)
+        ax.axhline(1 - elim_tide, c='k', ls=':', lw=2.0)
+        emaxes_arr = []
+        I0d_emax_arr = sorted(I0d_plot)
+
+        I0d_emax_plot = []
+        for I0d in I0d_emax_arr:
+            try:
+                emaxes_arr.append(
+                    get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I0d),
+                             eps_tide=eps_tide)
+                )
+                I0d_emax_plot.append(I0d)
+            except:
+                continue
+        emaxes_arr = np.array(emaxes_arr)
+        ax.plot(I0d_emax_plot, 1 - emaxes_arr, 'g', lw=2.0)
+
+        if M3 < 1:
+            ax.text(55, 0.6,
+                    r'%s $m_{\rm p} = %d\,\mathrm{M_{Jup}}$' % (label, 1000 * M3),
+                    fontsize=12)
+        else:
+            ax.text(40, 0.003, r'%s $m_{\rm p} = \mathrm{M}_{\odot}$' % label,
+                    fontsize=12)
+    ((ax1, ax2, ax3), (ax4, ax5, ax6)) = _axs
+    ax1.set_ylabel(r'$1 - e_{\rm J, \max}$')
+    ax4.set_ylabel(r'$1 - e_{\rm J, \max}$')
+    ax4.set_xlabel(r'$i_{\rm p}$ (deg)')
+    ax5.set_xlabel(r'$i_{\rm p}$ (deg)')
+    ax6.set_xlabel(r'$i_{\rm p}$ (deg)')
+    fig.subplots_adjust(hspace=0, wspace=0)
+    plt.savefig('%s/Su_HJs' % folder, dpi=400)
     plt.close()
 
 def make_nogw_plots():
@@ -2170,7 +2290,7 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
     m12 = 50
     m3 = 30
     qs = [0.2, 0.3, 0.4, 0.5, 0.7, 1.0]
-    e2s = [0.6]#, 0.8, 0.9]
+    e2s = [0.6, 0.9]#[0.6, 0.8, 0.9]
     I0s = np.arccos(
         np.linspace(np.cos(np.radians(Imax)), np.cos(np.radians(Imin)), num_Is)
     )
@@ -2279,6 +2399,8 @@ def plot_total_fracs_simple(ain=50, fldr='1sweepbin_simple', num_Is=500,
 
         ax1.plot(q_arr, frac_arr, c=color, lw=1.0, marker='o',
                  label=r'$e_{\rm out} = %.1f$' % e2)
+        # ax1.plot(q_arr, frac_arr_nogw, c=color, lw=1.0, marker='x',
+        #          label=r'$e_{\rm out} = %.1f$' % e2, alpha=0.5, ls=':')
         ax1.legend()
         ax1.set_xlabel(r'$q$')
         ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
@@ -2303,7 +2425,7 @@ if __name__ == '__main__':
     # print(1 - np.mean(emaxes))
 
     # sweep(folder='1sweepbin', nthreads=32)
-    run_emax_sweep(nthreads=32)
+    # run_emax_sweep(nthreads=32)
     # plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
@@ -2377,7 +2499,6 @@ if __name__ == '__main__':
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.1, base_fn='e2_1')
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3')
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.5, base_fn='e2_5')
-    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.8, base_fn='e2_8')
     # run_laetitia(nthreads=2, offsets=np.arange(10), e2=0.9, base_fn='e2_9')
     # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
@@ -2386,8 +2507,6 @@ if __name__ == '__main__':
     #              e2=0.3, base_fn='e2_3tp')
     # run_laetitia(nthreads=10, offsets=np.arange(0, 10, 2), M3=1, a2=500,
     #              e2=0.5, base_fn='e2_5tp')
-    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
-    #              e2=0.6, base_fn='e2_6tp')
     # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
     #              e2=0.8, base_fn='e2_8tp')
     # run_laetitia(nthreads=5, offsets=np.arange(0, 10, 2), M3=1, a2=500,
@@ -2398,13 +2517,18 @@ if __name__ == '__main__':
     #              ntrials=1)
     # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.3, base_fn='e2_3_gr0',
     #              l=0, k2=0, R2=0)
-    # for m3_mult in [3, 5, 8, 10, 30]:
+    # run_laetitia(nthreads=4, offsets=np.arange(10), e2=0.6, base_fn='e2_6')
+    # run_laetitia(nthreads=11, offsets=np.arange(0, 10, 2), M3=1, a2=500,
+    #              e2=0.6, base_fn='e2_6tp')
+    # for m3_mult in [2, 3, 5, 8, 10, 30]:
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.6,
     #                  base_fn='e2_6_m%d' % m3_mult)
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
+    plot_laetitia()
+    # run_laetitia(nthreads=8, e2=0.6, base_fn='e2_6_quad', ntrials=1, mm=0)
 
     # make_nogw_plots()
 
