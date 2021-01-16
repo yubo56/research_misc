@@ -1274,8 +1274,8 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             max_Iplot = np.degrees(np.max(I_plots))
             ax1.plot([50, min_Iplot], [0, 0], 'k')
             ax1.plot([max_Iplot, 130], [0, 0], 'k')
-            ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'b^', ms=1)
-            ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'b^', ms=1)
+            ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'k^', ms=1)
+            ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'k^', ms=1)
             ax1.set_xlabel(r'$I_0$ (Deg)')
             ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
                          alpha=0.5)
@@ -1417,6 +1417,238 @@ def plot_massratio_sample():
     plt.xlabel(r'$q$')
     plt.ylabel(r'Probability Density')
     plt.savefig('1massratio', dpi=300)
+    plt.close()
+
+# replot for the 1p3dist case, using long emax sweep
+def plot_long_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax',
+                        num_trials=5, num_i=1000, plot_single=True,
+                        get_mergerfracs=False, plot_all=False):
+    # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
+    m12, m3, e0 = 50, 30, 1e-3
+    total_merger_fracs = []
+    total_mergers_nogw = []
+    cfgs = [
+        [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
+        [0.3, 0.6, '1p3dist', 90.5, 100, 100, 3600],
+        [0.3, 0.6, '1p3distp2', 73, 86, 100, 3600],
+    ]
+    # load everything first
+    explore_cfg = cfgs[0]
+    q, e2, explore_fn, _, _, a0, a2eff = explore_cfg
+
+    a2 = a2eff / np.sqrt(1 - e2**2)
+    other_cfgs = cfgs[1: ]
+    with open('%s/%s.pkl' % (fldr, explore_fn), 'rb') as f:
+        explore_ret = pickle.load(f)
+    emax_fn = '%s/%s_long.pkl' % (emax_fldr, explore_fn.replace('explore_', ''))
+    with open(emax_fn, 'rb') as f:
+        emax_ret = pickle.load(f)
+    emax_shortfn = '%s/%s.pkl' % (emax_fldr, explore_fn.replace('explore_', ''))
+    with open(emax_shortfn, 'rb') as f:
+        emax_shortret = pickle.load(f)
+    other_rets = []
+    for cfg in other_cfgs:
+        with open('%s/%s.pkl' % (fldr, cfg[2]), 'rb') as f:
+            other_rets.append(pickle.load(f))
+
+    # join explore_ret w/ other_rets
+    I_plots = []
+    tmerges = []
+    # first, join in all the explores not in other_rets intervals
+    starts = [explore_ret[0].min()] + [r[0].max() for r in other_rets]
+    ends = [r[0].min() for r in other_rets] + [explore_ret[0].max()]
+    for start, end in zip(starts, ends):
+        in_interval = np.where(np.logical_and(
+            explore_ret[0] < end,
+            explore_ret[0] > start,
+        ))[0]
+        I_plots.extend(np.array(explore_ret[0])[in_interval])
+        tmerges.extend(np.array(explore_ret[1])[in_interval])
+    # add in other_rets
+    for other_incs, other_merges in other_rets:
+        I_plots.extend(other_incs)
+        tmerges.extend(other_merges)
+
+    # sort them for plotting
+    I_plots = np.array(I_plots)
+    tmerges = np.array(tmerges)
+    sort_idx = np.argsort(I_plots)
+    I_plots = I_plots[sort_idx]
+    tmerges = tmerges[sort_idx]
+    merged = np.where(tmerges < 9.9e9)[0]
+    nmerged = np.where(tmerges > 9.9e9)[0]
+
+    # compute stuff for emax
+    I0s_emax = np.linspace(50, 130, num_i)
+    if explore_cfg[0] == 1.0:
+        I_plotsemax = I0s_emax
+    else:
+        I_plotsemax = np.repeat(I0s_emax, 5)
+    emaxes = []
+    emeans = []
+    emaxes_short = []
+    emeans_short = []
+    for ret_short, ret in zip(emax_shortret, emax_ret):
+        e_vals = np.array(ret[1])
+        if len(e_vals) == 0:
+            emaxes.append(e0)
+            emeans.append(e0)
+            continue
+        e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
+        emaxes.append(np.max(e_vals))
+        # approx 1 + 73e^2/24... \approx 4.427 is constant
+        jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+        emean = np.sqrt(1 - jmean**2)
+        emeans.append(emean)
+
+        e_shortvals = np.array(ret_short[1])
+        if len(e_shortvals) == 0:
+            emaxes_short.append(e0)
+            emeans_short.append(e0)
+            continue
+        e_shortvals = e_shortvals[
+            np.where(e_shortvals >= np.median(e_shortvals))[0]]
+        emaxes_short.append(np.max(e_shortvals))
+        # approx 1 + 73e^2/24... \approx 4.427 is constant
+        jmeanshort = np.mean((1 - e_shortvals**2)**(-3))**(-1/6)
+        emeanshort = np.sqrt(1 - jmeanshort**2)
+        emeans_short.append(emeanshort)
+    emaxes = np.array(emaxes)
+    emeans = np.array(emeans)
+    emaxes_short = np.array(emaxes_short)
+    emeans_short = np.array(emeans_short)
+
+    m2 = m12 / (1 + q)
+    m1 = m12 - m2
+    j_eff_crit = 0.01461 * (100 / a0)**(2/3)
+    e_eff_crit = np.sqrt(1 - j_eff_crit**2)
+    j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+        c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
+    e_os = np.sqrt(1 - j_os**2)
+    _, eps_gr, eps_oct, eta = get_eps(m1, m2, m3, a0, a2, e2)
+    Ilimd = get_Ilim(eta, eps_gr)
+    elim = get_elim(eta, eps_gr)
+
+    ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
+        0.26 * (eps_oct / 0.1)
+        - 0.536 * (eps_oct / 0.1)**2
+        + 12.05 * (eps_oct / 0.1)**3
+        -16.78 * (eps_oct / 0.1)**4
+    )))
+    ilimd_MLL_R = np.degrees(np.arccos(-np.sqrt(
+        0.26 * (eps_oct / 0.1)
+        - 0.536 * (eps_oct / 0.1)**2
+        + 12.05 * (eps_oct / 0.1)**3
+        -16.78 * (eps_oct / 0.1)**4
+    )))
+    merged_nogw = np.where(np.logical_or(
+        emaxes > e_os,
+        emeans > e_eff_crit
+    ))[0]
+    merged_nogw_short = np.where(np.logical_or(
+        emaxes_short > e_os,
+        emeans_short > e_eff_crit
+    ))[0]
+
+    # compute merger probabilities (only due to emax > eos)
+    I0s = np.unique(I_plots)
+    merge_probs = []
+    weights = -np.gradient(np.cos(I0s))
+    weights[0] /= 2
+    weights[-1] /= 2
+    for I in I0s:
+        merge_probs.append(
+            len(np.where(np.abs(I_plots[merged] - I) < 1e-6)[0]) /
+            len(np.where(np.abs(I_plots - I) < 1e-6)[0]))
+    weights_nogw = -np.gradient(np.cos(np.radians(I0s_emax)))
+    weights_nogw[0] /= 2
+    weights_nogw[-1] /= 2
+    merge_probs_nogw = []
+    merge_probs_nogw_short = []
+    for I in I0s_emax:
+        merge_probs_nogw.append(
+            len(np.where(np.abs(I_plotsemax[merged_nogw] - I) < 1e-6)[0]) /
+            len(np.where(np.abs(I_plotsemax - I) < 1e-6)[0]))
+        merge_probs_nogw_short.append(
+            len(np.where(np.abs(I_plotsemax[merged_nogw_short] - I) < 1e-6)[0]) /
+            len(np.where(np.abs(I_plotsemax - I) < 1e-6)[0]))
+    merge_probs_nogw = np.array(merge_probs_nogw)
+    merge_probs_nogw_short = np.array(merge_probs_nogw_short)
+
+    fig, (ax3, ax1) = plt.subplots(
+        2, 1,
+        figsize=(7, 6),
+        gridspec_kw={'height_ratios': [1, 0.3]},
+        sharex=True)
+
+    ax1.plot(np.degrees(I0s), merge_probs, 'k', label='Simulation')
+    merge_probs_nogw_smooth = (
+        np.concatenate((merge_probs_nogw[ :1], merge_probs_nogw[ :-1])) +
+        merge_probs_nogw +
+        np.concatenate((merge_probs_nogw[1: ], merge_probs_nogw[-1: ]))
+    ) / 3
+    merge_probs_nogw_short_smooth = (
+        np.concatenate((merge_probs_nogw_short[ :1],
+                        merge_probs_nogw_short[ :-1])) +
+        merge_probs_nogw_short +
+        np.concatenate((merge_probs_nogw_short[1: ],
+                        merge_probs_nogw_short[-1: ]))
+    ) / 3
+    ax1.plot(I0s_emax[::3], merge_probs_nogw_smooth[::3], 'g',
+             label=r'SA ($t_{\rm f} = 2000t_{\rm ZLK}$)')
+    ax1.plot(I0s_emax[::3], merge_probs_nogw_short_smooth[::3], 'r',
+             label=r'SA ($t_{\rm f} = 500t_{\rm ZLK}$)')
+    ax1.set_ylabel(r'$P_{\rm merge}$')
+    ax1.legend(fontsize=14)
+
+    # fill in to the left and right edges (bindist)
+    min_Iplot = np.degrees(np.min(I_plots))
+    max_Iplot = np.degrees(np.max(I_plots))
+    ax1.plot([50, min_Iplot], [0, 0], 'k')
+    ax1.plot([max_Iplot, 130], [0, 0], 'k')
+    ax1.set_xlabel(r'$I_0$ (Deg)')
+    ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
+                 alpha=0.5)
+    ax3.axhline(1 - e_eff_crit, c='g')
+    ax3.text(50, 1.3 * (1 - e_eff_crit), r'$e_{\rm eff, c}$', c='g')
+    ax3.axhline(1 - e_os, c='b')
+    ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
+
+    ax3.set_xlabel(r'$I_0$ (Deg)')
+    ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5, alpha=0.5)
+    ax3.axhline(1 - elim, c='r', ls='--')
+    ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
+
+    # overplot MLL fit for reference
+    ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
+    ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
+
+    # overplot emax due to quadrupole
+    emaxes4 = []
+    for I in I0s_emax:
+        emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
+    ax3.plot(I0s_emax, 1 - np.array(emaxes4), 'k--', lw=1.0)
+
+    ax3.set_ylabel(r'$1 - e$')
+    ticks = [50, 70, 90, 110, 130]
+    ax3.set_xticks(ticks)
+    ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
+
+    # hacky way to make legend plot; I'm too lazy to figure out the
+    # correct syntax
+    ylim = ax3.get_ylim()
+    ax3.semilogy(90, 1e-10, 'go', ms=3,
+                 label=r'$e_{\rm eff}$')
+    ax3.semilogy(90, 1e-10, 'bo', ms=3,
+                 label=r'$e_{\max}$')
+    ax3.set_ylim(ylim)
+    ax3.legend(fontsize=14)
+
+    plt.tight_layout()
+    fig.subplots_adjust(hspace=0.02)
+    composite_fn = fldr + '/' + explore_fn.replace('explore', 'composite_long')
+    print('Saving', composite_fn, eps_oct, eta)
+    plt.savefig(composite_fn, dpi=300)
     plt.close()
 
 def plot_emaxgrid(folder='1sweepbin_emax', nthreads=1, q=0.3, e2=0.6,
@@ -2429,6 +2661,7 @@ if __name__ == '__main__':
     # plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
+    plot_long_composite()
 
     # emax_cfgs_short = [
     #     [0.3, 0.6, '1p3dist_2800', 100, 2800],
@@ -2527,7 +2760,7 @@ if __name__ == '__main__':
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
-    plot_laetitia()
+    # plot_laetitia()
     # run_laetitia(nthreads=8, e2=0.6, base_fn='e2_6_quad', ntrials=1, mm=0)
 
     # make_nogw_plots()
