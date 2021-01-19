@@ -1665,12 +1665,12 @@ def plot_completeness(fldr='1sweepbin', emax_fldr='1sweepbin_emax_long',
     m12, m3, e0 = 50, 30, 1e-3
     num_run = 0
     completenesses = np.zeros(num_ts)
+    times = np.linspace(0, np.sqrt(2000), num_ts)**2
     for cfgs in COMPOSITE_CFGS:
         # load everything first
         explore_cfg = cfgs[0]
         q, e2, explore_fn, _, _, a0, a2eff = explore_cfg
         tlk0 = get_tlk0(m12 / 2, m12 / 2, m3, a0, a2eff)
-        times = np.linspace(0, 2000, num_ts)
 
         a2 = a2eff / np.sqrt(1 - e2**2)
         other_cfgs = cfgs[1: ]
@@ -2792,7 +2792,7 @@ if __name__ == '__main__':
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
     # plot_long_composite()
-    plot_completeness(num_ts=50)
+    # plot_completeness(num_ts=50)
 
     # emax_cfgs_short = [
     #     [0.3, 0.6, '1p3dist_2800', 100, 2800],
