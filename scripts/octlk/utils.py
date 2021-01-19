@@ -109,14 +109,13 @@ def get_eps_tide(m1, m2, m3, a0, a2, e2, k2, R1):
         15 * m1 * (m1 + m2) * (a2**3) * (1 - e2**2)**(3/2) * k2 * R1**5
     ) / (2 * a0**8 * m2 * m3)
 
-def get_tlk0(m1, m2, m3, a0, a2):
-    ''' calculates a bunch of physically relevant values '''
+def get_tlk0(m1, m2, m3, a0, a2eff):
     m12 = m1 + m2
     m123 = m12 + m3
 
     # calculate lk time
     n = np.sqrt(G * m12 / a0**3)
-    t_lk0 = (1 / n) * (m12 / m3) * (a2 / a0)**3
+    t_lk0 = (1 / n) * (m12 / m3) * (a2eff / a0)**3
 
     return (t_lk0 * S_PER_UNIT) / S_PER_YR
 
