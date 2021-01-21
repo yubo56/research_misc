@@ -157,7 +157,7 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
     run_cfgs = [
         # exploratory, find the right inclination range to restrict to
         # [0.01, 0.6, 'explore_tp', 50, 130, 100, 3600],
-        [0.01, 0.6, 'tp', 68, 112, 100, 3600],
+        # [0.01, 0.6, 'tp', 68, 112, 100, 3600],
         # [0.2, 0.6, 'explore_1p2dist', 50, 130, 100, 3600],
         # [0.3, 0.6, 'explore_1p3dist', 50, 130, 100, 3600],
         # [0.4, 0.6, 'explore_1p4dist', 50, 130, 100, 3600],
@@ -193,7 +193,7 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
         # [0.3, 0.8, 'e81p3dist', 90.5, 103, 100, 3600],
         # [0.3, 0.8, 'e81p3distp2', 63, 86.5, 100, 3600],
         # [0.4, 0.8, 'e81p4dist', 90.5, 100, 100, 3600],
-        # [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
+        [0.4, 0.8, 'e81p4distp2', 76, 84, 100, 3600],
         # [0.5, 0.8, 'e81p5dist', 91, 98, 100, 3600],
         # [0.7, 0.8, 'e81p7dist', 91, 95, 100, 3600],
         # [1.0, 0.8, 'e81equaldist', 92.1, 93.5, 100, 3600],
@@ -291,11 +291,12 @@ EMAX_CFGS = [
     [0.4, 0.9, 'bindist', 10, 700 * np.sqrt(1 - 0.9**2)],
 
     # misc cases
-    # [0.01, 0.6, 'tp', 100, 3600],
+    [0.01, 0.6, 'tp', 100, 3600],
     # [0.3, 0.6, '1p3dist_long', 100, 3600, {'tf_mult': 2000}],
 ]
 def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
-                   folder='1sweepbin_emax_long', nthreads=1, run_cfgs=EMAX_CFGS):
+                   folder='1sweepbin_emax_long', nthreads=1, run_cfgs=EMAX_CFGS,
+                   tf_mult_default=500):
     mkdirp(folder)
     m12, m3, e0 = 50, 30, 1e-3
 
@@ -303,7 +304,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
     for cfg in run_cfgs:
         q, e2, base_fn, a0, a2eff = cfg[ :5]
         override_kwargs = {} if len(cfg) == 5 else cfg[5]
-        override_kwargs.setdefault('tf_mult', 2000)
+        override_kwargs.setdefault('tf_mult', tf_mult_default)
         a2 = a2eff / np.sqrt(1 - e2**2)
 
         I0s = np.linspace(50, 130, num_i)
@@ -1107,9 +1108,10 @@ COMPOSITE_CFGS = [
     ],
 ]
 def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
-                   num_i=1000, plot_single=True, get_mergerfracs=False,
-                   plot_all=False):
+                   plot_single=True,
+                   get_mergerfracs=False, plot_all=False):
     # explore_pkl (emax_pkl just has explore removed, new folder), *zoom_pkls
+    labelfs = 20
     m12, m3, e0 = 50, 30, 1e-3
     total_merger_fracs = []
     total_mergers_nogw = []
@@ -1129,6 +1131,9 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         emax_fn = '%s/%s.pkl' % (emax_fldr, explore_fn.replace('explore_', ''))
         with open(emax_fn, 'rb') as f:
             emax_ret = pickle.load(f)
+        emaxlong_fn = '%s_long/%s.pkl' % (emax_fldr, explore_fn.replace('explore_', ''))
+        with open(emaxlong_fn, 'rb') as f:
+            emaxlong_ret = pickle.load(f)
         other_rets = []
         for cfg in other_cfgs:
             with open('%s/%s.pkl' % (fldr, cfg[2]), 'rb') as f:
@@ -1162,13 +1167,18 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         nmerged = np.where(tmerges > 9.9e9)[0]
 
         # compute stuff for emax
-        I0s_emax = np.linspace(50, 130, num_i)
+        I0s_emax = np.linspace(50, 130, 1000)
+        I0s_emaxlong = np.linspace(50, 130, 500)
         if explore_cfg[0] == 1.0:
             I_plotsemax = I0s_emax
+            I_plotsemaxlong = I0s_emaxlong
         else:
             I_plotsemax = np.repeat(I0s_emax, 5)
+            I_plotsemaxlong = np.repeat(I0s_emaxlong, 20)
         emaxes = []
         emeans = []
+        emaxeslong = []
+        emeanslong = []
         for ret in emax_ret:
             e_vals = np.array(ret[1])
             if len(e_vals) == 0:
@@ -1181,8 +1191,23 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
             emean = np.sqrt(1 - jmean**2)
             emeans.append(emean)
+
+        for retlong in emaxlong_ret:
+            e_vals = np.array(retlong[1])
+            if len(e_vals) == 0:
+                emaxeslong.append(e0)
+                emeanslong.append(e0)
+                continue
+            e_vals = e_vals[np.where(e_vals >= np.median(e_vals))[0]]
+            emaxeslong.append(np.max(e_vals))
+            # approx 1 + 73e^2/24... \approx 4.427 is constant
+            jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+            emean = np.sqrt(1 - jmean**2)
+            emeanslong.append(emean)
         emaxes = np.array(emaxes)
         emeans = np.array(emeans)
+        emaxeslong = np.array(emaxeslong)
+        emeanslong = np.array(emeanslong)
 
         m2 = m12 / (1 + q)
         m1 = m12 - m2
@@ -1211,6 +1236,10 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             emaxes > e_os,
             emeans > e_eff_crit
         ))[0]
+        merged_nogwlong = np.where(np.logical_or(
+            emaxeslong > e_os,
+            emeanslong > e_eff_crit
+        ))[0]
 
         # compute merger probabilities (only due to emax > eos)
         I0s = np.unique(I_plots)
@@ -1226,11 +1255,22 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         weights_nogw[0] /= 2
         weights_nogw[-1] /= 2
         merge_probs_nogw = []
+
+        weights_nogwlong = -np.gradient(np.cos(np.radians(I0s_emaxlong)))
+        weights_nogwlong[0] /= 2
+        weights_nogwlong[-1] /= 2
+        merge_probs_nogwlong = []
         for I in I0s_emax:
             merge_probs_nogw.append(
                 len(np.where(np.abs(I_plotsemax[merged_nogw] - I) < 1e-6)[0]) /
                 len(np.where(np.abs(I_plotsemax - I) < 1e-6)[0]))
+        for I in I0s_emaxlong:
+            merge_probs_nogwlong.append(
+                len(np.where(np.abs(I_plotsemaxlong[merged_nogwlong]
+                                    - I) < 1e-6)[0]) /
+                len(np.where(np.abs(I_plotsemaxlong - I) < 1e-6)[0]))
         merge_probs_nogw = np.array(merge_probs_nogw)
+        merge_probs_nogwlong = np.array(merge_probs_nogwlong)
         total_merger_fracs.append(
             np.sum(np.array(merge_probs) * weights) / 2
         )
@@ -1244,18 +1284,30 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             fig, (ax3, ax2, ax1) = plt.subplots(
                 3, 1,
                 figsize=(7, 10),
-                gridspec_kw={'height_ratios': [1, 1, 0.3]},
+                gridspec_kw={'height_ratios': [1, 1, 0.7]},
                 sharex=True)
 
-            ax1.plot(np.degrees(I0s), merge_probs, 'k', label='Simulation')
+            ax1.plot(np.degrees(I0s), merge_probs, 'k', lw=1.5,
+                     label='Simulation')
             merge_probs_nogw_smooth = (
+                np.concatenate((merge_probs_nogw[ :2], merge_probs_nogw[ :-2])) +
                 np.concatenate((merge_probs_nogw[ :1], merge_probs_nogw[ :-1])) +
                 merge_probs_nogw +
-                np.concatenate((merge_probs_nogw[1: ], merge_probs_nogw[-1: ]))
+                np.concatenate((merge_probs_nogw[1: ], merge_probs_nogw[-1: ])) +
+                np.concatenate((merge_probs_nogw[2: ], merge_probs_nogw[-2: ]))
+            ) / 5
+            merge_probs_nogwlong_smooth = (
+                np.concatenate((merge_probs_nogwlong[ :1],
+                                merge_probs_nogwlong[ :-1])) +
+                merge_probs_nogwlong +
+                np.concatenate((merge_probs_nogwlong[1: ],
+                                merge_probs_nogwlong[-1: ]))
             ) / 3
-            ax1.plot(I0s_emax[::3], merge_probs_nogw_smooth[::3], 'g',
-                     label='Semi-Analytic')
-            ax1.set_ylabel(r'$P_{\rm merge}$')
+            ax1.plot(I0s_emaxlong[::3], merge_probs_nogwlong_smooth[::3], 'g',
+                     lw=1.5, alpha=1, label=r'SA ($2000t_{\rm ZLK}$)')
+            ax1.plot(I0s_emax[::5], merge_probs_nogw_smooth[::5], 'g',
+                     lw=0.7, alpha=0.3, label=r'SA ($500t_{\rm ZLK}$)')
+            ax1.set_ylabel(r'$P_{\rm merge}$', fontsize=labelfs)
             ax1.legend(fontsize=14)
             ax1.set_ylim(bottom=0)
 
@@ -1264,7 +1316,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                          ms=1)
             ax2.semilogy(np.degrees(I_plots[nmerged]), tmerges[nmerged], 'k^',
                          ms=1)
-            ax2.set_ylabel(r'$T_{\rm m}$ (yr)')
+            ax2.set_ylabel(r'$T_{\rm m}$ (yr)', fontsize=labelfs)
             tlk0 = get_tlk0(m1, m2, m3, a0, a2eff)
             ax2.axhline(tlk0, c='k', ls='--')
             ax2.text(50, 1.3 * tlk0, r'$t_{\rm ZLK}$')
@@ -1280,18 +1332,19 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             ax1.plot([max_Iplot, 130], [0, 0], 'k')
             ax2.plot(np.linspace(50, min_Iplot, 50), np.full(50, 1e10), 'k^', ms=1)
             ax2.plot(np.linspace(max_Iplot, 130, 50), np.full(50, 1e10), 'k^', ms=1)
-            ax1.set_xlabel(r'$I_0$ (Deg)')
-            ax3.semilogy(I_plotsemax, 1 - np.array(emeans), 'go', ms=0.5,
-                         alpha=0.5)
+            ax1.set_xlabel(r'$I_0$ (Deg)', fontsize=labelfs)
+            ax3.semilogy(I_plotsemaxlong, 1 - np.array(emeanslong), 'go',
+                         ms=0.5, alpha=0.5)
             ax3.axhline(1 - e_eff_crit, c='g')
             ax3.text(50, 1.3 * (1 - e_eff_crit), r'$e_{\rm eff, c}$', c='g')
-            ax3.set_ylabel(r'$1 - e$')
+            ax3.set_ylabel(r'$1 - e$', fontsize=labelfs)
         else:
             fig, ax3 = plt.subplots(1, 1, figsize=(7, 4))
-            ax3.set_ylabel(r'$1 - e_{\max}$')
+            ax3.set_ylabel(r'$1 - e_{\max}$', fontsize=labelfs)
 
-        ax3.set_xlabel(r'$I_0$ (Deg)')
-        ax3.semilogy(I_plotsemax, 1 - np.array(emaxes), 'bo', ms=0.5, alpha=0.5)
+        ax3.set_xlabel(r'$I_0$ (Deg)', fontsize=labelfs)
+        ax3.semilogy(I_plotsemaxlong, 1 - np.array(emaxeslong), 'bo', ms=0.5,
+                     alpha=0.5)
         ax3.axhline(1 - elim, c='r', ls='--')
         ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
         ax3.axhline(1 - e_os, c='b')
@@ -1299,7 +1352,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         if ratio > 3 or ratio < 1/3:
             ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
         else:
-            ax3.text(58, 1.3 * (1 - min(e_os, elim)), r'$e_{\rm os}$', c='b')
+            ax3.text(55, 1.3 * (1 - min(e_os, elim)), r'$e_{\rm os}$', c='b')
 
         # overplot MLL fit for reference
         ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
@@ -2784,7 +2837,7 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # sweep(folder='1sweepbin', nthreads=32)
+    # sweep(folder='1sweepbin', nthreads=64)
     # run_emax_sweep(nthreads=32)
     # run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
     #                folder='1sweepbin_emax_long')
