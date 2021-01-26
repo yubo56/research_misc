@@ -16,7 +16,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=20)
 plt.rc('lines', lw=3.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
@@ -250,7 +250,8 @@ def run_one_cycle(q, M12, plot=False, num_periods=1, mm=1e-5, **kwargs):
     return dw, dW, dWe, dWe_rel, dK
 
 def re_angle(arr):
-    return (arr + 720) % 360
+    return (arr + 540) % 360 - 180
+
 def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
                mm=1e-5):
     folder = '2dW_sweeps'
@@ -318,7 +319,7 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
 
     ax4.legend(fontsize=12)
 
-    tic_locs = [0, 180, 360]
+    tic_locs = [-180, 0, 180]
     for ax in [ax2, ax3]:
         ax.set_yticks(tic_locs)
         ax.set_yticklabels([str(t) for t in tic_locs])
@@ -352,9 +353,9 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
     plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
     plt.close()
 
-def plot_dW_sweeps(q, base_fn, Ivert):
+def plot_dW_sweeps(q, base_fn, Ivert, N=1000):
     folder = '2dW_sweeps'
-    I0ds = np.linspace(80, 100, 1000)
+    I0ds = np.linspace(80, 100, N)
     pkl_fn = '%s/%s.pkl' % (folder, base_fn)
     pkl_fn1 = '%s/%s_1.pkl' % (folder, base_fn)
     with open(pkl_fn, 'rb') as f:
@@ -367,7 +368,7 @@ def plot_dW_sweeps(q, base_fn, Ivert):
     dWes_lib1 = re_angle(lib_vals_eps1[ :,1])
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
-        figsize=(8, 8),
+        figsize=(7, 7),
         sharex=True, sharey=True
     )
     ax1.plot(I0ds, dWes_circ0, 'go', label=r'$\omega_0 = 0$',
@@ -378,14 +379,19 @@ def plot_dW_sweeps(q, base_fn, Ivert):
              ms=1.0)
     ax2.plot(I0ds, dWes_lib1, 'ro', label=r'$\omega_0 = \pi / 2$',
              ms=1.0)
-    ax1.legend(fontsize=12)
-    ax1.axvline(Ivert, c='k', lw=0.7)
-    ax2.axvline(Ivert, c='k', lw=0.7)
-    ax1.set_yticks([0, 180, 360])
-    ax1.set_yticklabels(['0', '180', '360'])
-    ax1.set_ylabel(r'$\Delta \Omega_e$ (One period)')
-    ax1.grid(True)
-    ax2.grid(True)
+    ax1.legend(fontsize=16)
+    ax1.axvline(Ivert, c='k', lw=2.0)
+    ax2.axvline(Ivert, c='k', lw=2.0)
+    _, eps_gr, _, eta = get_eps(10, 40, 50, 100, 4500, 0.6)
+    Ilimd = get_Ilim(eta, eps_gr)
+    ax1.axvline(Ilimd, c='k', lw=2.0)
+    ax2.axvline(Ilimd, c='k', lw=2.0)
+    ax1.set_yticks([-180, 0, 180])
+    ax1.set_yticklabels(['-180', '0', '180'])
+    ax1.set_ylabel(r'$\Delta \Omega_e$ (mod $360^\circ$)')
+    ax2.set_xlabel(r'$I_0$ (Deg)')
+    ax1.grid(True, axis='y')
+    ax2.grid(True, axis='y')
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.02)
     plt_fn = '%s/%s_dual' % (folder, base_fn)
@@ -430,9 +436,12 @@ if __name__ == '__main__':
 
     # plot_H()
 
-    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998, mm=0)
-    # run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1)
-    # plot_dW_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998)
+    N = 1000
+    run_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=89.7997997997998, mm=0,
+               N=N)
+    run_sweeps(q=0.2, base_fn='2_dWsweeps6_2_1', Ivert=89.7997997997998, mm=1,
+               N=N)
+    plot_dW_sweeps(q=0.2, base_fn='2_dWsweeps6_2', Ivert=88.31663, N=N)
 
     # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3', Ivert=88.1981981981982, mm=0)
     # run_sweeps(q=0.3, base_fn='2_dWsweeps6_3_1', Ivert=88.1981981981982, mm=1)
@@ -444,7 +453,7 @@ if __name__ == '__main__':
 
     # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748, mm=0)
     # run_sweeps(q=0.5, base_fn='2_dWsweeps6_5_1', Ivert=87.47747747747748, mm=1)
-    plot_dW_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748)
+    # plot_dW_sweeps(q=0.5, base_fn='2_dWsweeps6_5', Ivert=87.47747747747748)
 
     # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7', Ivert=87.31731731731732, mm=0)
     # run_sweeps(q=0.7, base_fn='2_dWsweeps6_7_1', Ivert=87.31731731731732, mm=1)

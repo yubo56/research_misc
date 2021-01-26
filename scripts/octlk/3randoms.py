@@ -6,7 +6,7 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=20)
 plt.rc('lines', lw=3.5)
 plt.rc('xtick', direction='in', top=True, bottom=True)
 plt.rc('ytick', direction='in', left=True, right=True)
@@ -58,9 +58,12 @@ def plot_LIGOO3a_qhist():
         [64.7, 25.7]
     ]
     qs = [d[1] / d[0] for d in dat]
+    fig = plt.figure(figsize=(6, 6))
     plt.hist(qs, bins=np.linspace(0, 1, 31), color='k')
     plt.xlabel(r'$q$')
-    plt.ylabel('Counts')
+    plt.yticks([1, 3, 5, 7], labels=['%d' % d for d in [1, 3, 5, 7]])
+    plt.xlim(0, 1)
+    plt.ylabel('Count')
     plt.savefig('3qhist', dpi=300)
     plt.close()
 

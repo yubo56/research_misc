@@ -23,7 +23,7 @@ try:
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     plt.rc('text', usetex=True)
-    plt.rc('font', family='serif', size=16)
+    plt.rc('font', family='serif', size=20)
     plt.rc('lines', lw=1.0)
     plt.rc('xtick', direction='in', top=True, bottom=True)
     plt.rc('ytick', direction='in', left=True, right=True)
@@ -32,6 +32,7 @@ except:
 
 AF = 5e-3 # in units of the initial a
 TOL = 1e-11
+legfs = 16
 
 def test_orbs():
     m1, m2, m3, a, a2, e2 = 20, 30, 30, 100, 6000, 0.6
@@ -242,27 +243,27 @@ def sweep(num_trials=20, num_trials_purequad=4, num_i=200, t_hubb_gyr=10,
             with open(pkl_fn, 'rb') as f:
                 print('Loading %s' % pkl_fn)
                 I_plots, tmerges = pickle.load(f)
-# I(min(deltaK))
-# [1.0, 0.6, '1equaldist', 100, 3600] 89.7997997997998
-# [0.2, 0.6, '1p2dist', 100, 3600] 88.1981981981982
-# [0.3, 0.6, '1p3dist', 100, 3600] 87.87787787787788
-# [0.4, 0.6, '1p4dist', 100, 3600] 87.47747747747748
-# [0.5, 0.6, '1p5dist', 100, 3600] 87.31731731731732
-# [0.7, 0.6, '1p7dist', 100, 3600] 86.996996996997
-# [1.0, 0.8, 'e81equaldist', 100, 3600] 88.03803803803804
-# [0.2, 0.8, 'e81p2dist', 100, 3600] 88.11811811811812
-# [0.3, 0.8, 'e81p3dist', 100, 3600] 87.71771771771772
-# [0.4, 0.8, 'e81p4dist', 100, 3600] 87.15715715715716
-# [0.5, 0.8, 'e81p5dist', 100, 3600] 86.996996996997
-# [0.7, 0.8, 'e81p7dist', 100, 3600] 86.67667667667668
-# [1.0, 0.9, 'e91equaldist', 100, 3600] 85.95595595595596
-# [0.2, 0.9, 'e91p2dist', 100, 3600] 87.55755755755756
-# [0.3, 0.9, 'e91p3dist', 100, 3600] 87.47747747747748
-# [0.4, 0.9, 'e91p4dist', 100, 3600] 86.75675675675676
-# [0.5, 0.9, 'e91p5dist', 100, 3600] 86.51651651651652
-# [0.7, 0.9, 'e91p7dist', 100, 3600] 86.11611611611612
-# [1.0, 0.9, 'bindistequal', 10, 305.1229260478471] 87.23723723723724
-# [0.4, 0.9, 'bindist', 10, 305.1229260478471] 86.35635635635636
+# I(min(deltaK)), gap_left, gap_right
+# [1.0, 0.6, '1equaldist', 100, 3600] 89.91983967935872 None 92.8056112224449
+# [0.2, 0.6, '1p2dist', 100, 3600] 88.31663326653307 85.4308617234469 91.04208416833667
+# [0.3, 0.6, '1p3dist', 100, 3600] 87.83567134268537 83.9879759519038 91.52304609218436
+# [0.4, 0.6, '1p4dist', 100, 3600] 87.51503006012024 None 92.00400801603206
+# [0.5, 0.6, '1p5dist', 100, 3600] 87.35470941883767 None 92.16432865731463
+# [0.7, 0.6, '1p7dist', 100, 3600] 87.03406813627254 None 92.64529058116233
+# [1.0, 0.8, 'e81equaldist', 100, 3600] 88.31663326653307 None 93.28657314629258
+# [0.2, 0.8, 'e81p2dist', 100, 3600] 88.15631262525051 85.11022044088176 90.72144288577155
+# [0.3, 0.8, 'e81p3dist', 100, 3600] 87.6753507014028 83.50701402805612 91.52304609218436
+# [0.4, 0.8, 'e81p4dist', 100, 3600] 87.1943887775551 82.22444889779558 92.00400801603206
+# [0.5, 0.8, 'e81p5dist', 100, 3600] 86.87374749498997 None 92.3246492985972
+# [0.7, 0.8, 'e81p7dist', 100, 3600] 86.55310621242485 None 92.96593186372746
+# [1.0, 0.9, 'e91equaldist', 100, 3600] 87.99599198396794 None 93.76753507014027
+# [0.2, 0.9, 'e91p2dist', 100, 3600] 87.1943887775551 84.78957915831663 90.56112224448898
+# [0.3, 0.9, 'e91p3dist', 100, 3600] 87.35470941883767 82.70541082164328 91.36272545090179
+# [0.4, 0.9, 'e91p4dist', 100, 3600] 86.7134268537074 81.2625250501002 92.16432865731463
+# [0.5, 0.9, 'e91p5dist', 100, 3600] 86.39278557114228 None 92.64529058116233
+# [0.7, 0.9, 'e91p7dist', 100, 3600] 86.07214428857715 None 93.28657314629258
+# [0.4, 0.9, 'bindist', 10, 305.1229260478471] 86.23246492985972 80.62124248496994 91.84368737474949
+# [0.01, 0.6, 'tp', 100, 3600] 89.11823647294588 89.91983967935872 90.08016032064128
 EMAX_CFGS = [
     # a2 = 4500, e2 = 0.6
     [1.0, 0.6, '1equaldist', 100, 3600],
@@ -394,7 +395,19 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
             I0_search.append(I0)
             Kdiffs.append(np.max(Kmax_here) - np.min(Kmin_here))
         Imin = I0_search[np.argmin(Kdiffs)]
-        print(cfg, Imin)
+        emaxes = np.array(emaxes)
+        left_idxs = np.where(np.logical_and(
+            I_plots < 90,
+            (1 - emaxes) / (1 - emaxes.max()) < 2,
+        ))[0]
+        right_idxs = np.where(np.logical_and(
+            I_plots > 90,
+            (1 - emaxes) / (1 - emaxes.max()) < 2,
+        ))[0]
+        if left_idxs.size > 0:
+            print(cfg, Imin, I_plots[left_idxs[-1]], I_plots[right_idxs[0]])
+        else:
+            print(cfg, Imin, 'None', I_plots[right_idxs[0]])
 
         m2 = m12 / (1 + q)
         m1 = m12 - m2
@@ -416,11 +429,11 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
             sharex=True)
         ax1.semilogy(I_plots, 1 - np.array(emaxes), 'bo', ms=0.5,
                      label=r'$e_{\max}$')
-        ax1.semilogy(I_plots, 1 - np.array(emeans), 'go', ms=0.5,
-                     label=r'$e_{\rm eff}$')
-        ax1.axhline(1 - e_eff_crit, c='g', ls=':')
-        ax1.axhline(1 - e_os, c='b')
-        ax1.axhline(1 - elim, c='k', ls='--')
+        # ax1.semilogy(I_plots, 1 - np.array(emeans), 'go', ms=0.5,
+        #              label=r'$e_{\rm eff}$')
+        # ax1.axhline(1 - e_eff_crit, c='g', ls=':')
+        # ax1.axhline(1 - e_os, c='b')
+        ax1.axhline(1 - elim, c='k')
 
         # overplot MLL fit for reference
         # ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
@@ -458,25 +471,31 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ticks = [50, 70, 90, 110, 130]
         ax1.set_xticks(ticks)
         ax1.set_xticklabels([r'$%d$' % d for d in ticks])
-        ax1.legend(fontsize=14)
+        # ax1.legend(fontsize=legfs)
         ax1.set_ylim(bottom=(1 - elim) / 5)
+        ax1.axvline(Imin, c='k')
 
         Kcrit = (
             np.sqrt(1 - e0**2) * np.cos(np.radians(Ilimd))
             - eta0 * e0**2 / (2 * np.sqrt(1 - e2**2))
         )
-        ax2.plot(I_plots, Kmins, 'bo', label=r'$K_{\min}$', ms=0.5,
+        ax2.plot(I_plots, Kmins, 'bo', ms=0.5,
                  alpha=0.5)
-        ax2.plot(I_plots, Kmaxes, 'go', label=r'$K_{\max}$', ms=0.5,
+        ax2.plot(I_plots, Kmaxes, 'go', ms=0.5,
                  alpha=0.5)
+        xlims = ax2.get_xlim()
+        ax2.plot(0, 0.1, 'bo', label=r'$K_{\min}$', ms=3)
+        ax2.plot(0, 0.1, 'go', label=r'$K_{\max}$', ms=3)
+        ax2.set_xlim(xlims)
         ax2.plot(I_plots, K0s, 'k--', label=r'$K_0$')
         ax2.axvline(Imin, c='k')
         ax2.axhline(Kcrit, c='r', lw=1.0)
         ax2.set_xlabel(r'$I_0$ (Deg)')
-        ax2.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
-        ax2.legend(fontsize=14)
+        ax2.set_ylabel(r'$K$')
+        ax2.legend(fontsize=legfs, loc='upper right')
         plt.tight_layout()
-        plt.savefig('1sweepbin_emax/' + base_fn, dpi=300)
+        fig.subplots_adjust(hspace=0.03, wspace=0.03)
+        plt.savefig(folder + '/' + base_fn, dpi=300)
         plt.close()
 
 # default tf is 500 tk, if tf == None
@@ -996,7 +1015,7 @@ def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
                  marker='o',
                  ms=2.0,
                  label=str(q))
-    plt.legend(loc='upper left', ncol=2, fontsize=14)
+    plt.legend(loc='upper left', ncol=2, fontsize=legfs)
     plt.xlabel(r'$I_0$ (Deg)')
     plt.ylabel(r'$\Delta K$')
     plt.savefig(fn + 'vsq', dpi=300)
@@ -1012,7 +1031,7 @@ def k_sweep(fn='1sweep/ksweep', n_pts=30, tf=1e9, n_reps=3):
                  marker='o',
                  ms=2.0,
                  label=str(I))
-    plt.legend(loc='upper left', ncol=2, fontsize=14)
+    plt.legend(loc='upper left', ncol=2, fontsize=legfs)
     plt.xlabel(r'$\epsilon_{\rm oct} / \epsilon_{\rm oct}(q = 0)$')
     plt.ylabel(r'$\Delta K$')
     plt.savefig(fn + 'vsI', dpi=300)
@@ -1275,7 +1294,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             np.sum(np.array(merge_probs) * weights) / 2
         )
         total_mergers_nogw.append(
-            np.sum(merge_probs_nogw * weights_nogw) / 2
+            np.sum(merge_probs_nogwlong * weights_nogwlong) / 2
         )
         if not plot_single:
             continue
@@ -1288,7 +1307,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                 sharex=True)
 
             ax1.plot(np.degrees(I0s), merge_probs, 'k', lw=1.5,
-                     label='Simulation')
+                     label=r'$P_{\rm merge}$')
             merge_probs_nogw_smooth = (
                 np.concatenate((merge_probs_nogw[ :2], merge_probs_nogw[ :-2])) +
                 np.concatenate((merge_probs_nogw[ :1], merge_probs_nogw[ :-1])) +
@@ -1304,11 +1323,12 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                                 merge_probs_nogwlong[-1: ]))
             ) / 3
             ax1.plot(I0s_emaxlong[::3], merge_probs_nogwlong_smooth[::3], 'g',
-                     lw=1.5, alpha=1, label=r'SA ($2000t_{\rm ZLK}$)')
+                     lw=1.5, alpha=1,
+                     label=r'$P_{\rm merge, SA}$')
             ax1.plot(I0s_emax[::5], merge_probs_nogw_smooth[::5], 'g',
-                     lw=0.7, alpha=0.3, label=r'SA ($500t_{\rm ZLK}$)')
-            ax1.set_ylabel(r'$P_{\rm merge}$', fontsize=labelfs)
-            ax1.legend(fontsize=14)
+                     lw=0.7, alpha=0.3)
+            ax1.set_ylabel('Probability', fontsize=labelfs)
+            ax1.legend(fontsize=legfs)
             ax1.set_ylim(bottom=0)
 
             # plot actual merger times
@@ -1346,12 +1366,13 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax3.semilogy(I_plotsemaxlong, 1 - np.array(emaxeslong), 'bo', ms=0.5,
                      alpha=0.5)
         ax3.axhline(1 - elim, c='r', ls='--')
-        ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
         ax3.axhline(1 - e_os, c='b')
         ratio = (1 - elim) / (1 - e_os)
         if ratio > 3 or ratio < 1/3:
+            ax3.text(50, 1.3 * (1 - elim), r'$e_{\lim}$', c='r')
             ax3.text(50, 1.3 * (1 - e_os), r'$e_{\rm os}$', c='b')
         else:
+            ax3.text(50, 1.3 * (1 - min(e_os, elim)), r'$e_{\lim}$', c='r')
             ax3.text(55, 1.3 * (1 - min(e_os, elim)), r'$e_{\rm os}$', c='b')
 
         # overplot MLL fit for reference
@@ -1376,7 +1397,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             ax3.semilogy(90, 1e-10, 'bo', ms=3,
                          label=r'$e_{\max}$')
             ax3.set_ylim(ylim)
-            ax3.legend(fontsize=14)
+            ax3.legend(fontsize=legfs)
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.02)
@@ -1426,7 +1447,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                  lw=0.7,
                  ls=':',
                  marker='x')
-    ax1.legend()
+    ax1.legend(fontsize=legfs)
     ax1.set_xlabel(r'$q$')
     ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
 
@@ -1474,7 +1495,7 @@ def plot_massratio_sample():
         q_pdf = np.array([interp(q) if q > 0.2 else 0 for q in q_dist])
         plt.plot(q_dist, q_pdf / q_pdf.sum() / dq,
                  label='%.1f' % e2)
-    plt.legend(fontsize=14)
+    plt.legend(fontsize=legfs)
 
     plt.xlabel(r'$q$')
     plt.ylabel(r'Probability Density')
@@ -1659,7 +1680,7 @@ def plot_long_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax',
     ax1.plot(I0s_emax[::3], merge_probs_nogw_short_smooth[::3], 'r',
              label=r'SA ($t_{\rm f} = 500t_{\rm ZLK}$)')
     ax1.set_ylabel(r'$P_{\rm merge}$')
-    ax1.legend(fontsize=14)
+    ax1.legend(fontsize=legfs)
 
     # fill in to the left and right edges (bindist)
     min_Iplot = np.degrees(np.min(I_plots))
@@ -1702,7 +1723,7 @@ def plot_long_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax',
     ax3.semilogy(90, 1e-10, 'bo', ms=3,
                  label=r'$e_{\max}$')
     ax3.set_ylim(ylim)
-    ax3.legend(fontsize=14)
+    ax3.legend(fontsize=legfs)
 
     plt.tight_layout()
     fig.subplots_adjust(hspace=0.02)
@@ -2041,7 +2062,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
 
         if len(e_vals) == 0:
             continue
-        j_os = 3 * (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
+        j_os = (256 * k**3 * q / (1 + q)**2 * m12**3 * a2eff**3 / (
             c**5 * a0**4 * np.sqrt(k * m12 / a0**3) * m3 * a0**3))**(1/6)
         e_os = np.sqrt(1 - j_os**2)
 
@@ -2110,11 +2131,11 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
         if os.path.exists(nogw_fn):
             _, qplots, frac_plots = pop_synth_nogw(
                 a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff, to_plot=False,
-                n_qs=31, q_min=1e-2, n_e2s=17, n_I0s=41, stride=1, reps=1
+                n_qs=31, q_min=0.2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
             ax1.plot(qplots, frac_plots, 'bx', lw=1.0, ls=':',
                      alpha=0.5, label='Uniform (Semi-Analytic)')
-        ax1.legend(fontsize=14)
+        ax1.legend(fontsize=legfs, loc='upper right')
         ax1.set_ylabel(r'$f_{\rm merge}$ [\%]')
         ax1.set_ylim(bottom=-0.5)
 
@@ -2139,7 +2160,7 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                      'ro', ms=3.0)
             ax3.plot(q, np.median(e_LISAsm[np.where(q_arr == q)[0]]),
                      'bo', ms=3.0)
-        ax3.legend(fontsize=12)
+        ax3.legend(ncol=2, loc='lower left', fontsize=legfs)
         ax3.set_ylabel(r'$e$')
         ax3.set_xlabel(r'$q$')
         ax3.set_yscale('log')
@@ -2196,7 +2217,7 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
     a2s = a2eff / np.sqrt(1 - e2s**2)
 
     args2 = [
-        (idx, q, np.degrees(I0), None, dict(a0=a0, a2=a2, e2=e2))
+        (idx, q, np.degrees(I0), None, dict(a0=a0, a2=a2, e2=e2, tf_mult=2000))
         for idx, (q, a2, e2, I0) in enumerate(zip(qs, a2s, e2s, I0s))
     ]
 
@@ -2261,7 +2282,7 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
         if q_spread == np.geomspace:
             # steal the full data
             ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-                                 to_plot=False, n_qs=31, q_min=1e-2,
+                                 to_plot=False, n_qs=31, q_min=0.2,
                                  n_e2s=17, n_I0s=41, stride=1, reps=1)
             plt.xscale('log')
 
@@ -2543,15 +2564,16 @@ def plot_laetitia():
 
 def make_nogw_plots():
     mkdirp('1nogw_sims')
-    run_nogw_vec(ll=0, q=1, T=1e9, method='Radau', TOL=1e-9,
-                 fn='1nogw_sims/1nogw_vec_q1', Itot=93.5, plot_full=False)
+    # run_nogw_vec(ll=0, q=1, T=1e9, method='Radau', TOL=1e-9,
+    #              fn='1nogw_sims/1nogw_vec_q1', Itot=93.5,
+    #              plot_full=False)
+    # run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+    #              fn='1nogw_sims/1nogw_vec_q02', Itot=93.5, plot_full=False)
+    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
+                 fn='1nogw_sims/1nogw_vec88', Itot=88, w1=np.pi / 2)
     return
     run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
-                 fn='1nogw_sims/1nogw_vec_q02', Itot=93.5, plot_full=False)
-    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
                  fn='1nogw_sims/1nogw_vec', Itot=93.5)
-    run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
-                 fn='1nogw_sims/1nogw_vec88', Itot=88)
     run_nogw_vec(ll=0, q=0.2, T=1e9, method='Radau', TOL=1e-9,
                  fn='1nogw_sims/1nogw_vec80', Itot=80)
     laetitia_kwargs = dict(
@@ -2837,10 +2859,14 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
+    # emax_cfgs_pub = [[0.2, 0.6, '1p2dist', 100, 3600]]
+    # run_emax_sweep(run_cfgs=emax_cfgs_pub, tf_mult_default=2000, num_i=500,
+    #                num_trials=20, folder='1sweepbin_emax_long')
+
     # sweep(folder='1sweepbin', nthreads=64)
     # run_emax_sweep(nthreads=32)
-    # run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
-    #                folder='1sweepbin_emax_long')
+    run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
+                   folder='1sweepbin_emax_long')
     # plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
@@ -2896,16 +2922,17 @@ if __name__ == '__main__':
 
     # tot_frac = []
     # a2effs_nogwonly = [3600, 2800, 4500, 5500, 7000]
+    # a2effs_nogwonly = [3600, 5500]
     # for a2eff in a2effs_nogwonly:
     #     ret = pop_synth_nogw(a2eff=a2eff, base_fn='a2eff_nogw%d' % a2eff,
-    #                          to_plot=plot, n_qs=31, q_min=1e-2,
-    #                          n_e2s=17, n_I0s=41, stride=1, reps=1)
+    #                          to_plot=plot, n_qs=31, q_min=0.2,
+    #                          n_e2s=17, n_I0s=41, stride=1, reps=1, nthreads=64)
     #     frac = ret[0]
     #     tot_frac.append(frac)
     # pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw_lowq3600',
-    #                n_e2s=13, n_I0s=41, reps=2, stride=7, n_qs=11,
-    #                to_plot=True, q_min=1e-5, q_max=1e-1, q_spread=np.geomspace,
-    #                nthreads=4)
+    #                n_e2s=17, n_I0s=41, reps=2, stride=7, n_qs=11,
+    #                to_plot=True, q_min=1e-5, q_max=0.1, q_spread=np.geomspace,
+    #                nthreads=64)
     # plt.plot(a2effs_nogwonly, tot_frac, 'ko')
     # plt.xlabel(r'$a_{\rm out, eff}$')
     # plt.ylabel(r'Merger Fraction (\%)')
