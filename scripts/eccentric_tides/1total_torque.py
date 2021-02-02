@@ -346,7 +346,8 @@ def plot_pseudo():
 
 # don't think this plot makes sense, we don't know the breakup frequency
 # independently of r_c
-def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
+def plot_7319(e=0.808, obs_pdot=-3.03e-7, breakup=472, prefix='7319',
+              rhoc_rat=0.76):
     num_pts = max(4 * int(np.sqrt(1 + e) * (1 - e**2)**(-3/2)), 150)
     def get_disp_spin(w_s):
         return np.sum(get_energies(num_pts, e, w_s))
@@ -355,29 +356,32 @@ def plot_7319(e=0.808, obs_disp=1.536e11, breakup=428.822, prefix='7319'):
         torques = get_torques(num_pts, w_s)
         return np.sum(coeffs**2 * torques)
     spins = np.linspace(-breakup, breakup, 50)
+    # = g(e, w_s) by notation of paper
     disp_spins = np.array([get_disp_spin(w_s) for w_s in spins])
     torque_spins = np.array([get_torque(w_s) for w_s in spins])
 
-    plt.plot(spins, disp_spins)
-    plt.axhline(-obs_disp, c='r', ls='dashed', lw=1.5)
-    plt.axhline(obs_disp, c='r', ls='dashed', lw=1.5)
-    plt.xlabel(r'$\Omega_{\rm s} / \Omega_o$')
-    plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{\tau} \Omega)$')
-    plt.savefig('1%s_disps' % prefix)
+    rhoc_rat_base = 0.76 * (1 - 0.76)**2
+    rat = rhoc_rat * (1 - rhoc_rat)**2 / rhoc_rat_base
+    th_pdot = -rat * 1.52e-18 * np.abs(spins / breakup)**(8/3) * disp_spins
+    plt.plot(spins, th_pdot)
+    plt.axhline(obs_pdot, c='r', ls='dashed', lw=1.5)
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
+    plt.ylabel(r'$\dot{P}$')
+    plt.tight_layout()
+    plt.savefig('1_%s_disps' % prefix)
     plt.clf()
 
-    retrospin_idx = np.argmin(np.abs(disp_spins - obs_disp))
-    prospin_idx = np.argmin(np.abs(disp_spins + obs_disp))
-    print('Naive, retro spin', spins[retrospin_idx])
-    print('Naive, pro spin', spins[prospin_idx])
+    # plot energy dissipation in rotating frame (heating)
+    retrospin_idx = np.argmin(np.abs(th_pdot - obs_pdot))
+    print('Naive', spins[retrospin_idx])
 
-    edot_rot = disp_spins - spins * torque_spins
-    print('edot_rot, retro', '%.3e' % edot_rot[retrospin_idx])
-    print('edot_rot, pro', '%.3e' % edot_rot[prospin_idx])
+    edot_rot = (disp_spins - spins * torque_spins) * rat * 1.113e-11
     plt.plot(spins, edot_rot)
+    print(edot_rot[retrospin_idx])
     plt.xlabel(r'$\Omega_{\rm s} / \Omega_o$')
-    plt.ylabel(r'$\dot{E}_{\rm in} / (\hat{\tau} \Omega)$')
-    plt.savefig('1%s_heating' % prefix)
+    plt.ylabel(r'$\dot{E}_{\rm in}$ ($L_{\odot}$)')
+    plt.tight_layout()
+    plt.savefig('1_%s_heating' % prefix)
     plt.clf()
 
 if __name__ == '__main__':
@@ -387,7 +391,7 @@ if __name__ == '__main__':
     # plot_energy()
     # plot_energy(400)
     # plot_spin_energy(e=0.9)
-    plot_pseudo()
-    # plot_7319()
+    # plot_pseudo()
+    plot_7319(rhoc_rat=1/3)
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
     pass
