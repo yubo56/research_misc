@@ -10,9 +10,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=20)
+plt.rc('lines', lw=2.0)
 
-ms = 2
+ms = 3.5
 def f(E, e):
     ''' returns true anomaly for given eccentric anomaly '''
     return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
@@ -92,7 +93,7 @@ def plot_hansens_0(e, m=0):
 
     n_tot = np.concatenate((-n_vals[1: ][::-1], n_vals))
     coeffs_tot = np.concatenate((coeffs2[1: ][::-1], coeffs))
-    plt.semilogy(n_tot, coeffs_tot, 'k', alpha=0.7,
+    plt.semilogy(n_tot, coeffs_tot, 'ko', alpha=0.7, ms=4,
                  label=r'$F_{N0}$')
 
     # fit_func
@@ -105,11 +106,11 @@ def plot_hansens_0(e, m=0):
     eta0 = np.sqrt(9 * e**2 * f3 / ((1 - e**2)**3 * f5))
     c0 = np.sqrt(f5 / (eta0 * (1 - e**2)**(9/2)))
     plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'g',
-                 alpha=0.7, label='Parameterization')
+                 alpha=0.7, label='Analytic')
 
     plt.xlabel(r'$N$')
-    plt.xlim([-6 * N_peak, 6 * N_peak])
-    plt.legend(fontsize=12, loc='lower center', ncol=2)
+    plt.xlim([0, 6 * N_peak])
+    plt.legend(fontsize=14, loc='lower center', ncol=2)
     plt.tight_layout()
     plt.savefig('hansens/hansens%s' % ('%.2f' % e).replace('.', '_'), dpi=400)
     plt.close()
@@ -127,11 +128,11 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     pos_idx = np.where(coeffs > 0)[0]
     neg_idx = np.where(coeffs < 0)[0]
     plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
-               'k', ms=ms, label=r'$F_{N2}$', alpha=0.7)
-    # plt.loglog(n_vals, np.abs(coeffs2[1: ]),
-    #            'r', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
+               'ko', ms=ms, label=r'$F_{N2}$', alpha=0.7)
+    plt.loglog(n_vals, np.abs(coeffs2[1: ]),
+               'ro', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
-               'k:', ms=ms, alpha=0.7)
+               'kx', ms=ms, alpha=0.7)
     # params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
     # fit = powerlaw(n_vals, params[0], params[1], params[2])
     f2 = 1 + 15*e**2/2 + 45*e**4/8 + 5*e**6/16
@@ -139,7 +140,7 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     eta2 = 4 * f2 / (5 * f5 * (1 - e**2)**(3/2))
     c2 = np.sqrt(32 * f5 / (24 * eta2**5 * (1 - e**2)**(9/2)))
     fit = powerlaw(n_vals, c2, 2, eta2)
-    plt.loglog(n_vals, fit, 'g', label='Parameterization', alpha=0.7)
+    plt.loglog(n_vals, fit, 'g', label='Analytic', alpha=0.7)
 
     plt.xlabel('$N$')
     plt.ylabel(r'$F_{N2}$')
@@ -153,7 +154,7 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     #     r'$(F_{N2} = %.3fN^{%d}e^{-N/%.3f})$' % tuple(params),
     #     color='r',
     #     size=12)
-    plt.legend(fontsize=12, ncol=3, loc='lower center')
+    plt.legend(fontsize=14, ncol=3, loc='upper center')
     plt.tight_layout()
     plt.savefig(fn, dpi=400)
     plt.close()
@@ -249,7 +250,7 @@ def plot_fit_scalings(m=2):
     ax1.set_ylabel(r'$C$')
     ax3.set_ylabel(r'$a$')
     ax3.set_xlabel(r'$e$')
-    ax3.legend(fontsize=12, ncol=2)
+    ax3.legend(fontsize=14, ncol=2)
     plt.tight_layout()
     fig.subplots_adjust(hspace=0)
     plt.savefig('hansen_params', dpi=400)
@@ -294,7 +295,7 @@ def plot_naked_hansens(m=2, e=0.9):
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
+    # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
@@ -302,6 +303,6 @@ if __name__ == '__main__':
     # energy terms
     # for e_val in np.arange(0.5, 0.96, 0.05):
     #     plot_hansens_0(e_val)
-    # plot_hansens_0(0.9)
+    plot_hansens_0(0.9)
 
     # plot_naked_hansens(e=0.9)

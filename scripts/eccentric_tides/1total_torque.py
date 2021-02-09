@@ -11,7 +11,10 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 plt.rc('text', usetex=True)
-plt.rc('font', family='serif', size=16)
+plt.rc('font', family='serif', size=20)
+plt.rc('lines', lw=2.0)
+plt.rc('xtick', direction='in', top=True, bottom=True)
+plt.rc('ytick', direction='in', left=True, right=True)
 
 ms = 4
 lw = 1.5
@@ -68,20 +71,18 @@ def plot_ecc(w_s=0, num_pts=1000):
             / 2**(8/3))
         sign = +1
         # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
-        plt.ylabel(r'$\tau / \hat{\tau}$')
+        plt.ylabel(r'$T / T_0$')
     else:
         torque = -prefactor * ((w_s / eta2 - 1)**(8/3) * 2**(8/3))
         sign = -1
         # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
-        plt.ylabel(r'$-\tau / \hat{\tau}$')
-    plt.semilogy(e_vals, sign * totals, 'k+', ms=ms, alpha=af,
-                 label='Sum')
-    plt.semilogy(e_vals, sign * totals_integ, 'bx', ms=ms, alpha=af,
-                 label='Integral')
-    plt.semilogy(e_vals, sign * torque, 'g:', lw=lw, alpha=af,
-                 label='Asymptotic')
+        plt.ylabel(r'$-T / T_0$')
+    plt.semilogy(e_vals, sign * totals, 'k+', ms=6, label='Sum')
+    plt.semilogy(e_vals, sign * totals_integ, 'bx', ms=6, label='Integral')
+    plt.semilogy(e_vals, sign * torque, 'g', lw=3, alpha=af,
+                 label='Analytic')
     plt.xlabel(r'$e$')
-    plt.legend()
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('1totals_ecc_%d' % w_s, dpi=400)
     plt.clf()
@@ -118,7 +119,7 @@ def plot_spin(e=0.9, num_pts=1000):
     totals_integ = np.array(totals_integ)
 
     plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
-    plt.ylabel(r'$\tau / \hat{\tau}$')
+    plt.ylabel(r'$T / T_0$')
     # plt.title(r'$e = %.1f$' % e)
     pos_idxs = np.where(totals > 0)[0]
     neg_idxs = np.where(totals < 0)[0]
@@ -148,12 +149,13 @@ def plot_spin(e=0.9, num_pts=1000):
         (0.691 * w_hs / eta2 - 1)**(8/3) * gamma(23 / 3) / gamma(5)
         / 2**(8/3))
 
+    plt.axvline(np.sqrt(1 + e) / (1 - e)**(3/2), c='k', lw=3, alpha=0.7)
     plt.semilogy(w_ls, torque_low_spin, 'b',
-                 label='Asymptotic', lw=lw, alpha=af)
+                 label='Analytic', lw=lw, alpha=af)
     plt.semilogy(w_hs, -torque_high_spin, 'r', lw=lw, alpha=af)
     plt.ylim(ylims)
 
-    plt.legend(fontsize=12)
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('1totals_s_%s' % ('%.1f' % e).replace('.', '_'), dpi=400)
     plt.clf()
@@ -213,11 +215,11 @@ def plot_energy(w_s=0, num_pts=1000):
     # anal fits
     if w_s < np.max(eta2):
         # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \ll N_{\rm peri}$' % w_s)
-        plt.ylabel(r'$\dot{E}_{in} / \hat{\tau}\Omega$')
+        plt.ylabel(r'$\dot{E}_{\rm in} / T_0\Omega$')
         sign = +1
     else:
         # plt.title(r'$\frac{\Omega_s}{\Omega} = %d \gg N_{\rm peri}$' % w_s)
-        plt.ylabel(r'$-\dot{E}_{in} / \hat{\tau}\Omega$')
+        plt.ylabel(r'$-\dot{E}_{\rm in} / T_0\Omega$')
         sign = -1
 
     term0 = (
@@ -229,13 +231,12 @@ def plot_energy(w_s=0, num_pts=1000):
             * gamma(26/3) / gamma(5)
             * (eta2 / 2)**(11/3))
 
-    plt.semilogy(e_vals, sign * totals, 'k+', ms=ms, alpha=af, label='Sum')
-    plt.semilogy(e_vals, sign * totals_integ, 'bx', ms=ms, alpha=af,
-                 label='Integral')
-    plt.semilogy(e_vals, sign * (term0 + term2) / 2, 'g:', ms=ms, alpha=af,
-                 label='Asymptotic')
+    plt.semilogy(e_vals, sign * totals, 'k+', ms=6, label='Sum')
+    plt.semilogy(e_vals, sign * totals_integ, 'bx', ms=6, label='Integral')
+    plt.semilogy(e_vals, sign * (term0 + term2) / 2, 'g', lw=3, alpha=af,
+                 label='Analytic')
 
-    plt.legend()
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('1totals_e_%d' % w_s, dpi=400)
     plt.clf()
@@ -254,7 +255,7 @@ def plot_spin_energy(e=0.9, num_pts=300):
     totals_integ = np.array(totals_integ)
 
     plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
-    plt.ylabel(r'$\dot{E}_{in} / \hat{\tau}\Omega$')
+    plt.ylabel(r'$\dot{E}_{\rm in} / T_0\Omega$')
     # plt.title(r'$e = %.1f$' % e)
 
     pos_idxs = np.where(totals > 0)[0]
@@ -299,12 +300,13 @@ def plot_spin_energy(e=0.9, num_pts=300):
     blue_idx = np.where(blue > 0)[0]
     red_idx = np.where(red > 0)[0]
     plt.semilogy(w_vals[blue_idx], blue[blue_idx], 'b', ms=ms, alpha=af,
-                 label='Asymptotic')
+                 label='Analytic')
     plt.semilogy(w_vals[red_idx], red[red_idx], 'r', ms=ms, alpha=af)
     plt.ylim(ylims)
     plt.ylim(bottom=3e9)
+    plt.axvline(np.sqrt(1 + e) / (1 - e)**(3/2), c='k', lw=3, alpha=0.7)
 
-    plt.legend()
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('1totals_NRG_e_%s' % ('%.1f' % e).replace('.', '_'), dpi=400)
     plt.clf()
@@ -330,24 +332,26 @@ def plot_pseudo():
         print(e, res, res2)
         w_syncs.append(res)
         w_syncs_sum.append(res2)
-    plt.loglog(1 - e_vals**2, w_syncs_sum, label='Sum')
-    plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
-    plt.loglog(1 - e_vals**2, eta2 / 0.691,
+    plt.loglog(1 - e_vals**2, w_syncs_sum, 'k', label='Exact')
+    # plt.loglog(1 - e_vals**2, w_syncs, label='Integral')
+    plt.loglog(1 - e_vals**2, eta2 / 0.691, 'b',
                label=r'$\Omega_{\rm s, ps}$')
-    plt.loglog(1 - e_vals**2, f2 / (f5 * (1 - e_vals**2)**(3/2)),
+    plt.loglog(1 - e_vals**2, f2 / (f5 * (1 - e_vals**2)**(3/2)), 'r',
                label=r'$\Omega_{\rm s, ps}^{\rm (Eq)}$')
+    plt.loglog(1 - e_vals**2, np.sqrt(1 + e_vals) / (1 - e_vals)**(3/2), 'g',
+               label=r'$\Omega_{\rm p}$')
     plt.xticks([1 - 0.99**2, 1 - 0.9**2, 1 - 0.5**2],
                labels=['0.99', '0.9', '0.5'])
     plt.xlabel(r'$e$')
     plt.ylabel(r'$\Omega_{\rm s, sync} / \Omega$')
-    plt.legend()
+    plt.legend(fontsize=14)
     plt.tight_layout()
     plt.savefig('1pseudosynchronous', dpi=200)
 
 # don't think this plot makes sense, we don't know the breakup frequency
 # independently of r_c
-def plot_7319(e=0.808, obs_pdot=-3.03e-7, breakup=472, prefix='7319',
-              rhoc_rat=0.76):
+def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
+              rhoc_rat=0.76, rcs=[0.7, 1.0, 1.38, 1.5]):
     num_pts = max(4 * int(np.sqrt(1 + e) * (1 - e**2)**(-3/2)), 150)
     def get_disp_spin(w_s):
         return np.sum(get_energies(num_pts, e, w_s))
@@ -355,21 +359,53 @@ def plot_7319(e=0.808, obs_pdot=-3.03e-7, breakup=472, prefix='7319',
         coeffs = get_coeffs_fft(num_pts, 2, e)
         torques = get_torques(num_pts, w_s)
         return np.sum(coeffs**2 * torques)
-    spins = np.linspace(-breakup, breakup, 50)
-    # = g(e, w_s) by notation of paper
-    disp_spins = np.array([get_disp_spin(w_s) for w_s in spins])
-    torque_spins = np.array([get_torque(w_s) for w_s in spins])
+    wperi = np.sqrt(1 + e) / (1 - e)**(3/2)
 
     rhoc_rat_base = 0.76 * (1 - 0.76)**2
     rat = rhoc_rat * (1 - rhoc_rat)**2 / rhoc_rat_base
-    th_pdot = -rat * 1.52e-18 * np.abs(spins / breakup)**(8/3) * disp_spins
-    plt.plot(spins, th_pdot)
-    plt.axhline(obs_pdot, c='r', ls='dashed', lw=1.5)
-    plt.xlabel(r'$\Omega_{\rm s} / \Omega$')
+    colors = ['b', 'g', 'c', 'r']
+    for c, rc in zip(colors, rcs):
+        rat_rc = (rc / 1.38)**9 / (mc / 3)**(8/3)
+        breakup = np.sqrt(
+            6.67e-11 * mc * 1.99e30 / (rc * 6.9e8)**3
+        ) * (51 * 86400) / (2 * np.pi)
+
+        spins = np.linspace(-np.sqrt(breakup), np.sqrt(breakup), 50)
+        spins *= np.abs(spins)
+        # = g(e, w_s) by notation of paper
+        disp_spins = np.array([get_disp_spin(w_s) for w_s in spins])
+        torque_spins = np.array([get_torque(w_s) for w_s in spins])
+
+        th_pdot = -rat * rat_rc * 1.52e-18 * np.abs(spins / breakup)**(8/3) * disp_spins
+        plt.plot(spins / wperi, th_pdot, c=c, label='%.2f' % rc)
+    plt.axhline(obs_pdot, c='k', ls='dashed', lw=2.0)
+
+    plt.yscale('symlog', linthresh=1e-12)
+    ticks = [-12, -10, -8, -6]
+    plt.yticks([-10**(p) for p in ticks[::-1]]
+               + [0]
+               +[10**(p) for p in ticks],
+               labels=[r'$-10^{%d}$' % p for p in ticks[::-1]]
+               + [0]
+               + [r'$10^{%d}$' % p for p in ticks])
+    ylims = plt.ylim()
+    breakup_star = np.sqrt(
+        6.67e-11 * 8.8 * 1.99e30 / (6.4 * 6.9e8)**3
+    ) * (51 * 86400) / (2 * np.pi) / wperi
+    plt.fill_betweenx([-1, 1],
+                      [-breakup_star, -breakup_star],
+                      [breakup_star, breakup_star],
+                      color='k',
+                      alpha=0.1)
+    plt.ylim(ylims)
+
+    plt.legend(fontsize=14, loc='upper left')
+    plt.xlabel(r'$\Omega_{\rm s} / \Omega_{\rm p}$')
     plt.ylabel(r'$\dot{P}$')
     plt.tight_layout()
     plt.savefig('1_%s_disps' % prefix)
     plt.clf()
+    return
 
     # plot energy dissipation in rotating frame (heating)
     retrospin_idx = np.argmin(np.abs(th_pdot - obs_pdot))
@@ -392,6 +428,6 @@ if __name__ == '__main__':
     # plot_energy(400)
     # plot_spin_energy(e=0.9)
     # plot_pseudo()
-    plot_7319(rhoc_rat=1/3)
+    plot_7319(rhoc_rat=1/3, mc=3)
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
     pass
