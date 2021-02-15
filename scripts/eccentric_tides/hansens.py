@@ -13,7 +13,7 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif', size=20)
 plt.rc('lines', lw=2.0)
 
-ms = 3.5
+ms = 5.3
 def f(E, e):
     ''' returns true anomaly for given eccentric anomaly '''
     return 2 * np.arctan(np.sqrt((1 + e) / (1 - e)) * np.tan(E / 2))
@@ -93,8 +93,8 @@ def plot_hansens_0(e, m=0):
 
     n_tot = np.concatenate((-n_vals[1: ][::-1], n_vals))
     coeffs_tot = np.concatenate((coeffs2[1: ][::-1], coeffs))
-    plt.semilogy(n_tot, coeffs_tot, 'ko', alpha=0.7, ms=4,
-                 label=r'$F_{N0}$')
+    plt.scatter(n_tot, coeffs_tot, facecolor='none', edgecolor='k', s=ms**2,
+                label=r'$F_{N0}$')
 
     # fit_func
     amp = coeffs[0]
@@ -105,8 +105,8 @@ def plot_hansens_0(e, m=0):
     f5 = 1 + 3 * e**2 + 3 * e**4 / 8
     eta0 = np.sqrt(9 * e**2 * f3 / ((1 - e**2)**3 * f5))
     c0 = np.sqrt(f5 / (eta0 * (1 - e**2)**(9/2)))
-    plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'g',
-                 alpha=0.7, label='Analytic')
+    plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'k',
+                 label='Analytic')
 
     plt.xlabel(r'$N$')
     plt.xlim([0, 6 * N_peak])
@@ -116,7 +116,7 @@ def plot_hansens_0(e, m=0):
     plt.close()
 
 def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
-    N_peak = np.sqrt(1 + e) * (1 - e**2)**(-3/2)
+    N_peak = np.sqrt(1 + e) * (1 - e)**(-3/2)
     # just plot +2, no 8/3's laws for now
     nmax = 4 * int(max(N_peak, 150))
     n_vals, coeffs, coeffs2 = coeff_getter(nmax, m, e)
@@ -127,12 +127,11 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     max_c = np.max(np.abs(coeffs))
     pos_idx = np.where(coeffs > 0)[0]
     neg_idx = np.where(coeffs < 0)[0]
-    plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
-               'ko', ms=ms, label=r'$F_{N2}$', alpha=0.7)
-    plt.loglog(n_vals, np.abs(coeffs2[1: ]),
-               'ro', ms=ms, label=r'$F_{(-N)2}$', alpha=0.7)
-    plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]),
-               'kx', ms=ms, alpha=0.7)
+    plt.scatter(n_vals[pos_idx], np.abs(coeffs[pos_idx]), facecolor='none',
+                edgecolor='k', s=ms**2, label=r'$F_{N2}$')
+    plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]), 'kx', ms=ms)
+    plt.scatter(n_vals, coeffs2[1: ], facecolor='none', edgecolor='r',
+                s=ms**2, label=r'$F_{(-N)2}$')
     # params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
     # fit = powerlaw(n_vals, params[0], params[1], params[2])
     f2 = 1 + 15*e**2/2 + 45*e**4/8 + 5*e**6/16
@@ -140,15 +139,18 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     eta2 = 4 * f2 / (5 * f5 * (1 - e**2)**(3/2))
     c2 = np.sqrt(32 * f5 / (24 * eta2**5 * (1 - e**2)**(9/2)))
     fit = powerlaw(n_vals, c2, 2, eta2)
-    plt.loglog(n_vals, fit, 'g', label='Analytic', alpha=0.7)
+    plt.plot(n_vals, fit, 'k', label='Analytic')
 
     plt.xlabel('$N$')
     plt.ylabel(r'$F_{N2}$')
+    ylim_bot = abs(coeffs[0]) / 100
+    plt.ylim(bottom=ylim_bot)
+    xlim_right = n_vals[np.where(coeffs > ylim_bot)[0][-1]] * 1.3
+    plt.xlim(right=xlim_right)
     # plt.axvline(max_n, c='k', linewidth=1)
     # plt.axvline(N_peak, c='b')
     print('N_peri, N_max', N_peak, max_n)
 
-    plt.ylim(bottom=abs(coeffs[0]) / 100)
     # plt.text(
     #     np.sqrt(plt.xlim()[0] * plt.xlim()[1]), max(abs(coeffs)) * 1.5,
     #     r'$(F_{N2} = %.3fN^{%d}e^{-N/%.3f})$' % tuple(params),
@@ -295,7 +297,7 @@ def plot_naked_hansens(m=2, e=0.9):
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
+    plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()

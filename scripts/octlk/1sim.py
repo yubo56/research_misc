@@ -2865,8 +2865,8 @@ if __name__ == '__main__':
 
     # sweep(folder='1sweepbin', nthreads=64)
     # run_emax_sweep(nthreads=32)
-    run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
-                   folder='1sweepbin_emax_long')
+    # run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
+    #                folder='1sweepbin_emax_long')
     # plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
@@ -2971,7 +2971,7 @@ if __name__ == '__main__':
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
-    # plot_laetitia()
+    plot_laetitia()
     # run_laetitia(nthreads=8, e2=0.6, base_fn='e2_6_quad', ntrials=1, mm=0)
 
     # make_nogw_plots()

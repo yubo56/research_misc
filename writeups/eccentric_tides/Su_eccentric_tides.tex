@@ -60,7 +60,19 @@ Astronomy, Cornell University, Ithaca, NY 14853, USA
 \maketitle
 
 \begin{abstract}
-    Abstract
+    Massive stars in eccentric binaries are very important, being the progenitors
+    of neutron star and high-mass X-ray binaries. In such systems, dynamical
+    tides plays a crucial role. However, previous studies of dynamical tides in
+    massive stellar binaries have primarily focused on the case where these
+    binaries are circular. In this work, we revisit the effect of dynamical
+    tides in eccentric, massive stellar binaries and derive analytical
+    expressions that can be used to study binary evolution with arbitrary
+    eccentricities. We apply our results to the radio pulsar J0045--7319, which
+    has a massive B star companion and whose orbital period is rapidly
+    decreasing. In order to reproduce this orbital decay via dynamical tides, we
+    find that the core is likely rotating significantly faster than the measured
+    surface rotation rate. This implies a long core-envelope coupling timescale
+    in B stars.
 \end{abstract}
 
 \begin{keywords}
@@ -441,8 +453,8 @@ introduce less inaccuracy than the approximations used to evaluate the spin
 dependence near pseudosynchronization [Eq.~\eqref{eq:nmax_ansatz}].
 \begin{figure}
     \centering
-    \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_ecc_400.png}
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_ecc_0.png}
+    \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_ecc_400.png}
     \caption{Tidal torque on a non-rotating (top) and rapidly rotating
     ($\Omega_{\rm s} / \Omega = 400$; bottom) star with a companion having
     orbital eccentricity $e$. Blue plus signs represent explicit summation of
@@ -463,9 +475,12 @@ dependence near pseudosynchronization [Eq.~\eqref{eq:nmax_ansatz}].
     p}$, where $\Omega_{\rm p}$ is given by Eq.~\eqref{eq:Wperi}. }\label{fig:totals_s}
 \end{figure}
 
-\textcolor{Corr}{Finally, the synchronization time can be computed}
+\textcolor{Corr}{Finally, the synchronization time can be computed? It's a bit
+complicated, since dissipation happens in the envelope but is driven by the
+core. Assuming differential rotation, synchronization is really enforced by
+magnetic winding or something? Ask Dong}
 \begin{equation}
-    \tau_{\rm sync} = XXXX
+    \tau_{\rm sync} = \frac{\Omega_{\rm s}}{T}kMR^2
 \end{equation}
 
 \subsection{Pseudosynchronization}
@@ -720,6 +735,11 @@ Eq.~\eqref{eq:ein_dot_tot}, in closed form.
         $\rdil{T}{\Omega_{\rm s}} = 0$, which the actual torque does not satisfy.
         This introduces some slight errors in the exact value of the torque very
         near pseudosynchronization.
+
+    \item It is pointed out that the $v \sin i$ for J0045-7319 is $110 \pm 10
+        \;\mathrm{km/s}$, while the breakup frequency is $\sqrt{GM / R} =
+        512\;\mathrm{km/s}$. Thus, it is expected that the stellar surface is
+        rotating at an appreciable fraction of breakup.
 \end{itemize}
 
 \section{Acknowledgements}
