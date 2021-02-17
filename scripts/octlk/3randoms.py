@@ -58,12 +58,13 @@ def plot_LIGOO3a_qhist():
         [64.7, 25.7]
     ]
     qs = [d[1] / d[0] for d in dat]
-    fig = plt.figure(figsize=(6, 6))
+    fig = plt.figure(figsize=(6, 4.5))
     plt.hist(qs, bins=np.linspace(0, 1, 31), color='k')
     plt.xlabel(r'$q$')
     plt.yticks([1, 3, 5, 7], labels=['%d' % d for d in [1, 3, 5, 7]])
     plt.xlim(0, 1)
     plt.ylabel('Count')
+    plt.tight_layout()
     plt.savefig('3qhist', dpi=300)
     plt.close()
 

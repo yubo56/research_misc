@@ -1,4 +1,4 @@
-% for i in 3qhist 1sweepbin/composite_tp 1nogw_sims/1nogw_vec 1sweepbin/composite_1p5dist 1sweepbin/composite_1p3dist 1sweepbin/composite_1p2dist 1sweepbin/composite_e91p5dist 1sweepbin/bindist 1sweepbin/total_merger_fracs 1sweepbin_simple/simpleouter 1popsynth/a2eff3600 1popsynth/a2eff5500 1popsynth/a2eff_nogw_lowq3600 1sweepbin/completeness 1sweepbin_emax_long/1p2dist 1nogw_sims/1nogw_vec88 2dW_sweeps/2_dWsweeps6_2_dual; do cp ../../scripts/octlk/$i.png .; done
+% for i in 3qhist 1sweepbin/composite_tp 1nogw_sims/1nogw_vec_q02_short 1nogw_sims/1nogw_vec_q02 1sweepbin/composite_1p5dist 1sweepbin/composite_1p3dist 1sweepbin/composite_1p2dist 1sweepbin/composite_e91p5dist 1sweepbin/bindist 1sweepbin/total_merger_fracs 1sweepbin_simple/simpleouter 1popsynth/a2eff3600 1popsynth/a2eff5500 1popsynth/a2eff_nogw_lowq3600 1sweepbin/completeness 1sweepbin_emax_long/1p2dist 1nogw_sims/1nogw_vec88 2dW_sweeps/2_dWsweeps6_2_dual; do cp ../../scripts/octlk/$i.png .; done
     \documentclass[
         fleqn,
         usenatbib,
@@ -71,7 +71,7 @@ $^2$ Niels Bohr International Academy, Niels Bohr Institute, Blegdamsvej 17,
     comparable mass to the binary components. However, in this work, we show
     that this enhancement is preferentially more efficient for binaries with
     smaller mass ratios, sometimes by as much as $20\times$. We use a
-    combination of numerical and semi-analytical approaches to fully
+    combination of numerical and analytical approaches to fully
     characterize these octupole-induced binary black hole mergers and provide
     analytical criteria for quickly estimating the strength of this enhancement.
     We show that the resulting observational signature is in tension with the
@@ -84,36 +84,38 @@ binaries:close -- stars:black holes % chktex 8
 
 \section{Introduction}\label{s:intro}
 
-As LIGO/VIRGO continues to detect mergers of black hole (BH) binaries
-\citep[e.g.][]{Abbott:2016blz, abbott2019binary, LIGOO3a}, it is important
-to systematically study various formation channels of BH binaries and their
-observable signatures. The canonical channel consists of isolated binary
-evolution, in which mass transfer and friction in the common envelope phase
-cause the binary orbit to decay sufficiently that it subsequently merges via
-emission of gravitational waves (GW) within a Hubble time
-\citep[e.g.][]{lipunov1997black, lipunov2017first, podsiadlowski2003formation,
-belczynski2010effect, belczynski2016first, dominik2012double, dominik2013double,
-dominik2015double}. BH binaries formed via isolated binary evolution are
-generally expected to have large mass ratios, i.e.\ $q \equiv m_2 / m_1 > 0.5$,
-where $m_1$ is the mass of the primary (more massive) binary component and $m_2$
-is the mass of the secondary \citep{belczynski2016first, olejak2020}. On
-the other hand, various flavors of dynamical formation channels of BH binaries
-have also been studied. These involve either strong gravitational scatterings in
-dense clusters \citep[e.g.][]{zwart1999black, o2006binary, miller2009mergers,
-banerjee2010stellar, downing2010compact, ziosi2014dynamics, rodriguez2015binary,
-samsing2017assembly, samsing2018black, rodriguez2018post, gondan2018eccentric}
-or more gentle ``tertiary-induced mergers'' \citep[e.g.][]{ bin_misc1,
-bin_misc2, bin_misc3, bin_misc4, bin_misc5, blaes2002kozai, miller2002four,
-wen2003eccentricity, antonini2012secular, antonini2017binary, silsbee2017lidov,
-bin1, bin2, randall2018induced, hoang2018black}. The dynamical formation
-channels exhibit a range of distributions for the binary mass ratio
-\citep[e.g.][]{silsbee2017lidov, fragione2019}.
+The almost $50$ black hole (BH) binary mergers detected by the LIGO/VIRGO
+collaboration to date \citep{LIGOO3a} continue to motivate studies of their
+formation channels. These include the traditional isolated binary evolution, in
+which mass transfer and friction in the common envelope phase cause the binary
+orbit to decay sufficiently that it subsequently merges via emission of
+gravitational waves (GW) within a Hubble time \citep[e.g.][]{lipunov1997black,
+lipunov2017first, podsiadlowski2003formation, belczynski2010effect,
+belczynski2016first, dominik2012double, dominik2013double, dominik2015double}
+and various flavors of dynamical formation channels that involve either strong
+gravitational scatterings in dense clusters \citep[e.g.][]{zwart1999black,
+o2006binary, miller2009mergers, banerjee2010stellar, downing2010compact,
+ziosi2014dynamics, rodriguez2015binary, samsing2017assembly, samsing2018black,
+rodriguez2018post, gondan2018eccentric} or mergers in isolated triple and
+quadruple systems induced by the von Zeipel-Lidov-Kozai effect
+\citep[e.g.][]{blaes2002kozai, miller2002four, wen2003eccentricity,
+antonini2012secular, antonini2017binary, silsbee2017lidov, bin1, LL18,
+randall2018induced, hoang2018black, fragione2019, fragione2019loeb, LL19,
+bin_misc5, bin_misc1, bin_misc2}.
 
-GW observations of merging binaries are able to put constraints on the
-individual component masses and therefore $q$. A histogram of the $q$ for all
-binary BH mergers in the LIGO O3a dataset is shown in Fig.~\ref{fig:qhist}. A
-clear preference for larger $q$ is evident, though events with small $q$ have
-also been observed \citep[GW190814 and GW190412,][]{LIGOO3a}.
+Previous studies have considered differentiating between these formation
+channels using the observed distribution of the eccentricity \citep[e.g.][]{LL18,
+LL19} or the spin-orbit misalignment angle \citep[e.g.][]{LL18, su2020spin}.
+However, it may also be possible to differentiate between these channels by
+considering their signatures in the mass ratio distribution of mergers. In
+Figure~\ref{fig:qhist}, we give the values of $q \equiv m_2 / m_1$, where $m_1$
+is the mass of the primary (more massive) binary component and $m_2$ is the mass
+of the secondary, for all binaries detected to date. A preference for large mass
+ratios is evident. BH binaries formed via isolated binary evolution are
+generally expected to have large mass ratios, i.e.\ $q \gtrsim 0.5$
+\citep{belczynski2016first, olejak2020}. On the other hand, the dynamical
+formation channels produce a larger variety of distributions for the binary mass
+ratio \citep[e.g.][]{silsbee2017lidov, fragione2019}.
 
 \begin{figure}
     \centering
@@ -125,271 +127,247 @@ also been observed \citep[GW190814 and GW190412,][]{LIGOO3a}.
     }\label{fig:qhist}
 \end{figure}
 
-In the tertiary-induced merger channel, different studies have obtained
-different binary mass ratio distributions due to differing assumptions about the
-properties of the inner BH binary at its formation. However, these studies
-generally show that the mass ratio distribution for merging binaries is more
-weighted towards smaller mass ratios than the initial distribution
-\citep{silsbee2017lidov, fragione2019}. This implies that binaries with lower
-mass ratios merge more readily via the tertiary-induced channel than do ones
-with higher mass ratios. The origin of this preference is not well studied.
-
-To understand this effect, we study the tertiary-induced merger channel where
-the tertiary induces phases of extreme eccentricity in the inner binary via the
-octupole-order von Zeipel-Lidov-Kozai (ZLK) effect, also sometimes known as the
+In this paper, we study in detail the mass ratio distribution for BH mergers via
+the comparable-mass isolated triple channel. In this channel, a tertiary BH with
+mass comparable to the binary components induces phases of extreme
+eccentricity in the inner binary via the octupole-order von Zeipel-Lidov-Kozai
+(ZLK;\@\citealp{zeipel, lidov, kozai}) effect, also sometimes known as the
 eccentric Kozai mechanism \citep[e.g.][]{lithwick2011eccentric}. The
 octupole-order terms are important when the system is only mildly hierarchical
 and when the tertiary is on an eccentric orbit, which can be the case when the
-tertiary is of mass comparable to the binary components, and they generally
-enhance the rate of successful binary mergers \citep{ll18}. We show that this
-enhancement is stronger for binaries with smaller mass ratios. We review
-existing results in Section~\ref{s:background}, describe the basic behavior of
-the triple system in Section~\ref{s:with_gw}, calculate the merger fractions as
-a function of mass ratio in Section~\ref{s:merger_frac}, and conclude and
-discuss in Section~\ref{s:conclusion}.
+BH masses are comparable. These terms generally enhance the rate of successful
+binary mergers \citep{LL18}. We show that this enhancement is preferentially
+stronger for binaries with smaller mass ratios.
 
-\section{Dynamics Without Gravitational Wave Radiation}\label{s:background}
+We review some analytical results of ZLK oscillations in
+Section~\ref{s:background}, study tertiary-induced BH mergers in
+Section~\ref{s:with_gw}, calculate the merger fractions as a function of mass
+ratio in Section~\ref{s:merger_frac}, and conclude and discuss in
+Section~\ref{s:conclusion}.
+
+\section{Von Zeipel-Lidov-Kozai Oscillations: Analytical
+Results}\label{s:background}
 
 Consider two BHs orbiting each other with masses $m_1$ and $m_2$ on a orbit with
-semimajor axis $a$, eccentricity $e$, and angular momentum vector $\bm{L} \equiv
-L\uv{L}$. Additionally, consider a third BH of mass $m_3$ orbiting this binary
-with semimajor axis $a_{\rm out}$ and eccentricity $e_{\rm out}$, with angular
-momentum vector $\bm{L}_{\rm out} \equiv L_{\rm out} \uv{L}_{\rm out}$. We
-define $q \equiv m_2 / m_1$, the mass ratio, and $m_{12} = m_1 + m_2$, the total
-mass of the inner binary. Our fiducial parameters are: $a = 100\;\mathrm{AU}$,
-$a_{\rm out, eff} = 4500\;\mathrm{AU}$, $e_{\rm out} = 0.6$, $m_{12} =
-50M_{\odot}$, $m_3 = 30M_{\odot}$. We take the initial inner binary eccentricity
-to be $e_0 = 10^{-3}$.
+semimajor axis $a$, eccentricity $e$, and angular momentum $L$. Additionally,
+consider a third BH of mass $m_3$ orbiting this binary with semimajor axis
+$a_{\rm out}$, eccentricity $e_{\rm out}$, and angular momentum $L_{\rm
+out}$. The reduced masses of the inner and outer binaries are $\mu \equiv m_1m_2
+/ m_{12}$ and $\mu_{\rm out} \equiv m_{12} m_3 / m_{123}$ respectively, where
+$m_{12} = m_1 + m_2$ and $m_{123} = m_{12} + m_3$. These two binary orbits are
+further described by three angles: the inclinations $i$ and $i_{\rm out}$, the
+arguments of pericenters $\omega$ and $\omega_{\rm out}$, and the longitudes of
+the ascending nodes $\Omega$ and $\Omega_{\rm out}$. These angles are defined in
+a coordinate system where the $z$ axis is aligned with the total angular
+momentum. The mutual inclination between the two systems is denoted $I \equiv i
++ i_{\rm out}$. Note that, by conservation of angular momentum, $\Omega_{\rm
+out} = \Omega + 180^\circ$.
 
-To define the coordinate system, we choose the $\uv{z}$ axis pointing along the
-total angular momentum, $\bm{L}_{\rm tot} = \bm{L} + \bm{L}_{\rm out}$. In this
-coordinate system, we denote the longitude of the ascending node and argument of
-pericenter of the inner and outer orbits by $\Omega$, $\omega$, $\Omega_{\rm
-out}$, and $\omega_{\rm out}$ respectively. Note that, by conservation of
-angular momentum, $\Omega_{\rm out} = \Omega + \pi$.
+To study the evolution of the inner binary under the influence of the tertiary
+BH, we use the double-averaged secular equations of motion including the
+contributions from the tertiary up to the octupole level of approximation as
+given by \citet{LML15}. For the remainder of this section, we include general
+relativistic apsidal precession, a first post-Newtonian order (1PN) effect, but
+omit the emission of GWs, a 2.5PN effect. This will be considered in
+Section~\ref{s:with_gw}. We group the results by increasing order of
+approximation, starting by ignoring the octupole-order effects entirely.
 
-We study this system using the octupole-order, double-averaged vectorial ZLK
-equations from \citet{LML15}, including general relativistic apsidal precession,
-a first post-Newtonian order (1PN) effect. For the remainder of this section, we
-review a few results in the absence of gravitational wave (GW) radiation, a
-2.5PN effect (to be considered in Section~\ref{s:with_gw}). We group these
-results by increasing order of approximation, starting by ignoring the
-octupole-order effects entirely.
+\subsection{Quadrupole Order}
 
-\subsection{Quadrupole-Order ZLK}
-
-The primary feature of the quadrupole-order dynamics are cycles of the inner
-binary's eccentricity from $e \ll 1$ to a consistent maximum $e_{\rm \max, q}$.
-These cycles occur over characteristic time scale $\sim t_{\rm ZLK}$, where
+At the quadrupole order, the tertiary induces eccentricity oscillations in the
+inner binary on characteristic timescale
 \begin{equation}
     t_{\rm ZLK} = \frac{1}{n}\frac{m_{12}}{m_3}
             \p{\frac{a_{\rm out, eff}}{a}}^3,\label{eq:def_tzlk}
 \end{equation}
 where $n \equiv \sqrt{Gm_{12} / a^3}$ is the mean motion of the inner binary,
 and $a_{\rm out, eff} \equiv a_{\rm out}\sqrt{1 - e_{\rm out}^2}$. During these
-eccentricity cycles, there are two conserved quantities, the total energy and
-the total orbital angular momentum. Through some manipulation, the total angular
-momentum can be written in terms of the conserved quantity $K$ \citep{LML15},
-where
+oscillations, there are two conserved quantities, the total energy and the total
+orbital angular momentum. Through some manipulation, the total angular momentum
+can be written in terms of the conserved quantity $K$ \citep{LML15}, where
 \begin{equation}
     K \equiv j(e) \cos I - \eta e^2 / 2. \label{eq:def_K}
 \end{equation}
-Here, $j(e) \equiv \sqrt{1 - e^2}$, $I \equiv \cos^{-1}(\uv{L} \cdot
-\uv{L}_{\rm out})$ is the mutual inclination, and $\eta$ is the ratio of the
-magnitudes of the angular momenta at zero inner binary eccentricity:
+Here, $j(e) \equiv \sqrt{1 - e^2}$ and $\eta$ is the ratio of the magnitudes of
+the angular momenta at zero inner binary eccentricity:
 \begin{equation}
     \eta \equiv \at{\frac{L}{L_{\rm out}}}_{e = 0}
         = \frac{\mu}{\mu_{\rm out}}\s{\frac{m_{12}a}
-            {m_{123}a_{\rm out}\p{1 - e_{\rm out}^2}}}^{1/2},\label{eq:def_eta}
+            {m_{123}a_{\rm out}\p{1 - e_{\rm out}^2}}}^{1/2}.\label{eq:def_eta}
 \end{equation}
-where $\mu \equiv m_1m_2 / m_{12}$, $m_{123} = m_{12} + m_3$, and $\mu_{\rm out}
-\equiv m_{12} m_3 / m_{123}$. Note that when $\eta = 0$, $K$ reduces to the
-classical ``Kozai constant'', $K = j(e) \cos I$.
+Note that when $\eta = 0$, $K$ reduces to the classical ``Kozai constant'', $K =
+j(e) \cos I$.
 
-During these eccentricity cycles, the binary spends a fraction $\sim
-j(e_{\rm \max, q})$ of each ZLK eccentricity cycle near $e_{\rm \max, q}$
-\citep{anderson2016formation}. The exact value of $e_{\rm \max, q}$ depends on the
-general relativistic apsidal precession, which induces precession of the
-eccentricity vector $\bm{e}$ of the inner binary as
-\begin{equation}
-    \at{\rd{\bm{e}}{t}}_{\rm GR} = \Omega_{\rm GR}\uv{L} \times \bm{e}
-        = \frac{3Gnm_{12}}{c^2aj^2(e)}\uv{L} \times \bm{e}.
-\end{equation}
-It is useful to quantify the relative strength of this precession via the
-parameter
+The maximum eccentricity $e_{\max}$ attained in these ZLK oscillations can be
+computed analytically at the quadrupolar order. It depends on the strength of
+the general relativistic apsidal precession, which induces precession of the
+eccentricity vector $\bm{e}$ about $\bm{L}$. It is useful to quantify the
+relative strength of this precession via the parameter
 \begin{equation}
     \epsilon_{\rm GR} \equiv \p{\Omega_{\rm GR} t_{\rm ZLK}}_{e = 0}
         = \frac{3Gm_{12}}{c^2} \frac{m_{12}}{m_3}\frac{a_{\rm out, eff}^3}{a^4}.
 \end{equation}
-It can then be shown that $e_{\rm \max, q}$ and the initial mutual inclination $I_{\rm
+It can then be shown that $e_{\max}$ and the initial mutual inclination $I_{\rm
 0}$ satisfy \citep{LML15, anderson2016formation}:
 \begin{align}
-    \frac{3}{8}\frac{j^2(e_{\rm \max, q}) - 1}{j^2(e_{\rm \max, q})}\Big[&
+    \frac{3}{8}\frac{j^2(e_{\max}) - 1}{j^2(e_{\max})}\Big[&
         5\p{\cos I_0 + \frac{\eta}{2}}^2
-        - \p{3 + 4\eta \cos I_0 + \frac{9}{4}\eta^2}j^2(e_{\rm \max, q})
+        - \p{3 + 4\eta \cos I_0 + \frac{9}{4}\eta^2}j^2(e_{\max})
             \nonumber\\
-        &+ \eta^2 j^4(e_{\rm \max, q})
-    \Big] + \epsilon_{\rm GR}\s{1 - 1 / j(e_{\rm \max, q})} = 0.\label{eq:emax_quad}
+        &+ \eta^2 j^4(e_{\max})
+    \Big] + \epsilon_{\rm GR}\s{1 - 1 / j(e_{\max})} = 0.\label{eq:emax_quad}
 \end{align}
-This only has solutions when $(\cos I_{\rm 0})_- \leq \cos I_{\rm 0} \leq (\cos
-I_{\rm 0})_+$ where
-\begin{equation}
-    \p{\cos I_{\rm 0}}_{\pm} = \frac{1}{10}\p{-\eta \pm \sqrt{\eta^2 + 60 -
-        20\epsilon_{\rm GR}}}.\label{eq:I0bounds}
-\end{equation}
-For $I_{\rm 0}$ outside of this range, there are no ZLK oscillations. This
-condition reduces to the well-known $\cos^2 I_{\rm 0} \leq 3/5$ when $\eta =
-\epsilon_{\rm GR} = 0$.
-
-Additionally, the maximum value of $e_{\rm \max, q}$ across all $I_0$, denoted
-$e_{\lim}$, occurs when $I_{\rm 0} = I_{\rm 0, \lim}$, where
+In the limit $\eta \to 0$ and $\epsilon_{\rm GR} \to 0$, we recover the
+well-known $e_{\max} = \sqrt{1 - (5/3) \cos^2 I_0}$. For general $\eta$,
+$e_{\max}$ attains its limiting value $e_{\lim}$ when $I_{\rm 0} = I_{\rm 0,
+\lim}$, where
 \begin{equation}
     \cos I_{\rm 0, \lim} = \frac{\eta}{2}\s{\frac{4}{5}j^2(e_{\lim}) -
         1}.\label{eq:I0lim}
 \end{equation}
 Note that $I_{\rm 0, \lim} \geq 90^\circ$ with equality only when $\eta
-= 0$. Substituting Eq.~\eqref{eq:I0lim} into Eq.~\eqref{eq:emax_quad}
-gives
+= 0$. Substituting Eq.~\eqref{eq:I0lim} into Eq.~\eqref{eq:emax_quad}, we find
+that $e_{\lim}$ satisfies
 \begin{align}
     \frac{3}{8}\s{j^2(e_{\lim}) - 1}&\s{-3 + \frac{\eta^2}{4}
         \p{\frac{4}{5}j^2(e_{\lim}) - 1}}\nonumber\\
         &+ \epsilon_{\rm GR}\s{1 - 1 / j(e_{\lim})} = 0.
         \label{eq:def_elim}
 \end{align}
+On the other hand, eccentricity excitation ($e_{\max} \geq 0$) is only possible
+when $(\cos I_{\rm 0})_- \leq \cos I_{\rm 0} \leq (\cos I_{\rm 0})_+$ where
+\begin{equation}
+    \p{\cos I_{\rm 0}}_{\pm} = \frac{1}{10}\p{-\eta \pm \sqrt{\eta^2 + 60 -
+        \frac{80}{3}\epsilon_{\rm GR}}}.\label{eq:I0bounds}
+\end{equation}
+For $I_{\rm 0}$ outside of this range, no eccentricity excitation is possible.
+This condition reduces to the well-known $\cos^2 I_{\rm 0} \leq 3/5$ when $\eta
+= \epsilon_{\rm GR} = 0$.
 
-\subsection{Octupole-Order ZLK, Test-Particle Limit}
+\subsection{Octupole Order: Test-particle Limit}\label{ss:oct_tp}
 
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{composite_tp.png}
-    \caption{Plot of the maximum eccentricity achieved for a binary with
-    starting mutual inclination $50^\circ < I_{\rm 0} < 130^\circ$ [spanning
-    most of the ZLK-active region, Eq.~\eqref{eq:I0bounds}] for the fiducial
-    parameters ($a = 100\;\mathrm{AU}$, $a_{\rm out, eff} = 3600\;\mathrm{AU}$,
-    $m_{12} = 50M_{\odot}$, $m_3 = 30M_{\odot}$) where $e_{\rm out} = 0.6$ and
-    $q \equiv m_2 / m_1 = 0.01$, i.e.\ in the test-particle regime $\eta \ll 1$
-    [Eq.~\eqref{eq:def_eta}]. Simulations are run for $2000t_{\rm ZLK}$
-    [Eq.~\eqref{eq:def_tzlk}] including octupole-order terms, for $1000$ initial
-    inclinations. Each $I_{\rm 0}$ is further simulated five times with the
-    initial orbital elements $\omega$, $\omega_{\rm out}$, and $\Omega =
-    \Omega_{\rm out} - \pi$ chosen randomly $\in [0, 2\pi)$ % chktex 9
-    for each simulation. The dotted black line shows $e_{\rm \max, q}$ given by
-    Eq.~\eqref{eq:emax_quad}, and $e_{\lim}$ [Eq.~\eqref{eq:def_elim}] is shown
-    as the horizontal red line. The vertical purple lines denote the boundary of
-    the predicted octupole-active inclinations in the test-particle regime using
-    the fitting formula from \citet{MLL16} [Eq.~\eqref{eq:I_oct_MLL}].
+    \caption{Plot of the maximum eccentricity achieved for a binary in the
+    test-particle limit with starting mutual inclination $50^\circ < I_{\rm 0} <
+    130^\circ$ [spanning most of the ZLK-active region, Eq.~\eqref{eq:I0bounds}]
+    with $a = 100\;\mathrm{AU}$, $a_{\rm out, eff} = 3600\;\mathrm{AU}$, $m_{12}
+    = 50M_{\odot}$, $m_3 = 30M_{\odot}$, $e_{\rm out} = 0.6$, and $q \ll 1$.
+    Simulations are run for $2000t_{\rm ZLK}$ [Eq.~\eqref{eq:def_tzlk}]
+    including octupole-order terms, for $1000$ initial inclinations. Each
+    $I_{\rm 0}$ is further simulated five times with the initial orbital
+    elements $\omega$, $\omega_{\rm out}$, and $\Omega = \Omega_{\rm out} - \pi$
+    chosen randomly $\in [0, 2\pi)$ % chktex 9
+    for each simulation. The dotted
+    black line shows $e_{\max}$ given by Eq.~\eqref{eq:emax_quad}, and
+    $e_{\lim}$ [Eq.~\eqref{eq:def_elim}] is shown as the horizontal red line.
+    The vertical purple lines denote the boundary of the predicted
+    octupole-active inclinations in the test-particle regime using the fitting
+    formula from \citet{MLL16} [Eq.~\eqref{eq:I_oct_MLL}].
     }\label{fig:composite_tp}
 \end{figure}
 
-To begin to understand the ZLK dynamics at octupole order, we first restrict our
-discussion to the well-studied test-particle limit, where $m_2 = \eta = 0$. In
-this limit, the equations of motion are symmetric about $I_{\rm 0} = 90^\circ$,
-so $I_{\rm 0, \lim} = 90^\circ$. The strength of the octupole-order effects is
-quantified by the dimensionless parameter \citep{katz2011long,
-lithwick2011eccentric, naoz2012formation}
-\begin{equation}
-    \epsilon_{\rm oct}^{\rm (tp)} = \frac{a}{a_{\rm
-        out}} \frac{e_{\rm out}}{1 - e_{\rm out}^2}.\label{eq:eps_oct_tp}
-\end{equation}
-
-When $\epsilon_{\rm oct} > 0$, $K = j(e) \cos I$ is no longer conserved, and the
-system becomes non-integrable and chaotic \citep{ford2000secular, katz2011long,
-lithwick2011eccentric}. As a result, $e_{\rm \max, q}$ is no longer consistent
-among cycles, and orbit flips become possible, where $I$ flips from prograde ($I
-< 90^\circ$) to retrograde ($I > 90^\circ$) and back. During these orbit flips,
-$e$ generally attains the limiting value $e_{\lim}$ even when $I_{\rm 0} \neq
-I_{\rm 0, \lim}$ \citep{lithwick2011eccentric, LML15}. The origin of these orbit
-flips is due to oscillations in $K$ over long timescales $\gg t_{\rm ZLK}$, as
-if $K$ changes signs, the sign of $\cos I$ must also change, corresponding to an
-orbit flip. \citet{katz2011long} calculate the amplitude of these oscillations
-analytically, assuming $\omega$ is circulating, and use their calculation to
-predict a a range of inclinations $I_{\rm flip, -} \lesssim I_0 \lesssim I_{\rm
-flip, +}$ over which orbit flips occur and $e_{\lim}$ is attained; we refer to
-this as an \emph{octupole-active window}. However, their calculation is only
-accurate for $\epsilon_{\rm oct} \ll 1$; a more general fitting formula is given
-by \citep{MLL16}
-\begin{equation}
-    \cos^2 I_{\rm flip, \pm} = \begin{cases}
-        0.26\p{\frac{\epsilon_{\rm oct}^{\rm(tp)}}{0.1}}
-            - 0.536\p{\frac{\epsilon_{\rm oct}^{\rm(tp)}}{0.1}}^2\\
-            \quad + 12.05\p{\frac{\epsilon_{\rm oct}^{\rm(tp)}}{0.1}}^3
-            - 16.78\p{\frac{\epsilon_{\rm oct}^{\rm(tp)}}{0.1}}^4
-            & \epsilon_{\rm oct}^{\rm(tp)} \lesssim 0.05,\\
-        0.45 & \epsilon_{\rm oct}^{\rm(tp)} \gtrsim 0.05.
-    \end{cases} \label{eq:I_oct_MLL}
-\end{equation}
-The accuracy of this fitting formula is displayed in
-Fig.~\ref{fig:composite_tp}, where we evolve a system for which $m_2 \ll m_1$
-for $2000t_{\rm ZLK}$ using a range of $I_0$. We record the maximum eccentricity
-$e_{\max}$ obtained by the inner binary\footnote{Note that we use $e_{\rm \max,
-q}$ to denote the eccentricity maximum for a single quadrupole-order ZLK cycle,
-and $e_{\max}$ to denote the maximum eccentricity over longer periods of time,
-e.g.\ $t_{\rm ZLK, oct}$.},
-and find that it attains $e_{\lim}$ if and
-only if $I_0$ is within the octupole-active window as given by
-Eq.~\eqref{eq:I_oct_MLL}.
-
-Finally, the characteristic timescale of these orbit flips is approximately
-\citep{antognini2015timescales}
-\begin{equation}
-    t_{\rm ZLK, oct} = t_{\rm ZLK}\frac{128\sqrt{10}}{
-        15\pi\sqrt{\epsilon_{\rm oct}^{\rm(tp)}}}.\label{eq:def_tzlkoct}
-\end{equation}
-
-\subsection{Octupole-Order ZLK, General Masses}\label{ss:oct_gen}
-
-\begin{figure}
-    \centering
-    \includegraphics[width=\colummwidth]{1nogw_vec.png}
-    \caption{Example octupole-order, finite-mass simulation showing orbit
-    flipping. We use mostly the same system parameters as in
-    Fig.~\ref{fig:composite_tp} but have $e_{\rm out} = 0.6$, $q = 0.2$, and
-    $I_0 = 93.5^\circ$. The four panels show the inner orbit eccentricity, the
-    mutual inclination, $K$ [Eq.~\eqref{eq:def_K}], and the azimuthal angle of
-    the inner eccentricity vector $\Omega_{\rm e} \equiv \tan^{-1}(e_y / e_x)$.
-    By comparing the second and third panels, we see that orbit flips occur when
-    $K$ crosses the dotted line $K = K_{\rm c} \equiv -\eta / 2$. Furthermore,
-    note that the times when the angle $\Omega_{\rm e}$ changes slowly (which
-    occurs when $\omega$ is circulating) are when $K$ oscillates sinusoidally,
-    similar to the test-particle regime \citep{katz2011long}.
-    }\label{fig:nogw_fiducial}
-\end{figure}
-When $m_1$ and $m_2$ are comparable, Eq.~\eqref{eq:eps_oct_tp} generalizes to
-\citep{LML15, anderson2016formation, ll18}
+The relative strength of the octupole-order potential to the quadrupole-order
+potential is given by the quantity
 \begin{equation}
     \epsilon_{\rm oct} = \frac{m_1 - m_2}{m_{12}} \frac{a}{a_{\rm out}}
         \frac{e_{\rm out}}{1 - e_{\rm out}^2}.\label{eq:eps_oct}
 \end{equation}
-As we will see, the comparable-mass regime exhibits much new behavior compared
-to the test-particle regime \citep[see also][]{rodet_inprep}, but some results
-from the previous section still hold. In particular, $K$ still slowly fluctuates
-when $\omega$ is circulating, and orbit flips occur when $K$ crosses $K = K_{\rm
-c} \equiv -\eta / 2$ [by Eq.~\eqref{eq:def_K}, this is where $\cos I$ changes
-signs]; see Fig.~\ref{fig:nogw_fiducial} for an example simulation showing this
-behavior in the comparable-mass case.
+When $\epsilon_{\rm oct}$ is non-negligible, $K$ is no longer conserved, and the
+system evolution becomes chaotic \citep{ford2000secular, katz2011long,
+lithwick2011eccentric}. As a result, analytic results have only been given for
+the test-particle limit, where $m_2 = \eta = 0$, which we review briefly.
 
-However, in this regime, the dynamics are no longer symmetric about $I_0 =
-90^\circ$. This significantly complicates the simple octupole-active inclination
-window shown in Fig.~\ref{fig:composite_tp}, which can be contrasted with the
-analogous top panels of
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist} that illustrate the
-behavior of the maximum inner binary eccentricity for a variety of system
-parameters. The system always has an octupole-active window in the vicinity of
-$I_{\rm 0, \lim}$, but only sometimes achieves $e_{\lim}$ for prograde
-inclinations. In fact, the $e_{\max}$ curve is clearly double-valued, such that
-even when $\epsilon_{\rm oct}$ is very large (Fig.~\ref{fig:composite_1p2}),
-there are inclination ranges for which $e_{\lim}$ is only attained for some
-fraction of all possible initial conditions of the system. In between these two
-inclination ranges, there is a persistent range of inclinations $I_{\rm 0}
-\approx 90^\circ$ for which $e_{\max} = e_{\rm \max, q}$ in spite of a substantial
-$\epsilon_{\rm oct}$. We refer to this as the ``octupole-inactive gap'' and
-further investigate its origin in Appendix~\ref{app:gap}.
+Due to the non-conservation of $K$, $e_{\max}$ changes between ZLK cycles, and
+the orbit may even flip between prograde ($I < 90^\circ$) and retrograde ($I >
+90^\circ$) if $K$ changes sign (in the test-particle limit, $K = j(e) \cos I$).
+During these orbit flips, the eccentricity maxima reach their largest values but
+do not exceed $e_{\lim}$ \citep{lithwick2011eccentric, LML15,
+anderson2016formation}. These orbit flips occur on characteristic timescale
+$t_{\rm ZLK, oct}$, given by \citep{antognini2015timescales}
+\begin{equation}
+    t_{\rm ZLK, oct} = t_{\rm ZLK}\frac{128\sqrt{10}}{
+        15\pi\sqrt{\epsilon_{\rm oct}}}.\label{eq:def_tzlkoct}
+\end{equation}
+They tend to widen the inclination range for which the eccentricity can reach
+$e_{\lim}$; we refer to this widened range as the \emph{octupole-active window}.
+\citet{katz2011long} show that this window can be approximated using
+analytical arguments when $\epsilon_{\rm oct} \ll 1$. \citet{MLL16} give a more
+general numerical fitting formula describing the octupole-active window for
+arbitrary $\epsilon_{\rm oct}$. They find that orbit flips and extreme
+eccentricity excitation occur for $I_{\rm flip, -} \lesssim I_0 \lesssim I_{\rm
+flip, +}$ where
+\begin{equation}
+    \cos^2 I_{\rm flip, \pm} = \begin{cases}
+        0.26\p{\frac{\epsilon_{\rm oct}}{0.1}}
+            - 0.536\p{\frac{\epsilon_{\rm oct}}{0.1}}^2\\
+            \quad + 12.05\p{\frac{\epsilon_{\rm oct}}{0.1}}^3
+            - 16.78\p{\frac{\epsilon_{\rm oct}}{0.1}}^4
+            & \epsilon_{\rm oct} \lesssim 0.05,\\
+        0.45 & \epsilon_{\rm oct} \gtrsim 0.05.
+    \end{cases} \label{eq:I_oct_MLL}
+\end{equation}
+Figure~\ref{fig:composite_tp} shows the maximum $e_{\max}$ attained by the inner
+binary when integrated for $2000t_{\rm ZLK}$ as a function of $I_0$. We see that
+$e_{\max}$ attains $e_{\lim}$ only when $I_0$ is within the octupole-active
+window given by Eq.~\eqref{eq:I_oct_MLL}.
 
-\section{Dynamics With Gravitational Wave Radiation}\label{s:with_gw}
+\subsection{Octupole Order: General Masses}\label{ss:oct_gen}
 
-Emission of gravitational waves (GWs) also affects the evolution of $\bm{L}$ and
-$\bm{e}$, which can be incorporated into the equations of motion
-\citep{peters1964, ll18}. The associated orbital and eccentricity decay rates
+The case when $\eta$ is non-negligible is less well-studied.
+Figure~\ref{fig:nogw_fiducial} shows an example simulation when $\epsilon_{\rm
+oct}$ is non-negligible. Many aspects of the evolution discussed in
+Section~\ref{ss:oct_tp} are still observed: the ZLK eccentricity maxima and $K$
+vary over timescales $\gg t_{\rm ZLK}$, and when $K$ crosses $K_{\rm c} \equiv
+-\eta / 2$ [this follows by inspection of Eq.~\eqref{eq:def_K}], orbit flips
+occur. Additionally, $e_{\max}$ never exceeds $e_{\lim}$.
+
+However, Eq.~\eqref{eq:I_oct_MLL} no longer describes the octupole-active window
+\citep[see also][]{rodet_inprep}. In the top panel of
+Figure~\ref{fig:composite_dist}, the blue dots show the maximum achieved
+eccentricity of a system with the same parameters as
+Fig.~\ref{fig:nogw_fiducial} except with $q = 0.5$. Here, it can be seen that no
+prograde systems can attain $e_{\lim}$, and only a small range of retrograde
+inclinations $\geq I_{\rm 0, \lim}$ are able to reach $e_{\lim}$. In fact, there
+is even a clear double valued feature around $I \approx 75^\circ$ that is not
+present in Fig.~\ref{fig:composite_tp}. If $q$ is decreased to $0.3$
+(Fig.~\ref{fig:composite_1p3}) or further to $0.2$
+(Fig.~\ref{fig:composite_1p2}), $\epsilon_{\rm oct}$ is increased. This permits
+a larger number of prograde systems to reach $e_{\lim}$, though a small range of
+inclinations near $I_0 = 90^\circ$ still do not reach $e_{\lim}$; we call this
+range of inclinations the ``octupole-inactive gap''. On the other hand, if $q$
+is held at $0.5$ and $e_{\rm out}$ is increased to $0.9$ while holding $a_{\rm
+out, eff} = 3600\;\mathrm{AU}$ constant, both $\epsilon_{\rm oct}$ and $\eta$
+increase; Figure~\ref{fig:composite_e91p5} shows that prograde systems still
+fail to reach $e_{\lim}$ for these parameters, despite the increase in
+$\epsilon_{\rm oct}$. Figure~\ref{fig:composite_bindist} illustrates
+the behavior when the inner binary is substantially more compact ($a =
+10\;\mathrm{AU}$). Even though $\epsilon_{\rm oct}$ is even larger than it is in
+Fig.~\ref{fig:composite_e91p5}, we still see that prograde perturbers fail to
+attain $e_{\lim}$. This illustrates the importance of $\eta$ in determining
+which inclinations are able to attain $e_{\lim}$. Finally, in all five of these
+plots, we observe a range of retrograde inclinations that attain $e_{\lim}$.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\colummwidth]{1nogw_vec_q02_short.png}
+    \caption{Sample octupole-order, finite-mass simulation showing orbit
+    flipping. We use the same system parameters as Fig.~\ref{fig:composite_tp}
+    except for $q = 0.2$ and $I_0 = 93.5^\circ$. The three panels show the
+    inner orbit eccentricity, the mutual inclination, and $K$
+    [Eq.~\eqref{eq:def_K}]. In the first panel, $e_{\lim}$ is denoted by the
+    black dashed line. By comparing the second and third panels, we see that
+    orbit flips occur when $K$ crosses the dotted line, given by $K = K_{\rm c}
+    \equiv -\eta / 2$.
+    }\label{fig:nogw_fiducial}
+\end{figure}
+
+\section{Tertiary-Induced Black Hole Mergers}\label{s:with_gw}
+
+Emission of gravitational waves (GWs) also affects the evolution of the inner
+binary, which can be incorporated into the equations of motion
+\citep{peters1964, LL18}. The associated orbital and eccentricity decay rates
 are
 \begin{align}
     \at{\frac{1}{a}\rd{a}{t}}_{\rm GW} &\equiv \frac{1}{t_{\rm GW}}\nonumber\\
@@ -398,69 +376,75 @@ are
     \at{\rd{e}{t}}_{\rm GW} &= -\frac{304}{15}\frac{G^3 \mu m_{12}^2}{c^5a^4}
         \frac{1}{j^{5}(e)}\p{1 + \frac{121}{304}e^2}\label{eq:dedt_gw}.
 \end{align}
+GW emission can cause the orbit to decay significantly when extreme
+eccentricities are reached during the ZLK cycles described in the previous
+section. This can allow even very wide binaries ($\sim 100\;\mathrm{AU}$) to
+merge efficiently within a Hubble time with the aid of an inclined tertiary body
+\citep{LL18, LL19}. In this section, we study this process in detail. Our
+fiducial system parameters are as in Fig.~\ref{fig:nogw_fiducial}: $a =
+100\;\mathrm{AU}$, $a_{\rm out, eff} = 4500\;\mathrm{AU}$, $e_{\rm out} = 0.6$,
+$m_{12} = 50M_{\odot}$, $m_3 = 30M_{\odot}$. We take the initial inner binary
+eccentricity to be $e_0 = 10^{-3}$.
 
-\subsection{Merger Windows and Probability}
+\subsection{Merger Windows and Probability}\label{ss:windows}
 
-If the eccentricity maxima of the ZLK cycles are sufficiently large, GW
-radiation at $e \simeq e_{\rm \max, q}$ can be sufficiently enhanced that even very
-wide binaries such as those studied here ($a = 100\;\mathrm{AU}$) can be induced
-to merge within $10\;\mathrm{Gyr}$, a Hubble time \citep{ll18, LL19}. For the
-same range of initial conditions considered in Section~\ref{s:background}, we
-simulate the octupole-order ZLK equations and include GW radiation to understand
-what systems successfully merge in under $10\;\mathrm{Gyr}$. To be precise, a
-system is considered to successfully merge if it reaches $a = 0.5\;\mathrm{AU}$.
-The resulting merger times $T_{\rm m}$ as a function of $I_0$ are shown in the
-middle panels of Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}.
+To understand what initial conditions are able to successfully merge within a
+Hubble time, we simulate the octupole-order ZLK equations including GW
+radiation. We terminate the simulation if either $a = 0.005a_0$ (a successful
+merger) or the system age reaches $10\;\mathrm{Gyr}$. The middle panel of
+Fig.~\ref{fig:composite_dist} illustrates this for $q = 0.5$ in the fiducial
+parameter regime. We note that only retrograde inclinations successfully merge,
+while almost all successful mergers are rapid, $T_{\rm
+m} \sim t_{\rm ZLK, oct}$. These are the result of a system merging by emitting
+a single large burst of GW radiation during an extreme-eccentricity ZLK cycle,
+which we term a ``one-shot merger''. In Fig.~\ref{fig:composite_1p3}, $q$ is
+decreased to $0.3$, and prograde systems are also able to merge successfully.
+However, these prograde systems exhibit a broad range of $T_{\rm m} \gtrsim
+t_{\rm ZLK, oct}$. These occur when system gradually emits a small amount of
+GW radiation at every eccentricity maximum, which we term a ``smooth merger''.
+Additionally, the octupole-inactive gap is visible here near $I_0 = 90^\circ$.
+The middle panels of Figs.~\ref{fig:composite_1p2}--\ref{fig:composite_bindist}
+show the behavior of $T_{\rm m}$ for the other parameter regimes considered and
+also exhibit these two categories of mergers and the octupole-inactive gap.
 
-When including the chaotic octupole-order ZLK terms, the system's starting
-inclination alone may not be sufficient to determine whether it merges within a
-Hubble time (e.g.\ if the system is in the range where the $e_{\max}$ behavior
-is double-valued, as mentioned in Section~\ref{ss:oct_gen}). Instead, multiple
-simulations using different $\omega$, $\omega_{\rm out}$, and $\Omega$ can be
-used to compute a merger probability
+In the spirit of the test-particle case, it is natural to try to calculate the
+inclination ranges over which systems are able to successfully merge. However,
+when including the chaotic octupole-order ZLK terms, the system's starting
+inclination alone is not sufficient to determine with certainty whether it
+merges within a Hubble time. Instead, multiple simulations using different
+$\omega$, $\omega_{\rm out}$, and $\Omega$ can be used to compute a merger
+probability, defined by
 \begin{equation}
-    P_{\rm merge}\p{I_0; q, e_{\rm out}} = P\p{T_{\rm m} < 10\;\mathrm{Gyr}}
+    P_{\rm merger}\p{I_0; q, e_{\rm out}} = P\p{T_{\rm m} < 10\;\mathrm{Gyr}}.
         \label{eq:def_pmerge}
 \end{equation}
-To explore $P_{\rm merge}$ with sufficient accuracy and resolution, we first run
-simulations over a coarse grid in $I_0$. For each range of $I_0$ where mergers
-are possible, we then sample the range of inclinations finely and run $20$
-simulations for each $I_0$ ($5$ for the more computationally expensive $a =
-10\;\mathrm{AU}$ case in Fig.~\ref{fig:composite_bindist}). The resulting
-$P_{\rm merge}$  are shown in the bottom panels of
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}. The
-octupole-inactive gaps first identified in Section~\ref{ss:oct_gen} are also
-present as gaps in $P_{\rm merge}$.
+From the middle panels of each of
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, the resulting
+$P_{\rm merger}$ are shown as the black lines in their respective bottom panels.
+In all of these plots, there is a retrograde inclination window for which
+successful merger is guaranteed. In Fig.~\ref{fig:composite_1p3}, it can be seen
+that a large range of prograde inclinations have a probabilistic outcome. In
+Fig.~\ref{fig:composite_1p2}, while the enhanced octupole strength allows for
+most of the prograde inclinations to merge with certainty, there is still a
+region at $I_0 \approx 80^\circ$ where $P_{\rm merger} < 1$.
 
-There are two general categories of BH mergers in our simulations: (i) the
-binary merges after a single large burst of GW radiation during an
-extreme-eccentricity ZLK cycle (``one-shot merger'') or (ii) the binary merges
-gradually by emitting a varying amount of GW radiation at every eccentricity
-maximum (``smooth merger''). One-shot mergers merge upon reaching $e_{\lim}$,
-and so merge with characteristic $T_{\rm m} \sim t_{\rm ZLK, oct}$, while smooth
-mergers exhibit a broad spectrum of merger times $\gtrsim t_{\rm ZLK, oct}$. For
-retrograde $I_0$ in Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5},
-there are comparatively few mergers with $T_{\rm m} \gtrsim 1\;\mathrm{Gyr}$, so
-the fiducial parameter regime tends to merge via one-shot mergers. On the other
-hand, prograde inclinations in Figs.~\ref{fig:composite_1p3}
-and~\ref{fig:composite_bindist} produce a broad range of $T_{\rm m}$ and
-represent an example of smooth mergers.
+\subsection{Merger Probability: Analytic Criteria}\label{ss:nogw_merger}
 
-\subsection{Semi-Analytic Calculation of Merger
-Probability}\label{ss:nogw_merger}
+By comparing the first and third panels of
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, it is clear that
+their features are correlated: in all five plots, the retrograde merger window
+occupies the same inclination range as the retrograde octupole-active window,
+while $P_{\rm merger}$ is only nonzero for prograde inclinations where
+$e_{\max}$ nearly attains $e_{\lim}$. In this section, we further develop this
+connection and show that the non-dissipative simulations can indeed be used to
+predict the outcomes of simulations with GW dissipation rather reliably.
 
-It is clear that features in the $e_{\max}$ curve, obtained without GW
-radiation, are correlated with behavior in the $P_{\rm merge}$ and $T_{\rm m}$
-plots, obtained with GW radiation. Here, we further develop this connection and
-show that the non-dissipative simulations can indeed be used to predict the
-outcomes of simulations with GW dissipation rather reliably.
-
-As mentioned above, we observe both one-shot and smooth mergers in our
-simulations. Towards understanding the one-shot mergers, we first define $e_{\rm
-os}$ to be the $e_{\rm \max, q}$ required to dissipate an order-unity fraction of
-the binary's orbital energy via GW emission in a single ZLK cycle. Recalling
-that a binary spends a fraction $\sim j(e_{\rm \max, q})$ of each ZLK cycle near
-$e_{\rm \max, q}$, we write
+Above, we identified both one-shot and smooth mergers in our simulations.
+Towards understanding the one-shot mergers, we first define $e_{\rm os}$ to be
+the $e_{\max}$ required to dissipate an order-unity fraction of the binary's
+orbital energy via GW emission in a single ZLK cycle. Since a binary spends a
+fraction $\sim j(e_{\max})$ of each ZLK cycle near $e_{\max}$
+\citep[e.g.][]{anderson2016formation}, we write
 \begin{align}
     j\p{e_{\rm os}}\at{\rd{\ln a}{t}}_{e = e_{\rm os}} &\sim
         \frac{1}{t_{\rm ZLK}},\\
@@ -476,11 +460,11 @@ sufficiently large eccentricity to undergo a one-shot merger.
 
 Towards understanding smooth mergers, we require a characteristic eccentricity
 that captures GW emission over many ZLK cycles. We define $e_{\rm eff}$ as an
-effective $e_{\rm \max, q}$. In other words,
+effective ZLK maximum eccentricity, i.e.
 \begin{align}
     \ev{\rd{\ln a}{t}} &\approx -\frac{1}{t_{\rm GW, 0}}
-            \ev{\frac{1 + 73e_{\rm \max, q}^2/24 + 37e_{\rm \max, q}^4/96}
-                {j^6(e_{\rm \max, q})}}\nonumber\\
+            \ev{\frac{1 + 73e_{\max}^2/24 + 37e_{\max}^4/96}
+                {j^6(e_{\max})}}\nonumber\\
         &\equiv -\frac{421/96}{t_{\rm GW, 0}}\frac{1}{j^6(e_{\rm eff})},
         \label{eq:def_e_eff}
 \end{align}
@@ -498,29 +482,51 @@ satisfies $e_{\rm eff} > e_{\rm eff, c}$, then it is expected to successfully
 undergo a smooth merger within a Hubble time.
 
 Finally, a system can be predicted to merge successfully if it satisfies either
-the one-shot or smooth merger criteria, so we obtain the semi-analytic merger
+the one-shot or smooth merger criteria, so we obtain the analytic merger
 probability:
 \begin{equation}
-    P_{\rm merge, SA} = P\p{e_{\rm eff} > e_{\rm eff, c} \;\;\text{or}\;\;
+    P_{\rm merger}^{\rm an} = P\p{e_{\rm eff} > e_{\rm eff, c} \;\;\text{or}\;\;
         e_{\max} > e_{\rm os}}.\label{eq:def_pmerge_sa}
 \end{equation}
-In Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, we compare
-$P_{\rm merge}$ obtained via dissipative simulations with $P_{\rm merge, SA}$
-obtained via Eq.~\eqref{eq:def_pmerge_sa}. We generally observe good
-agreement, though $P_{\rm merge, SA}$ slightly but systematically underpredicts
-$P_{\rm merge}$. This is due to the restricted integration time of $2000 t_{\rm
-ZLK} \approx 3\;\mathrm{Gyr}$ used for the non-dissipative simulations. We see
-that if an even shorter integration time of $500 t_{\rm ZLK}$ is used for the
-non-dissipative simulations \citep[as is used in][]{oconnor_wd}, the
-underprediction is even more severe. A detailed discussion of this
-underprediction can be found in Section~\ref{ss:completeness}.
 
-We make an important observation about our one-shot merger criterion: if
-$e_{\lim} \gtrsim e_{\rm os}$ for a particular system architecture, then all
-initial conditions that undergo orbit flips (i.e.\ in an octupole-active window)
-also execute one-shot mergers. When $e_{\lim} \approx 1$,
-Eq.~\eqref{eq:def_elim} reduces to $j(e_{\lim}) \approx 4\epsilon_{\rm GR} / 9$,
-which lets us rewrite the constraint $e_{\lim} \gtrsim e_{\rm os}$ as
+The top panels of Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}
+show $e_{\rm eff}$ and $e_{\max}$, and their critical values, $e_{\rm eff, c}$
+and $e_{\rm os}$. Using these, it is possible to compute the analytic merger
+probability shown as the thick green line in the bottom the bottom panels of
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}. We generally
+observe good agreement. However, $P_{\rm merger}^{\rm an}$ slightly but
+systematically underpredicts $P_{\rm merger}$ for some configurations such as
+the prograde inclinations in Figs.~\ref{fig:composite_1p3}
+and~Fig~\ref{fig:composite_bindist}. These regions coincide with regions where the
+merger outcome is uncertain. This underprediction is due to the restricted
+integration time of $2000 t_{\rm ZLK} \approx 3\;\mathrm{Gyr}$ used for the
+non-dissipative simulations. To illustrate this, we also calculate
+$P_{\rm merge}^{\rm an}$ using a shorter integration time of $500 t_{\rm
+ZLK}$ for the non-dissipative simulations. This result is shown as the light
+green lines in the bottom panels of Figs.~\ref{fig:composite_1p3}
+and~Fig~\ref{fig:composite_bindist} and performs visibly worse. A detailed
+discussion of this effect can be found in
+Section~\ref{ss:completeness}.
+
+A few observations about Eq.~\eqref{eq:def_pmerge_sa} can be made. First, it
+explains why some prograde systems merge probabilistically ($0 < P_{\rm merger}
+< 1$): for the prograde inclinations in Fig.~\ref{fig:composite_1p3}, $e_{\rm
+eff} \simeq e_{\rm eff, c}$, so the detailed merger outcome depends on the
+initial conditions, while for the prograde inclinations in
+Fig.~\ref{fig:composite_1p2}, the double-valued feature in the $e_{\max}$ curve
+pointed out in the previous section represents a sub-population of systems that
+do not satisfy Eq.~\eqref{eq:def_pmerge_sa}. Second, $e_{\max} > e_{\rm os}$
+often ensures $e_{\rm eff} > e_{\rm eff, c}$ in practice, as the averaging in
+Eq.~\eqref{eq:def_e_eff} is heavily weighted towards extreme eccentricities. As
+such, $e_{\rm eff} > e_{\rm eff, c}$ alone is often a sufficient condition in
+Eq.~\eqref{eq:def_pmerge_sa}.
+
+The one-shot merger criterion can also be used to distinguish two different
+types of system architectures: if $e_{\lim} \gtrsim e_{\rm os}$ for a particular
+architecture, then all initial conditions that undergo orbit flips (i.e.\ in an
+octupole-active window) also execute one-shot mergers. When $e_{\lim} \approx
+1$, Eq.~\eqref{eq:def_elim} reduces to $j(e_{\lim}) \approx 4\epsilon_{\rm GR} /
+9$, which lets us rewrite the constraint $e_{\lim} \gtrsim e_{\rm os}$ as
 \begin{align}
     \p{\frac{a}{a_{\rm out, eff}}} \gtrsim{}&
         0.0149
@@ -532,22 +538,10 @@ which lets us rewrite the constraint $e_{\lim} \gtrsim e_{\rm os}$ as
 For the system architecture considered in
 Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}, this constraint is
 indeed satisfied, and we see indeed that wherever the top panel suggests orbit
-flipping ($e_{\max} = e_{\lim}$), the bottom panel shows $f_{\rm merge} \approx
+flipping ($e_{\max} = e_{\lim}$), the bottom panel shows $f_{\rm merger} \approx
 1$. When this criterion is not satisfied, one-shot mergers are not
-possible, and $P_{\rm merge}$ is generally only nonzero for a small window about
+possible, and $P_{\rm merger}$ is generally only nonzero for a small range about
 $I_{\rm 0, \lim}$.
-
-A few other observations about Eq.~\eqref{eq:def_pmerge_sa} can be made.
-First, it explains why some prograde systems merge probabilistically ($0 <
-P_{\rm merge} < 1$), such as in Fig.~\ref{fig:composite_1p3}: for some
-inclinations, the double-valued feature in the $e_{\max}$ curve pointed out in
-the previous section represents a sub-population of systems that do not satisfy
-Eq.~\eqref{eq:def_pmerge_sa}, and for other inclinations, $e_{\rm eff} \simeq
-e_{\rm eff, c}$, so the detailed merger outcome depends on the initial
-conditions. Second, $e_{\max} > e_{\rm os}$ often ensures $e_{\rm eff} > e_{\rm
-eff, c}$ in practice, as the averaging in Eq.~\eqref{eq:def_e_eff} is heavily
-weighted towards extreme eccentricities. As such, $e_{\rm eff} > e_{\rm eff, c}$
-alone is often a sufficient condition in Eq.~\eqref{eq:def_pmerge_sa}.
 
 \begin{figure}
     \centering
@@ -566,7 +560,7 @@ alone is often a sufficient condition in Eq.~\eqref{eq:def_pmerge_sa}.
     green dashed line, $e_{\rm os}$ [Eq.~\eqref{eq:def_e_os}] is shown in the
     horizontal blue line, and $e_{\lim}$ [Eq.~\eqref{eq:def_elim}] is shown in
     the horizontal red dashed line. The vertical purple lines are the fitting
-    formula of \citet{MLL16} (we evaluate for $\epsilon_{\rm oct}^{\rm (tp)} =
+    formula of \citet{MLL16} (we evaluate for $\epsilon_{\rm oct} =
     \epsilon_{\rm oct}$) and no longer accurately describe the
     $e_{\lim}$-attaining inclination window. The black dashed line is given by
     Eq.~\eqref{eq:emax_quad}. In the middle panel, we show the binary merger
@@ -574,41 +568,31 @@ alone is often a sufficient condition in Eq.~\eqref{eq:def_pmerge_sa}.
     of initial conditions. Simulations are terminated when $T_{\rm m} >
     10\;\mathrm{Gyr}$ and marked as unsuccessful mergers. The horizontal dashed
     line denotes $t_{\rm ZLK}$ [Eq.~\eqref{eq:def_tzlk}] while the horizontal
-    dash-dotted line indicates $t_{\rm ZLK, oct}$ [Eq.~\eqref{eq:def_tzlkoct};
-    we evaluate for $\epsilon_{\rm oct}^{\rm (tp)} = \epsilon_{\rm oct}$]. Here,
-    each $I_{\rm 0}$ is run $20$ times, so we can estimate a merger probability
-    $P_{\rm merge}$ [Eq.~\eqref{eq:def_pmerge}] for each $I_{\rm 0}$, which is
-    shown as the black line in the bottom panel. As described in
+    dash-dotted line indicates $t_{\rm ZLK, oct}$ [Eq.~\eqref{eq:def_tzlkoct}].
+    Here, each $I_{\rm 0}$ is run $20$ times, so we can estimate a merger
+    probability $P_{\rm merger}$ [Eq.~\eqref{eq:def_pmerge}] for each $I_{\rm
+    0}$, which is shown as the black line in the bottom panel. As described in
     Section~\ref{ss:nogw_merger}, the merger probability of systems can be
-    predicted semi-analytically using the results of the top panel and
-    Eq.~\eqref{eq:def_pmerge_sa}, and is denoted $P_{\rm merge, SA}$. The thick
-    green line shows the prediction when using an integration time of
-    $2000 t_{\rm ZLK} \approx 3\;\mathrm{Gyr}$ for the non-dissipative
-    simulations, and thin green line shows the prediction using an integration
-    time of $500 t_{\rm ZLK}$. The agreement with $P_{\rm merge}$ is good and
-    improves when using the longer integration time.
+    predicted analytically using the results of the top panel and
+    Eq.~\eqref{eq:def_pmerge_sa}, and is denoted $P_{\rm merger}^{\rm an}$. The thick
+    green line shows the prediction when using an integration time of $2000
+    t_{\rm ZLK} \approx 3\;\mathrm{Gyr}$ for the non-dissipative simulations,
+    and thin green line shows the prediction using an integration time of $500
+    t_{\rm ZLK}$. The agreement with $P_{\rm merger}$ is good and improves when
+    using the longer integration time.
     }\label{fig:composite_dist}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{composite_1p3dist.png}
     \caption{Same as Fig.~\ref{fig:composite_dist} but for $q = 0.3$, $\eta
-    \approx 0.07$, and $\epsilon_{\rm oct} \approx 0.011$. A ``gap'' in merger
-    fractions for $I_0 \approx 90^\circ$ is evident, which is discussed further
-    in Appendix~\ref{app:gap}. There is a substantial range of prograde
-    inclinations for which the $e_{\max}$ behavior is double-valued and for
-    which the merger fraction $0 < f_{\rm merge} < 1$; the origin of this
-    behavior is unknown. Over this inclination range, the improvement when using
-    an integration time of $2000 t_{\rm ZLK}$ for $P_{\rm merge, SA}$ as opposed
-    to $500 t_{\rm ZLK}$ is very pronounced. }\label{fig:composite_1p3}
+    \approx 0.07$, and $\epsilon_{\rm oct} \approx 0.011$.}\label{fig:composite_1p3}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{composite_1p2dist.png}
     \caption{Same as Fig.~\ref{fig:composite_dist} but for $q = 0.2$, $\eta
-    \approx 0.054$, and $\epsilon_{\rm oct} \approx 0.014$. Note that a large
-    range of prograde $I_0$ are able to guarantee mergers, unlike in
-    Figs.~\ref{fig:composite_dist} and~\ref{fig:composite_1p3}.
+    \approx 0.054$, and $\epsilon_{\rm oct} \approx 0.014$.
     }\label{fig:composite_1p2}
 \end{figure}
 \begin{figure}
@@ -616,35 +600,23 @@ alone is often a sufficient condition in Eq.~\eqref{eq:def_pmerge_sa}.
     \includegraphics[width=\colummwidth]{composite_e91p5dist.png}
     \caption{Same as Fig.~\ref{fig:composite_dist} but with $q = 0.5$ and
     instead $e_{\rm out} = 0.9$ while holding $a_{\rm out, eff} =
-    3600\;\mathrm{AU}$ constant. Here, $\eta \approx 0.12$ while $\epsilon_{\rm
-    oct} \approx 0.019$. Note that even though $\epsilon_{\rm oct}$ is larger
-    here than in Fig.~\ref{fig:composite_1p2}, no mergers are possible here with
-    a prograde perturber. This is because $\eta$ is more than twice as large.
-    }\label{fig:composite_e91p5}
+    3600\;\mathrm{AU}$ constant. }\label{fig:composite_e91p5}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{bindist.png}
-    \caption{Same as Figs.~\ref{fig:composite_dist}--\ref{fig:composite_1p2}
-    but for a compact inner binary; the parameters are $a = 10\;\mathrm{AU}$,
-    $a_{\rm out, eff} = 700\;\mathrm{AU}$, $m_{12} = 50M_{\odot}$, $m_3 =
-    30M_{\odot}$, and $e_{\rm out} = 0.9$, $q = 0.4$. Note that when the
-    perturber is prograde ($I_0 < 90^\circ$), $e_{\max} <
-    e_{\rm os}$ but $e_{\rm eff} > e_{\rm eff, c}$, which predicts that systems
-    are able to merge as smooth octupole-induced mergers. This prediction is
-    in qualitative agreement with the dissipative simulations (see bottom
-    panel). }\label{fig:composite_bindist}
+    \caption{Same as Fig.~\ref{fig:composite_dist} but for a compact inner
+    binary; the parameters are $a = 10\;\mathrm{AU}$, $a_{\rm out, eff} =
+    700\;\mathrm{AU}$, $m_{12} = 50M_{\odot}$, $m_3 = 30M_{\odot}$, and $e_{\rm
+    out} = 0.9$, $q = 0.4$. Here, each $P_{\rm merger}$ is computed with only
+    $5$ simulations per $I_0$.}\label{fig:composite_bindist}
 \end{figure}
 
 \section{Merger Fraction as a Function of Mass Ratio}\label{s:merger_frac}
 
-Using the merger probability $P_{\rm merge}\p{I_0; q, e_{\rm out}}$, it is
-natural to next seek the mass ratio distribution of merging BH binaries via the
-comparable-mass tertiary-induced channel. However, this relies on many uncertain
-quantities, such as the primordial $q$ distribution in BH binaries. Instead, we
-aim to characterize the effect described in the preceeding sections by studying
-the fraction of BH binaries that successfully merge under various conditions,
-which we call the merger fraction.
+In this section, we characterize the effect described in the preceeding sections
+by studying the fraction of BH binaries that successfully merge under various
+conditions, which we call the merger fraction.
 
 \subsection{Merger Fraction for Fixed Tertiary Eccentricity}
 
@@ -655,66 +627,67 @@ $\omega$, $\omega_{\rm out}$, and $\Omega$ be drawn from the range $[0,
 2\pi)$ as before % chktex 9
 and adopt the fiducial parameters. The merger fraction is defined as:
 \begin{equation}
-    f_{\rm merge}\p{q, e_{\rm out}} \equiv
-        \frac{1}{2}\int\limits_{-1}^1P_{\rm merge}\p{I_0; q, e_{\rm out}}
+    f_{\rm merger}\p{q, e_{\rm out}} \equiv
+        \frac{1}{2}\int\limits_{-1}^1P_{\rm merger}\p{I_0; q, e_{\rm out}}
             \;\mathrm{d}\cos I_0.\label{eq:def_fmerge}
 \end{equation}
-This is plotted for various choices of $q$ and $e_{\rm out}$ as the solid dots in
-Fig.~\ref{fig:total_merger_fracs}, where each point represents the integration
-of a $P_{\rm merge}$ curve like the black lines in the bottom panels of
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}. For each simulation,
-we also use semi-analytic criteria introduced in Section~\ref{ss:nogw_merger} to
-predict the outcome and generate a merger fraction. This is computed by using
-$P_{\rm merge, SA}$ as the integrand in Eq.~\eqref{eq:def_fmerge} and is shown
-as the crosses and dashed lines in Fig.~\ref{fig:total_merger_fracs}. It is
-clear that the merger fractions increase steeply for smaller $q$ and that the
-semi-analytic merger fraction tracks $f_{\rm merge}$ well. Choosing instead $a =
-50\;\mathrm{AU}$ and $a_{\rm out, eff} = 1800\;\mathrm{AU}$ does not
-significantly change Fig.~\ref{fig:total_merger_fracs}. This is because
-$\epsilon_{\rm oct}$ and $\eta$ are unchanged, while Eq.~\eqref{eq:q_237} only
-changes very little.
+Intuitively, this corresponds to the integral of the black lines in the bottom
+panels of Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}. For each
+simulation, we can also use analytic criteria introduced in
+Section~\ref{ss:nogw_merger} to predict the outcome and merger fraction. This is
+computed by using $P_{\rm merger}^{\rm an}$ as the integrand in
+Eq.~\eqref{eq:def_fmerge}, or by evaluating the integral of the thick green
+lines in the bottom panels of
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}.
+Figure~\ref{fig:total_merger_fracs} shows $f_{\rm merger}$ and the analytical
+estimates for all combinations
+of $q \in \z{0.2, 0.3, 0.4, 0.5, 0.7, 1.0}$ and $e_{\rm out} \in \z{0.6, 0.8,
+0.9}$. It is clear both that the analytic merger fraction tracks $f_{\rm
+merger}$ well and that the merger fractions increase steeply for smaller $q$.
 
-If instead, we choose $a = 50\;\mathrm{AU}$ but keep $a_{\rm out, eff} =
-3600\;\mathrm{AU}$, we obtain Fig.~\ref{fig:sweepbin_simpleouter}. According to
-Eq.~\eqref{eq:q_237}, this new parameter regime no longer satisfies $e_{\lim}
-\gtrsim e_{\rm os}$, so the merger fraction is expected to diminish strongly and
-vary much more weakly with $q$, as one-shot mergers are no longer possible, in
-agreement with the results.
-
-In the right panel of Fig.~\ref{fig:total_merger_fracs}, we see that the merger
-fractions for the three $e_{\rm out}$ values overlap for sufficiently small
-$\epsilon_{\rm oct}$. This implies that $f_{\rm merge}$ depends only on
+Looking carefully at the right panel of Fig.~\ref{fig:total_merger_fracs}, we
+see that the merger fractions for the three $e_{\rm out}$ values overlap for
+small $\epsilon_{\rm oct}$. This implies that $f_{\rm merger}$ depends only on
 $\epsilon_{\rm oct}$ in this regime, and not the values of $q$ and $e_{\rm out}$
 independently. From Fig.~\ref{fig:composite_dist}, we see that this suggests
 that the size of the retrograde merger window only depends on $\epsilon_{\rm
-oct}$, much like Eq.~\eqref{eq:I_oct_MLL} in the test-particle limit.
-However, for larger $\epsilon_{\rm oct}$, the three curves diverge. This is
-attributed to their different $\eta$ values: while for sufficiently small
-$\epsilon_{\rm oct}$, no prograde initial inclinations successfully merge (e.g.\
-Fig.~\ref{fig:composite_dist}), the size of the octupole-inactive gap is
-different for different $\eta$, so a prograde merger window forms at smaller
-values of $\epsilon_{\rm oct}$ if $\eta$ is also smaller ($e_{\rm out}$ is
-larger). This again illustrates the importance of the octupole-inactive gap,
-which we comment on in Appendix~\ref{app:gap}.
+oct}$, much like Eq.~\eqref{eq:I_oct_MLL} shows for the test-particle limit.
+However, once $\epsilon_{\rm oct}$ is increased sufficiently, the three curves
+cease to overlap. This can be attributed to their different $\eta$ values: for
+sufficiently small $\epsilon_{\rm oct}$, no prograde initial inclinations
+successfully merge (e.g.\ Fig.~\ref{fig:composite_dist}), and the merger
+fraction is solely determined by the size of the retrograde octupole-active
+window. But once $\epsilon_{\rm oct}$ is sufficiently large, prograde mergers
+become possible, and the merger fraction is also affected by the size of the
+octupole-inactive gap, which depends on $\eta$. This again illustrates the
+importance of the octupole-inactive gap, which we comment on in
+Appendix~\ref{app:gap}.
+
+Figure~\ref{fig:sweepbin_simpleouter} depicts the merger fractions if instead $a
+= 50\;\mathrm{AU}$. According to Eq.~\eqref{eq:q_237}, this new parameter regime
+no longer satisfies $e_{\lim} \gtrsim e_{\rm os}$, so the merger fraction is
+expected to diminish strongly and vary much more weakly with $q$, as one-shot
+mergers are no longer possible. This is indeed observed, particularly for
+$e_{\rm out} = 0.6$.
 
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{total_merger_fracs.png}
-    \caption{From Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5},
-    we can compute the total merger fraction in the presence of GW radiation
+    \caption{From Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}, we
+    can compute the total merger fraction in the presence of GW radiation
     assuming $\cos I_0$ is uniformly distributed $\in [-1, 1]$ for the fiducial
-    parameter regime. We do this for three values of $e_{\rm out}$ and six
-    values of $q$ and show the results with solid dots. The X's show the results
-    when using Eq.~\eqref{eq:def_pmerge_sa} and an integration time of $2000
-    t_{\rm ZLK}$; good agreement is observed. }\label{fig:total_merger_fracs}
+    parameter regime. We do this for all combinations of $q \in \z{0.2, 0.3,
+    0.4, 0.5, 0.7, 1.0}$ and $e_{\rm out} \in \z{0.6, 0.8, 0.9}$ and show the
+    results with solid dots. The X's show the results when using
+    Eq.~\eqref{eq:def_pmerge_sa} and an integration time of $2000 t_{\rm ZLK}$.
+    }\label{fig:total_merger_fracs}
 \end{figure*}
 \begin{figure*}
     \centering
     \includegraphics[width=\textwidth]{simpleouter.png}
     \caption{Same as Fig.~\ref{fig:total_merger_fracs} but for $a =
-    50\;\mathrm{AU}$; the semi-analytic merger fractions have been omitted for
-    clarity. Note that the $f_{\rm merge}$ enhancement for smaller $q$ is
-    smaller, as the condition Eq.~\eqref{eq:q_237} is no longer satisfied.
+    50\;\mathrm{AU}$; the analytic merger fractions have been omitted for
+    clarity.
     }\label{fig:sweepbin_simpleouter}
 \end{figure*}
 
@@ -722,37 +695,37 @@ which we comment on in Appendix~\ref{app:gap}.
 
 We can also draw $e_{\rm out} \in [0, 0.9]$ with both a uniform probability
 distribution and a thermal one $P(e_{\rm out}) \propto e_{\rm out}$, and examine
-$f_{\rm merge}$ as a function of $q$, where now
+the merger fraction as a function of $q$. We denote this
 \begin{equation}
-    f_{\rm merge}(q) \propto
+    \eta_{\rm merger}(q) \propto
         \int\limits_{0}^{0.9}\int\limits_{-1}^1
-            P_{\rm merge}\p{I_0; q, e_{\rm out}} P(e_{\rm out})
+            P_{\rm merger}\p{I_0; q, e_{\rm out}} P(e_{\rm out})
             \;\mathrm{d}\cos I_0\;\mathrm{d}e_{\rm out}.
 \end{equation}
-The results are shown in Fig.~\ref{fig:popsynth}, where each $q$ has $1000$
-realizations using random $e_{\rm out}$, $\cos I_0$, $\omega$, $\omega_{\rm
-out}$, and $\Omega$. If $e_{\rm out}$ is thermally distributed (red), binaries
-with smaller $q$ are even more likely to merge, since $\epsilon_{\rm oct}$ tends
-to be larger. To understand the impact of our random sampling, we also compute a
-merger fraction using the semi-analytic merger criterion of
-Eq.~\eqref{eq:def_pmerge_sa} while using a dense grid of initial conditions
-(uniformly sampling $17$ values of $e_{\rm out}$ and $41$ values of $\cos I_0$),
-shown as the blue dotted line. Again, the semi-analytic curve tracks the
-dissipative results well. The distributions and medians of the merger time and
-eccentricity in the LISA and LIGO bands are also shown. For the LISA and LIGO
-band eccentricities, the inner binaries are evolved from when they reach
-$0.5\;\mathrm{AU}$ to physical merger using
+The top panel of Figure~\ref{fig:popsynth} gives $\eta_{\rm merger}$ (black
+dots) for the fiducial parameter regime, where each $q$ has $1000$ realizations
+using random $e_{\rm out}$, $\cos I_0$, $\omega$, $\omega_{\rm out}$, and
+$\Omega$. If $e_{\rm out}$ is thermally distributed (red dots), binaries with
+smaller $q$ are even more likely to merge, since $\epsilon_{\rm oct}$ tends to
+be larger. To understand the impact of our random sampling, we also compute a
+merger fraction using the analytic merger criterion of
+Eq.~\eqref{eq:def_pmerge_sa} on a dense grid of initial conditions uniform in
+$e_{\rm out}$ and $\cos I_0$; this is shown as the blue dotted line, which is in
+good agreement with the uniform-$e_{\rm out}$ simulation results (black). The
+distributions and medians of the merger time and eccentricity in the LISA and
+LIGO bands are also shown in the middle and bottom panels respectively. For the
+LISA and LIGO band eccentricities, the inner binaries are evolved from when they
+reach $0.005 a_0$ to physical merger using
 Eqs.~(\ref{eq:def_tgw}--\ref{eq:dedt_gw}). While all of these eccentricities are
 quite small, this has to do with our using the double-averaged equations of
 motion. Both the single-averaged and the full N-body equations of motion produce
 larger eccentricities in the LISA and LIGO bands \citep{LL19}.
 
-For comparison, we also show the results when $a_{\rm out, eff} =
-5500\;\mathrm{AU}$, with all other parameters unchanged, in
-Fig.~\ref{fig:popsynth5500}. While $f_{\rm merge}$ is lower than it is for
-$a_{\rm out, eff} = 3600\;\mathrm{AU}$, there is still a large increase between
-large and small $q$. This is expected, since $e_{\lim} > e_{\rm os}$ is still
-satisfied [Eq.~\eqref{eq:q_237}].
+For comparison, Figure~\ref{fig:popsynth5500} illustrates the outcome when
+$a_{\rm out, eff} = 5500\;\mathrm{AU}$ with all other parameters unchanged.
+While $f_{\rm merger}$ is lower than it is for $a_{\rm out, eff} =
+3600\;\mathrm{AU}$, there is still a large increase between large and small $q$.
+Since Eq.~\eqref{eq:q_237} is still satisfied, this is expected.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{a2eff3600.png}
@@ -778,10 +751,11 @@ satisfied [Eq.~\eqref{eq:q_237}].
 
 \subsection{Effect of Smaller Mass Ratios}
 
-The above results may seem somewhat counterintuitive at first glance, since
-$t_{\rm GW} \propto \mu$ which should grow as $q$ is decreased. This effect
-should increase the merger times and decrease the merger fractions, but the data
-illustrate otherwise.
+Even though the octupole strength increases as $q$ is decreased, the efficiently
+of GW radiation also decreases. It is therefore natural to ask at what $q$ these
+competing effects become equal and merger fraction is maximized. We show that
+this does not happen except for unphysically small $q$ in our fiducial parameter
+regime.
 
 The key insight is that, since $e_{\lim} > e_{\rm os}$ for our fiducial
 parameter regime, most binaries execute one-shot mergers when undergoing an
@@ -790,47 +764,44 @@ octupole-ZLK-induced binary merger fractions are primarily determined by what
 initial conditions execute orbit flips and only weakly depend on the detailed GW
 radiation rate. Indeed, Eq.~\eqref{eq:q_237} shows that, while $e_{\lim} >
 e_{\rm os}$ is indeed violated if $q$ is decreased sufficiently, the dependence
-is extremely weak. As such, $f_{\rm merge}$ is expected to be very nearly
+is extremely weak. As such, $f_{\rm merger}$ is expected to be very nearly
 constant in $q$ for all physical values of $q$. We verify this using the
-semi-analytic merger criterion in Fig.~\ref{fig:popsynth_lowq}.
+analytic merger criterion in Fig.~\ref{fig:popsynth_lowq}.
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{a2eff_nogw_lowq3600.png}
     \caption{Same as blue dashed line of the top panel of
     Fig.~\ref{fig:popsynth} but extended to very small $q$. Due to the very weak
-    $q$ dependence in Eq.~\eqref{eq:q_237}, $f_{\rm merge}$ is expected to
+    $q$ dependence in Eq.~\eqref{eq:q_237}, $f_{\rm merger}$ is expected to
     depend very weakly on $q$ when $q \ll 1$ (such that $\epsilon_{\rm oct}$ is
     approximately constant), which agrees with the simulation
     results.}\label{fig:popsynth_lowq}
 \end{figure}
 
-\subsection{Limitations of Semi-Analytic Calculation}\label{ss:completeness}
+\subsection{Limitations of Analytic Calculation}\label{ss:completeness}
 
-It is evident from Figs.~\ref{fig:total_merger_fracs}--\ref{fig:popsynth5500}
-that the semi-analytic merger fractions are systematically lower than the values
-obtained from the simulations that include GW radiation. This can also be
-directly seen in the bottom panels of
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, particularly at the
-edges of the merger windows.
+It can be seen in Fig.~\ref{fig:total_merger_fracs}
+that the analytic merger fractions is systematically lower than the values
+obtained from the direct simulations. This underprediction was first pointed out
+in Section~\ref{ss:nogw_merger}.
 
 The reason this arises is because the non-dissipative simulations used to
 compute $e_{\rm eff}$ and $e_{\max}$ are only run for $2000 t_{\rm LK} \approx
 3\;\mathrm{Gyr}$, while the simulations including GW dissipation are run for
 $10\;\mathrm{Gyr}$. Owing to the chaotic nature of the octupole-order ZLK
-effect, this means that, if an initial condition only reaches more extreme
-eccentricities after a few Gyr, the $e_{\rm eff}$ and $e_{\max}$ are
-underpredicted by the non-dissipative simulations. Additionally, phases where
-$\omega$ is librating can last an unpredictable amount of time, during which
-orbit flips are strongly suppressed \citep{katz2011long}. This suggests that the
-semi-analytic merger criteria becomes more complete as the integration time is
-increased.
+effect, this means that, if an initial condition reaches extreme eccentricities
+after many Gyrs, the $e_{\rm eff}$ and $e_{\max}$ are underpredicted by the
+non-dissipative simulations. Additionally, phases where the eccentricity vector
+of the inner binary is librating, during which orbit flips are strongly
+suppressed \citep{katz2011long}, can last an unpredictable amount of time. This
+suggests that the analytic merger criteria becomes more complete as the
+integration time is increased.
 
-To quantify this, we compute the ``completeness'' of the semi-analytic merger
-fraction via the ratio $f_{\rm merge, SA} / f_{\rm merge}$, where $f_{\rm merge,
-SA}$ is computed using non-dissipative simulations with varying integration
-times. We focus on just the fiducial parameter regime for demonstrative
-purposes, and we compute a completeness for each of the $q$ and $e_{\rm out}$
-combinations shown in Fig.~\ref{fig:total_merger_fracs}.
+We quantify the ``completeness'' of the analytic merger fraction via the ratio
+$f_{\rm merger}^{\rm an} / f_{\rm merger}$ as a function of non-dissipative
+integration time. We focus on just the fiducial parameter regime for
+demonstrative purposes and compute a completeness for each of the $q$ and
+$e_{\rm out}$ combinations shown in Fig.~\ref{fig:total_merger_fracs}.
 Figure~\ref{fig:completeness} shows the completeness for each of these
 simulations in light grey lines and their mean in the thick black line. We see
 that the completeness is still increasing even as the non-dissipative simulation
@@ -840,8 +811,8 @@ simulations.
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{completeness.png}
-    \caption{Completeness of the semi-analytic merger fraction, defined as
-    $f_{\rm merge, SA} / f_{\rm merge}$, as a function of the integration time
+    \caption{Completeness of the analytic merger fraction, defined as
+    $f_{\rm merger}^{\rm an} / f_{\rm merger}$, as a function of the integration time
     used for the non-dissipative simulations, in the fiducial
     parameter regime while $e_{\rm out}$ is fixed at a few values. The thin grey
     lines indicate the completeness for particular combinations of $(q, e_{\rm
@@ -853,7 +824,7 @@ simulations.
 \section{Conclusion and Discussion}\label{s:conclusion}
 
 We have considered the dynamics of a comparable-mass tertiary-induced binary BH
-merger by studying the ZLK effect at octupole order. We show that for system
+merger by studying the ZLK effect at the octupole order. We show that for system
 architectures where the merger fraction is substantial, most merging systems
 have small mass ratios. For instance, for the fiducial system architecture ($a =
 100\;\mathrm{AU}$, $a_{\rm out} = 3600\;\mathrm{AU}$, inner binary mass
@@ -871,33 +842,38 @@ mergers from LIGO/VIRGO\@. When including the latest data from the O3a observing
 run, the observed distribution in $q$ significantly prefers larger mass ratios.
 In particular, if $P(q) = q^{\beta_q}$, then $\beta_q > 0$ at $89\%$ or more
 \citep{LIGOO3a}. On the other hand, the primordial $q$ distribution in massive
-stellar binaries is generally expected to roughly uniform or prefer smaller $q$
-\citep[e.g.][]{sana2012binary, duchene2013, kobulnicky2014, moe2017mind}.
-This suggests that the initial distribution of $q$ in wide BH binaries is also
-likely to be close to uniform or to prefer smaller $q$ \citep[for reasonable
-assumptions on BH remnant masses after supernovae, see e.g.][]{farmer_bhmass}.
-As our results suggest the $q$ distribution at merger is further skewed towards
-small $q$, we see that comparable-mass-tertiary induced BH mergers produces a
-distribution of $q$ than is in tension with the $P(q)$ found by LIGO/VIRGO\@. It
-is possible that the initial mass ratio distribution in BH binaries strongly
-prefers large $q$, or that they all have small $\epsilon_{\rm oct}$ such that
-the $q$ enhancement is weak.
+stellar binaries is generally expected to roughly uniform or log-uniform in $q$
+\citep[e.g.][]{sana2012binary, duchene2013, kobulnicky2014, moe2017mind}. For
+instance, for random pairings from a Salpeter mass function $P(m) \propto
+m^{-p}$, $P(q) \propto q^{-p}$ as well \citep[see also
+Appendix~\ref{s:ratios}]{moe2017mind}. This suggests that the initial
+distribution of $q$ in wide BH binaries is unlikely to prefer large $q$
+\citep[for reasonable assumptions on BH remnant masses after supernovae, see
+e.g.][]{farmer_bhmass}. As our results suggest the comparable-mass
+tertiary-induced merger channel further enhances merger rates for small $q$, we
+see that this channel yields a distribution of $q$ than is in tension with the
+$P(q)$ found by LIGO/VIRGO\@. However, these studies generally show that the
+mass ratio distribution for merging binaries is more weighted towards smaller
+mass ratios than the initial distribution \citep{silsbee2017lidov,
+fragione2019}, consistent with our findings. It is nevertheless possible that
+the initial mass ratio distribution in BH binaries strongly prefers large $q$,
+or that they all have small $\epsilon_{\rm oct}$ such that the $q$ enhancement
+is weak.
 
 Note that the double-averaged (DA) equations of motion are used throughout this
 work. However, most of the qualitative behavior we observe is expected to
 persist when using either single-averaged equations or N-body simulations, e.g.\
-\citet{LL19} find that $f_{\rm merge}$ is larger for the single-averaged and
-N-body regimes, but the qualitative trends are unchanged.
-
-We also comment that one-shot mergers can restore the validity of the DA
-equations: recall that the DA approximation reqires the orbital period $P_{\rm
-out}$ of the outer binary be much longer than all dynamical timescales of the
-inner binary, i.e.
+\citet{LL19} find that $f_{\rm merger}$ is larger for the single-averaged and
+N-body regimes, but the qualitative trends are unchanged. Furthermore, the
+phenomenon of one-shot mergers can restore the validity of the DA equations:
+recall that the DA approximation reqires the orbital period $P_{\rm out}$ of the
+outer binary be much longer than all dynamical timescales of the inner binary,
+i.e.
 \begin{equation}
-    t_{\rm ZLK}j\p{e_{\max, q}} \lesssim P_{\rm out},
+    t_{\rm ZLK}j\p{e_{\max}} \lesssim P_{\rm out},
 \end{equation}
-For our fiducial parameter regime, this is not satisfied when $e_{\max, q} =
-e_{\lim}$, but it is satisfied when $e_{\max, q} = e_{\rm os} < e_{\lim}$. Thus,
+For our fiducial parameter regime, this is not satisfied when $e_{\max} =
+e_{\lim}$, but it is satisfied when $e_{\max} = e_{\rm os} < e_{\lim}$. Thus,
 in our simulations, the inner binary will begin to decay significantly as a
 one-shot merger before the DA approximation breaks down, and use of the DA
 equations of motion is justified.
@@ -905,6 +881,11 @@ equations of motion is justified.
 \section{Acknowledgements}\label{s:ack}
 
 YS is supported by the NASA FINESST grant 19-ASTRO19-0041.%chktex 8
+
+\section{Data Availability}
+
+The data referenced in this article will be shared upon reasonable request to
+the corresponding author.
 
 \bibliographystyle{mnras}
 \bibliography{Su_EZLK}
@@ -914,21 +895,58 @@ YS is supported by the NASA FINESST grant 19-ASTRO19-0041.%chktex 8
 
 \appendix
 
+\section{Mass Ratio Distribution: Random Drawings from Initial Mass
+Function}\label{s:ratios}
+
+We seek the probability distribution of $q$, the mass ratio, of a binary,
+assuming its two components are drawn from distributions $P(m) \propto m^{-p}$.
+First, we assume that the two masses $m_1$ and $m_2$ are uncorrelated. Without
+loss of generality, assume that $m_2 \leq m_1$, then
+\begin{align}
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\int\limits_{m_{\min}}^{m_1}
+            \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2)
+            \;\mathrm{d}m_2\;\mathrm{d}m_1,\\
+        &= \int\limits_{m_{\min}}^{m_{\max}} m_1 P(m_1) P(qm_1)
+            \;\mathrm{d}m_1,\\
+        &\propto q^{-p}.
+\end{align}
+This result is known \citep[e.g.][]{moe2017mind}.
+
+Observationally, we are more interested in the distribution of $q$ for a given
+$m_{12}$. Without loss of generality, assume again that $m_2 \geq m_1$, then
+\begin{align}
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}
+            \int\limits_{m_{\min}}^{m_1}
+            \delta\p{\frac{m_2}{m_1} - q}
+            \delta\p{\frac{m_1 + m_2}{m_{12}} - 1}
+            P(m_1)
+            P\p{m_2}\;\mathrm{d}m_2\;\mathrm{d}m_1,\\
+        &= \int\limits_{m_{\min}}^{m_{\max}}
+            m_{12}\delta\p{\frac{m_{12} - m_1}{m_1} - q}
+            P(m_1)
+            P\p{m_{12} - m_1}\;\mathrm{d}m_1,\\
+        &= P\p{\frac{m_{12}}{1 + q}}P\p{m_{12} - \frac{m_{12}}{1 + q}}
+            \p{\frac{m_{12}}{1 + q}}^2,\\
+        &\propto \frac{q^{-p}}{\p{1 + q}^{-2p + 2}}.
+\end{align}
+While the specific distribution changes slightly, this distribution is still
+sharply skewed towards smaller $q$.
+
 \section{Origin of Octupole-Inactive Gap}\label{app:gap}
 
 In this section, we investigate the origin of the ``octupole-inactive gap'', an
 inclination range $I_0 \approx 90^\circ$ for which $e_{\max}$ does not attain
 $e_{\lim}$ despite being in between two octupole-active windows. This gap was
 first identified in Section~\ref{ss:oct_gen}, and exists even without GW
-radiation. We take Fig.~\ref{fig:composite_1p2} to be our primary example, and
-reproduce the relevant portions in Fig.~\ref{fig:kdist}.
+radiation. We take the top panel Fig.~\ref{fig:composite_1p2} to be our primary
+example, and reproduce it as the top panel of Fig.~\ref{fig:kdist}.
 
 \begin{figure}
     \centering
     \includegraphics[width=\colummwidth]{1p2dist.png}
     \caption{Plot illustrating the octupole-inactive gap. The top panel shows
     $e_{\max}$ (blue dots), $e_{\lim}$ [Eq.~\eqref{eq:def_elim}, horizontal
-    solid line], and $e_{\rm \max, q}$ [Eq.~\eqref{eq:emax_quad}, dashed line]
+    solid line], and $e_{\max}$ [Eq.~\eqref{eq:emax_quad}, dashed line]
     from the top panel of Fig.~\ref{fig:composite_1p2}. The vertical black line
     is the empirically-determined center of the gap, denoted $I_{\rm 0, gap}$.
     Here, $I_{\rm 0, gap} \approx 88.32^\circ$. The bottom panel shows the range of
@@ -954,46 +972,55 @@ the azimuthal angle of the inner eccentricity vector in the inertial reference
 frame. The amplitude of oscillation of $K$ can then be analytically computed,
 and the octupole-active window (the range of $I_0$ over which orbit flips occur)
 is the region for which the $K$ oscillation amplitude exceeds $\abs{K_0}$, the
-initial $K$ \citep{katz2011long}.
+initial $K$ \citep{katz2011long}. Finally, when $\omega$ is circulating,
+$\Omega_{\rm e}$ also varies gradually over long timescales, but when $\omega$
+is librating, $\Omega_{\rm e}$ jumps by $\sim 180^\circ$ every ZLK cycle.
 
 As discussed in Section~\ref{ss:oct_gen}, we find that the relation between $K$
 oscillations and orbit flipping can be generalized even when $\eta$ is nonzero:
 $K$, given by Eq.~\eqref{eq:def_K}, is again oscillatory when $\omega$ is
 circulating, and when it crosses $K_{\rm c} \equiv -\eta / 2$, the inner orbit
-flips. Here, orbit flips entail the range of inclination oscillations changing
-from $\p{\cos I_0}_- < \cos I < \cos I_{0, \lim}$ to $\cos I_{0, \lim} < \cos I
-< \p{\cos I_0}_+$ or vice versa, where $\p{\cos I_0}_{\pm}$ are given by
-Eq.~\eqref{eq:I0bounds} and $I_{0, \lim}$ satisfies Eq.~\eqref{eq:I0lim}.
+flips. To b precise, orbit flips entail the range of inclination oscillations
+changing from $\p{\cos I_0}_- < \cos I < \cos I_{0, \lim}$ to $\cos I_{0, \lim}
+< \cos I < \p{\cos I_0}_+$ or vice versa, where $\p{\cos I_0}_{\pm}$ are given
+by Eq.~\eqref{eq:I0bounds} and $I_{0, \lim}$ satisfies Eq.~\eqref{eq:I0lim}.
 
-However, a detailed examination of the bottom panel of Fig.~\ref{fig:kdist}
-reveals novel behavior due to the broken symmetry of $I_0$ about $90^\circ$. If
-we call the center of the gap $I_{\rm 0, gap}$ (shown as the vertical black line in
-Fig.~\ref{fig:kdist}), then we find that $K$ oscillates about $K(I_{\rm 0, gap}) >
-0$, and the oscillation amplitude goes to zero at $I_{\rm 0, gap}$. Since $K_{\rm
-c} < 0$, there will then always be a range of $I_0$ about $I_{\rm 0, gap}$ for
-which the oscillation amplitude is smaller than $K\p{I_{\rm 0, gap}} - K_{\rm c}$,
-and this range gives rise to the octupole-inactive gap.
+However, we find novel behavior when examining the oscillation amplitude of $K$.
+The bottom panel of Fig.~\ref{fig:kdist} illusrtates the minimum and maximum $K$
+attained for a given $I_0$. If we call the center of the gap $I_{\rm 0, gap}$
+(shown as the vertical black line), then we find that $K$ oscillates about
+$K(I_{\rm 0, gap})$, which is \emph{positive}, and the oscillation amplitude
+goes to zero at $I_{\rm 0, gap}$. Since orbit flips occur when the oscillation
+amplitude crosses $K_{\rm c} < 0$, there will then always be a range of $I_0$
+about $I_{\rm 0, gap}$ for which the oscillation amplitude is smaller than
+$K\p{I_{\rm 0, gap}} - K_{\rm c}$, and orbit flips are impossible in this range.
+This range is then precisely the octupole-inactive gap.
 
 This analysis has simply transplanted our lack of understanding into a new
 quantity: why are $K$ oscillations suppressed in the neighborhood of $I_{\rm
 0, gap}$? A quantitative answer to this question is beyond the scope of this
 paper, but for a qualitative understanding, we can examine the evolution of a
-system in the octupole-inactive gap. In Fig.~\ref{fig:nogw_circ}, we show a
-figure analogous to Fig.~\ref{fig:nogw_fiducial} but for $I_0 = 88^\circ$, very
-near $I_{\rm 0, gap}$. It is clear that the oscillations in $K$ (third panel)
-are much suppressed, and no orbit flips occur. Most interestingly, the fourth
-panel shows that the evolution of $\Omega_{\rm e}$ is much less smooth than in
-Fig.~\ref{fig:nogw_fiducial}, jumping at almost every other eccentricity
-maximum. \citet{katz2011long} have already pointed out that jumps in
-$\Omega_{\rm e}$ occur when $\omega$ is \emph{librating}, rather than
-circulating.
+system in the octupole-inactive gap. The left panel of Fig.~\ref{fig:nogw_circ}
+shows the same simulation as Fig.~\ref{fig:nogw_fiducial} but with an additional
+panel showing $\Omega_{\rm e}$, while the right panel shows a simulation with
+all the same parameters except $I_0 = 88^\circ$, which is near $I_{\rm 0, gap}$
+(see Fig.~\ref{fig:kdist}). The oscillations in $K$ (third panels) are much
+smaller for $I_0 = 88^\circ$ than for $I_0 = 93.5^\circ$, and no orbit flips
+occur. Most interestingly, the fourth panel shows that the evolution of
+$\Omega_{\rm e}$ is much less smooth than in Fig.~\ref{fig:nogw_fiducial},
+jumping at almost every other eccentricity maximum. \citet{katz2011long} have
+already pointed out that jumps in $\Omega_{\rm e}$ occur when $\omega$ is
+\emph{librating}, rather than circulating.
 
 \begin{figure}
     \centering
+    \includegraphics[width=\colummwidth]{1nogw_vec_q02.png}
     \includegraphics[width=\colummwidth]{1nogw_vec88.png}
-    \caption{Same as Fig.~\ref{fig:nogw_fiducial} but for $I_0 = 88^\circ$. As a
-    result, the orbit does not flip. Here, we have used $\omega_0 = 0$, but the
-    evolution is very similar for $\omega_0 = \pi / 2$.}\label{fig:nogw_circ}
+    \caption{Left is the same as Fig.~\ref{fig:nogw_fiducial} but including the
+    evolution of the azimuthal angle of the eccentricity vector, $\Omega_{\rm
+    e}$, while right is the same but for $I_0 = 88^\circ$. For both of
+    these examples, we have used $\omega_0 = 0$, but the evolution is very
+    similar for all other $\omega_0$.}\label{fig:nogw_circ}
 \end{figure}
 
 When the octupole-order terms are neglected, the circulation-libration
@@ -1001,29 +1028,28 @@ boundary is a boundary in $\omega$: as long as the ZLK separatrix exists in the
 $e$-$\omega$ plane and $e_0 > 0$, then an initial $\omega_0 = 0$ causes $\omega$
 to circulate, while an initial $\omega_0 = \pi/2$ causes $\omega$ to librate
 \citep[e.g.][]{kinoshita, shevchenko2016lidov}. However, when including
-octupole-order terms, the dynamics complicate significantly. To illustrate this,
-for a range of $I_0$ and both $\omega_0 = 0$ and $\omega_0 = \pi$, we evolve the
-fiducial system parameters for a single ZLK cycle, using $q = 0.2$ as is used
-for Figs.~\ref{fig:kdist} and~\ref{fig:nogw_circ}, and considered both the
-dynamics with and without the octupole-order terms. The resulting changes in
-$\Omega_{\rm e}$ over a single ZLK period are shown in Fig.~\ref{fig:dW}.
-
+octupole-order terms, this picture breaks down. To illustrate this, for a range
+of $I_0$ and both $\omega_0 = 0$ and $\omega_0 = \pi$, we evolve the fiducial
+system parameters for a single ZLK cycle, using $q = 0.2$ as is used for
+Figs.~\ref{fig:kdist} and~\ref{fig:nogw_circ}, and considered both the dynamics
+with and without the octupole-order terms. Figure~\ref{fig:dW} gives the
+resulting changes in $\Omega_{\rm e}$ over a single ZLK period when the
+octupole-order effects are neglected (top) and when they are not (bottom).
 Two observations can be made: (i) $I_{\rm 0, gap}$ is approximately where
 $\Delta \Omega_{\rm e} = 0$ for circulating initial conditions, and (ii) the
 inclusion of the octupole-order terms seem to cause $\Omega_{\rm e}$ to
 exclusively vary slowly except for $I_{\rm 0, gap} < I_0 < I_{0, \lim}$. The
 former is intuitive, as any equilibrium in $K$-$\Omega_{\rm e}$ space must have
 $\Delta \Omega_{\rm e} = 0$. The latter suggests that the assumption of
-circulation in \citet{katz2011long} is more accurate than might initially be
-expected when octupole-order effects are included except in the
-octupole-inactive gap. Finally, if we assume that $I_{\rm 0, gap}$ is indeed
-where $\Delta \Omega_{\rm e} = 0$, then the gap can be numerically located, and
-the width of the gap is just
+circulation in \citet{katz2011long} may largely hold for most intiial conditions
+except for those in the octupole-inactive gap. Finally, we can write down the
+width of the octupole-inactive inclination gap as
 \begin{equation}
     \text{Gap Width} = 2\p{I_{0, \lim} - I_{\rm 0, gap}}.
 \end{equation}
 This also explains why the gap does not exist in the test-particle regime, as
-$I_{0, \lim} = I_{\rm 0, gap} = 90^\circ$ by symmetry.
+$I_{0, \lim} = I_{\rm 0, gap} = 90^\circ$ by symmetry of the equations of
+motion.
 
 It is clear from the preceeding discussion and Fig.~\ref{fig:dW} that the
 octupole-order, finite-$\eta$ dynamics are complex, and our preceeding
@@ -1037,17 +1063,10 @@ characterization of the octupole-inactive gap.
     \includegraphics[width=\colummwidth]{2_dWsweeps6_2_dual.png}
     \caption{Plot of $\Delta \Omega_{\rm e}$, the change in $\Omega_{\rm e}$
     over a single ZLK cycle, for $q = 0.2$ and the fiducial parameters using
-    different initial conditions. We consider both if octupole-order terms are
-    ignored or not. In the top panel, the octupole terms are neglected, and
-    $\omega_0 = 0$ yields gradual change in $\Omega_{\rm e}$ while $\omega_{\rm
-    0} = \pi / 2$ yields jumps in $\Omega_{\rm e}$. This is in agreement with
-    the results of \citet{katz2011long}: librating $\omega$ give large changes
-    in $\Omega_{\rm e}$ while circulating $\omega$ give gradual changes. In the
-    bottom panel, the octupole terms are included, and it is seen that the
-    $\Delta \Omega_{\rm e}$ behavior is much more complex. The two vertical
-    black lines denote $I_{\rm 0, gap}$ and $I_{0, \lim}$ on the left and right,
-    respectively. The former is approximately where $\Delta \Omega_{\rm e} =
-    0$.}\label{fig:dW}
+    different initial conditions. In the top panel, octupole-order terms are
+    neglected, while in the lower panel, they are not. The solid and dashed
+    vertical black lines denote $I_{\rm 0, gap}$ and $I_{0, \lim}$
+    respectively.}\label{fig:dW}
 \end{figure}
 
 \label{lastpage} % chktex 24

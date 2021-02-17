@@ -328,9 +328,9 @@ def run_sweeps(q=0.2, M12=50, base_fn='2_dWsweeps6_2', e2=0.6, Ivert=90, N=1000,
     ax4.axhline(0, c='k', lw=0.7)
 
     ax1.axvline(Ivert, c='k', lw=0.7)
-    ax2.axvline(Ivert, c='k', lw=0.7)
+    ax2.axvline(Ivert, c='k', lw=0.7, ls='--')
     ax3.axvline(Ivert, c='k', lw=0.7)
-    ax4.axvline(Ivert, c='k', lw=0.7)
+    ax4.axvline(Ivert, c='k', lw=0.7, ls='--')
 
     ax3.set_xlabel(r'$I_0$ (Deg)')
     ax4.set_xlabel(r'$I_0$ (Deg)')
