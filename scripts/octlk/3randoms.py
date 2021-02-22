@@ -72,7 +72,7 @@ def plot_LIGOO3a_qhist():
     plt.savefig('3qhist', dpi=300)
     plt.close()
 
-def plot_qdists(p=2.35, num_masses=5000):
+def plot_qdists(p=2.35, num_masses=50000):
     fldr = '3plots/'
     os.makedirs(fldr, exist_ok=True)
     lowz_dat = np.array([
@@ -131,7 +131,9 @@ def plot_qdists(p=2.35, num_masses=5000):
     plt.savefig(fldr + 'sne', dpi=300)
     plt.clf()
 
-    masses = np.linspace(lowz_premass.min(), lowz_premass.max(), num_masses)
+    mass_min = lowz_premass.min()
+    mass_max = lowz_premass.max()
+    masses = np.linspace(mass_min, mass_max, num_masses)
     lowz_mass_f = interp1d(lowz_premass, lowz_postmass)
     highz_mass_f = interp1d(highz_premass, highz_postmass)
     def get_mass_inverse_cdf(power=p):
@@ -156,7 +158,8 @@ def plot_qdists(p=2.35, num_masses=5000):
     q = np.maximum(m1 / m2, m2 / m1)
     n, bins, _ = plt.hist(q, bins=30)
     q_arr = np.linspace(q.max(), 1)
-    plt.plot(q_arr, n[0] * q_arr**(-p), 'k--')
+    pdist_sp2 = -q_arr**(-p) * ((q_arr / (mass_max / mass_min))**(2 * p -2) - 1)
+    plt.plot(q_arr, n[0] * pdist_sp2, 'k--')
     plt.xlabel(r'$q$')
     plt.ylabel('Counts')
     plt.tight_layout()
@@ -166,6 +169,8 @@ def plot_qdists(p=2.35, num_masses=5000):
     q = np.minimum(m1 / m2, m2 / m1)
     n, bins, _ = plt.hist(q, bins=30)
     q_arr = np.linspace(q.min(), 1)
+    pdist_sp = -q_arr**(p - 2) * (((mass_min / mass_max) / q_arr)**(2 * p -2) - 1)
+    plt.plot(q_arr, np.mean(n[-3: ]) * pdist_sp, 'k--')
     plt.xlabel(r'$q$')
     plt.ylabel('Counts')
     plt.tight_layout()
@@ -185,16 +190,6 @@ def plot_qdists(p=2.35, num_masses=5000):
     plt.ylabel('Counts')
     plt.tight_layout()
     plt.savefig(fldr + 'qdist_salpeter_sne', dpi=300)
-    plt.clf()
-
-    q = np.maximum(m1 / m2, m2 / m1)
-    n, bins, _ = plt.hist(q, bins=30)
-    q_arr = np.linspace(q.max(), 1)
-    plt.plot(q_arr, n[0] * q_arr**(-p), 'k--')
-    plt.xlabel(r'$q$')
-    plt.ylabel('Counts')
-    plt.tight_layout()
-    plt.savefig(fldr + 'qdist_salpeter2', dpi=300)
     plt.clf()
 
     # this part is complicated, idk how to improve it

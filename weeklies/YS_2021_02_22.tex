@@ -137,7 +137,8 @@ misconception in their paper as well?
 Note that in my Appendix, the calculation doesn't change if we take $m_2 \geq
 m_1$, i.e.\ originally
 \begin{align}
-    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
+    P\p{\frac{m_{\min}}{m_{\max}} \leq q \leq 1} &=
+        \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
         \int\limits_{m_{\min}}^{m_1}\mathrm{d}m_2\;
                 \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2),\\
         &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1 m_1 P(m_1) P(qm_1),\\
@@ -145,7 +146,8 @@ m_1$, i.e.\ originally
 \end{align}
 but also
 \begin{align}
-    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
+    P\p{1 \leq q \leq \frac{m_{\max}}{m_{\min}}} &=
+        \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
         \int\limits_{m_1}^{m_{\max}}\mathrm{d}m_2\;
                 \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2),\\
         &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1 m_1 P(m_1) P(qm_1),\\
@@ -154,6 +156,37 @@ but also
 Note the different bounds of integration on the second integral. Clearly the
 first of these two derivations is wrong (the one that is in the paper), but I am
 not sure why yet. I will hopefully have an answer by the time of the meeting.
+
+\subsection{Resolution}
+
+In fact, Tout 1991 \url{https://doi.org/10.1093/mnras/250.4.701} has solved this
+problem, and in particular, ``notice that it is sharply peaked at $q = 1$ and
+does not have the form $n(q) \propto q^{-\alpha}$ when $q < 1$ as many authors,
+following Warner (1961), have assumed''. Both integrals I wrote above are
+incorrect, since the bounds of integration on the first integral should change
+based on the value of $q$ ($m_{\min} \Rightarrow m_{\min} / q$ in the former,
+and $m_{\max} \Rightarrow m_{\max} / q$ in the latter). However, the error on
+the second one is nearly negligible, while the error on the former is
+significant and changes the asymptotic behavior! The correct distributions are
+then:
+\begin{align}
+    P\p{q_{\min} \leq q \leq 1} &= \int\limits_{m_{\min} / q}^{m_{\max}}
+            \mathrm{d}m_1\; (-m_1) \p{m_1}^{-2p}q^{-p},\\
+        &\propto q^{-p}\s{-m_1^{-2p + 2}}_{m_{\min} / q}^{m_{\max}},\\
+        &\propto \p{\frac{m_{\min}^{2 - 2p}}{q^{2 - p}}}
+            - m_{\max}^{2 - 2p}q^{-p},\\
+        &\propto q^{p - 2}\s{1 - \p{\frac{q_{\min}}{q}}^{2p -
+        2}},\label{eq:salpeter_1}
+\end{align}
+and
+\begin{align}
+    P\p{1 \leq q \leq q_{\max}} &= \int\limits_{m_{\min}}^{m_{\max} / q}
+            \mathrm{d}m_1\; (-m_1) \p{m_1}^{-2p}q^{-p},\\
+        &= q^{-p}\s{-m_1^{-2p + 2}}_{m_{\min}}^{m_{\max} / q},\\
+        &= m_{\min}^{2 - 2p}q^{-p} - m_{\max}^{2 - 2p}q^{p - 2},\\
+        &\propto q^{-p}\s{1 - \p{\frac{q}{q_{\max}}}^{2p -
+        2}}.\label{eq:salpeter_2}
+\end{align}
 
 \section{Histograms}
 
@@ -171,7 +204,9 @@ for a grid of $q$ and $m_2$, and histogram it all.
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/3plots/qdist_logu.png}
     \caption{Distribution of $q$ after (i) random pairings Salpeter IMF +
     supernovae, (ii) uniform $q_{\rm ZAMS}$, and (iii) uniform $\log\p{q_{\rm
-    ZAMS}}$.}\label{fig:2}
+    ZAMS}}$. Black dashed lines are
+    Eqs.~(\ref{eq:salpeter_1},~\ref{eq:salpeter_2}), and $P(m) \propto
+    m^{-2.35}$ in the three plots respectively. }\label{fig:2}
 \end{figure}
 
 \section{Checking Formula from Paper}
