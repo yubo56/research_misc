@@ -790,5 +790,66 @@ where
     q \equiv m_2 / m_1.
 \end{equation}
 
+\section{02/15/21---Analytic $q$ distribution}
+
+I've procrastinated on further work on this paper, since it's almost done, but
+we add a brief blurb here. Consider if the primordial distribution of masses
+follows a power law $P(m) \propto m^{-p}$ over some $m_{\min}$ and
+$m_{\max}$; what is the distribution of $q$ when two stars are drawn from this
+distribution? Moe \& di Stephano, in some of their papers, point out that $P(q)
+\propto q^{-p}$, but I didn't see a derivation. We give one below.
+
+WLOG, assume $m_2 \leq m_1$, then
+\begin{align}
+    P(m) &\propto m^{-p},\\
+         &= \frac{m^{-p}}{N},\\
+    N &= \frac{1}{p - 1}\p{m_{\min}^{1 - p} - m_{\max}^{1 - p}},\\
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\int\limits_{m_{\min}}^{m_1}
+            \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2)
+            \;\mathrm{d}m_2\;\mathrm{d}m_1,\\
+        &= \int\limits_{m_{\min}}^{m_{\max}} m_1 P(m_1) P(qm_1)
+            \;\mathrm{d}m_1,\\
+        &= \frac{p - 1}{m_{\min}^{1 - p} - m_{\max}^{1 - p}}
+            \int\limits_{m_{\min}}^{m_{\max}}
+            m_1
+            \frac{p - 1}{m_{\min}^{1 - p} - m_1^{1 - p}}
+            \p{m_1}^{-p}\p{qm_1}^{-p}\;\mathrm{d}m_1,\\
+        &= q^{-p}\frac{(p - 1)^2}{m_{\min}^{1 - p} - m_{\max}^{1 - p}}
+            \int\limits_{m_{\min}}^{m_{\max}}
+            \frac{m_1^{-2p + 1}}{m_{\min}^{1 - p} - m_1^{1 - p}}
+            \;\mathrm{d}m_1.
+\end{align}
+Here, $q_{\min} \equiv m_{\min} / m_{\max}$. The case where $m_2 \geq m_1$
+equates to flipping the masses, so $P(q)$ is unaffected, and $P(q) \propto
+q^{-p}$. In fact, by normalization, we find that
+\begin{equation}
+    P(q) = \frac{p - 1}{q_{\min}^{1 - p} - 1}q^{-p},
+\end{equation}
+where $q_{\min} = m_{\min} / m_{\max}$. These two expressions probably agree?
+Not sure
+
+What about if, instead of drawing $m_1$ and $m_2$ from a distribution randomly,
+we required that their total mass equal $m_{12}$? Assume $m_1 \geq m_2$, then
+\begin{align}
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}
+            \int\limits_{m_{\min}}^{m_1}
+            \delta\p{\frac{m_2}{m_1} - q}
+            \delta\p{\frac{m_1 + m_2}{m_{12}} - 1}
+            P(m_1)
+            P\p{m_2}\;\mathrm{d}m_2\;\mathrm{d}m_1,\\
+        &= \int\limits_{m_{\min}}^{m_{\max}}
+            m_{12}\delta\p{\frac{m_{12} - m_1}{m_1} - q}
+            P(m_1)
+            P\p{m_{12} - m_1}\;\mathrm{d}m_1,\\
+        &=\int\limits_{m_{\min}}^{m_{\max}}
+            m_{12}
+            \delta\p{\frac{m_{12}}{m_1} - (1 + q)}
+            P\p{m_1}
+            P\p{m_{12} - m_1}\;\mathrm{d}m_1,\\
+        &= P\p{\frac{m_{12}}{1 + q}}P\p{m_{12} - \frac{m_{12}}{1 + q}}
+            \p{\frac{m_{12}}{1 + q}}^2,\\
+        &\propto \frac{q^{-p}}{\p{1 + q}^{-2p + 2}}.
+\end{align}
+
 \end{document}
 

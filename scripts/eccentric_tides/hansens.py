@@ -88,13 +88,13 @@ def fit_powerlaw_hansens(N, coeffs, p_exact=2, use_p2=True):
 
 def plot_hansens_0(e, m=0):
     N_peak = np.sqrt(1 + e) * (1 - e**2)**(-3/2)
-    nmax = int(10 * N_peak)
+    nmax = int(6 * N_peak)
     n_vals, coeffs, coeffs2 = get_coeffs_fft(nmax, m, e)
 
     n_tot = np.concatenate((-n_vals[1: ][::-1], n_vals))
     coeffs_tot = np.concatenate((coeffs2[1: ][::-1], coeffs))
-    plt.scatter(n_tot, coeffs_tot, facecolor='none', edgecolor='k', s=ms**2,
-                label=r'$F_{N0}$')
+    plt.semilogy(n_tot, coeffs_tot, ls='', marker='o', mfc='none',
+                 mec='k', ms=ms, label=r'$F_{N0}$')
 
     # fit_func
     amp = coeffs[0]
@@ -105,12 +105,12 @@ def plot_hansens_0(e, m=0):
     f5 = 1 + 3 * e**2 + 3 * e**4 / 8
     eta0 = np.sqrt(9 * e**2 * f3 / ((1 - e**2)**3 * f5))
     c0 = np.sqrt(f5 / (eta0 * (1 - e**2)**(9/2)))
-    plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'k',
+    plt.semilogy(n_tot, c0 * np.exp(-np.abs(n_tot) / eta0), 'b',
                  label='Analytic')
 
     plt.xlabel(r'$N$')
-    plt.xlim([0, 6 * N_peak])
-    plt.legend(fontsize=14, loc='lower center', ncol=2)
+    plt.xlim([0, nmax])
+    plt.legend(fontsize=14, loc='upper center', ncol=2)
     plt.tight_layout()
     plt.savefig('hansens/hansens%s' % ('%.2f' % e).replace('.', '_'), dpi=400)
     plt.close()
@@ -127,11 +127,12 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     max_c = np.max(np.abs(coeffs))
     pos_idx = np.where(coeffs > 0)[0]
     neg_idx = np.where(coeffs < 0)[0]
-    plt.scatter(n_vals[pos_idx], np.abs(coeffs[pos_idx]), facecolor='none',
-                edgecolor='k', s=ms**2, label=r'$F_{N2}$')
+    plt.loglog(n_vals[pos_idx], np.abs(coeffs[pos_idx]),
+               ls='', marker='o', mfc='none',
+               mec='k', ms=ms, label=r'$F_{N2}$')
     plt.loglog(n_vals[neg_idx], np.abs(coeffs[neg_idx]), 'kx', ms=ms)
-    plt.scatter(n_vals, coeffs2[1: ], facecolor='none', edgecolor='r',
-                s=ms**2, label=r'$F_{(-N)2}$')
+    plt.loglog(n_vals, coeffs2[1: ], ls='', marker='o', mfc='none',
+               mec='r', ms=ms, label=r'$F_{(-N)2}$')
     # params = fit_powerlaw_hansens(n_vals[100: ], coeffs[100: ])
     # fit = powerlaw(n_vals, params[0], params[1], params[2])
     f2 = 1 + 15*e**2/2 + 45*e**4/8 + 5*e**6/16
@@ -139,7 +140,7 @@ def plot_fitted_hansens(m, e, coeff_getter=get_coeffs, fn='hansens'):
     eta2 = 4 * f2 / (5 * f5 * (1 - e**2)**(3/2))
     c2 = np.sqrt(32 * f5 / (24 * eta2**5 * (1 - e**2)**(9/2)))
     fit = powerlaw(n_vals, c2, 2, eta2)
-    plt.plot(n_vals, fit, 'k', label='Analytic')
+    plt.plot(n_vals, fit, 'b', label='Analytic')
 
     plt.xlabel('$N$')
     plt.ylabel(r'$F_{N2}$')
@@ -297,7 +298,7 @@ def plot_naked_hansens(m=2, e=0.9):
 if __name__ == '__main__':
     m = 2
     e = 0.9
-    plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
+    # plot_fitted_hansens(m, e, coeff_getter=get_coeffs_fft)
     # plot_fitted_hansens(m, 0.98, coeff_getter=get_coeffs_fft, fn='hansens99')
     # plot_maxes()
     # plot_fit_scalings()
@@ -305,6 +306,6 @@ if __name__ == '__main__':
     # energy terms
     # for e_val in np.arange(0.5, 0.96, 0.05):
     #     plot_hansens_0(e_val)
-    plot_hansens_0(0.9)
+    # plot_hansens_0(0.9)
 
     # plot_naked_hansens(e=0.9)

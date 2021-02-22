@@ -693,7 +693,7 @@ fit coefficients depend on $e$, which we've also plotted but don't quite yet
 understand so don't include.
 \begin{figure}[t]
     \centering
-    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/totals_s_0_9.png}
+    \includegraphics[width=\textwidth]{../scripts/eccentric_tides/1totals_s_0_9.png}
     \caption{Plot of $\frac{\tau}{T_0 \hat{C}(r_c)}$. The predictions in the two
     regimes are the black horizontal line $\Omega_s = 0$ and red dashed line
     $2\Omega_s \gg N_{\max}\Omega$. Good agreement!}\label{fig:totals_s}
@@ -1497,6 +1497,20 @@ Note that it seems all SMC metallicies are reported in solar fractions, since it
 seems it all has the same biases. Recent papers\footnote{
 https://www.mdpi.com/2218-2004/7/2/41} seem to suggest higher solar % chktex 8
 metallicities again, which backs up our $Z \approx 0.004$ for the SMC\@.
+
+\section{Paper Results}
+
+Let's check a few things regarding circ/inspiral times:
+\begin{align}
+    \frac{\dot{a}}{a} &= - \frac{\dot{E}_g}{E_g}
+        = \frac{\dot{E}_{\rm in}}{E_g}
+        = -\frac{\dot{E}_{\rm in}}{GMM_2 / 2a},\\
+    \frac{\dot{L}}{L} = -\frac{T}{L_{\rm orb}} &= \frac{\dot{a}}{2a}
+        + \frac{\rdil{(1 - e^2)}{t}}{2(1 - e^2)}
+        = \frac{\dot{a}}{2a} - \frac{\dot{e}e}{1 - e^2},\\
+    \frac{\dot{e}}{e} &= \p{\frac{\dot{a}}{2a} + \frac{T}{L_{\rm orb}}}
+        \p{\frac{1 - e^2}{e^2}}.
+\end{align}
 
 \end{document}
 

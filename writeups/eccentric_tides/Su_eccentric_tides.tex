@@ -81,6 +81,8 @@ keywords
 
 \section{Introduction}
 
+\textcolor{Corr}{Not yet rewritten.}
+
 In the course of their evolution, massive stellar binaries give rise to many
 astrophysical systems of interest including high mass x-ray binaries (HMXRBs)
 and compact object binaries (CITATION with evolutionary pathway). In general,
@@ -123,14 +125,14 @@ closed forms for both the tidal torque and inspiral rate of such an MS-CO
 binary.
 
 In Section~\ref{s:background}, we review the relevant equations. In
-Sections~\ref{s:hansens} and~\ref{s:eval}, we derive accurate, approximate
+Sections~\ref{ss:hansens} and~\ref{s:eval}, we derive accurate, approximate
 closed forms for the torque and energy transfer rate in the binary. In
 Section~\ref{s:j00457319}, we apply results to the binary radio pulsar
 J0045-7319. We conclude and discuss in Section~\ref{s:disc}.
 
-\section{Summary of Relevant Work}\label{s:background}
+\section{Tidal Torque in Massive Stars}\label{s:background}
 
-\subsection{Tidal Torque in Massive Stars}
+\subsection{Circular Orbit}
 
 We first review the case where the MS-CO binary is circular. Let $M_2$ be the
 mass of the CO, $a$ be the semimajor axis of the binary, and $\Omega$ the
@@ -139,18 +141,15 @@ the companion is \citep{kushnir}:
 \begin{align}
     T_{\rm circ}(\omega) ={}& T_0 \sgn\p{\omega}
         \Big|\,\frac{\omega}{\Omega}\,\Big|^{8/3} \label{eq:kushnir_torque},\\
-    T_0 ={}& \frac{GM_2^2r_{\rm c}^5}{a^6}
-        \p{\frac{\Omega}{\sqrt{GM_{\rm c}/r_{\rm c}^3}}}^{8/3}
-        \s{\frac{r_{\rm c}}{g_{\rm c}}
-            \p{\rd{N^2}{\ln r}}_{r = r_{\rm c}}}^{-1/3}\nonumber\\
-            &\times \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}}
-                \p{1 - \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}}}^2
-                \s{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
-                6^{4/3}} \frac{3}{4\pi}\alpha^2},\nonumber\\
-        \equiv{}& \beta_2\frac{GM_2^2r_{\rm c}^5}{a^6}
+    T_0 \equiv{}& \beta_2\frac{GM_2^2r_{\rm c}^5}{a^6}
             \p{\frac{\Omega}{\sqrt{GM_{\rm c}/r_{\rm c}^3}}}^{8/3}
             \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}} \p{1 - \frac{\rho_{\rm
-            c}}{\bar{\rho}_{\rm c}}}^2.
+            c}}{\bar{\rho}_{\rm c}}}^2,\\
+    \beta_2 \equiv{}&
+        \s{\frac{r_{\rm c}}{g_{\rm c}}
+            \p{\rd{N^2}{\ln r}}_{r = r_{\rm c}}}^{-1/3}
+                \s{\frac{3}{2}\frac{3^{2/3}\Gamma^2(1/3)}{5 \cdot
+                6^{4/3}} \frac{3}{4\pi}\alpha^2}.
 \end{align}
 Here, $\omega \equiv \Omega - 2\Omega_{\rm s}$ is the tidal forcing frequency,
 $\Omega_{\rm s}$ is the spin of the massive star, $N$ is the Br\"unt-Vaisala
@@ -164,18 +163,16 @@ approximation for a large range of stellar models. In
 Eq.~\eqref{eq:kushnir_torque}, we have written the terms such that $T_0$
 contains all the spin-independent terms.
 
-\subsection{Perturbation from an Eccentric Companion: Hansen Coefficients}
+\subsection{Eccentric Orbit}
 
-Separately, we review the general procedure for calculating tidal dissipation
-due to an eccentric perturber. The gravitational potential of an eccentric
-companion to quadrupolar order can be decomposed as a sum over circular orbits
-\citep[e.g.][]{sl,vlf}:
+The gravitational potential of an eccentric companion to quadrupolar order can
+be decomposed as a sum over circular orbits \citep[e.g.][]{sl,vlf}:
 \begin{align}
     U &= \sum\limits_{m=-2}^2 U_{2m} \p{\vec{r}, t},\label{eq:u_ecc}\\
     U_{2m}\p{\vec{r}, t} &= -\frac{GM_2 W_{2m} r^2}{D(t)^3}
-        Y_{2m}(\theta, \phi) e^{-imf(t)},\nonumber\\
+        Y_{2m}(\theta, \phi) e^{-imf\!\!\!\:(t)},\nonumber\\
         &= -\frac{GM_2W_{2m} r^2}{a^3}Y_{2m}\p{\theta, \phi}
-            \sum\limits_{N = -\infty}^\infty F_{Nm}e^{-iN\Omega t}
+            \sum\limits_{N = -\infty}^\infty \!\!F_{Nm}e^{-iN\Omega t}
             \label{eq:hansen_decomp}.
 \end{align}
 Here, $(r, \theta, \phi)$ are the radial, polar, and azimuthal coordinates of
@@ -188,15 +185,16 @@ in][]{murray1999solar}, which are defined implicitly in
 Eq.~\eqref{eq:hansen_decomp} to be the Fourier coefficients of the perturbing
 function, i.e.
 \begin{equation}
-    \frac{a^3}{D(t)^3} e^{-imf(t)} = \sum\limits_{N = -\infty}^\infty
-        F_{Nm} e^{-iN\Omega t}.\label{eq:hansen_series}
+    \frac{a^3}{D(t)^3} e^{-imf\!\!\!\:(t)} = \sum\limits_{N = -\infty}^\infty
+        \!\!F_{Nm} e^{-iN\Omega t}.\label{eq:hansen_series}
 \end{equation}
 The $F_{Nm}$ can be written explicitly as an integral over the eccentric anomaly
-\citep{murray1999solar, sl}, but this requires separate integral for each $N$.
-Instead, taking a discrete Fourier Transform of the left hand side of
-Eq.~\eqref{eq:hansen_series} permits computation of arbitrarily many $N$ at once
-\citep[as pointed out by][]{correia2014deformation}, which is what is done in
-this work.
+\citep{murray1999solar, sl}:
+\begin{equation}
+    F_{Nm} = \frac{1}{\pi}\int\limits_{0}^{\pi}
+        \frac{\cos\s{N\p{E - e\sin E} - mf(E)}}
+            {\p{1 - e\cos E}^2}\;\mathrm{d}E.\label{eq:hansen_integral}
+\end{equation}
 
 By considering the effect of each summand in Eq.~\eqref{eq:hansen_decomp}, the
 total torque on the star, energy transfer in the inertial frame, and heating in
@@ -214,8 +212,28 @@ the star's corotating frame can be obtained \citep{sl, vlf}:
     \dot{E}_{\rm rot} ={}& \dot{E}_{\rm in} - \Omega_{\rm s} T
         \label{eq:edot_rot}.
 \end{align}
+Here, dots indicate time derivatives.
 
-\subsection{Objective of This Paper}\label{ss:objective}
+From these, we can obtain the binary inspiral and circularization times using:
+\begin{align}
+    \frac{\dot{a}}{a} &= \frac{\dot{E}_{\rm in}}{E_{\rm orb}},
+        \label{eq:dota}\\
+    \frac{\dot{e}}{e} &= \p{\frac{\dot{E}_{\rm in}}{2E_{\rm orb}} +
+        \frac{T}{L_{\rm orb}}} \p{\frac{1 - e^2}{e^2}}.
+\end{align}
+where $E_{\rm orb} = -GMM_2 / 2a$ is the orbital binding energy and $L_{\rm orb}
+= \sqrt{G\p{M + M_2}a\p{1 - e^2}}$ is the orbital angular momentum. The stellar
+synchronization time can also be computed assuming that the star rotates
+rigidly\footnote{Note that the process of stellar synchronization is not
+expected to be uniform \citep{goldreich1989tidal, su2020}, as the generated
+torque depends on the core spin but deposits angular momentum in the envelope.}:
+\begin{equation}
+    \frac{\dot{\Omega}_{\rm s}}{\Omega_{\rm s}}
+        = \frac{T}{kMR^2 \Omega_{\rm s}},
+\end{equation}
+where $kMR^2$ is the angular momentum of the star.
+
+\section{Analytic Evaluation of Tidal Torque and Energy Transfer}\label{ss:objective}
 
 The objective of this paper is to study the effect of dynamical tides in an
 eccentric MS-CO binary. First, we compute the tidal torque by substituting the
@@ -244,13 +262,18 @@ often must sum hundreds or thousands of terms, each of which has a different
 $F_{Nm}$. In the subsequent sections, our objective is to obtain closed-form
 approximations to Eqs.~(\ref{eq:tau_explicit_sum}--\ref{eq:ein_explicit_sum}).
 
-\section{Approximating Hansen Coefficients}\label{s:hansens}
+\subsection{Approximating Hansen Coefficients}\label{ss:hansens}
 
-In this section, we derive scalings for the Hansen coefficients in the
-high-eccentricity limit. Since $F_{(-N)m} = F_{N(-m)}$, so we will only study
-the Hansen coefficient behavior for $m \geq 0$.
+Although the Hansen coefficients can be evaluated using the integral expression
+Eq.~\eqref{eq:hansen_integral}, this requires calculating a separate integral
+for each $N$. It is more convenient to use the discrete Fourier Transform of the
+left hand side of Eq.~\eqref{eq:hansen_series} to calculate arbitrarily many $N$
+at once \citep[as pointed out by][]{correia2014deformation}. We can then derive
+scalings for the Hansen coefficients in the high-eccentricity limit. Since
+$F_{(-N)m} = F_{N(-m)}$, we will only study the Hansen coefficient behavior for
+$m \geq 0$.
 
-\subsection{$m=2$ Hansen Coefficient Behavior at High Eccentricity}
+\subsubsection{$m=2$ Hansen Coefficient Behavior at High Eccentricity}
 
 We first consider the case where $m = 2$. Figure~\ref{fig:hansens} shows
 the $F_{N2}$ for $e = 0.9$. First, we note that $F_{N2}$ is much larger when $N
@@ -261,7 +284,8 @@ scales, $\Omega$ and $\Omega_{\rm p}$ the pericenter frequency, defined by
     \Omega_{\rm p} \equiv \Omega \frac{\sqrt{1 + e}}{\p{1 - e}^{3/2}}.
         \label{eq:Wperi}
 \end{equation}
-For convenience, we also define
+For convenience, we also define $N_{\rm p}$ as the floor of $\Omega_{\rm p} /
+\Omega$, i.e.
 \begin{equation}
     N_{\rm p} \equiv \lfloor \Omega_{\rm p} / \Omega\rfloor,
 \end{equation}
@@ -285,7 +309,7 @@ approximated by
 \end{equation}
 for some fitting coefficients $C_2$, $p$, and $\eta_2$. By performing fits to
 $F_{N2}$, we found that $p \approx 2$ is relatively constant for modest-to-large
-large eccentricities\footnote{This can be understood, as the left hand side of
+eccentricities\footnote{This can be understood, as the left hand side of
 Eq.~\eqref{eq:hansen_series} resembles the second derivative of a Dirac delta
 when the eccentricity is substantial: it is sharply peaked about $t = 0$, is
 periodic with period $P = 2\pi / \Omega$, and has zero derivative three times
@@ -314,21 +338,21 @@ normalization, we use the well known Hansen coefficient moments
 This fixes
 \begin{align}
     \eta_2 &= \frac{4f_2}{5f_5\p{1 - e^2}^{3/2}},\label{eq:eta2}\\
-    C_2^2\eta_2^5 &= \frac{4f_5}{3\p{1 - e^2}^{9/2}}.\label{eq:C2}
+    C_2 &= \s{\frac{4f_5}{3\p{1 - e^2}^{9/2}\eta_2^5}}^{1/2}.\label{eq:C2}
 \end{align}
 Despite having zero free parameters, this formula accurately describes the
 $F_{N2}$ as can be seen in Fig.~\ref{fig:hansens}.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/hansens.png}
-    \caption{Plot of Hansen coefficients $F_{N2}$ for $e = 0.9$. The red dots
-    denote negative $N$, while the black dots and crosses denote positive and
-    negative $F_{N2}$. The green line is the formula given by
+    \caption{Plot of Hansen coefficients $F_{N2}$ for $e = 0.9$. The red circles
+    denote negative $N$, while the black circles and crosses denote positive and
+    negative $F_{N2}$. The blue line is the formula given by
     Eq.~\eqref{eq:fn2_fit} with $\eta_2$ and $C_2$ given by
     Eqs.~(\ref{eq:eta2}--\ref{eq:C2}). }\label{fig:hansens}
 \end{figure}
 
-\subsection{$m = 0$ Hansen Coefficient Behavior at High Eccentricity}
+\subsubsection{$m = 0$ Hansen Coefficient Behavior at High Eccentricity}
 
 We now turn to the $m = 0$ Hansen coefficients, $F_{N0}$, which are shown in
 Fig.~\ref{fig:fn0_fit}. We know that $F_{N0} = F_{(-N)0}$, so we consider only
@@ -351,8 +375,8 @@ moments \citep{hut81}
 \end{align}
 We have defined the common functions $f_3$ and $f_5$. This then requires
 \begin{align}
-    \eta_0^2 &= \frac{9e^2f_3}{\p{1 - e^2}^{3}f_5},\label{eq:eta0}\\
-    C_0^2\eta_0 &= \frac{f_5}{\p{1 - e^2}^{9/2}}.\label{eq:C0}
+    \eta_0 &= \s{\frac{9e^2f_3}{\p{1 - e^2}^{3}f_5}}^{1/2},\label{eq:eta0}\\
+    C_0 &= \s{\frac{f_5}{\p{1 - e^2}^{9/2}\eta_0}}^{1/2}.\label{eq:C0}
 \end{align}
 The good agreement of this analytic formula can be seen in
 Fig.~\ref{fig:fn0_fit}.
@@ -360,66 +384,65 @@ Fig.~\ref{fig:fn0_fit}.
 \begin{figure}
     \centering
     \includegraphics[width=0.9\columnwidth]{../../scripts/eccentric_tides/hansens/hansens0_90.png}
-    \caption{Plot of $F_{N0}$ for $e = 0.9$. Since $F_{N0} = F_{(-N)0}$, we only
-    show positive $N$. The green line is given by Eq.~\eqref{eq:fn0_fit} with
-    $\eta_0$ and $C_0$ given by
+    \caption{Plot of $F_{N0}$ (black circles) for $e = 0.9$. Since $F_{N0} =
+    F_{(-N)0}$, we only show positive $N$. The blue line is given by
+    Eq.~\eqref{eq:fn0_fit} with $\eta_0$ and $C_0$ given by
     Eqs.~(\ref{eq:eta0}--\ref{eq:C0}).}\label{fig:fn0_fit}
 \end{figure}
 
-\section{Evaluating Torque and Energy Transfer}\label{s:eval}
+\subsection{Approximate Expressions for Torque and Energy Transfer}\label{s:eval}
 
 Having found good approximations for the Hansen coefficients, we now apply them
 to simplify the formulas for the torque and the energy transfer rate in
 Section~\ref{ss:objective}.
 
-\subsection{Tidal Torque}\label{ss:torque_eval}
+\subsubsection{Tidal Torque}\label{ss:torque_eval}
 
 Towards simplifying the torque, given by Eq.~\eqref{eq:tau_explicit_sum}, we
 replace $F_{N2}$ with Eq.~\eqref{eq:fn2_fit} and the sum with an integral,
 obtaining
 \begin{equation}
-    T = T_0 \int_0^\infty C_2^2 N^4 e^{-2N / \eta_2}
+    T \approx T_0 \int_0^\infty C_2^2 N^4 e^{-2N / \eta_2}
         \sgn\left(N - 2\Omega_{\rm s} / \Omega\right) \left|N - 2 \Omega_{\rm s} /
             \Omega\right|^{8/3}\;\mathrm{d}N.\label{eq:tau_int}
 \end{equation}
 
-To further simplify this expression, we analyze it in the large and small spin
-limits. To distinguish between the two limits, we first define $N_{\max}$ to be
-the $N$ for which the integrand in Eq.~\eqref{eq:tau_int} is largest assuming
-$\Omega_{\rm s} = 0$, so $N_{\max} = 10\eta_2/3$. Note that if $\Omega_{\rm s}$
-is large instead, the integrand is maximized at $2\eta_2 \simeq N_{\max}$.
-The large-spin limit is then where $\abs{\Omega_{\rm s}} \gg N_{\max}\Omega / 2$.
-In this limit, Eq.~\eqref{eq:tau_explicit_sum} can be evaluated directly with
-the known Hansen coefficient moments, which gives
+To further simplify this expression, we first analyze it in the zero spin limit.
+Here, Eq.~\eqref{eq:tau_int} can be integrated analytically\footnote{The key to
+the success of our approach is that sums of form $\sum_{n = -\infty}^\infty
+F_{N2}^2 N^p$ can be approximated for non-integer $p$ in terms of $\Gamma$,
+since $\int_0^\infty x^pe^{-x}\;\mathrm{d}x = \Gamma(p - 1)$. This is not
+possible with existing analytical techniques.}, giving
+\begin{align}
+    \lim_{\Omega_{\rm s} \to 0} T &= T_0 \frac{f_5 (\eta_2/2)^{8/3}}{(1 -
+        e^2)^{9/2}} \frac{\Gamma(23/3)}{4!}.\label{eq:tau_lowspin}
+\end{align}
+The accuracy of this formula is shown in the top panel of
+Fig.~\ref{fig:totals_ecc0}. For comparison, we also illustrate the torque
+predicted by direct integration of Eq.~\eqref{eq:tau_explicit_sum}. It can be
+see that both the integral and the analytic closed form perform well for
+moderate-to-large eccentricities, but both overpredict the torque at small $e$.
+This suggests that approximating the Hansen coefficient sum with an integral is
+inaccurate when the eccentricity is small. This is expected, as the number of
+nonnegligible Hansen coefficients is small when the eccentricity is small, so
+the continuum approximation is poor.
+
+Eq.~\eqref{eq:tau_lowspin} is valid so long as $\Omega_{\rm s} / \Omega \ll
+\eta_2$, since the integrand is maximized when $N \sim \eta_2$. If instead
+$\Omega_{\rm s} / \Omega \gg \eta_2$, Eq.~\eqref{eq:tau_explicit_sum} can be
+evaluated directly with the known Hansen coefficient moments, which gives
 \begin{equation}
     \lim_{\Omega_{\rm s} \to \infty} T = -T_0 \sgn (\Omega_{\rm s})\;\left|2
         \Omega_{\rm s} / \Omega\right|^{8/3} \frac{f_5}{(1 -
         e^2)^{9/2}}.\label{eq:tau_highspin}
 \end{equation}
-The accuracy of this formula is shown in the top panel of
-Fig.~\ref{fig:totals_ecc0} for $\Omega_{\rm s} / \Omega = 400 \gg N_{\max}$. For
-comparison, we also illustrate the torque predicted by direct integration of
-Eq.~\eqref{eq:tau_explicit_sum}. It is seen that both the integral approximation
-and the asymptotic closed form match the direct summation of Hansen coefficients
-accurately.
-
-We can also evaluate the small spin limit $\abs{\Omega_{\rm s}} \ll
-N_{\max}\Omega / 2$. Eq.~\eqref{eq:tau_int} can be integrated
-analytically\footnote{The key to the success of our approach is that sums of
-form $\sum_{n = -\infty}^\infty F_{N2}^2 N^p$ can be approximated for
-non-integer $p$ in terms of $\Gamma$, since $\int\limits_0^\infty
-x^pe^{-x}\;\mathrm{d}x = \Gamma(p - 1)$. This is not possible with existing
-analytical techniques.}, giving
-\begin{align}
-    \lim_{\Omega_{\rm s} \to 0} T &= T_0 \frac{f_5 (\eta_2/2)^{8/3}}{(1 -
-        e^2)^{9/2}} \frac{\Gamma(23/3)}{4!}.\label{eq:tau_lowspin}
-\end{align}
 The accuracy of this formula is shown in the bottom panel of
-Fig.~\ref{fig:totals_ecc0} for $\Omega_{\rm s} / \Omega = 0$. Again, both the
-integral approximation and the asymptotic closed form accurately track the
-explicit sum.
+Fig.~\ref{fig:totals_ecc0} for $\Omega_{\rm s} / \Omega = 400$ along with the
+integral expression. $400 \gg \eta_2$ for the depicted eccentricities. We see
+that direct summation, the integral expression, and Eq.~\eqref{eq:tau_highspin}
+all agree very well for all eccentricities.
 
-We now have the asymptotic forms of Eq.~\eqref{eq:tau_int} for large and small
+We now have the asymptotic forms of Eq.~\eqref{eq:tau_int} for small and large
 spins, but we can derive an approximation valid for all spins. To do this, we
 first analyze the regime where the spin is small but non-negligible. In this
 regime, we approximate
@@ -437,68 +460,69 @@ obtain
 \begin{align}
     T &= T_0 \frac{f_5 (\eta_2/2)^{8/3}}{(1 - e^2)^{9/2}}
         \;\mathrm{sgn}\left(1 - \gamma_T\frac{\Omega_{\rm s}}{\eta_2\Omega}\right)
-            \left|1 - \gamma_T\frac{\Omega_{\rm s}}{\eta_2\Omega}\right|^{8/3}
-            \frac{\Gamma(23/3)}{4!},\label{eq:tau_approx}\\
+            \left|
+                \frac{4}{\gamma_T}
+                \p{1 - \gamma_T\frac{\Omega_{\rm s}}{\eta_2\Omega}}
+            \right|^{8/3} ,\label{eq:tau_approx}\\
     \gamma_T &= 4\p{\frac{4!}{\Gamma(23/3)}}^{3/8} \approx 0.691.
 \end{align}
 Fig.~\ref{fig:totals_s} demonstrates the accuracy of
-this prediction as a function. As expected from the construction of this approximation, both
-the large and small spin limits are well captured, and the scaling for
-intermediate spins is also rather accurate. It is worth noting that integration
-of Eq.~\eqref{eq:tau_int} is markedly more accurate than the closed form near
-pseudosynchronization. Note that the integral handles the $F_{N2}$
-approximately but handles the spin dependence exactly. As such, we see that the
-Hansen coefficient approximations proposed in Section~\ref{s:background}
-introduce less inaccuracy than the approximations used to evaluate the spin
-dependence near pseudosynchronization [Eq.~\eqref{eq:nmax_ansatz}].
+this prediction as a function of $\Omega_{\rm s}$. As expected from the
+construction of this approximation, both the large and small spin limits are
+well captured, and the scaling for intermediate spins is also rather accurate.
+It is worth noting that integration of Eq.~\eqref{eq:tau_int} is markedly more
+accurate than the closed form when $T$ changes signs. To interpret this, we
+recall that the integral uses our approximate form for the Hansen coefficients
+but handles the spin dependence exactly. This suggests that our approximation in
+handling the spin dependence [Eq.~\eqref{eq:nmax_ansatz}] is the dominant source
+of error when $T$ is near zero. Again, this is expected, as when $e = 0.9$,
+Eq.~\eqref{eq:tau_explicit_sum} is the sum over many non-negligible Hansen
+coefficients and thus can be well approximated by an integral. In summary, the
+tidal torque must be evaluated with explicit summation
+[Eq.~\eqref{eq:tau_explicit_sum}] when $e$ is small, must be evaluated with
+the integral expression [Eq.~\eqref{eq:tau_int}] when $\Omega_{\rm s} \simeq
+\Omega_{\rm p}$, and otherwise can be evaluated using the explicit formula given
+by Eq.~\eqref{eq:tau_approx}.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_ecc_0.png}
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_ecc_400.png}
-    \caption{Tidal torque on a non-rotating (top) and rapidly rotating
-    ($\Omega_{\rm s} / \Omega = 400$; bottom) star with a companion having
-    orbital eccentricity $e$. Blue plus signs represent explicit summation of
-    Eq.~\eqref{eq:tau_explicit_sum}, blue crosses are evaluated using the
-    integral approximation Eq.~\eqref{eq:tau_int}, and the green line is
-    Eq.~\eqref{eq:tau_approx}. In the large and small spin limits,
-    Eq.~\eqref{eq:tau_approx} reduces to Eq.~\eqref{eq:tau_highspin} and
-    Eq.~\eqref{eq:tau_lowspin} respectively. }\label{fig:totals_ecc0}
+    \caption{Tidal torque on a non-rotating (top) and rapidly rotating (bottom)
+    star due to a companion with orbital eccentricity $e$. Black circles
+    represent explicit summation of Eq.~\eqref{eq:tau_explicit_sum}, green
+    crosses are evaluated using the integral approximation
+    Eq.~\eqref{eq:tau_int}, and the blue line is Eq.~\eqref{eq:tau_approx}. In
+    the small and large spin limits, Eq.~\eqref{eq:tau_approx} reduces to
+    Eq.~\eqref{eq:tau_lowspin} and Eq.~\eqref{eq:tau_highspin} respectively.
+    }\label{fig:totals_ecc0}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_s_0_9.png}
     \caption{Tidal torque as a function of spin for a highly eccentric $e = 0.9$
-    companion. Pluses represent direct summation of Hansen coefficients, crosses
-    represent the integral approximation, and solid lines represent the
-    analytic closed form. Blue [red] means positive [negative]
-    torque on the star. The vertical line denotes $\Omega_{\rm s} = \Omega_{\rm
-    p}$, where $\Omega_{\rm p}$ is given by Eq.~\eqref{eq:Wperi}. }\label{fig:totals_s}
+    companion. Black circles represent direct summation of Hansen coefficients
+    [Eq.~\eqref{eq:tau_explicit_sum}], green crosses the integral approximation
+    [Eq.~\eqref{eq:tau_int}], and solid lines represent the analytic closed form
+    [Eq.~\eqref{eq:tau_approx}]. The spin is normalized by $\Omega_{\rm p}
+    \approx 43 \Omega$ [Eq.~\eqref{eq:Wperi}]. }\label{fig:totals_s}
 \end{figure}
 
-\textcolor{Corr}{Finally, the synchronization time can be computed? It's a bit
-complicated, since dissipation happens in the envelope but is driven by the
-core. Assuming differential rotation, synchronization is really enforced by
-magnetic winding or something? Ask Dong}
-\begin{equation}
-    \tau_{\rm sync} = \frac{\Omega_{\rm s}}{T}kMR^2
-\end{equation}
+\subsubsection{Pseudosynchronization}
 
-\subsection{Pseudosynchronization}
-
-There is a single $\Omega_{\rm s}$ for which the torque, given by
-Eq.~\eqref{eq:tau_approx}, vanishes, which we call the pseudosynchronization
-spin frequency. It is given by
+The torque, given by Eq.~\eqref{eq:tau_approx}, vanishes for a single
+$\Omega_{\rm s}$. We call this spin the pseudosynchronization
+spin frequency, given by
 \begin{equation}
-    \frac{\Omega_{\rm s, ps}}{\Omega} =
+    \frac{\Omega_{\rm ps}}{\Omega} =
         \frac{\eta_2}{\gamma_T} = \frac{4f_2}{5\gamma_T f_5\p{1 -
         e^2}^{3/2}}.\label{eq:eta2_691}
 \end{equation}
-This has the expected scaling $\Omega_{\rm s, ps} \propto (1 - e)^{-3/2} \propto
-\Omega_{\rm p}$. By comparison, in standard weak friction theory of equilibrium
-tides, the pseudo-synchronized rotation rate is given by
+This has the expected scaling $\Omega_{\rm ps} \simeq \Omega_{\rm p}$. By
+comparison, in standard weak friction theory of equilibrium tides, the
+pseudo-synchronized rotation rate is given by
 \citep{alexander73, hut81}
 \begin{equation}
-    \frac{\Omega_{\rm s, ps}^{\rm (Eq)}}{\Omega} = \frac{f_2}{f_5\p{1 -
+    \frac{\Omega_{\rm ps}^{\rm (Eq)}}{\Omega} = \frac{f_2}{f_5\p{1 -
         e^2}^{3/2}}.\label{eq:weaktide}
 \end{equation}
 This differs from our Eq.~\eqref{eq:eta2_691} by a factor of $1.15$.
@@ -506,17 +530,17 @@ Figure~\ref{fig:pseudosync} compares these two predictions, as well as
 $\Omega_{\rm p}$, to applying a root finding algorithm to
 Eq.~\eqref{eq:tau_sum}. $\Omega_{\rm p}$ is very nearly equal to $\Omega_{\rm s,
 ps}$, and both are slightly better estimates for the pseudosynchonization spin
-frequency than $\Omega_{\rm s, ps}^{\rm (Eq)}$.
+frequency than $\Omega_{\rm ps}^{\rm (Eq)}$.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1pseudosynchronous.png}
     \caption{Calculations of the pseudosynchronization spin frequencies
-    $\Omega_{\rm s, sync}$ normalized by the orbital frequency $\Omega$ as a
-    function of eccentricity (the scale is uniform in $1 - e^2$). The green,
-    blue, and red line are given by Eqs.~\eqref{eq:Wperi},~\eqref{eq:eta2_691},
-    and~\eqref{eq:weaktide} respectively. The exact solution, given in the black
-    line, is obtained using finding algorithm to solve for the zero of
-    Eq.~\eqref{eq:tau_sum}.}\label{fig:pseudosync}
+    $\Omega_{\rm sync}$ normalized by the pericenter frequency $\Omega_{\rm p}$
+    [Eq.~\eqref{eq:Wperi}] as a function of eccentricity. The blue and red lines
+    are given by Eqs.~\eqref{eq:eta2_691} and~\eqref{eq:weaktide} respectively.
+    The exact solution, given in the black line, is obtained using finding a
+    root finding algorithm to solve for the zero of Eq.~\eqref{eq:tau_sum}.
+    }\label{fig:pseudosync}
 \end{figure}
 
 Note that, very near the pseudosynchronized spin frequency,
@@ -524,7 +548,7 @@ Eq.~\eqref{eq:tau_approx} predicts that $\rdil{T}{\Omega_{\rm s}} \approx 0$.
 This is not physically accurate and is an artifact of our factorization ansatz
 in Eq.~\eqref{eq:nmax_ansatz}.
 
-\subsection{Closed Form for Energy Transfer}
+\subsubsection{Energy Transfer}
 
 We now turn our attention to Eq.~\eqref{eq:edot_in} and replace $F_{N2}$ and
 $F_{N0}$ with their approximations [Eqs.~\eqref{eq:fn2_fit}
@@ -538,21 +562,18 @@ and~\eqref{eq:fn0_fit}] to obtain
             &+ 2 \p{\frac{W_{20}}{W_{22}}}^2 C_0^2 e^{-2N / \eta_0} N^{11/3}
         \Big]\;\mathrm{d}N.\label{eq:ein_int}
 \end{align}
-We evaluate the $m = 2$ and $m = 0$ components of this expression separately.
+We evaluate the $m = 2$ and $m = 0$ contributions to this expression separately.
 
 We first examine the $m = 2$ contribution using the same procedure that was used
-in Section~\ref{ss:torque_eval} for the torque. Here, the integrand is maximized
-at $N_{\max} = 23\eta_2 / 6$ when $\Omega_{\rm s} = 0$. In the large spin limit
-where $\Omega_{\rm s} \gg N_{\max}\Omega / 2$, the $m = 2$ contribution
-evaluates to
+in Section~\ref{ss:torque_eval} for the torque. If the spin is large,
+$\Omega_{\rm s} / \Omega \gg \eta_2$, the $m = 2$ contribution evaluates to
 \begin{equation}
     \lim_{\Omega_{\rm s} \to \infty} \dot{E}_{\rm in}^{(m=2)} =
         -\frac{T_0\Omega}{2} \; \mathrm{sgn}(\Omega_{\rm s})|2\Omega_{\rm
         s}/\Omega|^{8/3} \frac{2f_2}{(1 - e^2)^6}.\label{eq:ein_highs}
 \end{equation}
-The small spin limit can be similarly computed; it is omitted here for brevity.
-Instead, we directly seek an approximation valid for all spins, beginning by
-making the approximation
+If the spin is instead moderate, $\Omega_{\rm s} / \Omega \lesssim \eta / 2$, we
+make the approximation
 \begin{equation}
     N - 2\Omega_{\rm s} / \Omega \simeq \frac{N}{N_{\max}}
         \left(N_{\max} - \frac{2\gamma_E
@@ -565,10 +586,13 @@ yields
 \begin{align}
     \dot{E}_{\rm in}^{(m=2)}
         ={}& \frac{T_0\Omega f_5 (\eta_2/2)^{11/3}}{2(1-e^2)^{9/2}}
-            \frac{\Gamma(26/3)}{4!}\nonumber\\
+            \nonumber\\
         &\times \mathrm{sgn}\p{1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}}
-            \left|1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}\right|^{8/3},\\
-    \gamma_E ={}& \p{\frac{5! 2^{16/3}}{\Gamma\p{26/3}}}^{3/8}
+            \left|
+                \frac{4}{\gamma_E}
+                \p{1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}}
+            \right|^{8/3},\\
+    \gamma_E ={}& 4\p{\frac{5!}{\Gamma\p{26/3}}}^{3/8}
         \approx 0.5886.
 \end{align}
 
@@ -588,38 +612,34 @@ Eq.~\eqref{eq:fn0_fit}. So we obtain the total energy transfer rate
 \end{align}
 
 In Fig.~\ref{fig:e0}, we show the agreement of Eq.~\eqref{eq:ein_dot_tot} in the
-large and small spin limits, where good agreement is observed both with the
+small and large spin limits, where good agreement is observed both with the
 integral form Eq.~\eqref{eq:ein_int} and the closed form
-Eq.~\eqref{eq:ein_dot_tot}. In Fig.~\ref{fig:e_spin}, we show the energy
-transfer rate as a function of spin. The agreement degrades near
-pseudosynchronization but generally captures the correct scaling. Again,
-explicit integration is visibly more accurate than the analytic closed form.
+Eq.~\eqref{eq:ein_dot_tot}. Again, when the spin and eccentricity are both
+negligible, both the integral and closed form expressions overpredict the energy
+dissipation rate. In Fig.~\ref{fig:e_spin}, we show the energy
+transfer rate using both the integral and analytic closed forms as a function of
+spin when $e = 0.9$. The performance of the analytic expression degrades near
+pseudosynchronization but generally captures the correct scaling, while the
+integral expression remains accurate for all spins.
 \begin{figure}
     \centering
-    \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_e_400.png}
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_e_0.png}
-    \caption{Plot of $\dot{E}_{\rm in}$ for a rapidly rotating ($\Omega_{\rm s}
-    / \Omega = 400$; top) and non-rotating (bottom) star. Black pluses represent
-    explicit summation of the Hansen coefficients, blue crosses the integral
-    form Eq.~\eqref{eq:ein_int}, and the green line the closed form
+    \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_e_400.png}
+    \caption{Plot of $\dot{E}_{\rm in}$ for a non-rotating (top) and a rapidly
+    rotating (bottom) star. Black circles represent explicit summation of the
+    Hansen coefficients as in Eq.~\eqref{eq:eq:ein_explicit_sum}, green crosses
+    the integral form Eq.~\eqref{eq:ein_int}, and the blue line the closed form
     Eq.~\eqref{eq:ein_dot_tot}. }\label{fig:e0}
 \end{figure}
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1totals_NRG_e_0_9.png}
-    \caption{$\dot{E}_{\rm in}$ as a function of spin for a highly eccentric $e
-    = 0.9$ companion. Pluses represent direct summation of Hansen coefficients,
-    crosses represent the integral approximation, and solid lines represent the
-    analytic closed form. Blue [red] means positive [negative] energy transfer
-    into the spin of the star. The vertical line denotes $\Omega_{\rm s} =
-    \Omega_{\rm p}$, where $\Omega_{\rm p}$ is given by Eq.~\eqref{eq:Wperi}.
-    }\label{fig:e_spin}
+    \caption{$\dot{E}_{\rm in}$ as a function of spin [normalized by
+    $\Omega_{\rm p}$; Eq.~\eqref{eq:Wperi}] for a highly eccentric $e = 0.9$
+    companion. Black circles represent direct summation of Hansen coefficients,
+    green crosses the integral approximation, and the blue line the analytic
+    closed form. }\label{fig:e_spin}
 \end{figure}
-
-\textcolor{Corr}{With this, a circularization time can also be computed:}
-\begin{equation}
-    \tau_{\rm circ} = XXXX.
-\end{equation}
 
 \section{Example System: PSR J0045+7319}\label{s:j00457319}
 
@@ -628,38 +648,29 @@ system \citep{bell1995psr}. The system was initially reported to have pulsar
 mass $M_2 = 1.4M_{\odot}$, $q = 6.3$, $e = 0.808$, orbital period $P =
 51.17\;\mathrm{days}$, and $\dot{P} = -3.03\times 10^{-7}$
 \citep{kaspi1996params}. This gives a mass of $M = 8.8M_{\odot}$ for the massive
-star. Furthermore, the measured luminosity $L = 1.2 \times 10^4L_{\odot}$ and
-surface temperature $T_{\rm surf} = (24000 \pm 1000)\;\mathrm{K}$ give the
-radius of the star to be $R = 6.4R_{\odot}$ \citep{kaspi1996params}.
+star and an orbital separation $a = 126R_{\odot}$. Furthermore, the measured
+luminosity $L = 1.2 \times 10^4L_{\odot}$ and surface temperature $T_{\rm surf}
+= (24000 \pm 1000)\;\mathrm{K}$ give the radius of the star to be $R =
+6.4R_{\odot}$ \citep{kaspi1996params}. The internal structure of the star can be
+obtained by comparison to detailed stellar structure calculations, yielding
+$M_{\rm c} \approx 3M_{\odot}$ and $r_{\rm c} \approx 1.38R_{\odot}$
+\citep{kumar1998}. To account for uncertainties in the stellar structure, we
+take this $M_{\rm c}$ to be fixed and consider a range of $r_{\rm c} \in [0.7,
+1.5]$. To compute the tidal torque, we must also make assumptions about the
+ratio $\rho_{\rm c} / \bar{\rho}_{\rm c}$, which can only be obtained via
+stellar structure simulations. We take $\rho_{\rm c} / \bar{\rho}_{\rm c}
+\approx 1/3$ as a fiducial value (though in reality this likely varies with
+$r_{\rm c}$).
 
-\subsection{Spin of the Massive Star}
-
-From these system parameters, we can also calculate the orbital separation $a =
-126R_{\odot}$. The internal structure of the star can be obtained by comparison
-to detailed stellar structure calculations, and yield $M_{\rm c} \approx
-3M_{\odot}$ and $r_{\rm c} \approx 1.38R_{\odot}$ \citep{kumar1998}. To account
-for uncertainties in the stellar structure, we take this $M_{\rm c}$ to be fixed
-and consider a range of $r_{\rm c} \in [0.7, 1.5]$. With these parameters, the
-spin of the massive star can be computed using our calculations above. By
-conservation of energy, $\dot{E}_{\rm in} + \dot{E}_{\rm g} = 0$, where
-$\dot{E}_{\rm g}$ is the change in the gravitational binding energy, given by
-\begin{equation}
-    \dot{E}_{\rm g} = \frac{GqM_2^2}{3a}\frac{\dot{P}}{P}.
-\end{equation}
-
-To relate $\dot{E}_{\rm in}$ and $\Omega_{\rm s}$ to $\dot{P}$, we need to make
-assumptions about the ratio $\rho_{\rm c} / \bar{\rho}_{\rm c}$, which can only
-be obtained via stellar structure simulations. We take $\rho_{\rm c} /
-\bar{\rho}_{\rm c} \approx 1/3$ as a fiducial value (though in reality this
-likely varies with $r_{\rm c}$). Figure~\ref{fig:j0045_fid} shows
-$\abs{\dot{P}}$ as a function of $\Omega_{\rm s}$, using
-Eq.~\eqref{eq:ein_dot_tot}, evaluated using four different $r_{\rm c}$. The
-measured $\dot{P}$ is shown by the horizontal dashed line. Substantial
-retrograde rotation ($\abs{\Omega_{\rm c}} \gg \Omega_{\rm p},
-\sqrt{GM/R^3}$) is required to match the predictions. Note furthermore that for the
+Figure~\ref{fig:j0045_fid} shows $\dot{P}$ as a function of $\Omega_{\rm s}$,
+using Eq.~\eqref{eq:ein_dot_tot}, evaluated using four different $r_{\rm c}$.
+The measured $\dot{P}$ is shown by the horizontal dashed line. Note that for the
 most compact core radius $r _{\rm c} = 0.7R_{\odot}$, there are no solutions for
 $\Omega_{\rm s}$; even a maximally spinning core cannot generate enough tidal
-dissipation to match the observed $\dot{P}$.
+dissipation to match the observed $\dot{P}$. Substantial retrograde rotation is
+required to match the predictions, a few times faster than the critical rotation
+rate of the entire star. As such, strong differential rotation is required
+between the core and envelope of the star.
 \begin{figure}
     \centering
     \includegraphics[width=\columnwidth]{../../scripts/eccentric_tides/1_7319_disps.png}
@@ -670,52 +681,31 @@ dissipation to match the observed $\dot{P}$.
     10^{-7}$ is shown by the horizontal dashed line. The vertical shaded region
     is the region where $\Omega_{\rm s}$ is less than the breakup rotation rate
     of the star as a whole, given by $\sqrt{GM / R^3}$. Each $r_{\rm c}$ is only
-    shown for $\abs{\Omega_{\rm s}} \leq \Omega_{\rm s, c}$ the \emph{core}
-    breakup rotation rate.
+    shown for $\abs{\Omega_{\rm s}} \leq \Omega_{\rm s, c} \equiv \sqrt{GM_{\rm
+    c} / r_{\rm c}^3}$ the \emph{core} breakup rotation rate.
     }\label{fig:j0045_fid}
 \end{figure}
 
-\subsection{Constraints on Stellar Structure}
+% \subsection{Constraints on Stellar Structure}
 
-As discovered above, requiring that the observed $\dot{P}$ lie within the
-range attainable via tidal dissipation imposes constraints on $r_{\rm c}$. We
-can compute the range of attainable $\dot{P}$ by setting the spin frequency
-equal to the breakup frequency in Eq.~\eqref{eq:ein_int}, giving
-\begin{equation}
-    \dot{P} \lesssim
-        -\frac{6\pi}{q}\beta_2 \left(\frac{r_{\rm c}}{a}\right)^5
-        \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}} \left(1 -
-        \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}}\right)^2 2^{8/3}\frac{f_2}{(1 -
-        e^2)^6}.\label{eq:dotp_rc}
-\end{equation}
-For J0045+7319, requiring that $\dot{P}$ equal its observed value gives $r_{\rm
-c} \gtrsim 0.93R_{\odot}$ when using $\rho_{\rm c} / \bar{\rho}_{\rm c} = 1/3$.
-Indeed, in Fig.~\ref{fig:j0045_fid}, there is a solution equal to the observed
-$\dot{P}$ when $r_{\rm c} \geq R_{\odot}$ but not when $r_{\rm c} =
-0.7R_{\odot}$. The strong dependence of the right hand side on
-Eq.~\eqref{eq:dotp_rc} on $r_{\rm c}$ suggests that this constraint is somewhat
-insensitive to other system uncertanties.
-
-% \subsection{Stellar Structure Simulations}
-
-% In previous literature, the primary star was initially taken to have $M =
-% 8.8M_{\odot}$ \citep{kumar1998,lai1996}, by taking $M_2 \simeq 1.4M_{\odot}$
-% characteristic mass for NSs and multiplying by the observed $q$. A later, but
-% still very old, study proposed $M \approx 10M_{\odot}$ by comparison with
-% stellar models \citep{thorsett1999neutron}. Using MESA to generate updated
-% stellar models (TODO all citations), we compute an updated $M$ estimate, giving
-% detailed stellar structure measurements.
-
-% At the level of approximation of this paper, our procedure is as follows: we
-% use a few different values of convective overshooting and mixing, and
-% metallicities, and compute stellar structures for both both non-rotating and
-% highly rotating $\sim 0.95\Omega_{\rm s, c}$ stars. We find that, in general, to
-% match the observed $T, L$ we must let the star evolve to $\sim 80\%$ of the way
-% to complete core hydrogen depletion. We then sample a range of stellar masses,
-% and find the stellar mass that best reproduces the observed $T, L$.
-
-% For all of these systems, $r_{\rm c} \lesssim R_{\odot}$, in tension with our
-% bound above.
+% As discovered above, requiring that the observed $\dot{P}$ lie within the
+% range attainable via tidal dissipation imposes constraints on $r_{\rm c}$. We
+% can compute the range of attainable $\dot{P}$ by setting the spin frequency
+% equal to the breakup frequency in Eq.~\eqref{eq:ein_int}, giving
+% \begin{equation}
+%     \dot{P} \lesssim
+%         -\frac{6\pi}{q}\beta_2 \left(\frac{r_{\rm c}}{a}\right)^5
+%         \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}} \left(1 -
+%         \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}}\right)^2 2^{8/3}\frac{f_2}{(1 -
+%         e^2)^6}.\label{eq:dotp_rc}
+% \end{equation}
+% For J0045+7319, requiring that $\dot{P}$ equal its observed value gives $r_{\rm
+% c} \gtrsim 0.93R_{\odot}$ when using $\rho_{\rm c} / \bar{\rho}_{\rm c} = 1/3$.
+% Indeed, in Fig.~\ref{fig:j0045_fid}, there is a solution equal to the observed
+% $\dot{P}$ when $r_{\rm c} \geq R_{\odot}$ but not when $r_{\rm c} =
+% 0.7R_{\odot}$. The strong dependence of the right hand side on
+% Eq.~\eqref{eq:dotp_rc} on $r_{\rm c}$ suggests that this constraint is somewhat
+% insensitive to other system uncertanties.
 
 \section{Conclusion and Discussion}\label{s:disc}
 
@@ -740,6 +730,12 @@ Eq.~\eqref{eq:ein_dot_tot}, in closed form.
         \;\mathrm{km/s}$, while the breakup frequency is $\sqrt{GM / R} =
         512\;\mathrm{km/s}$. Thus, it is expected that the stellar surface is
         rotating at an appreciable fraction of breakup.
+
+    \item Obliquity of the star? Dissipation rate should be somewhere between
+        prograde and retrograde.
+
+    \item Maybe core is much bigger due to similar process as chemically
+        homogeneous stars?
 \end{itemize}
 
 \section{Acknowledgements}

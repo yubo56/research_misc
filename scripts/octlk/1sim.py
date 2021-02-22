@@ -343,47 +343,57 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
             I_plots = I0s
         else:
             I_plots = np.repeat(I0s, num_trials)
-        emaxes = []
-        Kmaxes = [] # K = j * cos(I) - eta0 * e^2 / (2 * j2)
-        Kmins = []
-        K0s = []
-        emeans = []
-        for I0d, ret in zip(I_plots, rets):
-            I0 = np.radians(I0d)
-            e_vals = np.array(ret[1])
-            I1_vals = np.radians(np.array(ret[2]))
-            if len(e_vals) == 0:
-                emaxes.append(e0)
-                Imaxes.append(I0)
-                emeans.append(e0)
-                continue
-            where_idx = np.where(e_vals >= 0.3)[0]
-            e_vals = e_vals[where_idx]
-            I1_vals = I1_vals[where_idx]
-            emaxes.append(np.max(e_vals))
-            # approx 1 + 73e^2/24... \approx 4.427 is constant
-            jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
-            emean = np.sqrt(1 - jmean**2)
-            emeans.append(emean)
+        k_pklfn = fn + 'kvals.pkl'
+        if not os.path.exists(k_pklfn):
+            print('Running %s' % k_pklfn)
+            emaxes = []
+            Kmaxes = [] # K = j * cos(I) - eta0 * e^2 / (2 * j2)
+            Kmins = []
+            K0s = []
+            emeans = []
+            for I0d, ret in zip(I_plots, rets):
+                I0 = np.radians(I0d)
+                e_vals = np.array(ret[1])
+                I1_vals = np.radians(np.array(ret[2]))
+                if len(e_vals) == 0:
+                    emaxes.append(e0)
+                    Imaxes.append(I0)
+                    emeans.append(e0)
+                    continue
+                where_idx = np.where(e_vals >= 0.3)[0]
+                e_vals = e_vals[where_idx]
+                I1_vals = I1_vals[where_idx]
+                emaxes.append(np.max(e_vals))
+                # approx 1 + 73e^2/24... \approx 4.427 is constant
+                jmean = np.mean((1 - e_vals**2)**(-3))**(-1/6)
+                emean = np.sqrt(1 - jmean**2)
+                emeans.append(emean)
 
-            # calculate K using I1_vals and e_vals, at emax
-            ltot_i = ltot(e0, I0, e2, eta0)
-            e2_vals, I2_vals = np.array([
-                get_eI2(emax, Imax, eta0, ltot_i)
-                for emax, Imax in zip(e_vals, I1_vals)
-            ]).T
-            # e2_vals = np.full_like(e_vals, e2) # temp
-            # I2_vals = np.zeros_like(e_vals)
-            K_vals = (
-                np.sqrt(1 - e_vals**2) * np.cos(I1_vals + I2_vals)
-                - eta0 * e_vals**2 / (2 * np.sqrt(1 - e2_vals**2))
-            )
-            Kmins.append(K_vals.min())
-            Kmaxes.append(K_vals.max())
-            K0s.append(
-                np.sqrt(1 - e0**2) * np.cos(I0)
-                - eta0 * e0**2 / (2 * np.sqrt(1 - e2**2))
-            )
+                # calculate K using I1_vals and e_vals, at emax
+                ltot_i = ltot(e0, I0, e2, eta0)
+                e2_vals, I2_vals = np.array([
+                    get_eI2(emax, Imax, eta0, ltot_i)
+                    for emax, Imax in zip(e_vals, I1_vals)
+                ]).T
+                # e2_vals = np.full_like(e_vals, e2) # temp
+                # I2_vals = np.zeros_like(e_vals)
+                K_vals = (
+                    np.sqrt(1 - e_vals**2) * np.cos(I1_vals + I2_vals)
+                    - eta0 * e_vals**2 / (2 * np.sqrt(1 - e2_vals**2))
+                )
+                Kmins.append(K_vals.min())
+                Kmaxes.append(K_vals.max())
+                K0s.append(
+                    np.sqrt(1 - e0**2) * np.cos(I0)
+                    - eta0 * e0**2 / (2 * np.sqrt(1 - e2**2))
+                )
+            with open(k_pklfn, 'wb') as f:
+                pickle.dump((emaxes, Kmaxes, Kmins, K0s, emeans), f)
+        else:
+            with open(k_pklfn, 'rb') as f:
+                print('Loading %s' % k_pklfn)
+                emaxes, Kmaxes, Kmins, K0s, emeans = pickle.load(f)
+
 
         I0_search = []
         Kdiffs = []
@@ -433,7 +443,7 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         #              label=r'$e_{\rm eff}$')
         # ax1.axhline(1 - e_eff_crit, c='g', ls=':')
         # ax1.axhline(1 - e_os, c='b')
-        ax1.axhline(1 - elim, c='k')
+        ax1.axhline(1 - elim, c='r', ls='--')
 
         # overplot MLL fit for reference
         # ilimd_MLL_L = np.degrees(np.arccos(np.sqrt(
@@ -493,6 +503,27 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ax2.set_xlabel(r'$I_0$ (Deg)')
         ax2.set_ylabel(r'$K$')
         ax2.legend(fontsize=legfs, loc='upper right')
+
+        rbound1, rbound2 = I_plots[right_idxs[0]], I_plots[right_idxs[-1]]
+        ylim1 = ax1.get_ylim()
+        ylim2 = ax2.get_ylim()
+        ax1.fill_betweenx([1, 1e-10], [rbound1, rbound1], [rbound2, rbound2],
+                          alpha=0.2, color='purple')
+        ax2.fill_betweenx([-1, 1], [rbound1, rbound1], [rbound2, rbound2],
+                          alpha=0.2, color='purple')
+        if len(left_idxs):
+            lbound1, lbound2 = I_plots[left_idxs[0]], I_plots[left_idxs[-1]]
+            ax1.fill_betweenx([1, 1e-10],
+                              [lbound1, lbound1],
+                              [lbound2, lbound2],
+                              alpha=0.2, color='purple')
+            ax2.fill_betweenx([-1, 1],
+                              [lbound1, lbound1],
+                              [lbound2, lbound2],
+                              alpha=0.2, color='purple')
+        ax1.set_ylim(ylim1)
+        ax2.set_ylim(ylim2)
+
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.03, wspace=0.03)
         plt.savefig(folder + '/' + base_fn, dpi=300)
@@ -1376,10 +1407,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
                      alpha=0.5)
         ax3.axhline(1 - elim, c='r', ls='--')
 
-        # overplot MLL fit for reference
-        ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
-        ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
-
         # overplot emax due to quadrupole
         emaxes4 = []
         for I in I0s_emax:
@@ -1389,16 +1416,26 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
+        ylim = ax3.get_ylim()
         if q != 0.01:
             # hacky way to make legend plot; I'm too lazy to figure out the
             # correct syntax
-            ylim = ax3.get_ylim()
             ax3.semilogy(90, 1e-10, 'go', ms=3,
                          label=r'$e_{\rm eff}$')
             ax3.semilogy(90, 1e-10, 'bo', ms=3,
                          label=r'$e_{\max}$')
-            ax3.set_ylim(ylim)
             ax3.legend(fontsize=legfs)
+
+            # overplot MLL fit for reference
+            ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
+            ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
+        else:
+            # fill_between for the test particle plot
+            ax3.fill_betweenx([ylim[0] / 3, ylim[1] * 3],
+                              [ilimd_MLL_L, ilimd_MLL_L],
+                              [ilimd_MLL_R, ilimd_MLL_R],
+                              color='m', alpha=0.2)
+        ax3.set_ylim(ylim)
 
         plt.tight_layout()
         fig.subplots_adjust(hspace=0.02)
@@ -2861,19 +2898,14 @@ if __name__ == '__main__':
     # emaxes = get_emax_series(0, 1, 92.8146, 2e7)[1]
     # print(1 - np.mean(emaxes))
 
-    # emax_cfgs_pub = [[0.2, 0.6, '1p2dist', 100, 3600]]
-    # run_emax_sweep(run_cfgs=emax_cfgs_pub, tf_mult_default=2000, num_i=500,
-    #                num_trials=20, folder='1sweepbin_emax_long')
-
     # sweep(folder='1sweepbin', nthreads=64)
-    # run_emax_sweep(nthreads=32)
     # run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
     #                folder='1sweepbin_emax_long')
-    # plot_composite(plot_single=True, plot_all=False)
+    plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
     # plot_long_composite()
-    plot_completeness(num_ts=50)
+    # plot_completeness(num_ts=50)
 
     # emax_cfgs_short = [
     #     [0.3, 0.6, '1p3dist_2800', 100, 2800],
@@ -2913,10 +2945,10 @@ if __name__ == '__main__':
     # elim = get_elim(eps[3], eps[1])
     # print('1 - elim', 1 - elim)
 
-    a2effs = [3600, 5500]
-    plot = True
-    for a2eff in a2effs:
-        frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
+    # a2effs = [3600, 5500]
+    # plot = True
+    # for a2eff in a2effs:
+    #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot)
     # a2effs2 = [2800, 4500]
     # for a2eff in a2effs2:
     #     frac = pop_synth(a2eff=a2eff, base_fn='a2eff%d' % a2eff, to_plot=plot,
@@ -2982,3 +3014,25 @@ if __name__ == '__main__':
     # plot_total_fracs_simple(a2eff=3600, suffix='outer', nthreads=48)
     # plot_total_fracs_simple(nthreads=48)
     pass
+
+# PARAMETERS eps_oct eta
+# Saving 1sweepbin/composite_1p2dist 0.013888888888888893 0.0545607084248879
+# Saving 1sweepbin/composite_1p3dist 0.011217948717948716 0.06973439656672067
+# Saving 1sweepbin/composite_1p4dist 0.00892857142857143 0.08017083686922306
+# Saving 1sweepbin/composite_1p5dist 0.006944444444444447 0.08729713347982068
+# Saving 1sweepbin/composite_1p7dist 0.0036764705882352967 0.09515085483094642
+# Saving 1sweepbin/composite_1equaldist 0.0 0.09820927516479827
+# Saving 1sweepbin/composite_e81p2dist 0.02469135802469137 0.06300127939257143
+# Saving 1sweepbin/composite_e81p3dist 0.019943019943019946 0.08052234525914459
+# Saving 1sweepbin/composite_e81p4dist 0.01587301587301588 0.09257330849520702
+# Saving 1sweepbin/composite_e81p5dist 0.012345679012345685 0.10080204702811432
+# Saving 1sweepbin/composite_e81p7dist 0.006535947712418305 0.10987074330053984
+# Saving 1sweepbin/composite_e81equaldist 0.0 0.11340230290662862
+# Saving 1sweepbin/composite_e91p2dist 0.03823595564509364 0.07391568293882321
+# Saving 1sweepbin/composite_e91p3dist 0.030882887251806393 0.09447211547210546
+# Saving 1sweepbin/composite_e91p4dist 0.024580257200417337 0.1086107994203117
+# Saving 1sweepbin/composite_e91p5dist 0.01911797782254682 0.11826509270211719
+# Saving 1sweepbin/composite_e91p7dist 0.010121282376642437 0.12890485882756716
+# Saving 1sweepbin/composite_e91equaldist 0.0 0.13304822928988183
+# Saving 1sweepbin/composite_tp 0.02042079207920792 0.0038509665783667485
+# Saving 1sweepbin/bindist 0.02900107411385608 0.11797414551348571
