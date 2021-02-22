@@ -72,7 +72,7 @@ def plot_LIGOO3a_qhist():
     plt.savefig('3qhist', dpi=300)
     plt.close()
 
-def plot_qdists(p=2.35, num_masses=50000):
+def plot_qdists(p=2.35, num_masses=100000):
     fldr = '3plots/'
     os.makedirs(fldr, exist_ok=True)
     lowz_dat = np.array([
@@ -193,7 +193,7 @@ def plot_qdists(p=2.35, num_masses=50000):
     plt.clf()
 
     # this part is complicated, idk how to improve it
-    qs_uniform = np.linspace(0.2, 1, 80, endpoint=False)
+    qs_uniform = np.linspace(0.2, 1, 400, endpoint=False)
     q_lowz = []
     q_highz = []
     weights = []
@@ -202,10 +202,10 @@ def plot_qdists(p=2.35, num_masses=50000):
     m_pdf_fun = interp1d(masses, m_pdf)
     for q in qs_uniform:
         m2s = np.linspace(lowz_premass.min(),
-                          (1 - 1e-10) * q * lowz_premass.max())
+                          (1 - 1e-10) * q * lowz_premass.max(), 400)
         m1s = m2s / q
 
-        weights.extend(m_pdf_fun(m1s) * m_pdf_fun(m2s))
+        weights.extend(m_pdf_fun(m2s))
         q_lowzs = lowz_mass_f(m2s) / lowz_mass_f(m1s)
         q_lowz.extend(np.minimum(q_lowzs, 1 / q_lowzs))
         q_highzs = highz_mass_f(m2s) / highz_mass_f(m1s)
@@ -222,16 +222,16 @@ def plot_qdists(p=2.35, num_masses=50000):
     plt.clf()
 
     # log uniform = uniform grid in log q
-    qs_logu = np.exp(np.linspace(np.log(0.2), np.log(1), 80, endpoint=False))
+    qs_logu = np.exp(np.linspace(np.log(0.2), np.log(1), 400, endpoint=False))
     q_lowz = []
     q_highz = []
     weights = []
     for q in qs_logu:
         m2s = np.linspace(lowz_premass.min(),
-                          (1 - 1e-10) * q * lowz_premass.max())
+                          (1 - 1e-10) * q * lowz_premass.max(), 400)
         m1s = m2s / q
 
-        weights.extend(m_pdf_fun(m1s) * m_pdf_fun(m2s))
+        weights.extend(m_pdf_fun(m2s))
         q_lowzs = lowz_mass_f(m2s) / lowz_mass_f(m1s)
         q_lowz.extend(np.minimum(q_lowzs, 1 / q_lowzs))
         q_highzs = highz_mass_f(m2s) / highz_mass_f(m1s)
