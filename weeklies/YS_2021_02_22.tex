@@ -122,7 +122,7 @@ I use either
 or $\max$ and $\geq 1$, where $m_{1,2}$ are drawn from $P(m) \propto m^{-2.35}$.
 I double checked the Moe \& di Stefano paper, and under their (2) they really
 assume that $P(q \leq 1) \propto q^{-p}$ as well, so I think this might be a
-misconception?
+misconception in their paper as well?
 \begin{figure}
     \centering
     \includegraphics[width=0.45\columnwidth]{../scripts/octlk/3plots/qdist_salpeter.png}
@@ -135,8 +135,25 @@ misconception?
 \end{figure}
 
 Note that in my Appendix, the calculation doesn't change if we take $m_2 \geq
-m_1$! But clearly, using $m_2 \geq m_1$ and the calculation in the text is the
-correct calculation, and the calculation is incorrect as is. Why?
+m_1$, i.e.\ originally
+\begin{align}
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
+        \int\limits_{m_{\min}}^{m_1}\mathrm{d}m_2\;
+                \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2),\\
+        &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1 m_1 P(m_1) P(qm_1),\\
+        &\propto q^{-p},
+\end{align}
+but also
+\begin{align}
+    P(q) &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1
+        \int\limits_{m_1}^{m_{\max}}\mathrm{d}m_2\;
+                \delta\p{\frac{m_2}{m_1} - q}P(m_1) P(m_2),\\
+        &= \int\limits_{m_{\min}}^{m_{\max}}\mathrm{d}m_1 m_1 P(m_1) P(qm_1),\\
+        &\propto q^{-p}.
+\end{align}
+Note the different bounds of integration on the second integral. Clearly the
+first of these two derivations is wrong (the one that is in the paper), but I am
+not sure why yet. I will hopefully have an answer by the time of the meeting.
 
 \section{Histograms}
 
@@ -156,6 +173,45 @@ for a grid of $q$ and $m_2$, and histogram it all.
     supernovae, (ii) uniform $q_{\rm ZAMS}$, and (iii) uniform $\log\p{q_{\rm
     ZAMS}}$.}\label{fig:2}
 \end{figure}
+
+\section{Checking Formula from Paper}
+
+I double checked Equations~(20-21) in the new draft. I actually had the correct
+$j(e_{\lim})$ expression that Dong left in comments in the paper, but saw LML15
+Eq.~(52) and convinced myself that I had made an algebra mistake. It appears I
+must have misread LML15.
+
+The derivation of the formula in the paper was omitted for its ugliness, but I
+give it below for verification. The equations we have are:
+\begin{align}
+    j^6\p{e_{\rm os}} &= \frac{842}{15}\frac{G^3 \mu m_{12}^3}{m_3c^5a^4n}
+        \p{\frac{a_{\rm out, eff}}{a}}^3,\\
+    j(e_{\lim}) &\approx \frac{8\epsilon_{\rm GR}}{9 + 3\eta^2/4}.
+\end{align}
+We re-express the condition $j\p{e_{\rm os}} \gtrsim j(e_{\lim})$ (i.e.\ the
+limiting eccentricity is sufficiently extreme to execute one-shot mergers), so
+\begin{align}
+    842 \frac{G^{5/2}a_{\rm out, eff}^3 m_{12}^{5/2}\mu}{
+        15a^{11/2}c^5 m_3}
+        &\gtrsim \p{\frac{8}{9 + 3\eta^2/4}
+            \frac{3Gm_{12}^2a_{\rm out, eff}^3}{c^2a^4m_3}}^6,\\
+    a^{37/2} &\gtrsim \frac{2^{18} \cdot 15}{842} \frac{G^{7/2}a_{\rm
+        out, eff}^{15} m_{12}^{19/2}}{c^7 m_3^5 \mu \p{3 + \eta^2/4}^6}
+        ,\\
+    \p{\frac{a}{a_{\rm out, eff}}}^{37/2} &\gtrsim \frac{2^{18} \cdot 15}{842}
+            \frac{G^{7/2} m_{12}^{17/2}}{c^7 m_3^5 a_{\rm out, eff}^{7/2} [q /
+            (1 + q)^2] \p{3 + \eta^2/4}^6},\\
+        &\gtrsim
+            0.0186
+            \p{\frac{a_{\rm out, eff}}{3600\;\mathrm{AU}}}^{-7/37}
+            \p{\frac{m_{12}}{50M_{\odot}}}^{17/37}
+            \p{\frac{30M_{\odot}}{m_3}}^{10/37}
+            \p{\frac{q / (1 + q)^2}{1/4}}^{-2/37}.
+\end{align}
+We have used that $\mu = m_{12}\s{q / (1 + q)^2}$. The final numerical
+evaluation was done using WolframAlpha, and the URL linking to the evaluation is
+provided
+\href{https://www.wolframalpha.com/input/?i=%282%5E%2818%29+*+15+%2F+842+*+G%5E%287%2F2%29+*+%283600+AU%29%5E%28-7%2F2%29+*+%2850+solar+mass%29%5E%2817%2F2%29+%2F+%28c%5E7+*+%2830+solar+mass%29%5E5+*+%281%2F4%29+*+%283%5E6%29%29%29%5E%282%2F37%29}{\texttt{here}}.
 
 \end{document}
 

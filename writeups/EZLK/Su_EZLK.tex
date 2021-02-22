@@ -398,14 +398,16 @@ illustrate importance of $\eta$ in determining the range of inclinations for the
 system to be able to reach $e_{\lim}$.
 
 \textcolor{red}{In general, we find that a symmetric octupole-active window (as
-in Eq.~\ref{eq:I_oct_MLL}) can be realized for sufficiently small $\eta$ (though
-the threshold is sensitive to the system parameters via $e_{\lim}$: in
-\citet{rodet_inprep}, they find $\eta \lesssim 0.1$ is sufficient, while in our
-work, $\eta \lesssim 0.01$ is required, e.g.\ $\eta = 0.004$ in
-Fig.~\ref{fig:composite_tp}). When $\eta$ is above this threshold, the
-octupole-active window is split into a prograde window whose existence depends
-on the specific values of $\eta$ and $\epsilon_{\rm oct}$ and a retrogade window
-that always exists.}
+in Eq.~\ref{eq:I_oct_MLL}) can be realized for sufficiently small $\eta$. In
+\citet{rodet_inprep}, they find that $\eta \lesssim 0.1$ is sufficient for a
+symmetric octupole-active window, but in this work, $\eta \lesssim 0.01$ is
+necessary ($\eta = 0.004$ in Fig.~\ref{fig:composite_tp} while $\eta = 0.05$ in
+Fig.~\ref{fig:composite_1p2}). Thus, the critical $\eta$ above which the
+symmetry of the octupole-active window is significantly broken likely depends on
+$e_{\lim}$ (in \citet{rodet_inprep}, $e_{\lim} \sim 10^{-3}$). When $\eta$ is
+non-negligible, the octupole-active window is split into two intervals: a
+prograde interval whose existence depends on the specific values of $\eta$ and
+$\epsilon_{\rm oct}$, and a retrogade interval that always exists.}
 
 \begin{figure}
     \centering
@@ -485,12 +487,12 @@ that always exists.}
 
 \section{Tertiary-Induced Black Hole Mergers}\label{s:with_gw}
 
-Emission of gravitational waves (GWs) also affects the evolution of the inner
-binary, which can be incorporated into the equations of motion
-\citep{peters1964, LL18}. The associated orbital and eccentricity decay rates
-are
+Emission of gravitational waves (GWs) affects the evolution of the inner
+binary, which can be incorporated into the secular equations of motion for the
+triple \citep[e.g.,]{peters1964, LL18}. The associated orbital and eccentricity
+decay rates are \citep{peters1964}:
 \begin{align}
-    \at{\frac{1}{a}\rd{a}{t}}_{\rm GW} &\equiv \frac{1}{t_{\rm GW}}\nonumber\\
+    \at{\frac{1}{a}\rd{a}{t}}_{\rm GW} &\equiv -\frac{1}{t_{\rm GW}}\nonumber\\
         &= -\frac{64}{5}\frac{G^3 \mu m_{12}^2}{c^5a^4j^7(e)}
             \p{1 + \frac{73}{24}e^2 + \frac{37}{96}e^4}\label{eq:def_tgw},\\
     \at{\rd{e}{t}}_{\rm GW} &= -\frac{304}{15}\frac{G^3 \mu m_{12}^2}{c^5a^4}
@@ -498,169 +500,198 @@ are
 \end{align}
 GW emission can cause the orbit to decay significantly when extreme
 eccentricities are reached during the ZLK cycles described in the previous
-section. This can allow even very wide binaries ($\sim 100\;\mathrm{AU}$) to
-merge efficiently within a Hubble time with the aid of an inclined tertiary body
-\citep{LL18, LL19}. In this section, we study this process in detail. Our
-fiducial system parameters are as in Fig.~\ref{fig:nogw_fiducial}: $a =
-100\;\mathrm{AU}$, $a_{\rm out, eff} = 4500\;\mathrm{AU}$, $e_{\rm out} = 0.6$,
-$m_{12} = 50M_{\odot}$, $m_3 = 30M_{\odot}$. We take the initial inner binary
-eccentricity to be $e_0 = 10^{-3}$.
+section. This allows even wide binaries ($\sim 100\;\mathrm{AU}$) to merge
+efficiently within a Hubble time. While various numerical examples of such
+tertiary-induced mergers have been given before (e.g.\ \citet{LL18}; see also
+\citet{LL19} for ``population synthesis''), in this section we examine the
+dynamical process in detail in order to develop an analytical understanding.
+Our fiducial system parameters are as in Fig.~\ref{fig:nogw_fiducial}:
+$a_{\rm out, eff} = 4500\;\mathrm{AU}$, $e_{\rm out} =
+0.6$, $m_{12} = 50M_{\odot}$ (with varying $q$), $m_3 = 30M_{\odot}$, and the
+inner binary has initial $a_0 = 100\;\mathrm{AU}$ and $e_0 = 10^{-3}$.
 
-\subsection{Merger Windows and Probability}\label{ss:windows}
+\subsection{Merger Windows and Probability: Numerical Results}\label{ss:windows}
 
-To understand what initial conditions are able to successfully merge within a
-Hubble time, we simulate the octupole-order ZLK equations including GW
-radiation. We terminate the simulation if either $a = 0.005a_0$ (a successful
+To understand what initial conditions lead to successful mergers within a Hubble
+time, we integrate the double-averaged octupole-order ZLK equations including GW
+radiation. We terminate each integration if either $a = 0.005a_0$ (a successful
 merger) or the system age reaches $10\;\mathrm{Gyr}$. The middle panel of
-Fig.~\ref{fig:composite_dist} illustrates this for $q = 0.5$ in the fiducial
-parameter regime. We note that only retrograde inclinations successfully merge,
-while almost all successful mergers are rapid, $T_{\rm
-m} \sim t_{\rm ZLK, oct}$. These are the result of a system merging by emitting
-a single large burst of GW radiation during an extreme-eccentricity ZLK cycle,
-which we term a ``one-shot merger''. In Fig.~\ref{fig:composite_1p3}, $q$ is
-decreased to $0.3$, and prograde systems are also able to merge successfully.
-However, these prograde systems exhibit a broad range of $T_{\rm m} \gtrsim
-t_{\rm ZLK, oct}$. These occur when system gradually emits a small amount of
-GW radiation at every eccentricity maximum, which we term a ``smooth merger''.
-Additionally, the octupole-inactive gap is visible here near $I_0 = 90^\circ$.
-The middle panels of Figs.~\ref{fig:composite_1p2}--\ref{fig:composite_bindist}
-show the behavior of $T_{\rm m}$ for the other parameter regimes considered and
-also exhibit these two categories of mergers and the octupole-inactive gap.
+Fig.~\ref{fig:composite_dist} shows the merger time $T_{\rm m}$ as a function of
+$I_0$ for our fiducial parameters with $q = 0.5$. We note that only retrograde
+inclinations lead to successful mergers, and almost all successful mergers are
+rapid, with $T_{\rm m} \lesssim t_{\rm ZLK, oct}$. These are the result of a
+system merging by emitting a single large burst of GW radiation during an
+extreme-eccentricity ZLK cycle, which we term a ``one-shot merger''. In
+Fig.~\ref{fig:composite_1p3}, $q$ is decreased to $0.3$, and some prograde
+systems are also able to merge successfully. However, these prograde systems
+exhibit a broad range of merger times, with $T_{\rm m} \gtrsim t_{\rm ZLK,
+oct}$. These occur when a system gradually emits a small amount of GW radiation
+at every eccentricity maximum---we term this a ``smooth merger''. Additionally,
+the octupole-inactive gap near $I_0 = 90^\circ$ is visible in the merger time
+plot (middle panel of Fig.~\ref{fig:composite_1p3}). The middle panels of
+Figs.~\ref{fig:composite_1p2}--\ref{fig:composite_bindist} show the behavior of
+$T_{\rm m}$ for the other parameter regimes and also exhibit these two
+categories of mergers and the octupole-inactive gap.
 
-In the spirit of the test-particle case, it is natural to try to calculate the
-inclination ranges over which systems are able to successfully merge. However,
-when including the chaotic octupole-order ZLK terms, the system's starting
-inclination alone is not sufficient to determine with certainty whether it
-merges within a Hubble time. Instead, multiple simulations using different
-$\omega$, $\omega_{\rm out}$, and $\Omega$ can be used to compute a merger
-probability, defined by
+Due to the chaotic nature of the octupole-order ZLK effect, the initial
+inclination $I_0$ alone is not sufficient to determine with certainty whether a
+system can merge within a Hubble time. Instead, for a given $I_0$, we can use
+numerical integrations with various $\omega$, $\omega_{\rm out}$, and $\Omega$
+to compute a merger probability, denoted by
 \begin{equation}
-    P_{\rm merger}\p{I_0; q, e_{\rm out}} = P\p{T_{\rm m} < 10\;\mathrm{Gyr}}.
+    P_{\rm merger}\p{I_0; q, e_{\rm out}} = P\p{T_{\rm m} < 10\;\mathrm{Gyr}},
         \label{eq:def_pmerge}
 \end{equation}
-From the middle panels of each of
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, the resulting
-$P_{\rm merger}$ are shown as the black lines in their respective bottom panels.
-In all of these plots, there is a retrograde inclination window for which
-successful merger is guaranteed. In Fig.~\ref{fig:composite_1p3}, it can be seen
-that a large range of prograde inclinations have a probabilistic outcome. In
-Fig.~\ref{fig:composite_1p2}, while the enhanced octupole strength allows for
-most of the prograde inclinations to merge with certainty, there is still a
-region at $I_0 \approx 80^\circ$ where $P_{\rm merger} < 1$.
+where the notation $P_{\rm merger}\p{I_0; q, e_{\rm out}}$ highlights the
+dependence of $P_{\rm merger}$
+on $q$ and $e_{\rm out}$, two of the key factors that determine the strength of the
+octupole effect (of course $P_{\rm merger}$ depends on other system parameters
+such as $m_12$, $a_0$, $a_{\rm out}$, etc.)
+The bottom panels of Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}
+show our numerical results. In all of these plots, there is a retrograde
+inclination window for which successful merger is guaranteed. In
+Fig.~\ref{fig:composite_1p3}, it can be seen that a large range of prograde
+inclinations have a probabilistic outcome. In Fig.~\ref{fig:composite_1p2},
+while the enhanced octupole strength allows for most of the prograde
+inclinations to merge with certainty, there is still a region around $I_0 \approx
+80^\circ$ where $P_{\rm merger} < 1$.
 
 \subsection{Merger Probability: Analytic Criteria}\label{ss:nogw_merger}
 
-By comparing the first and third panels of
+By comparing the top and bottom panels of
 Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, it is clear that
-their features are correlated: in all five plots, the retrograde merger window
+their features are correlated: in all five cases, the retrograde merger window
 occupies the same inclination range as the retrograde octupole-active window,
 while $P_{\rm merger}$ is only nonzero for prograde inclinations where
-$e_{\max}$ nearly attains $e_{\lim}$. In this section, we further develop this
-connection and show that the non-dissipative simulations can indeed be used to
-predict the outcomes of simulations with GW dissipation rather reliably.
+$e_{\max}$ nearly attains $e_{\lim}$. Here, we further develop this connection
+and show that the non-dissipative simulations can be used to predict the
+outcomes of simulations with GW dissipation rather reliably.
 
-Above, we identified both one-shot and smooth mergers in our simulations.
-Towards understanding the one-shot mergers, we first define $e_{\rm os}$ to be
-the $e_{\max}$ required to dissipate an order-unity fraction of the binary's
-orbital energy via GW emission in a single ZLK cycle. Since a binary spends a
-fraction $\sim j(e_{\max})$ of each ZLK cycle near $e_{\max}$
-\citep[e.g.,][]{anderson2016formation}, we write
-\begin{align}
-    j\p{e_{\rm os}}\at{\rd{\ln a}{t}}_{e = e_{\rm os}} &\sim
-        \frac{1}{t_{\rm ZLK}},\\
+In Section~\ref{ss:windows}, we identified both one-shot and smooth mergers in
+our simulations. Towards understanding the one-shot mergers, we first define
+$e_{\rm os}$ to be the $e_{\max}$ required to dissipate an order-unity fraction
+of the binary's orbital energy via GW emission in a single ZLK cycle. Since a
+binary spends a fraction $\sim j(e_{\max})$ of each ZLK cycle near $e_{\max}$
+\citep[e.g.,][]{anderson2016formation}, we set
+\begin{equation}
+    j\p{e_{\rm os}}\at{\rd{\ln a}{t}}_{e = e_{\rm os}} \sim
+        -\frac{1}{t_{\rm ZLK}},
+\end{equation}
+where $\rdil{(\ln a)}{t}$ is given by Eq.~\eqref{eq:def_tgw}. This yields
+\begin{equation}
     j^6(e_{\rm os})
-        &\equiv \frac{842}{15}
+        \equiv \frac{842}{15}
             \frac{G^3 \mu m_{12}^3}{m_3c^5a^4n}
-            \p{\frac{a_{\rm out, eff}}{a}}^3.
+            \p{\frac{a_{\rm out, eff}}{a}}^3,
             \label{eq:def_e_os}
-\end{align}
-We have approximated $e_{\rm os} \approx 1$ in Eq.~\eqref{eq:def_tgw}. Then, if
-a system satisfies $e_{\max} > e_{\rm os}$, then it is expected attain a
-sufficiently large eccentricity to undergo a one-shot merger.
+\end{equation}
+where we have approximated $e_{\rm os} \approx 1$. Then, if a system satisfies
+$e_{\max} > e_{\rm os}$ with $e_{\max}$ based on non-dissipative integration, it
+is expected attain a sufficiently large eccentricity to undergo a one-shot
+merger.
 
-Towards understanding smooth mergers, we require a characteristic eccentricity
-that captures GW emission over many ZLK cycles. We define $e_{\rm eff}$ as an
+Towards understanding smooth mergers, we seek a characteristic eccentricity that
+captures GW emission over many ZLK cycles. We define $e_{\rm eff}$ as an
 effective ZLK maximum eccentricity, i.e.
 \begin{align}
-    \ev{\rd{\ln a}{t}} &\approx -\frac{1}{t_{\rm GW, 0}}
-            \ev{\frac{1 + 73e_{\max}^2/24 + 37e_{\max}^4/96}
-                {j^6(e_{\max})}}\nonumber\\
+    \ev{\rd{\ln a}{t}} &= -\frac{1}{t_{\rm GW, 0}}
+            \ev{\frac{1 + 73e^2/24 + 37e^4/96}
+                {j^7(e)}}\nonumber\\
         &\equiv -\frac{421/96}{t_{\rm GW, 0}}\frac{1}{j^6(e_{\rm eff})},
         \label{eq:def_e_eff}
 \end{align}
-where $t_{\rm GW, 0} = \p{t_{\rm GW}}_{\rm e = 0}$ (see Eq.~\ref{eq:def_tgw}).
-Here, the angle brackets denote averaging over many ZLK cycles; we average over
-the full duration of the non-dissipative simulations, $2000 t_{\rm ZLK}$. Define
-next the critical effective eccentricity $e_{\rm eff, c}$ such that the inspiral
-time is a Hubble time:
+where $t_{\rm GW, 0} = \p{t_{\rm GW}}_{\rm e = 0}$ (see Eq.~\ref{eq:def_tgw}),
+and the angle brackets denote averaging over many ZLK cycles.
+In the second line of Eq.~\eqref{eq:def_e_eff}, we have essentially replaced the ZLK-avergaed
+orbital decay rate by $\rdil{(\ln a)}{t}$ evaluated at $e_{\rm eff}$ multiplied
+by $j(e_{\rm eff})$.
+In practice (see Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}),
+we typically average over $2000 t_{\rm ZLK}$ of
+the non-dissipative simulations to compute $e_{\rm eff}$.
+
+With $e_{\rm eff}$ computed using Eq.~\eqref{eq:def_e_eff}, we can define the
+critical effective eccentricity $e_{\rm eff, c}$ such that the inspiral time is
+a Hubble time:
 \begin{equation}
     \ev{\rd{\ln a}{t}} \equiv \frac{421/96}{t_{\rm GW, 0}j^6(e_{\rm eff, c})}
         = \p{10\;\mathrm{Gyr}}^{-1}. \label{eq:def_e_eff_c}
 \end{equation}
-If a system is evolved using the non-dissipative equations of motion and
+Thus, if a system is evolved using the non-dissipative equations of motion and
 satisfies $e_{\rm eff} > e_{\rm eff, c}$, then it is expected to successfully
 undergo a smooth merger within a Hubble time.
 
-Finally, a system can be predicted to merge successfully if it satisfies either
-the one-shot or smooth merger criteria, so we obtain the analytic merger
-probability:
+Therefore, a system can be predicted to merge successfully if it satisfies either
+the one-shot or smooth merger criteria. The analytic merger probability (as a
+function of $I_0$ and other parameters) is:
 \begin{equation}
-    P_{\rm merger}^{\rm an} = P\p{e_{\rm eff} > e_{\rm eff, c} \;\;\text{or}\;\;
+    P_{\rm merger}^{\rm an}\p{I_0; q, e_{\rm out}} =
+        P\p{e_{\rm eff} > e_{\rm eff, c} \;\;\text{or}\;\;
         e_{\max} > e_{\rm os}}.\label{eq:def_pmerge_sa}
 \end{equation}
+Although not fully analytic (since numerical integrations of non-dissipative
+systems are needed to obtain $e_{\rm eff}$ and $e_{\max}$ in general),
+Eq.~\eqref{eq:def_pmerge_sa} provides efficient computation of the merger
+probability without full numerical integrations including GW radiation.
 
 The top panels of Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}
 show $e_{\rm eff}$ and $e_{\max}$, and their critical values, $e_{\rm eff, c}$
-and $e_{\rm os}$. Using these, it is possible to compute the analytic merger
-probability shown as the thick green line in the bottom the bottom panels of
+and $e_{\rm os}$. Using these, we compute the analytic merger probability, shown
+as the thick green lines in the bottom panels of
 Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}. We generally
-observe good agreement. However, $P_{\rm merger}^{\rm an}$ slightly but
-systematically underpredicts $P_{\rm merger}$ for some configurations such as
-the prograde inclinations in Figs.~\ref{fig:composite_1p3}
-and~\ref{fig:composite_bindist}. These regions coincide with regions where the
-merger outcome is uncertain. This underprediction is due to the restricted
-integration time of $2000 t_{\rm ZLK} \approx 3\;\mathrm{Gyr}$ used for the
-non-dissipative simulations. To illustrate this, we also calculate $P_{\rm
-merge}^{\rm an}$ using a shorter integration time of $500 t_{\rm ZLK}$ for the
-non-dissipative simulations. This result is shown as the light green lines in
-the bottom panels of Figs.~\ref{fig:composite_1p3}
-and~Fig~\ref{fig:composite_bindist} and performs visibly worse. A detailed
-discussion of this effect can be found in Section~\ref{ss:completeness}.
+observe good agreement with the numerical $P_{\rm merger}$. However, $P_{\rm
+merger}^{\rm an}$ slightly but systematically underpredicts $P_{\rm merger}$ for
+some configurations, such as the prograde inclinations in
+Figs.~\ref{fig:composite_1p3} and~\ref{fig:composite_bindist}. These regions
+coincide with the inclinations for which the merger outcome is uncertain. This
+underprediction is due to the restricted integration time of $2000 t_{\rm ZLK}
+\approx 3\;\mathrm{Gyr}$ used for the non-dissipative simulations. To illustrate
+this, we also calculate $P_{\rm merge}^{\rm an}$ using a shorter integration
+time of $500 t_{\rm ZLK}$ for our non-dissipative simulations. The results are
+shown as the light green lines in the bottom panels of
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_bindist}, performing visibly
+worse. A more detailed discussion of this issue can be found in
+Section~\ref{ss:completeness}.
 
 A few observations about Eq.~\eqref{eq:def_pmerge_sa} can be made. First, it
 explains why some prograde systems merge probabilistically ($0 < P_{\rm merger}
-< 1$): for the prograde inclinations in Fig.~\ref{fig:composite_1p3}, $e_{\rm
-eff} \simeq e_{\rm eff, c}$, so the detailed merger outcome depends on the
-initial conditions, while for the prograde inclinations in
-Fig.~\ref{fig:composite_1p2}, the double-valued feature in the $e_{\max}$ curve
-pointed out in the previous section represents a sub-population of systems that
-do not satisfy Eq.~\eqref{eq:def_pmerge_sa}. Second, $e_{\max} > e_{\rm os}$
-often ensures $e_{\rm eff} > e_{\rm eff, c}$ in practice, as the averaging in
+< 1$): for the prograde inclinations in Fig.~\ref{fig:composite_1p3},
+the $e_{\rm eff}$ values scatter widely around $e_{\rm eff,c}$ [or more
+precisely, $j(e_{\rm eff})$ scatters around $j(e_{\rm eff,c})$], even for a
+given $I_0$, so the detailed merger outcome depends on the initial conditions.
+For the prograde inclinations in Fig.~\ref{fig:composite_1p2}, the double-valued
+feature in the $e_{\max}$ plot (the top panel) pointed out in
+Section~\ref{ss:oct_gen} represents a sub-population of systems that do not
+satisfy Eq.~\eqref{eq:def_pmerge_sa}. Second, $e_{\max} > e_{\rm os}$ often
+ensures $e_{\rm eff} > e_{\rm eff, c}$ in practice, as the averaging in
 Eq.~\eqref{eq:def_e_eff} is heavily weighted towards extreme eccentricities. As
 such, $e_{\rm eff} > e_{\rm eff, c}$ alone is often a sufficient condition in
 Eq.~\eqref{eq:def_pmerge_sa}.
 
-The one-shot merger criterion can also be used to distinguish two different
+The one-shot merger criterion ($e_{\max} > e_{\rm os}$) can also be used to distinguish two different
 types of system architectures: if $e_{\lim} \gtrsim e_{\rm os}$ for a particular
-architecture, then all initial conditions that undergo orbit flips (i.e.\ in an
-octupole-active window) also execute one-shot mergers. When $e_{\lim} \approx
-1$, Eq.~\eqref{eq:def_elim} reduces to $j(e_{\lim}) \approx 4\epsilon_{\rm GR} /
-9$, which lets us rewrite the constraint $e_{\lim} \gtrsim e_{\rm os}$ as
+architecture, then all initial conditions leading to orbit flips (i.e.\ in an
+octupole-active window) also execute one-shot mergers. For $e_{\lim} \approx
+1$, Eq.~\eqref{eq:def_elim} reduces to
+\begin{equation}
+    j(e_{\lim}) \approx \frac{8\epsilon_{\rm GR}}{9}\p{1 +
+        \frac{\eta^2}{12}}^{-1}.
+\end{equation}
+which lets us rewrite the constraint $e_{\lim} \gtrsim e_{\rm os}$ as
 \begin{align}
     \p{\frac{a}{a_{\rm out, eff}}} \gtrsim{}&
-        0.0149
+        0.0186
         \p{\frac{a_{\rm out, eff}}{3600\;\mathrm{AU}}}^{-7/37}
         \p{\frac{m_{12}}{50M_{\odot}}}^{17/37}\nonumber\\
         &\times\p{\frac{30M_{\odot}}{m_3}}^{10/37}
         \p{\frac{q / (1 + q)^2}{1/4}}^{-2/37}.\label{eq:q_237}
 \end{align}
 For the system architecture considered in
-Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}, this constraint is
+Figs.~\ref{fig:composite_dist}--\ref{fig:composite_e91p5}, this condition is
 indeed satisfied, and we see indeed that wherever the top panel suggests orbit
 flipping ($e_{\max} = e_{\lim}$), the bottom panel shows $f_{\rm merger} \approx
-1$. When this criterion is not satisfied, one-shot mergers are not
-possible, and $P_{\rm merger}$ is generally only nonzero for a small range about
-$I_{\rm 0, \lim}$.
+1$. When the condition (Eq.~\ref{eq:q_237}) is not satisfied, one-shot mergers are
+not possible, and $P_{\rm merger}$ is generally only nonzero for a small range
+about $I_{\rm 0, \lim}$.
 
 \section{Merger Fraction as a Function of Mass Ratio}\label{s:merger_frac}
 

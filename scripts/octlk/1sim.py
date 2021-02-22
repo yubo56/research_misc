@@ -1417,6 +1417,9 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax3.set_xticks(ticks)
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
         ylim = ax3.get_ylim()
+        # overplot MLL fit for reference
+        ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
+        ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
         if q != 0.01:
             # hacky way to make legend plot; I'm too lazy to figure out the
             # correct syntax
@@ -1425,16 +1428,6 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             ax3.semilogy(90, 1e-10, 'bo', ms=3,
                          label=r'$e_{\max}$')
             ax3.legend(fontsize=legfs)
-
-            # overplot MLL fit for reference
-            ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
-            ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
-        else:
-            # fill_between for the test particle plot
-            ax3.fill_betweenx([ylim[0] / 3, ylim[1] * 3],
-                              [ilimd_MLL_L, ilimd_MLL_L],
-                              [ilimd_MLL_R, ilimd_MLL_R],
-                              color='m', alpha=0.2)
         ax3.set_ylim(ylim)
 
         plt.tight_layout()
