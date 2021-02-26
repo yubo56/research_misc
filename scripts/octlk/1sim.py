@@ -475,7 +475,6 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         emaxes4 = []
         for I in I0s:
             emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
-        ax1.plot(I0s, 1 - np.array(emaxes4), 'k--', lw=1.0)
 
         ax1.set_ylabel(r'$1 - e$')
         ticks = [50, 70, 90, 110, 130]
@@ -497,9 +496,8 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
         ax2.plot(0, 0.1, 'bo', label=r'$K_{\min}$', ms=3)
         ax2.plot(0, 0.1, 'go', label=r'$K_{\max}$', ms=3)
         ax2.set_xlim(xlims)
-        ax2.plot(I_plots, K0s, 'k--', label=r'$K_0$')
         ax2.axvline(Imin, c='k')
-        ax2.axhline(Kcrit, c='r', lw=1.0)
+        ax2.axhline(Kcrit, c='r', ls='--', lw=1.0)
         ax2.set_xlabel(r'$I_0$ (Deg)')
         ax2.set_ylabel(r'$K$')
         ax2.legend(fontsize=legfs, loc='upper right')
@@ -521,6 +519,13 @@ def run_emax_sweep(num_trials=5, num_trials_purequad=1, num_i=1000,
                               [lbound1, lbound1],
                               [lbound2, lbound2],
                               alpha=0.2, color='purple')
+        # plot last for visibility
+        emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(Ilimd)))
+        emaxes4 = np.array(emaxes4)
+        I0s_emaxes4 = np.concatenate((I0s, np.array([Ilimd])))
+        idxs4 = np.argsort(I0s_emaxes4)
+        ax1.plot(I0s_emaxes4[idxs4], 1 - np.array(emaxes4[idxs4]), 'k--', lw=2.0)
+        ax2.plot(I_plots, K0s, 'k--', label=r'$K_0$', lw=2.0)
         ax1.set_ylim(ylim1)
         ax2.set_ylim(ylim2)
 
@@ -1411,7 +1416,11 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         emaxes4 = []
         for I in I0s_emax:
             emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
-        ax3.plot(I0s_emax, 1 - np.array(emaxes4), 'k--', lw=1.0)
+        emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(Ilimd)))
+        emaxes4 = np.array(emaxes4)
+        I0s_emaxes4 = np.concatenate((I0s, np.array([Ilimd])))
+        idxs4 = np.argsort(I0s_emaxes4)
+        ax3.plot(I0s_emaxes4[idxs4], 1 - np.array(emaxes4[idxs4]), 'k--', lw=1.0)
 
         ticks = [50, 70, 90, 110, 130]
         ax3.set_xticks(ticks)
@@ -2166,7 +2175,10 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                 n_qs=31, q_min=0.2, n_e2s=17, n_I0s=41, stride=1, reps=1
             )
             ax1.plot(qplots, frac_plots, 'bx', lw=1.0, ls=':',
-                     alpha=0.5, label='Uniform (Semi-Analytic)')
+                     alpha=0.5, label='Uniform (Analytic)')
+            p = np.polyfit(np.log(qplots), np.log(frac_plots), 1)
+            print(p[0])
+            ax1.plot(qplots, np.exp(p[1]) * qplots**(p[0]), 'g', lw=4, alpha=0.3)
         ax1.legend(fontsize=legfs, loc='upper right')
         ax1.set_ylabel(r'$\eta_{\rm merger}$ [\%]')
         ax1.set_ylim(bottom=-0.5)
@@ -2180,20 +2192,20 @@ def pop_synth(a2eff=3600, ntrials=19000, base_fn='a2eff3600', nthreads=32,
                  if e_LIGO > 0]
         e_LIGOsm = e_LIGOs[np.where(e_LIGOs > 0)[0]]
         e_LISAsm = e_LISAs[np.where(e_LIGOs > 0)[0]]
-        ax3.plot(q_arr, e_LIGOsm, 'ro', ms=0.5, alpha=0.3)
-        ax3.plot(q_arr, e_LISAsm, 'bo', ms=0.5, alpha=0.3)
+        ax3.plot(q_arr, e_LIGOsm, 'ko', ms=0.5, alpha=0.3)
+        ax3.plot(q_arr, e_LISAsm, 'go', ms=0.5, alpha=0.3)
         q = q_vals[0]
         ax3.plot(q, np.median(e_LIGOsm[np.where(q_arr == q)[0]]),
-                 'ro', label='10 Hz', ms=3.0)
+                 'ko', label='10 Hz', ms=3.0)
         ax3.plot(q, np.median(e_LISAsm[np.where(q_arr == q)[0]]),
-                 'bo', label='0.1 Hz', ms=3.0)
+                 'go', label='0.1 Hz', ms=3.0)
         for q in q_vals[1: ]:
             ax3.plot(q, np.median(e_LIGOsm[np.where(q_arr == q)[0]]),
-                     'ro', ms=3.0)
+                     'ko', ms=3.0)
             ax3.plot(q, np.median(e_LISAsm[np.where(q_arr == q)[0]]),
-                     'bo', ms=3.0)
+                     'go', ms=3.0)
         ax3.legend(ncol=2, loc='lower left', fontsize=legfs)
-        ax3.set_ylabel(r'$e$')
+        ax3.set_ylabel(r'$e_{\rm m}$')
         ax3.set_xlabel(r'$q$')
         ax3.set_yscale('log')
         yticks = [1e-1, 1e-3, 1e-5]
@@ -2330,7 +2342,7 @@ def pop_synth_nogw(a2eff=3600, base_fn='a2eff_nogw3600',
 
         plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
         plt.close()
-    return tot_perc, q_counts_nogw.keys(), merged_fracs_nogw * f_cos
+    return tot_perc, np.array(list(q_counts_nogw.keys())), merged_fracs_nogw * f_cos
 
 # num_i total inclinations, use stride + offsets to control which ones to run
 def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
@@ -2484,7 +2496,7 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
                  np.array(K0s)[sort_idx],
                  'k--',
                  label=r'$K_0$')
-        ax2.axhline(Kcrit, c='r', lw=1.0)
+        ax2.axhline(Kcrit, c='r', ls='--', lw=1.0)
         ax2.set_ylabel(r'$K = j\cos(I) - \eta e^2/2$')
         ax2.set_xlabel(r'$I_0$ (Deg)')
 
