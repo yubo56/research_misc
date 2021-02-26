@@ -1418,7 +1418,7 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
             emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(I)))
         emaxes4.append(get_emax(eta=eta, eps_gr=eps_gr, I=np.radians(Ilimd)))
         emaxes4 = np.array(emaxes4)
-        I0s_emaxes4 = np.concatenate((I0s, np.array([Ilimd])))
+        I0s_emaxes4 = np.concatenate((I0s_emax, np.array([Ilimd])))
         idxs4 = np.argsort(I0s_emaxes4)
         ax3.plot(I0s_emaxes4[idxs4], 1 - np.array(emaxes4[idxs4]), 'k--', lw=1.0)
 
