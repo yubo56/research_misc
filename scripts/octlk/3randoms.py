@@ -129,8 +129,8 @@ def plot_mass_dists(p=2.35):
 
     plt.plot(lowz_premass, lowz_postmass, 'b', label='Low Z')
     plt.plot(highz_premass, highz_postmass, 'k', label='High Z')
-    plt.xlabel(r'$M_{\rm ZAMS}$')
-    plt.ylabel(r'$M_{\rm rem}$')
+    plt.xlabel(r'$m_{\rm ms}$')
+    plt.ylabel(r'$m_{\rm BH}$')
     plt.legend(loc='upper left', fontsize=14)
     plt.tight_layout()
     plt.savefig(fldr + 'sne', dpi=300)
@@ -427,5 +427,11 @@ def plot_qdists_godsample(p=2.35, num_masses=NUM_MASSES):
 if __name__ == '__main__':
     # plot_LIGOO3a_qhist()
     # plot_mass_dists()
-    plot_qdists(num_masses=int(1e6))
-    plot_qdists(p=2, prefix='qdist_uniform', num_masses=int(1e6))
+    # plot_qdists(num_masses=int(1e6))
+    # plot_qdists(p=2, prefix='qdist_uniform', num_masses=int(1e6))
+
+    plot_qdists(p=2.35, prefix='qdist_235', num_masses=int(1e6))
+    plot_qdists(p=2.0, prefix='qdist_20', num_masses=int(1e6))
+    plot_qdists(p=1.5, prefix='qdist_15', num_masses=int(1e6))
+    plot_qdists(p=1.0, prefix='qdist_10', num_masses=int(1e6))
+    plot_qdists(p=0.5, prefix='qdist_05', num_masses=int(1e6))

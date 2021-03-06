@@ -362,7 +362,7 @@ def plot_pseudo():
     # plt.loglog(x, w_syncs_integ, label='Integral')
     plt.plot(x, eta2 / 0.691 / w_p, 'b',
                label=r'$\Omega_{\rm ps}$')
-    plt.plot(x, f2 / (f5 * (1 - e_vals**2)**(3/2)) / w_p, 'r',
+    plt.plot(x, f2 / (f5 * (1 - e_vals**2)**(3/2)) / w_p, 'r--',
                label=r'$\Omega_{\rm ps}^{\rm (Eq)}$')
     # plt.xticks([1 - 0.99**2, 1 - 0.9**2, 1 - 0.5**2],
     #            labels=['0.99', '0.9', '0.5'])
@@ -376,7 +376,7 @@ def plot_pseudo():
 # don't think this plot makes sense, we don't know the breakup frequency
 # independently of r_c
 def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
-              rhoc_rat=0.76, rcs=[0.7, 1.0, 1.38, 1.5]):
+              rhoc_rat=0.76, rcs=[0.7, 1.0, 1.38, 1.5], obs_rot=25):
     num_pts = max(4 * int(np.sqrt(1 + e) * (1 - e**2)**(-3/2)), 150)
     def get_disp_spin(w_s):
         return np.sum(get_energies(num_pts, e, w_s))
@@ -405,7 +405,7 @@ def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
         plt.plot(spins / wperi, th_pdot, c=c, label='%.2f' % rc)
     plt.axhline(obs_pdot, c='k', ls='dashed', lw=lw)
 
-    plt.yscale('symlog', linthresh=1e-12)
+    plt.yscale('symlog', linthresh=1e-13)
     ticks = [-12, -10, -8, -6]
     plt.yticks([-10**(p) for p in ticks[::-1]]
                + [0]
@@ -414,6 +414,7 @@ def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
                + [0]
                + [r'$10^{%d}$' % p for p in ticks])
     ylims = plt.ylim()
+    plt.axvline(-obs_rot / wperi, c='k', lw=lw)
     breakup_star = np.sqrt(
         6.67e-11 * 8.8 * 1.99e30 / (6.4 * 6.9e8)**3
     ) * (51 * 86400) / (2 * np.pi) / wperi
