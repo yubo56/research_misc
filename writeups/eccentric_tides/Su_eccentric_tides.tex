@@ -453,6 +453,17 @@ analytical techniques.}, giving
     \lim_{\Omega_{\rm s} \to 0} T &= T_0 \frac{f_5 (\eta_2/2)^{8/3}}{(1 -
         e^2)^{9/2}} \frac{\Gamma(23/3)}{4!}.\label{eq:tau_lowspin}
 \end{align}
+\textcolor{red}{Note that this has the expected scaling $T \sim T_{\rm p} \Omega
+/ \Omega_{\rm p}$, where $T_{\rm p}$ is the torque exerted by a circular orbit
+with separation equal to the pericenter separation $a_{\rm p} \equiv a(1 - e)$,
+i.e.
+\begin{equation}
+    T_{\rm p} = \beta_2\frac{GM_2^2r_{\rm c}^5}{a_{\rm p}^6}
+            \p{\frac{\Omega_{\rm p}}{\sqrt{GM_{\rm c}/r_{\rm c}^3}}}^{8/3}
+            \frac{\rho_{\rm c}}{\bar{\rho}_{\rm c}} \p{1 - \frac{\rho_{\rm
+            c}}{\bar{\rho}_{\rm c}}}^2.\label{eq:def_tperi}
+\end{equation}}
+
 The top panel of Fig.~\ref{fig:totals_ecc0} compares this formula to the
 integral of Eq.~\eqref{eq:tau_int} and to the direct sum of
 Eq.~\eqref{eq:tau_explicit_sum} as a function of the eccentricity. It can be see
@@ -639,23 +650,29 @@ This fixes $\gamma_E$ and we obtain the complete $m = 2$ contribution:
     \dot{E}_{\rm in}^{(m=2)}
         ={}& \frac{T_0\Omega f_5 (\eta_2/2)^{11/3}}{2(1-e^2)^{9/2}}
             \nonumber\\
-        &\times \mathrm{sgn}\p{1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}}
+        &\times \mathrm{sgn}\p{1 - \gamma_E\frac{\Omega_{\rm s}}{\eta_2 \Omega}}
             \left|
                 \frac{4}{\gamma_E}
-                \p{1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}}
-            \right|^{8/3},\\
+                \p{1 - \gamma_E\frac{\Omega_{\rm s}}{\eta_2 \Omega}}
+            \right|^{8/3}\label{eq:ein_2_comp},\\
     \gamma_E ={}& 4\p{\frac{5!}{\Gamma\p{26/3}}}^{3/8}
         \approx 0.5886.
 \end{align}
+\textcolor{red}{Note that, when $\Omega_{\rm s} \approx 0$,
+Eq.~\eqref{eq:ein_2_comp} gives the expected scaling of $\dot{E}_{\rm in}^{\rm
+(m=2)} \sim T_{\rm p}\Omega$ where $T_{\rm p}$ is the torque exerted by a
+circular companion at the pericenter separation, given by
+Eq.~\eqref{eq:def_tperi}.}
 
 The $m = 0$ contribution to Eq.~\eqref{eq:ein_int} can be straightforwardly
 integrated using the parameterization Eq.~\eqref{eq:fn0_fit}. The sum of the two
 contributions then gives the total energy transfer rate:
 \begin{align}
     \dot{E}_{\rm in} ={}& \frac{T_0 \Omega}{2}\Bigg[\frac{f_5
-        (\eta_2/2)^{11/3}}{(1-e^2)^{9/2}} \frac{\Gamma(26/3)}{4!}\nonumber\\
-        &\times \mathrm{sgn}\p{1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}}
-            \left|1 - \gamma_E\frac{\Omega_s}{\eta_2 \Omega}\right|^{8/3}
+        (\eta_2/2)^{11/3}}{(1-e^2)^{9/2}} \nonumber\\
+        &\times \mathrm{sgn}\p{1 - \gamma_E\frac{\Omega_{\rm s}}{\eta_2 \Omega}}
+            \left|\frac{4}{\gamma_{E}}
+            \p{1 - \gamma_E\frac{\Omega_{\rm s}}{\eta_2 \Omega}}\right|^{8/3}
             \nonumber\\
         &+
     \frac{f_5 \Gamma(14 / 3)}{(1 - e^2)^{10}} \left(\frac{3}{2}\right)^{8/3}
@@ -750,13 +767,13 @@ generate the required orbital decay via dynamical tides alone.
     Eq.~\eqref{eq:ein_explicit_sum}, for four different values of $r_{\rm c}$
     (legend, in units of $R_{\odot}$). The measured $\dot{P} = -3.03\times
     10^{-7}$ is shown by the horizontal dashed line. The vertical black line
-    denotes a surface spin rate of $160\;\mathrm{km/s}$, corresponding to the
-    observed $v \sin i = 110\;\mathrm{km/s}$ with an estimated $\sin i \simeq
-    2^{-1/2}$. The vertical shaded region is the region where $\Omega_{\rm s}$
-    is less than the breakup rotation rate of the star as a whole, given by $(GM
-    / R^3)^{1/2}$. Each $r_{\rm c}$ is only shown for $\abs{\Omega_{\rm s}} \leq
-    \Omega_{\rm s, c} \equiv (GM_{\rm c} / r_{\rm c}^3)^{1/2}$ the \emph{core}
-    breakup rotation rate.
+    denotes a rotation rate of $160\;\mathrm{km/s}$, corresponding to the
+    observed projected surface rotation rate $v \sin i = 110\;\mathrm{km/s}$
+    with an estimated $\sin i \simeq 2^{-1/2}$. The vertical shaded region is
+    the region where $\Omega_{\rm s}$ is less than the breakup rotation rate of
+    the star as a whole, given by $(GM / R^3)^{1/2}$. Each $r_{\rm c}$ is only
+    shown for $\abs{\Omega_{\rm s}} \leq \Omega_{\rm s, c} \equiv (GM_{\rm c} /
+    r_{\rm c}^3)^{1/2}$ the \emph{core} breakup rotation rate.
     }\label{fig:j0045_fid}
 \end{figure}
 
@@ -781,7 +798,7 @@ generate the required orbital decay via dynamical tides alone.
 % Eq.~\eqref{eq:dotp_rc} on $r_{\rm c}$ suggests that this constraint is somewhat
 % insensitive to other system uncertanties.
 
-\section{Conclusion and Discussion}\label{s:disc}
+\section{Summary and Discussion}\label{s:disc}
 
 In this paper, we have calculated the torque and orbital decay rate due to
 dynamical tides in a massive, main-sequence (MS) star under the gravitational
@@ -814,6 +831,21 @@ the core-envelope coupling timescale in the MS star is at least the
 characteristic age of the pulsar, $\approx 3\;\mathrm{Myr}$
 \citep{kaspi1996params}.
 
+\textcolor{red}{
+Our result can be compared to the result of \citet{kumar1998}, where they find
+that radiative damping of the dynamical tide is insufficient to generate the
+observed orbital decay, but differential rotation is able to completely
+dissipate the excited internal gravity waves (IGWs) and generate a sufficiently
+large tidal torque. By comparison, even though we assume complete dissipation of
+all IGWs, we further require a core spinning faster than the critical rotation
+rate of the entire star to generate sufficiently large IGW\@. One reason for
+this discrepancy is the suppression of the tidal torque by the terms dependent
+on $\rho_{\rm c} / \bar{\rho}_{\rm c}$ in Eq.~\eqref{eq:kushnir_torque}. This
+suppression is omitted in the tidal model of \citet{goldreich1989tidal} that is
+used in \citet{kumar1998} \citet[as pointed out by][]{kushnir}, and decreases
+the torque by about a factor of $10$--$100$ depending on the stellar model.
+}
+
 We address a few potential caveats of our tidal model. In our derivations, we
 have assumed that the stellar spin and orbit axes are aligned. If the stellar
 obliquity is substantial, then the orbital decay rate is generally expected to
@@ -821,17 +853,17 @@ be decreased \citep[see e.g.][]{lai2012tidal} \textcolor{red}{(NB Dong: is this
 a good reference? Or do I not need one.)}. As such, our results give the
 \emph{maximum} tidal torque and orbital decay rates due to dynamical tides.
 Additionally, in our work, we have assumed that all Fourier harmonics $N$ excite
-internal gravity waves at the radiative-convective boundary that damp as they
-propagate towards the stellar surface. This is known to be the case when the
-normalized tidal forcing frequency satisfies $\abs{2\Omega - 2\Omega_{\rm s}}
-\ll \sqrt{GM / R^3}$ \citep{zahn1975dynamical, kushnir}. In the present
-scenario, this inequality is always violated for sufficiently large $N$.
-However, these higher frequency waves are still likely to deposit most of their
-angular momentum near the stellar surface, as either their amplitudes grow large
-and they undergo wave breaking or they encounter a critical layer
-(\citealp{goldreich1989tidal}; though there may be significant reflected angular
-momentum flux, see \citealp{su2020}). In this scenario, significant differential
-rotation is expected, as the wave breaking process tends to steepen shear flows
+IGWs at the radiative-convective boundary that damp completely as they propagate
+towards the stellar surface. This is known to be the case when the normalized
+tidal forcing frequency satisfies $\abs{2\Omega - 2\Omega_{\rm s}} \ll \sqrt{GM
+/ R^3}$ \citep{zahn1975dynamical, kushnir}. In the present scenario, this
+inequality is always violated for sufficiently large $N$. However, these higher
+frequency waves are still likely to deposit most of their angular momentum near
+the stellar surface, as either their amplitudes grow large and they undergo wave
+breaking or they encounter a critical layer (\citealp{goldreich1989tidal};
+though there may be significant reflected angular momentum flux, see
+\citealp{su2020}). In this scenario, significant differential rotation is
+expected, as the wave breaking process tends to steepen shear flows
 \citep{su2020}. This violates the assumption of rigid rotation (see discussion
 before Eq.~\ref{eq:dots}) but only changes the spin evolution of the star and
 not the orbital evolution of the binary.

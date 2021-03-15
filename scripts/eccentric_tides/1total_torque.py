@@ -395,26 +395,25 @@ def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
             6.67e-11 * mc * 1.99e30 / (rc * 6.9e8)**3
         ) * (51 * 86400) / (2 * np.pi)
 
-        spins = np.linspace(-np.sqrt(breakup), np.sqrt(breakup), 50)
+        spins = np.linspace(-np.sqrt(breakup), 0, 30)
         spins *= np.abs(spins)
         # = g(e, w_s) by notation of paper
         disp_spins = np.array([get_disp_spin(w_s) for w_s in spins])
         torque_spins = np.array([get_torque(w_s) for w_s in spins])
 
-        th_pdot = -rat * rat_rc * 1.52e-18 * np.abs(spins / breakup)**(8/3) * disp_spins
-        plt.plot(spins / wperi, th_pdot, c=c, label='%.2f' % rc)
-    plt.axhline(obs_pdot, c='k', ls='dashed', lw=lw)
+        th_pdot = -rat * rat_rc * 1.52e-18 * disp_spins
+        plt.semilogy(-spins / wperi, -th_pdot, c=c, label='%.2f' % rc)
+    plt.axhline(-obs_pdot, c='k', ls='dashed', lw=lw)
 
-    plt.yscale('symlog', linthresh=1e-13)
-    ticks = [-12, -10, -8, -6]
-    plt.yticks([-10**(p) for p in ticks[::-1]]
-               + [0]
-               +[10**(p) for p in ticks],
-               labels=[r'$-10^{%d}$' % p for p in ticks[::-1]]
-               + [0]
-               + [r'$10^{%d}$' % p for p in ticks])
+    # ticks = [-12, -10, -8, -6]
+    # plt.yticks([-10**(p) for p in ticks[::-1]]
+    #            + [0]
+    #            +[10**(p) for p in ticks],
+    #            labels=[r'$-10^{%d}$' % p for p in ticks[::-1]]
+    #            + [0]
+    #            + [r'$10^{%d}$' % p for p in ticks])
     ylims = plt.ylim()
-    plt.axvline(-obs_rot / wperi, c='k', lw=lw)
+    plt.axvline(obs_rot / wperi, c='k', lw=lw)
     breakup_star = np.sqrt(
         6.67e-11 * 8.8 * 1.99e30 / (6.4 * 6.9e8)**3
     ) * (51 * 86400) / (2 * np.pi) / wperi
@@ -424,12 +423,13 @@ def plot_7319(e=0.808, obs_pdot=-3.03e-7, mc=3, prefix='7319',
                       color='k',
                       alpha=0.1)
     plt.ylim(ylims)
+    plt.xlim(left=0)
 
-    plt.legend(fontsize=14, loc='upper left')
-    plt.xlabel(r'$\Omega_{\rm s} / \Omega_{\rm p}$')
-    plt.ylabel(r'$\dot{P}$')
+    plt.legend(fontsize=14, loc='lower right')
+    plt.xlabel(r'$-\Omega_{\rm s} / \Omega_{\rm p}$')
+    plt.ylabel(r'$-\dot{P}$')
     plt.tight_layout()
-    plt.savefig('1_%s_disps' % prefix)
+    plt.savefig('1_%s_disps' % prefix, dpi=300)
     plt.clf()
     return
 
@@ -455,7 +455,7 @@ if __name__ == '__main__':
     # plot_energy(400, emax=0.96)
     # plot_spin_energy(e=0.9)
 
-    plot_pseudo()
-    # plot_7319(rhoc_rat=1/3, mc=3)
+    # plot_pseudo()
+    plot_7319(rhoc_rat=1/3, mc=3)
     # plot_7319(obs_disp = 2.81e13, breakup=1077.76, prefix='7319_mesa_10_8')
     pass
