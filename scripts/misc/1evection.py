@@ -138,8 +138,8 @@ def solve_sa(
                          method=method, atol=tol, rtol=tol,
                          args=(m1, m2, m3, fsec, fsl, fgwa, fgwe))
 
-def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='BDF',
-        folder='1evection/', plot=False, **kwargs):
+def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
+        aout=2.378, folder='1evection/', plot=False, **kwargs):
     os.makedirs(folder, exist_ok=True)
     m1 = 1
     m2 = 1
@@ -201,7 +201,7 @@ def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='BDF',
     plt.savefig(folder + fn, dpi=300)
     plt.close()
 
-def scan_circ(to_run=False):
+def scan_circ(to_run=False, plot=True):
     p = Pool(4)
     idxs = range(100)
     args = [
@@ -212,7 +212,8 @@ def scan_circ(to_run=False):
     if not to_run:
         emaxes = []
         for arg in args:
-            emaxes.append(run(arg[0], arg[1], plot=True))
+            emaxes.append(run(arg[0], arg[1], plot=plot))
+            print(emaxes[-1])
     else:
         emaxes = p.starmap(run, args)
 
@@ -224,28 +225,47 @@ def scan_circ(to_run=False):
     plt.close()
 
 def cython_tests():
+    '''
+    Results:
+
+    Running 1test/default.pkl
+    Regular took 8.10
+    Running 1test/cython.pkl
+    Cython took 1.79
+    Running 1test/cython10.pkl
+    Cython -10 took 2.42
+    Running 1test/cythonR.pkl
+    Cython Radau took 4.03
+    Running 1test/cythonDOP.pkl
+    Cython DOP853 took 0.53
+    Running 1test/cythonDOP10.pkl
+    Cython DOP853-10 took 0.57
+
+    To date, DOP853-10 and Radau are the most accurate
+    '''
     start = time.time()
-    run(folder='1test/', fn='default', tf=1e2, plot=True, W0=0, w0=0)
+    run(folder='1test/', fn='default', tf=1e2, use_cython=False, plot=True,
+        W0=0, w0=0, tol=1e-9, method='BDF')
     print('Regular took %.2f' % (time.time() - start))
 
     start = time.time()
-    run(folder='1test/', fn='cython', tf=1e2, use_cython=True, plot=True, W0=0,
-        w0=0)
+    run(folder='1test/', fn='cython', tf=1e2, use_cython=True, plot=True,
+        W0=0, w0=0, tol=1e-9, method='BDF')
     print('Cython took %.2f' % (time.time() - start))
 
     start = time.time()
     run(folder='1test/', fn='cython10', tf=1e2, use_cython=True, plot=True, W0=0,
-        w0=0, tol=1e-10)
+        w0=0, tol=1e-10, method='BDF')
     print('Cython -10 took %.2f' % (time.time() - start))
 
     start = time.time()
     run(folder='1test/', fn='cythonR', tf=1e2, use_cython=True, plot=True, W0=0,
-        w0=0, method='Radau')
+        w0=0, tol=1e-9, method='Radau')
     print('Cython Radau took %.2f' % (time.time() - start))
 
     start = time.time()
     run(folder='1test/', fn='cythonDOP', tf=1e2, use_cython=True, plot=True, W0=0,
-        w0=0, method='DOP853')
+        w0=0, tol=1e-9, method='DOP853')
     print('Cython DOP853 took %.2f' % (time.time() - start))
 
     start = time.time()
@@ -256,5 +276,7 @@ def cython_tests():
 if __name__ == '__main__':
     # cython_tests()
 
-    # scan_circ()
-    scan_circ(to_run=True)
+    # scan_circ(to_run=True)
+    # scan_circ(plot=False)
+    # run('sim38long', 0.002 - 0.0006 / 100, plot=True, tf=1e5)
+    run('sim38longhighe', 0.002 - 0.0006 / 100, plot=True, e0=0.1, tf=1e5)
