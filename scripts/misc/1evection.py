@@ -2,6 +2,7 @@
 TODO: try for a few different inclinations/eccentricities?
 '''
 from evection_solver import *
+from scipy.optimize import bisect
 from multiprocessing import Pool
 import os
 import time
@@ -25,6 +26,15 @@ c = 6.32397263*10**4
 # c = 1AU / 499s
 # unit of time = 499s * 6.32e4 = 1yr
 # unit of mass = solar mass, solve for M using N1 + distance in correct units
+
+def H(nout_rat, eps, I0d, phi, e, e0=1e-3):
+    I0 = np.radians(I0d)
+    J3 = np.sqrt(1 - e0**2) * (1 - np.cos(I0))
+    P = 2 * (1 - nout_rat - 3 * eps * (4 * J3 - 3) / 4)
+    Q = 4 - 3 * eps / 2
+    R = 15 * eps / 2
+    Gamma = -e**2/4
+    return Gamma * P - Gamma**2 * Q + Gamma * R * np.cos(phi)
 
 def dydt(t, y, m1, m2, m3, fsec, fsl, fgwa, fgwe):
     m12 = m1 + m2
@@ -139,17 +149,29 @@ def solve_sa(
                          args=(m1, m2, m3, fsec, fsl, fgwa, fgwe))
 
 def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
-        aout=2.378, folder='1evection/', plot=False, **kwargs):
+        aout=2.38, folder='1evection/', plot=False, foutmult=1, **kwargs):
     os.makedirs(folder, exist_ok=True)
     m1 = 1
     m2 = 1
+    m3 = 1
+    I0d = 0
     m12 = m1 + m2
     mu = (m2 * m1) / m12
+    m123 = m12 + m3
     pkl_fn = folder + fn + '.pkl'
+
+    nout_rat = (
+        (a0 / aout)**(3/2) * (m123 / m12)**(1/2)
+        / (3 * G * m12 / (c**2 * a0))
+    )
+    eout = kwargs.get('eout', 0)
+    nout_rat_ecc = nout_rat * np.sqrt(1 + eout) / (1 - eout)**(3/2)
+    print('nout ratios (circ, ecc)', nout_rat, nout_rat_ecc)
+
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        ret = solve_sa(tf, a0, e0, 2.38, m1=m1, m2=m2, method=method,
-                       tol=tol, fgwa=0, fgwe=0, **kwargs)
+        ret = solve_sa(tf, a0, e0, 2.38, m1=m1, m2=m2, m3=m3, I0d=I0d,
+                       method=method, tol=tol, fgwa=0, fgwe=0, **kwargs)
         with lzma.open(pkl_fn, 'wb') as f:
             pickle.dump((ret), f)
     else:
@@ -173,27 +195,39 @@ def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
     if not plot:
         return e.max() - e.min()
 
-    fig, (ax1, ax2, ax3) = plt.subplots(
-        3, 1,
-        sharex=True,
-        figsize=(8, 8))
-    # ax1.plot(ret.t, ain)
-    # ax1.set_ylabel(r'$a$')
-    # ax1.plot(rout[0], rout[1])
-    # ax1.set_xlabel(r'$x_{\rm out}$')
-    # ax1.set_ylabel(r'$y_{\rm out}$')
-    ax1.plot(ret.t, routmag)
-    ax1.set_ylabel(r'$|r_{\rm out}|$')
-
-    ax2.plot(ret.t, e)
-    ax2.set_ylabel(r'$e$')
-
     # Win = np.arctan2(Linhat[0], Linhat[1]) # I=0, varpi = w
     varpi_in = np.unwrap(np.arctan2(einhat[1], einhat[0]))
     fout = np.unwrap(np.arctan2(routhat[1], routhat[0]))
 
-    ax3.plot(ret.t, np.degrees(varpi_in - fout))
-    ax3.set_ylabel(r'$\varpi - f_{\rm out}$ [Deg]')
+    dfoutdt = np.diff(fout) / np.diff(ret.t)
+    dvarpidt = np.diff(varpi_in) / np.diff(ret.t)
+    # print('dfdt', np.min(dfoutdt), np.max(dfoutdt))
+    # print('dvarpidt', np.min(dvarpidt), np.max(dvarpidt))
+
+    eps = (m3 * a0**4 * c**2) / (3 * G * m12**2 * aout**3)
+    H_simp = H(dfoutdt / dvarpidt, eps, I0d,
+              2 * (varpi_in - fout)[ :-1], e[: -1])
+
+    fig, (ax1, ax2, ax3) = plt.subplots(
+        3, 1,
+        sharex=True,
+        figsize=(8, 8))
+    ax1.plot(ret.t, routmag)
+    ax1.set_ylabel(r'$|r_{\rm out}|$')
+    ax1twin = ax1.twinx()
+    # ax1twin.plot(ret.t, ain, ls='--')
+    # ax1twin.set_ylabel(r'$a$')
+    ax1twin.plot(ret.t[ :-1], H_simp, 'm:')
+    ax1twin.set_ylabel(r'$H$')
+
+    ax2.plot(ret.t, e)
+    ax2.set_ylabel(r'$e$')
+
+    ax3.plot(ret.t, 2 * np.degrees(varpi_in - foutmult * fout))
+    if foutmult == 1:
+        ax3.set_ylabel(r'$2(\varpi - f_{\rm out})$ [Deg]')
+    else:
+        ax3.set_ylabel(r'$2(\varpi - %df_{\rm out})$ [Deg]' % foutmult)
     ax3.set_xlabel(r'$t$')
 
     fig.subplots_adjust(hspace=0.02)
@@ -273,10 +307,73 @@ def cython_tests():
         w0=0, method='DOP853', tol=1e-10)
     print('Cython DOP853-10 took %.2f' % (time.time() - start))
 
+def plot_H(fn, m12=2, m3=1, a=0.001994, aout=2.38 - 1e-5, I0d=0, npts=400):
+    m123 = m12 + m3
+
+    nout_rat = (a / aout)**(3/2) * (m123 / m12)**(1/2) / (3 * G * m12 / (c**2 * a))
+    eps = (m3 * a**4 * c**2) / (3 * G * m12**2 * aout**3)
+
+    phi = np.linspace(0, 2 * np.pi, npts)
+    e = np.linspace(0, 0.008, npts)
+    egrid = np.outer(np.ones_like(phi), e)
+    phigrid = np.outer(phi, np.ones_like(e))
+    Hgrid = H(nout_rat, eps, I0d, phigrid, egrid)
+    plt.contourf(
+        phigrid,
+        egrid,
+        Hgrid,
+        levels=30,
+    )
+    H_sep = Hgrid[0, :].max()
+    plt.axhline(1e-3, c='k', ls='--')
+    # plt.axhline((7.5e-3)**2, c='k')
+    # plt.contour(
+    #     phigrid,
+    #     egrid,
+    #     Hgrid,
+    #     levels=[H_sep],
+    #     linewidths=2,
+    #     colors='k',
+    # )
+    plt.xlabel(r'$\phi$')
+    plt.ylabel(r'$\sqrt{-\Gamma} \approx e$')
+    plt.tight_layout()
+    plt.savefig(fn, dpi=300)
+    plt.close()
+
+def investigate_38():
+    ''' too lazy to find another set of resonant params lol '''
+    a0_38 = 0.001994
+    run('sim38long', a0_38, tol=1e-12, plot=True, tf=1e5)
+    # run('sim38long1', a0_38, tol=1e-12, plot=True, tf=1e5)
+    # run('sim38long2', a0_38, tol=1e-12, plot=True, tf=1e5)
+    # run('sim38long3', a0_38, tol=1e-12, plot=True, tf=1e5)
+    # run('sim38long4', a0_38, tol=1e-12, plot=True, tf=1e5)
+
+    eout = 0.6
+    run('sim38ecc', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    # run('sim38ecc1', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    # run('sim38ecc2', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    # run('sim38ecc3', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    # run('sim38ecc4', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    a0_38_ecc = a0_38 / (np.sqrt(1 + eout) / (1 - eout)**(3/2))**(2/5)
+    run('sim38eccperi', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+        foutmult=5)
+    # run('sim38eccperi1', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+    #     foutmult=5)
+    # run('sim38eccperi2', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+    #     foutmult=5)
+    # run('sim38eccperi3', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+    #     foutmult=5)
+    # run('sim38eccperi4', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+    #     foutmult=5)
+
+    # run('sim38longhighe', a0_38, plot=True, e0=0.1, tf=1e5)
+    # plot_H('sim38_H', npts=100)
+
 if __name__ == '__main__':
     # cython_tests()
 
     # scan_circ(to_run=True)
     # scan_circ(plot=False)
-    # run('sim38long', 0.002 - 0.0006 / 100, plot=True, tf=1e5)
-    run('sim38longhighe', 0.002 - 0.0006 / 100, plot=True, e0=0.1, tf=1e5)
+    investigate_38()

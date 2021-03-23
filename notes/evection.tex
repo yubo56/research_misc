@@ -1,4 +1,4 @@
-    \documentclass[11pt,
+    \documentclass[10pt,
         usenames, % allows access to some tikz colors
         dvipsnames % more colors: https://en.wikibooks.org/wiki/LaTeX/Colors
     ]{article}
@@ -23,7 +23,7 @@
         xcolor, % colored text
         cancel % can cancel things out!
     }
-    \usepackage[margin=1in]{geometry} % page geometry
+    \usepackage[margin=1in, left=0.5in, right=0.5in]{geometry} % page geometry
     \usepackage[
         labelfont=bf, % caption names are labeled in bold
         font=scriptsize % smaller font for captions
@@ -103,6 +103,8 @@
 
 \maketitle
 
+\tableofcontents
+
 \section{03/15/21---Basics \& Introduction}
 
 \subsection{Writing Down the Hamiltonian}
@@ -120,11 +122,11 @@ while the external companion has averaged energy
             - (2 + 3e^2)} + \frac{15}{32}
                 \p{1 + \cos I}^2 e^2 \cos\p{2\varpi - 2\lambda_{\rm out}}}.
 \end{equation}
-Here, we have averaged over: $\varpi = \Omega + \omega$ is the longitude of
+Here, we have averaged over: $\varpi = \ascnode + \omega$ is the longitude of
 pericenter of the inner orbit, so $\uv{e} = \cos \varpi \uv{x} + \sin \varpi
 \uv{y}$, and $\lambda_{\rm out} = \varpi_{\rm out} + M_{\rm out}$ is the mean
 longitude of $m_3$, where $M_{\rm out}$ is the outer mean anomaly. Recall that
-$n_{\rm out} = \dot{\lambda}_{\rm out} = \dot{M}_{\rm out}$, and the useful
+$\Omega_{\rm out} = \dot{\lambda}_{\rm out} = \dot{M}_{\rm out}$, and the useful
 component form
 \begin{equation}
     \uv{r}_{\rm out} = \cos \lambda_{\rm out}\uv{x}
@@ -137,7 +139,7 @@ Why is this interesting? Well, let's write $\epsilon \equiv
 = \s{H_{\rm GR}}_{e = 0}$, or
 \begin{align}
     \epsilon &= \frac{m_3\mu_{12}a^2 c^2a^2}{3G^2m_1m_2m_{12}a_{\rm out}^3},\\
-        &= \frac{m_3a^4 c^2}{3G^2m_{12}^2a_{\rm out}^3}.
+        &= \frac{m_3a^4 c^2}{3Gm_{12}^2a_{\rm out}^3}.
 \end{align}
 This is like $\epsilon_{\rm GR}^{-1}$ from our previous LK work. We are
 interested in the regime where $\epsilon \ll 1$. The total Hamiltonian of the
@@ -158,12 +160,12 @@ separatrix might appear at $\epsilon \sim 1$? It's not clear yet.
 
 This section mostly follows Dong's notes, for completeness.
 
-We need $n_{\rm out} \equiv \sqrt{Gm_{123} / a_{\rm out}^3}$ to be of order
+We need $\Omega_{\rm out} \equiv \sqrt{Gm_{123} / a_{\rm out}^3}$ to be of order
 $\dot{\varpi} \equiv 3Gnm_{12} / (c^2aj^2)$. Assuming the eccentricity is
 already mostly damped (when $\epsilon_{\rm GR} \gg 1$, we expect this), then
 this gives
 \begin{align}
-    \frac{3Gm_{12}}{c^2a} &\simeq \frac{n_{\rm out}}{n}
+    \frac{3Gm_{12}}{c^2a} &\simeq \frac{\Omega_{\rm out}}{n}
         = \sqrt{\frac{m_{123}}{m_{12}}\frac{a^3}{a_{\rm out}^3}},\\
     \p{\frac{a}{a_{\rm out}}}^{5/2} &\simeq
         \frac{3Gm_{12}}{c^2a_{\rm out}}\sqrt{\frac{m_{12}}{m_{123}}}.
@@ -198,7 +200,7 @@ Indeed, this must be the case. Another check requires
 \begin{align}
     t_{\rm ZLK}^{-1} &\ll \dot{\varpi},\\
     \frac{m_3}{m_{12}}\p{\frac{a}{a_{\rm out}}}^3 &\ll \frac{3Gm_{12}}{c^2a}
-        \sim \frac{n_{\rm out}}{n},\\
+        \sim \frac{\Omega_{\rm out}}{n},\\
     &\ll \p{\frac{m_{123}}{m_{12}}}^{1/2}\p{\frac{a}{a_{\rm out}}}^{3/2},\\
     \frac{m_3}{m_{12}}\p{\frac{m_{12}}{m_{123}}}^{1/2}\p{\frac{a}{a_{\rm
         out}}}^{3/2} &\ll 1.
@@ -208,13 +210,13 @@ This is also satisfied. Thus, resonance excitation should be possible.
 What are the kinds of systems that are interacting? If we want LISA band, we
 need $n / \pi \sim 10^{-3}\;\mathrm{Hz}$, and:
 \begin{align}
-    n_{\rm out} &\simeq \frac{3Gnm_{12}}{c^2a},\\
+    \Omega_{\rm out} &\simeq \frac{3Gnm_{12}}{c^2a},\\
         &\simeq \frac{3n^3a^2}{c^2},\\
         &\simeq \frac{3n^3}{c^2}\p{\frac{Gm_{12}}{n^2}}^{2/3},\\
         &\simeq 10^{-7}
             \p{\frac{P}{10^3\;\mathrm{s}}}^{-5/3}
             \p{\frac{m_{12}}{2 M_{\odot}}}^{2/3}\;\mathrm{s^{-1}},\\
-    a_{\rm out} &= \p{\frac{Gm_{123}}{n_{\rm out}^2}}^{1/3},\\
+    a_{\rm out} &= \p{\frac{Gm_{123}}{\Omega_{\rm out}^2}}^{1/3},\\
         &= 2.4\p{\frac{m_{123}}{3 M_{\odot}}}^{1/3}
             \p{\frac{P}{10^3\;\mathrm{s}}}^{10/9}
             \p{\frac{m_{12}}{2M_{\odot}}}^{-4/9}\;\mathrm{AU}.
@@ -270,6 +272,292 @@ $\gamma = -\varpi$ and $\Gamma = 1 - \sqrt{1 - e^2}$, so that $j(e) = 1 -
 This is not quite as clean as Wenrui's form, but it has the advantage (for me)
 that the $\epsilon$ dependence is still explicit, while $A, B$ are almost always
 positive (except for when $\cos^2 I < 1/3$).
+
+\section{03/18/21--03/21/21}
+
+\subsection{Deriving the Hamiltonian Carefully: Circular Perturber}
+
+After doing some simulations, it is pretty clear that we will need a precise
+derivation of the Hamiltonian. We start with the full Hamiltonian
+\begin{equation}
+    H = -\frac{3G^2m_1m_2m_{12}}{c^2a^2j(e)}
+        - \frac{Gm_3\mu_{12}a^2}{r_{\rm out}^3}\s{
+        \frac{1}{16}\s{\p{6 + 9e^2}\cos^2 I
+            - (2 + 3e^2)} + \frac{15}{32}
+                \p{1 + \cos I}^2 e^2 \cos\p{2\varpi - 2\lambda_{\rm out}}}.
+\end{equation}
+Note that when the outer orbit is circular, $r_{\rm out} = a_{\rm out}$ and
+$\lambda_{\rm out} = f_{\rm out}$. I can't seem to figure out how to
+non-dimensionalize the Hamiltonian and the time right now, so let's just factor
+out $H_{\rm GR, 0} \equiv 3G^2 m_1m_2m_{12} / c^2a^2$, and drop constant terms
+\begin{equation}
+    H = -H_{\rm GR, 0}\z{\frac{1}{j(e)}
+        + \epsilon\s{
+        \frac{(6 + 9e^2)\cos^2 I - 3e^2}{16} + \frac{15}{32}
+                \p{1 + \cos I}^2 e^2 \cos\p{2\varpi - 2\lambda_{\rm out}}}}.
+\end{equation}
+Here, again, $\epsilon$ was given above
+\begin{equation}
+    \epsilon = \frac{m_3a^4 c^2}{3Gm_{12}^2a_{\rm out}^3}.
+\end{equation}
+Okay, I give up, we non-dimensionalize the Hamiltonian by dividing by $H_{\rm
+GR, 0}$ and scale time via
+\begin{equation}
+    \tau \equiv \dot{\varpi}_{\rm GR}t =
+        \frac{3Gnm_{12}}{c^2aj^2}t.
+\end{equation}
+
+We now seek the appropriate canonical transformation for our rescaled $H$. We
+can first directly recast $H$ in terms of the modified Delaunay variables; since
+the generating function is time-independent, we just need to re-express $H$ in
+terms of the new variables ($\theta_1 = \lambda$ does not appear in the original
+$H$, so $L_D = J_1 = \sqrt{Gm_{12}a}$ is conserved, which we've just used in
+renormalizing the Hamiltonian and by convention set $L_D = J_1 = 1$)
+\begin{align}
+    J_2 &= 1 - \sqrt{1 - e^2} & \theta_2 &= -\varpi,\\
+    J_3 &= \sqrt{1 - e^2}\p{1 - \cos I} & \theta_3 &= -\ascnode,
+\end{align}
+and so $\sqrt{1 - e^2} = 1 - J_2$, $e^2 = 1 - \p{1 - J_2}^2 = 2J_2 - J_2^2$, and
+$\cos I = 1 - \s{J_3 / \p{1 - J_2}}$ (note that $J_3$ is also a constant, but
+since $e$ is not constant, neither is $\cos I$, strictly speaking)
+\begin{align}
+    H\p{J_2, \theta_2, J_3, \theta_3}
+        &= -\frac{1}{1 - J_2} - \epsilon\s{
+            A + B \cos\p{-2\theta_2 - 2\lambda_{\rm out}}
+        },\\
+    A &= \frac{3\cos^2 I - 1}{16}3e^2 + \frac{3}{8}\cos^2 I =
+        \frac{3}{16}\p{2J_2 - J_2^2}\p{
+            2 - 6\frac{J_3}{1 - J_2} + 3\p{\frac{J_3}{1 - J_2}}^2}
+            + \frac{3}{8}\cos^2 I,\\
+    B &= \frac{15}{32}\p{1 + \cos I}^2e^2 =
+        \frac{15}{32}\s{4 - 4\frac{J_3}{1 - J_2} + \p{\frac{J_3}{1 - J_2}}^2}
+            \p{2J_2 - J_2^2}.
+\end{align}
+We further want to transform the Hamiltonian for some canonical variable $\phi =
+-2\theta_2 - 2\lambda_{\rm out}$. The canonical variable conjugate to $\phi$ is
+just $\Gamma = -J_2 / 2$, as we can verify via the Poisson bracket:
+\begin{equation}
+    \z{\phi, \Gamma} = \pd{\phi}{\theta_2}\pd{\Gamma}{J_2}
+            - \pd{\phi}{J_2}\pd{\Gamma}{\theta_2}
+        = \p{-2}\p{-\frac{1}{2}} = 1.
+\end{equation}
+The generating function for this canonical transformation is just $S\p{p, Q} =
+-J_2\phi / 2$, so the Hamiltonian for the resonant angle $\phi$ becomes
+\begin{align}
+    H\p{\Gamma, \phi; J_3} &= -\frac{1}{1 + 2\Gamma} - \epsilon\p{
+        A + B \cos \phi} + \pd{S}{t},\\
+        &= -\frac{1}{1 + 2\Gamma} - \epsilon\p{
+            A + B \cos \phi} - \frac{J_2}{2} \p{-2\rd{\lambda_{\rm out}}{t}},\\
+        &= -\frac{1}{1 + 2\Gamma} - \epsilon\p{
+            A + B \cos \phi} - 2\Gamma \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}},\\
+    A &= \frac{3}{16}\p{-4\Gamma - 4\Gamma^2}\p{
+        2 - 6\frac{J_3}{1 + 2\Gamma} + 3\p{\frac{J_3}{1 + 2\Gamma}}^2}
+        + \frac{3}{8}\p{1 - \frac{J_3}{1 + 2\Gamma}}^2,\\
+    B &= \frac{15}{32}\s{
+        4 - 4\frac{J_3}{1 + 2\Gamma} + \p{\frac{J_3}{1 + 2\Gamma}}^2}
+        \p{-4\Gamma - 4\Gamma^2}.
+\end{align}
+Note that $\lambda_{\rm out} = \omega_{\rm out} + \ascnode_{\rm out} +
+\mathcal{M}_{\rm out}$, so the time derivative is just the mean motion (at the
+current order of approximation) in nondimensional units.
+
+Up until here, everything is still exact; we can now compute the Hamiltonian to
+leading order in $\Gamma$, $\Gamma^2$ and $\cos \phi$ (we drop constant terms in
+$\epsilon$ and $J_3$)
+\begin{align}
+    H\p{\Gamma, \phi} &=
+        2\Gamma - 4\Gamma^2 - \epsilon\p{A + B\cos\phi} - 2\Gamma\frac{\Omega_{\rm
+            out}}{\Omega_{\rm GR, 0}} + \mathcal{O}\p{\Gamma^3},\\
+        &= 2\Gamma\p{1 - \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}}}
+            - 4\Gamma^2 - \epsilon\p{A + B \cos \phi} +
+            \mathcal{O}\p{\Gamma^3},\\
+    A &= -\frac{3\p{\Gamma + \Gamma^2}}{4}\p{2 - 6J_3}
+        + \frac{3}{8}\p{4J_3\Gamma}
+        + \mathcal{O}\p{\Gamma^3, \Gamma^2J_3},\\
+        &= \frac{3}{2}\p{4J_3\Gamma - \Gamma - \Gamma^2}
+            + \mathcal{O}\p{\Gamma^3, \Gamma^2J_3},\\
+    B &= -\frac{15}{2}\Gamma + \mathcal{O}\p{\Gamma^2, J_3\Gamma},\\
+    H\p{\Gamma, \phi}
+        &= 2\Gamma\p{1 - \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}}}
+            - 4\Gamma^2 - \frac{\epsilon}{2}\s{
+                3\p{4J_3\Gamma - \Gamma - \Gamma^2}
+                - 15 \Gamma \cos \phi} +
+            \mathcal{O}\p{\Gamma^3, \Gamma^2 J_3, \Gamma^2 \cos \phi},\\
+        &= 2\Gamma\p{1 - \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}}
+            -\frac{\epsilon\p{12J_3 - 3}}{4}}
+            - \Gamma^2\p{4 - \frac{3\epsilon}{2}} + \frac{\epsilon}{2}
+                 15 \Gamma \cos \phi +
+            \mathcal{O}\p{\Gamma^3, \Gamma^2 J_3, \Gamma^2 \cos \phi}.
+\end{align}
+Note that, to leading order,
+\begin{equation}
+    J_3 \approx \p{1 - J_2}\p{1 - \cos I} = \p{1 + 2\Gamma}\p{1 - \cos I}
+        \approx 1 + 2\Gamma - \cos I.
+\end{equation}
+This substitution cannot be made into the Hamiltonian directly, however, since
+$J_3$ is an independent momentum from $\Gamma$ and is conserved. Thus, we obtain
+\begin{align}
+    H\p{\Gamma,\phi} &\approx \Gamma P - \Gamma^2 Q + R \Gamma \cos \phi,&&\\
+        P &\approx 2\s{1 - \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}} -
+            \frac{\epsilon\p{12 J_3 - 3}}{4}},&
+        Q &\approx 4 - \frac{3\epsilon}{2} \approx 4,\nonumber\\
+        R &\approx \frac{15\epsilon}{2},\\
+        \epsilon &= \frac{m_3a^4 c^2}{3Gm_{12}^2a_{\rm out}^3},&
+        \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}}
+            &= \frac{\p{a / a_{\rm out}}^{3/2}\p{m_{123} / m_{12}}^{1/2}}{
+                3Gm_{12} / (c^2a)}
+\end{align}
+Here, $\Gamma \in [-0.5, 0]$, and $\Gamma \simeq -e^2/4$ for $e \ll 1$; these
+are checked with \lstinline{sympy}.
+
+This seems to largely agree with Wenrui's Hamiltonian, except he omitted the
+$\epsilon$ contribution to the $\Gamma^2$ coefficient (XL Eq.~17). There are
+then three questions to answer about this Hamiltonian:
+\begin{itemize}
+    \item Are there any bifurcations ([dis]appearances of equilibria)?
+    \item What does the phase portrait look like, qualitatively?
+    \item What is the resonance width?
+\end{itemize}
+
+To answer these, we use Hamilton's equations to compute the EOM and equilibria:
+\begin{align}
+    \dot{\phi} &= \pd{H}{\Gamma} = P - 2\Gamma Q + R \cos \phi,\\
+    \dot{\Gamma} &= -\pd{H}{\phi} = -R\Gamma \sin \phi.
+\end{align}
+From the second equation, there are only zeros when $\phi = 0, \pi$, and from
+the first equation, these occur at
+\begin{equation}
+    \Gamma_{\phi = 0, \pi} = \frac{P \pm R}{2Q},
+\end{equation}
+where the positive sign corresponds to $\phi = 0$. Recalling that $\Gamma \in
+[-0.5, 0]$, we see that the solutions only exist when $P \pm 15\epsilon/2 \in
+[-Q, 0]$. Ps the inspiral progresses, $P$ is increasing, so we see that the
+$\Gamma_{\phi = 0}$ equilibrium will disappear when $P = -15\epsilon/2$ and the
+$\Gamma_{\phi = \pi}$ equilibrium will disappear when $P = 15\epsilon/2$.
+
+\textbf{TODO:} Resonance width.
+
+\subsection{Eccentric Perturber}
+
+The goal here is to find the correct way to average the single-averaged
+expression
+\begin{equation}
+    \tilde{H}_{\rm out} \equiv \frac{H_{\rm out}}{Gm_3\mu_{12}a^2/a_{\rm out}^3}
+        = \frac{1}{4}\p{\frac{a_{\rm out}}{r_{\rm out}}}^3 \s{
+            -1 + 6e^2 + 3\p{1 - e^2}\p{\uv{n} \cdot \uv{r}_{\rm out}}^2
+            - 15 e^2\p{\uv{e} \cdot \uv{r}_{\rm out}}^2}.
+\end{equation}
+The coordinate system we choose matches XL16, where $\uv{L}_{\rm in} \propto
+\uv{z}$ while $\ascnode_{\rm out} = 0$. This gives component form (see MD 2.20 and
+2.122)
+\begin{align}
+    r_{\rm out} &= \frac{a_{\rm out}\p{1 - e_{\rm out}^2}}{1 + e_{\rm out} \cos
+        f_{\rm out}} &
+    \uv{r}_{\rm out} &= \begin{pmatrix}
+        \cos v_{\rm out}\\
+        \sin v_{\rm out} \cos I\\
+        \sin v_{\rm out} \sin I
+    \end{pmatrix}.
+\end{align}
+Here, $v_{\rm out} = \ascnode_{\rm out} + \omega_{\rm out} + f_{\rm out} =
+\omega_{\rm out} + f_{\rm out}$ is the \emph{true longitude}. Averaging is done
+via the identities
+\begin{align}
+    \ev{\frac{\cos^2 f_{\rm out}}{r_{\rm out}^3}} &=
+        \ev{\frac{\sin^2 f_{\rm out}}{r_{\rm out}^3}}
+        = \frac{1}{2a_{\rm out}^3\p{1 - e_{\rm out}^2}^{3/2}},\\
+    \ev{\frac{1}{r_{\rm out}^3}} &= \frac{1}{a_{\rm out}^3\p{1 - e_{\rm
+        out}^2}^{3/2}},\\
+    \ev{\frac{\cos f_{\rm out} \sin f_{\rm out}}{r_{\rm out}^3}} &= 0.
+\end{align}
+
+\subsubsection{Circular Averaging}
+
+Just to review the averaging procedure, let's consider the case where $e_{\rm
+out} = 0$, then $v_{\rm out} = \lambda_{\rm out}$ the \emph{mean longitude} and
+we can write
+\begin{align}
+    \tilde{H}_{\rm out} &= \frac{1}{4}\s{
+        -1 + 6e^2 + 3\p{1 - e^2}\sin^2 \lambda_{\rm out} \sin^2 I
+        - 15e^2\p{\cos \varpi \cos \lambda_{\rm out}
+            + \sin \varpi \sin \lambda_{\rm out}\cos I}^2},\\
+    \uv{e} \cdot \uv{r}_{\rm out} &=
+        \cos\p{\varpi - \lambda_{\rm out}}\p{\frac{1 + \cos I}{2}}
+            + \cos\p{\varpi - \lambda_{\rm out}}\p{\frac{1 - \cos I}{2}},\\
+    \ev{\p{\dots}^2} &=
+        \cos^2\p{\varpi - \lambda_{\rm out}}\p{\frac{1 + \cos I}{2}}^2
+            + \frac{\p{1 - \cos I}^2}{8},\\
+    \ev{\tilde{H}_{\rm out}} &= \frac{1}{4}\s{
+        -1 + 6e^2 + \frac{3}{2}\p{1 - e^2}\p{1 - \cos^2 I}
+            - \frac{15}{2} e^2 \p{1 + \cos\p{2\varpi - 2\lambda_{\rm out}}}
+                \p{\frac{1 + \cos I}{2}}^2
+                - \frac{15e^2\p{1 - \cos I}^2}{8}},\\
+        &= \frac{1}{16}\s{-4 + 24 e^2 + 6\p{1 - e^2 - \cos^2 I
+            + e^2\cos^2 I} - 15e^2\p{1 + \cos I^2} - \frac{15}{2}
+                e^2\cos \phi\p{1 + \cos I}^2},\\
+        &= \frac{1}{16}\s{2 + 3e^2 - 6\cos^2 I - 9e^2\cos^2 I
+            - \frac{15}{2}\p{1 + \cos I}^2 e^2 \cos \phi}.
+\end{align}
+Success!
+
+\subsection{Eccentric Averaging}
+
+We cannot just substitute $a_{\rm out} \Rightarrow a_{\rm out, eff} \equiv
+a_{\rm out}\sqrt{1 - e_{\rm out}^2}$ because $\phi$ is no longer a resonant
+angle. All of the other terms are the same, however, so we effectively just need
+to compute the expression
+\begin{equation}
+    a_{\rm out}\ev{\frac{\p{\uv{e} \cdot \uv{r}_{\rm out}}^2}{r_{\rm out}^3}}
+\end{equation}
+Consider a Fourier decomposition of $\uv{r}_{\rm out} / r_{\rm out}^{3/2}$,
+where $\Omega_{\rm out}$ is the outer mean motion (just in the $x$--$y$ plane),
+then (we assume $\omega_{\rm out}\p{t = 0} = 0$ and give an arbitrary phase
+offset $\varpi_0$ to the inner eccentricity vector)
+\begin{align}
+    \uv{e}(t) &= \cos \p{\Omega_{\rm GR}t + \varpi_0} \uv{x} +
+        \sin\p{\Omega_{\rm GR}t + \varpi_0}\uv{y},\\
+    \frac{\uv{r}_{\rm out}(t)_{\perp}}{r_{\rm out}^{3/2}} &=
+        \frac{1}{r_{\rm out}^{3/2}}\s{\cos v_{\rm out}
+            \uv{x} + \sin v_{\rm out}\cos I \uv{y}},\\
+        &= \sum\limits_{N = 1}^\infty
+            \frac{c_N}{a_{\rm out}^{3/2}}\z{\cos\p{N \Omega_{\rm out}t} \uv{x}
+            + \sin\p{N \Omega_{\rm out}t} \cos I\uv{y}},\\
+    \uv{e} \cdot \frac{\uv{r}_{\rm out}}{r_{\rm out}^{3/2}}
+        &= \sum\limits_{N = 1}^\infty
+            \frac{c_N}{a_{\rm out}^{3/2}}
+                \z{\cos\p{N \Omega_{\rm out}t} \cos\p{\Omega_{\rm GR}t +
+                    \varpi_0}
+            + \sin\p{N \Omega_{\rm out}t} \cos I \sin\p{\Omega_{\rm GR}t +
+                \varpi_0}},\\
+        &= \sum\limits_{N = 1}^\infty
+            \frac{c_N}{a_{\rm out}^{3/2}}
+                \z{
+                    \cos\p{\p{N\Omega_{\rm out} - \Omega_{\rm GR}}t - \varpi_0}
+                        \p{\frac{1 + \cos I}{2}}
+                    + \cos\p{\p{N\Omega_{\rm out} + \Omega_{\rm GR}}t + \varpi_0}
+                        \p{\frac{1 - \cos I}{2}}
+                    },\\
+    \ev{\frac{\p{\uv{e} \cdot \uv{r}_{\rm out}}^2}{r_{\rm out}^3}}
+        &= \sum\limits_{M = 0}^{N - 1}
+            f_{NM}
+            \frac{c_{N_{\rm GR} + M}c_{N_{\rm GR} - M}}{2a_{\rm out}^3}
+            \p{\frac{1 + \cos I}{2}}^2 \cos\p{\p{2N_{\rm GR}\Omega_{\rm out}
+                - 2\Omega_{\rm GR}}t - 2\varpi_0}.
+\end{align}
+Here, $N_{\rm GR} \equiv \lfloor \Omega_{\rm GR} / \Omega_{\rm out}$, and
+$f_{NM} = 1$ if $M = N / 2$ else $2$ (double counting factor). Since the $c_N$
+should fall off for $N \gtrsim N_{\rm p}$ where
+\begin{equation}
+    N_{\rm p} \equiv \frac{\sqrt{1 + e}}{\p{1 - e_{\rm out}}^{3/2}},
+\end{equation}
+we see that there will generally be resonances for all $N\Omega_{\rm out} \sim
+\Omega_{\rm GR}$ as long as $N \lesssim N_{\rm p}$. Furthermore, we guess that
+the $c_{N}$ are expected to scale like $N^2$ for $N \lesssim N_{\rm p}$, so the
+sum is dominated by the $M = 0$ contribution.
+
+Does this agree with simulations yet? Well, we do observe resonances for both $N
+\approx 1$ and $N \approx N_{\rm p}$, todo more in depth exploration.
+
 
 \end{document}
 
