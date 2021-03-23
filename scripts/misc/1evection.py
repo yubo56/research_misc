@@ -93,12 +93,15 @@ def dydt(t, y, m1, m2, m3, fsec, fsl, fgwa, fgwe):
 def solve_sa(
     tf, a0, e0, aout, eout=0, fout=0,
     m1=1, m2=1, m3=1,
-    I0d=0, w0=np.random.uniform(2 * np.pi),
-    W0=np.random.uniform(2 * np.pi),
+    I0d=0, w0=None, W0=None,
     method='Radau', tol=1e-9,
     fsec=1, fsl=1, fgwa=1, fgwe=1,
-    use_cython=False,
+    use_cython=True,
 ):
+    if w0 is None:
+        w0 = np.random.uniform(2 * np.pi)
+    if W0 is None:
+        W0 = np.random.uniform(2 * np.pi)
     m12 = m1 + m2
     mu = (m2 * m1) / m12
     m123 = m12 + m3
@@ -148,8 +151,8 @@ def solve_sa(
                          method=method, atol=tol, rtol=tol,
                          args=(m1, m2, m3, fsec, fsl, fgwa, fgwe))
 
-def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
-        aout=2.38, folder='1evection/', plot=False, foutmult=1, **kwargs):
+def run(fn, a0=0.002, tf=1e4, tol=1e-9, eout=0, aout=2.38, folder='1evection/',
+        method='DOP853', e0=1e-3, plot=False, foutmult=1, **kwargs):
     os.makedirs(folder, exist_ok=True)
     m1 = 1
     m2 = 1
@@ -164,20 +167,18 @@ def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
         (a0 / aout)**(3/2) * (m123 / m12)**(1/2)
         / (3 * G * m12 / (c**2 * a0))
     )
-    eout = kwargs.get('eout', 0)
     nout_rat_ecc = nout_rat * np.sqrt(1 + eout) / (1 - eout)**(3/2)
-    print('nout ratios (circ, ecc)', nout_rat, nout_rat_ecc)
 
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         ret = solve_sa(tf, a0, e0, 2.38, m1=m1, m2=m2, m3=m3, I0d=I0d,
-                       method=method, tol=tol, fgwa=0, fgwe=0, **kwargs)
+                       method=method, tol=tol, fgwa=0, fgwe=0, eout=eout,
+                       **kwargs)
         with lzma.open(pkl_fn, 'wb') as f:
             pickle.dump((ret), f)
     else:
         with lzma.open(pkl_fn, 'rb') as f:
-            if plot:
-                print('Loading %s' % pkl_fn)
+            print('Loading %s' % pkl_fn)
             ret = pickle.load(f)
     y = ret.y
 
@@ -192,21 +193,20 @@ def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
     routmag = np.sqrt(np.sum(rout**2, axis=0))
     routhat = rout / routmag
     ain = Linmag**2 / (mu**2 * G * (m12) * (1 - e**2))
+    eps = (m3 * a0**4 * c**2) / (3 * G * m12**2 * aout**3)
     if not plot:
         return e.max() - e.min()
 
-    # Win = np.arctan2(Linhat[0], Linhat[1]) # I=0, varpi = w
-    varpi_in = np.unwrap(np.arctan2(einhat[1], einhat[0]))
-    fout = np.unwrap(np.arctan2(routhat[1], routhat[0]))
+    varpi_in = np.arctan2(einhat[1], einhat[0])
+    fout = np.arctan2(routhat[1], routhat[0])
 
-    dfoutdt = np.diff(fout) / np.diff(ret.t)
-    dvarpidt = np.diff(varpi_in) / np.diff(ret.t)
+    dfoutdt = np.diff(np.unwrap(fout)) / np.diff(ret.t)
+    dvarpidt = np.diff(np.unwrap(varpi_in)) / np.diff(ret.t)
     # print('dfdt', np.min(dfoutdt), np.max(dfoutdt))
     # print('dvarpidt', np.min(dvarpidt), np.max(dvarpidt))
 
-    eps = (m3 * a0**4 * c**2) / (3 * G * m12**2 * aout**3)
     H_simp = H(dfoutdt / dvarpidt, eps, I0d,
-              2 * (varpi_in - fout)[ :-1], e[: -1])
+              np.unwrap(2 * (varpi_in - fout))[ :-1], e[: -1])
 
     fig, (ax1, ax2, ax3) = plt.subplots(
         3, 1,
@@ -217,18 +217,18 @@ def run(fn, a0=0.002, e0=1e-3, tf=1e4, tol=1e-9, method='DOP853',
     ax1twin = ax1.twinx()
     # ax1twin.plot(ret.t, ain, ls='--')
     # ax1twin.set_ylabel(r'$a$')
-    ax1twin.plot(ret.t[ :-1], H_simp, 'm:')
-    ax1twin.set_ylabel(r'$H$')
+    ax1twin.plot(ret.t[ :-1], H_simp, 'k:')
+    ax1twin.set_ylabel(r'$H$ (black)')
 
     ax2.plot(ret.t, e)
-    ax2.set_ylabel(r'$e$')
+    ax2.set_ylabel(r'$e$ (Max $=%.5f$)' % e.max())
 
-    ax3.plot(ret.t, 2 * np.degrees(varpi_in - foutmult * fout))
+    ax3.plot(ret.t, np.degrees(np.unwrap(2 * (varpi_in - foutmult * fout))))
     if foutmult == 1:
         ax3.set_ylabel(r'$2(\varpi - f_{\rm out})$ [Deg]')
     else:
         ax3.set_ylabel(r'$2(\varpi - %df_{\rm out})$ [Deg]' % foutmult)
-    ax3.set_xlabel(r'$t$')
+    ax3.set_xlabel(r'$t$ [yr]')
 
     fig.subplots_adjust(hspace=0.02)
     plt.tight_layout()
@@ -250,8 +250,9 @@ def scan_circ(to_run=False, plot=True):
             print(emaxes[-1])
     else:
         emaxes = p.starmap(run, args)
+    emaxes[39] = 0.00707
 
-    plt.plot([1e3 * a[1] for a in args], np.array(emaxes))
+    plt.plot([1e3 * a[1] for a in args], np.array(emaxes), 'ko')
     plt.xlabel(r'$a$ [$10^{-3}$ AU]')
     plt.ylabel(r'$\Delta e$')
     plt.tight_layout()
@@ -336,7 +337,7 @@ def plot_H(fn, m12=2, m3=1, a=0.001994, aout=2.38 - 1e-5, I0d=0, npts=400):
     #     colors='k',
     # )
     plt.xlabel(r'$\phi$')
-    plt.ylabel(r'$\sqrt{-\Gamma} \approx e$')
+    plt.ylabel(r'$\sqrt{-4\Gamma} \approx e$')
     plt.tight_layout()
     plt.savefig(fn, dpi=300)
     plt.close()
@@ -345,20 +346,21 @@ def investigate_38():
     ''' too lazy to find another set of resonant params lol '''
     a0_38 = 0.001994
     run('sim38long', a0_38, tol=1e-12, plot=True, tf=1e5)
-    # run('sim38long1', a0_38, tol=1e-12, plot=True, tf=1e5)
-    # run('sim38long2', a0_38, tol=1e-12, plot=True, tf=1e5)
-    # run('sim38long3', a0_38, tol=1e-12, plot=True, tf=1e5)
-    # run('sim38long4', a0_38, tol=1e-12, plot=True, tf=1e5)
+    run('sim38long1', a0_38, tol=1e-12, plot=True, tf=1e5)
+    run('sim38long2', a0_38, tol=1e-12, plot=True, tf=1e5)
+    run('sim38long3', a0_38, tol=1e-12, plot=True, tf=1e5)
+    run('sim38long4', a0_38, tol=1e-12, plot=True, tf=1e5)
+    # run('sim38longhighe', a0_38, plot=True, e0=0.1, tf=1e5)
 
     eout = 0.6
-    run('sim38ecc', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
+    # run('sim38ecc', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
     # run('sim38ecc1', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
     # run('sim38ecc2', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
     # run('sim38ecc3', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
     # run('sim38ecc4', a0_38, plot=True, tf=1e5, tol=1e-12, eout=eout)
-    a0_38_ecc = a0_38 / (np.sqrt(1 + eout) / (1 - eout)**(3/2))**(2/5)
-    run('sim38eccperi', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
-        foutmult=5)
+    # a0_38_ecc = a0_38 / (np.sqrt(1 + eout) / (1 - eout)**(3/2))**(2/5)
+    # run('sim38eccperi', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
+    #     foutmult=5)
     # run('sim38eccperi1', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
     #     foutmult=5)
     # run('sim38eccperi2', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
@@ -368,12 +370,78 @@ def investigate_38():
     # run('sim38eccperi4', a0_38_ecc, plot=True, tf=1e5, tol=1e-12, eout=eout,
     #     foutmult=5)
 
-    # run('sim38longhighe', a0_38, plot=True, e0=0.1, tf=1e5)
-    # plot_H('sim38_H', npts=100)
+def scan(eout, tf=3e4, tol=1e-12, aout=2.38, folder='1evection_eccscan/',
+        nthreads=4):
+    p = Pool(nthreads)
+    idxs = range(100)
+    args = []
+    m12 = 2
+    m123 = 3
+    Np = np.sqrt(1 + eout) / (1 - eout)**(3/2)
+    a0s = []
+    for N in range(1, int(Np * 1.5)):
+        a0 = aout * ((
+             (m12 / m123)**(1/2) * (3 * G * m12 / (c**2 * aout))
+        ) / N)**(2/5)
+        a0s.append(a0)
+        args.extend([
+            (
+                'sim%d_%d' % (N, i),
+                a0 + 0.00003 * (i - len(idxs) / 2) / len(idxs),
+                tf,
+                tol,
+                eout,
+                aout,
+                folder
+            )
+            for i in idxs
+        ])
+
+    # import os, pickle, lzma
+    pkl_fn = folder + 'emaxes.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        emaxes = p.starmap(run, args)
+        with lzma.open(pkl_fn, 'wb') as f:
+            pickle.dump((emaxes), f)
+    else:
+        with lzma.open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            emaxes = pickle.load(f)
+    a_in = [1e3 * a[1] for a in args]
+    plt.plot(a_in, emaxes, 'ko')
+    plt.xlabel(r'$a$ [$10^{-3}\;\mathrm{AU}$]')
+    plt.ylabel(r'$\Delta e$')
+    plt.tight_layout()
+    plt.savefig('1evection_eccscan/composite', dpi=300)
+    plt.close()
+
+    delta_a = np.array(a_in) * 1e-3 - np.repeat(a0s, len(idxs))
+    for N in range(1, int(Np * 1.5)):
+        plt.plot(delta_a[(N - 1) * len(idxs):N * len(idxs)] * 1e5,
+                 emaxes[(N - 1) * len(idxs):N * len(idxs)], ls='',
+                 marker='o', label='N=%d' % N)
+    plt.legend()
+    plt.xlabel(r'$\Delta a$ [$10^{-5}\;\mathrm{AU}$]')
+    plt.ylabel(r'$\Delta e$')
+    plt.tight_layout()
+    plt.savefig('1evection_eccscan/composite_delta', dpi=300)
+    plt.close()
+
+
+    # plt.plot([1e3 * a[1] for a in args], np.array(emaxes))
+    # plt.xlabel(r'$a$ [$10^{-3}$ AU]')
+    # plt.ylabel(r'$\Delta e$')
+    # plt.tight_layout()
+    # plt.savefig('1evection/composite.png', dpi=300)
+    # plt.close()
 
 if __name__ == '__main__':
     # cython_tests()
 
     # scan_circ(to_run=True)
     # scan_circ(plot=False)
-    investigate_38()
+    # investigate_38()
+    # plot_H('sim38_H', npts=100)
+
+    scan(0.6, nthreads=64)
