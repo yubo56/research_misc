@@ -168,10 +168,11 @@ def run(fn, a0=0.002, tf=1e4, tol=1e-9, eout=0, aout=2.38, folder='1evection/',
         / (3 * G * m12 / (c**2 * a0))
     )
     nout_rat_ecc = nout_rat * np.sqrt(1 + eout) / (1 - eout)**(3/2)
+    print(nout_rat, nout_rat_ecc)
 
     if not os.path.exists(pkl_fn):
-        print('Running %s' % pkl_fn)
-        ret = solve_sa(tf, a0, e0, 2.38, m1=m1, m2=m2, m3=m3, I0d=I0d,
+        print('Running %s' % pkl_fn, a0, aout, eout, tf)
+        ret = solve_sa(tf, a0, e0, aout, m1=m1, m2=m2, m3=m3, I0d=I0d,
                        method=method, tol=tol, fgwa=0, fgwe=0, eout=eout,
                        **kwargs)
         with lzma.open(pkl_fn, 'wb') as f:
@@ -436,6 +437,68 @@ def scan(eout, tf=3e4, tol=1e-12, aout=2.38, folder='1evection_eccscan/',
     # plt.savefig('1evection/composite.png', dpi=300)
     # plt.close()
 
+def scan_sma(eout, tol=1e-12, folder='1evection_smascan/', nthreads=4,
+             tf_base=3e4, aoutbase=2.38):
+    p = Pool(nthreads)
+    idxs = range(100)
+    args = []
+    m12 = 2
+    m123 = 3
+    Np = np.sqrt(1 + eout) / (1 - eout)**(3/2)
+    aouts = np.geomspace(1, 100, 101) * aoutbase
+    tfs = tf_base * (np.geomspace(1, 100, 101)**(3/2))
+    numN = int(Np * 2)
+    for N in range(1, numN + 1):
+        a0s = aouts * ((
+             (m12 / m123)**(1/2) * (3 * G * m12 / (c**2 * aouts))
+        ) / N)**(2/5)
+        args.extend([
+            (
+                'sim%d_%d' % (N, i),
+                a0,
+                tf,
+                tol,
+                eout,
+                aout,
+                folder
+            )
+            for i, a0, aout, tf in zip(idxs, a0s, aouts, tfs)
+        ])
+
+    pkl_fn = folder + 'emaxes.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        emaxes = p.starmap(run, args)
+        with lzma.open(pkl_fn, 'wb') as f:
+            pickle.dump((emaxes), f)
+    else:
+        with lzma.open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            emaxes = pickle.load(f)
+
+    emaxes = np.array(emaxes)[ :100]
+    aout_args = np.array([a[5] for a in args[:100]])
+    idxs = np.where(emaxes > 0)[0]
+    plt.loglog(aout_args[idxs], emaxes[idxs], 'ko')
+    ylim = plt.ylim()
+    emaxidx = np.argmax(emaxes)
+    plt.plot(aout_args[idxs],
+             emaxes[emaxidx] * (aout_args[idxs] / aout_args[emaxidx])**(-3/5),
+             'r', label='-3/5')
+    plt.plot(aout_args[idxs],
+             emaxes[emaxidx] * (aout_args[idxs] / aout_args[emaxidx])**(-3/10),
+             'g', label='-3/10')
+    plt.plot(aout_args[idxs],
+             emaxes[emaxidx] * (aout_args[idxs] / aout_args[emaxidx])**(-21/10),
+             'b', label='-21/10')
+    plt.ylim(ylim)
+    plt.legend(fontsize=14)
+    plt.xlabel(r'$a_{\rm out}$ [AU]')
+    plt.ylabel(r'$\Delta e$')
+    plt.tight_layout()
+    plt.savefig(folder + 'composite', dpi=300)
+    plt.close()
+
 if __name__ == '__main__':
     # cython_tests()
 
@@ -444,4 +507,10 @@ if __name__ == '__main__':
     # investigate_38()
     # plot_H('sim38_H', npts=100)
 
-    scan(0.6, nthreads=64)
+    # scan(0.6, nthreads=64)
+    scan_sma(0.6, nthreads=64)
+    # aout = 238
+    # a0 = aout * ((
+    #      (2 / 3)**(1/2) * (3 * G * 2 / (c**2 * aout))
+    # ))**(2/5)
+    # run('simtest', a0, 1e9, 1e-10, 0, aout, './', plot=True)

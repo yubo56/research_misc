@@ -1427,8 +1427,8 @@ def plot_composite(fldr='1sweepbin', emax_fldr='1sweepbin_emax', num_trials=5,
         ax3.set_xticklabels(labels=[r'$%d$' % d for d in ticks])
         ylim = ax3.get_ylim()
         # overplot MLL fit for reference
-        ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
-        ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
+        # ax3.axvline(ilimd_MLL_L, c='m', lw=1.0)
+        # ax3.axvline(ilimd_MLL_R, c='m', lw=1.0)
         if q != 0.01:
             # hacky way to make legend plot; I'm too lazy to figure out the
             # correct syntax
@@ -2506,6 +2506,12 @@ def run_laetitia(num_i=2000, ntrials=3, stride=10, offsets=[0],
     plt.savefig('%s/%s' % (folder, base_fn), dpi=300)
     plt.close()
 
+# e2_6 eps_oct, eta 0.09356268731268731 0.39508701612647323 50.00000000000001
+# e2_6_m2 eps_oct, eta 0.07426075413256578 0.17607905619931238 62.996052494743665
+# e2_6_m3 eps_oct, eta 0.06487274410679486 0.10977015800917482 72.11247851537041
+# e2_6_m5 eps_oct, eta 0.054715791467432315 0.060547035219609725 85.49879733383486
+# e2_6_m10 eps_oct, eta 0.04342795246733734 0.027037579406008757 107.7217345015942
+# e2_6tp eps_oct, eta 0.009356268731268732 0.00017655598377444502 500.0
 def plot_laetitia():
     folder='1laetitia'
     num_i = 2000
@@ -2591,12 +2597,18 @@ def plot_laetitia():
 
         if M3 < 1:
             ax.text(55, 0.6,
-                    r'%s $m_{\rm p} = %d\,\mathrm{M_{Jup}}$' % (label, 1000 * M3),
+                    # r'%s $m_{\rm p} = %d\,\mathrm{M_{Jup}}$' % (label, 1000 * M3),
+                    r'%s $l = %.2f$' % (label, eta),
                     fontsize=12)
         else:
-            ax.text(40, 0.003, r'%s $m_{\rm p} = \mathrm{M}_{\odot}$' % label,
+            ax.text(40, 0.003,
+                    # r'%s $m_{\rm p} = \mathrm{M}_{\odot}$' % label,
+                    r'%s $l = %.4f$' % (label, eta),
                     fontsize=12)
     ((ax1, ax2, ax3), (ax4, ax5, ax6)) = _axs
+    for ax in _axs.flat:
+        ax.set_xticks([50, 90, 130])
+        ax.set_xticklabels([r'$50$', r'$90$', r'$130$'])
     ax1.set_ylabel(r'$1 - e_{\rm J, \max}$')
     ax4.set_ylabel(r'$1 - e_{\rm J, \max}$')
     ax4.set_xlabel(r'$i_{\rm p}$ (deg)')
@@ -2906,7 +2918,7 @@ if __name__ == '__main__':
     # sweep(folder='1sweepbin', nthreads=64)
     # run_emax_sweep(nthreads=64, tf_mult_default=2000, num_i=500, num_trials=20,
     #                folder='1sweepbin_emax_long')
-    plot_composite(plot_single=True, plot_all=False)
+    # plot_composite(plot_single=True, plot_all=False)
     # plot_composite(plot_single=False, plot_all=True)
     # plot_massratio_sample()
     # plot_long_composite()
@@ -3010,7 +3022,7 @@ if __name__ == '__main__':
     #     run_laetitia(nthreads=4, offsets=np.arange(0, 10), M3=1e-3 * m3_mult,
     #                  a2=50 * (m3_mult**(1/3)), e2=0.8,
     #                  base_fn='e2_8_m%d' % m3_mult)
-    # plot_laetitia()
+    plot_laetitia()
     # run_laetitia(nthreads=8, e2=0.6, base_fn='e2_6_quad', ntrials=1, mm=0)
 
     # make_nogw_plots()

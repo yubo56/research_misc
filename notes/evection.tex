@@ -558,6 +558,157 @@ sum is dominated by the $M = 0$ contribution.
 Does this agree with simulations yet? Well, we do observe resonances for both $N
 \approx 1$ and $N \approx N_{\rm p}$, todo more in depth exploration.
 
+\section{03/26/21}
+
+\subsection{Eccentric Averaging: Coplanar}
+
+Dong pointed out the correct way to do eccentric averaging, and I think I mixed
+up the coordinate systems a bit in my earlier work, so let's redo this. Let's
+start with the coplanar case, so
+\begin{equation}
+    \tilde{H}_{\rm out} \equiv \frac{H_{\rm out}}{Gm_3\mu_{12}a^2/a_{\rm out}^3}
+        = \frac{1}{4}\p{\frac{a_{\rm out}}{r_{\rm out}}}^3 \s{
+            -1 + 6e^2 - 15 e^2\p{\uv{e} \cdot \uv{r}_{\rm out}}^2},
+\end{equation}
+where we choose $t = 0$ to be $v_{\rm out} = 0$:
+\begin{align}
+    \uv{e}(t) &= \cos \p{\Omega_{\rm GR}t + \varpi_0} \uv{x} +
+        \sin\p{\Omega_{\rm GR}t + \varpi_0}\uv{y},&
+    r_{\rm out} &= \frac{a_{\rm out}\p{1 - e_{\rm out}^2}}{1 + e_{\rm out} \cos
+        f_{\rm out}}, &
+    \uv{r}_{\rm out} &= \cos v_{\rm out}\uv{x} + \sin v_{\rm out}\uv{y}.
+\end{align}
+Then we can try averaging (let's set $\varpi_0 = 0$, it's just an IC)
+\begin{align}
+    \ev{\p{\frac{a_{\rm out}}{r_{\rm out}}}^3\p{\uv{e} \cdot \uv{r}_{\rm out}}^2}
+        &= \ev{\p{\frac{a_{\rm out}}{r_{\rm out}}}^3
+            \s{\cos^2\p{\Omega_{\rm GR}t}\cos^2 v_{\rm out}
+                + 2\cos\p{\Omega_{\rm GR}t} \cos v_{\rm out}
+                    \sin \p{\Omega_{\rm GR}t} \sin v_{\rm out}
+                + \sin^2\p{\Omega_{\rm GR}t} \sin^2v_{\rm out}}},\\
+        &= \frac{1}{4}\ev{\s{\p{\frac{a_{\rm out}}{r_{\rm out}}}^3
+            \p{1 + \cos\p{2\Omega_{\rm GR}t}}\p{1 + \cos\p{2v_{\rm out}}}
+            + 2\sin\p{2\Omega_{\rm GR}t}\sin\p{2v_{\rm out}}
+            + \p{1 - \cos\p{2\Omega_{\rm GR}t}}\p{1 - \cos\p{2v_{\rm out}}}}},\\
+        &= \frac{1}{4}\ev{\p{\frac{a_{\rm out}}{r_{\rm out}}}^3
+            \s{2 + 2\cos\p{2\Omega_{\rm GR}t}\cos\p{2v_{\rm out}}
+            + 2\sin\p{2\Omega_{\rm GR}t}\sin\p{2v_{\rm out}}}},\\
+        &= \frac{1}{4}\Re\ev{\p{\frac{a_{\rm out}}{r_{\rm out}}}^3\s{
+            2 + 2e^{2i\Omega_{\rm GR}t - 2iv_{\rm out}}}},\\
+        &= \frac{1}{2} + \frac{1}{2}\Re \sum\limits_{N = -\infty}^\infty
+            F_{N2} \ev{e^{2i\Omega_{\rm GR}t - iN\Omega t}},\\
+        &= \frac{1}{2} + \frac{1}{2}\sum\limits_{N = -\infty}^\infty
+            F_{N2} \ev{\cos\s{\p{2\Omega_{\rm GR} - N\Omega}t}}.
+\end{align}
+Indeed then, when there are no commensurabilities, this averages to
+$\frac{1}{2}$ as expected, but this is nice and clean. Thus, the total
+Hamiltonian becomes
+\begin{equation}
+    \bar{H}_{\rm out}\p{e_{\rm out}} = \frac{1}{4}\s{-1 + 6e^2 - \frac{15}{2}e^2
+        \p{1 + F_{N2;e_{\rm out}}\cos\p{2\Omega_{\rm GR} - N\Omega}t}}.
+\end{equation}
+I've spelled out the explicit dependence of $F_{N2}$ on $e_{\rm out}$. The
+circular case is recovered by setting $F_{N2} = 1$ and $N = 2$.
+
+\subsection{Eccentric Averaging: Inclined}
+
+If the perturber is inclined, this calculation becomes a bit more complicated.
+Can we do it? We choose the coordinate system aligned with the invariable plane
+$\uv{z} \propto L_{\rm tot} = \bm{L} + \bm{L}_{\rm out}$. Define the inner
+Keplerian orbital elements $\p{a, e, i, \Omega, \omega}$, and osculating outer
+Keplerian orbital elements $\p{a_{\rm out}, e_{\rm out}, i_{\rm out},
+\Omega_{\rm out}, \omega_{\rm out}, f_{\rm out}}$. By conservation of angular
+momentum, $\Omega_{\rm out} = \Omega + \pi$ while $L\sin i = L_{\rm out} \sin
+i_{\rm out}$. The SA Hamiltonian and various components of vectors are then
+[LML15 (22--23)]:
+\begin{align}
+    \tilde{H}_{\rm out}
+        &= \frac{1}{4}\p{\frac{a_{\rm out}}{r_{\rm out}}}^3 \s{
+            -1 + 6e^2 + 3\p{1 - e^2}\p{\uv{n} \cdot \uv{r}_{\rm out}}^2
+            - 15 e^2\p{\uv{e} \cdot \uv{r}_{\rm out}}^2},\\
+    \uv{n} &= \begin{pmatrix}
+        \sin i \sin \Omega\\
+        -\sin i \cos \Omega\\
+        \cos i
+    \end{pmatrix},\\
+    \uv{e} &= \begin{pmatrix}
+        \cos \omega \cos \Omega - \sin \omega \cos i \sin \Omega\\
+        \cos \omega \sin \Omega + \sin \omega \cos i \cos \Omega\\
+        \sin \omega \sin i
+    \end{pmatrix},\\
+    \uv{r}_{\rm out} &= \begin{pmatrix}
+        \cos \Omega\cos\p{\omega_{\rm out} + f_{\rm out}}
+            + \sin \Omega\sin\p{\omega_{\rm out} + f}\cos i_{\rm out}
+            \\
+        -\sin \Omega\cos\p{\omega_{\rm out} + f_{\rm out}}
+            + \cos \Omega\sin\p{\omega_{\rm out} + f}\cos i_{\rm out}
+            \\
+        \sin\p{\omega_{\rm out} + f_{\rm out}}\sin I_{\rm out}
+    \end{pmatrix}.
+\end{align}
+Eventually, we need to use that $\dot{\varpi} = \Omega_{\rm GR,0} / j(e)$ to get
+a resonance. We can come back to this some other time, it shouldn't be too hard
+if we only consider angles that will contribute to the resonance.
+
+\subsection{Maximum Eccentricity Excitation}
+
+This shouldn't be hard, right? We start with the simplified Hamiltonian (setting
+$J_3 = 0$ for the coplanar case)
+\begin{align}
+    H\p{\Gamma, \phi} &\approx \Gamma P - \Gamma^2 Q + R\Gamma \cos \phi,\\
+    P &\approx 2\s{1 - \frac{\Omega_{\rm out}}{\Omega_{\rm GR, 0}}
+        + \frac{3\epsilon}{4}},\\
+    Q &\approx 4,\\
+    R &\approx \frac{15\epsilon}{2}.
+\end{align}
+Recall that $\Gamma \approx -e^2/4$. Indeed, it's immediately obvious that if
+$\Gamma \gg \epsilon$ then the $\Gamma^2$ term will dominate and $H$ will be
+independent of $\phi$. We want to find the largest eccentricity excitation, so
+either $H(\phi = \pi) / H(\phi = 0)$ or the ratio of the two solutions to
+$H\p{\phi = \pi}$.
+\begin{itemize}
+    \item If the solution is librating, the maximum eccentricity excitation is
+        just the ratio between the two roots to $Q\Gamma^2 -
+        \Gamma P + R\Gamma + H_0 = 0$, which is immediately:
+        \begin{align}
+            \frac{\Gamma_2}{\Gamma_1} &= \frac{\p{P - R} - \sqrt{\p{P - R}^2 -
+                4QH_0}}{\p{P - R} + \sqrt{\p{P - R}^2 - 4QH_0}},\\
+                &= \frac{-1 - \sqrt{1 - 4QH_0 / (P - R)^2}}{
+                    -1 + \sqrt{1 - 4QH_0 / (P - R)^2}},\\
+                &= \frac{-1 - \alpha}{-1 + \alpha} = \frac{1 + \alpha^2 +
+                    2\alpha}{1 - \alpha^2},\\
+                &= 1 + \frac{2\alpha + 2\alpha^2}{1 - \alpha^2}.\\
+                &= 1 + \frac{2\alpha}{1 - \alpha}
+        \end{align}
+        Obviously this ratio is singular as $\alpha \to 1$ which is when $H_0
+        \to 0$ which is when the smaller root gives $e = 0$. Whoops. Not the
+        best way of quantifying this.
+
+        What about the difference between the roots? This is just
+        \begin{equation}
+            \Gamma_2 - \Gamma_1 = -\frac{\sqrt{(P - R)^2 - 4QH_0}}{Q}.
+        \end{equation}
+        Note that if $H_0 < 0$, then $\Gamma_1 > 0$. Thus, again, the difference
+        is also maximized as $H_0 \to 0$. Note that the only way to get $H_0 >
+        0$ is for $P < 0$, i.e.\ fairly off resonance.
+    \item If the solution is circulating, then we want to solve for the
+        difference between the two negative (smallest) solutions to $Q\Gamma^2 -
+        \Gamma P \mp R\Gamma + H_0 = 0$. The ratio is then given by
+        \begin{equation}
+            \frac{\Gamma_2}{\Gamma_1} = \frac{P - R - \sqrt{\p{P - R}^2
+                - 4QH_0}}{P + R - \sqrt{\p{P + R}^2 - 4QH_0}}.
+        \end{equation}
+        This function diverges as $H_0 \to 0^-$ by L'H\^opital's rule, and goes
+        to $1$ monotonically as $H_0 \to -\infty$. Thus, again, we see that
+        small $H_0$ gives the largest eccentricity excitation.
+
+        Finally, to calculate the difference:
+        \begin{equation}
+            \Gamma_2 - \Gamma_1 = \frac{-2R - \sqrt{\p{P - R}^2 - 4QH_0}
+                + \sqrt{\p{P + R}^2 - 4QH_0}}{2Q}.
+        \end{equation}
+        This goes to zero at small $(-H_0)$.
+\end{itemize}
 
 \end{document}
 
