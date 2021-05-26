@@ -1305,8 +1305,8 @@ def qslscan():
 if __name__ == '__main__':
     # for I_deg in np.arange(90.15, 90.51, 0.025)[::-1]:
     #     run_for_Ideg('4sims/', I_deg, atol=1e-10, rtol=1e-10)
-    run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
-    run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
+    # run_for_Ideg('4sims/', 90.2, atol=1e-10, rtol=1e-10)
+    # run_for_Ideg('4sims/', 90.35, atol=1e-10, rtol=1e-10)
     # plot_good_quants()
 
     # deltas_deg = run_ensemble('4sims_scan/')
@@ -1322,5 +1322,5 @@ if __name__ == '__main__':
     # bifurcation(num_cycles=200, num_ratios=10)
     # bifurcation(num_cycles=200, num_ratios=50, I_deg=70)
 
-    # qslscan()
+    qslscan()
     pass
