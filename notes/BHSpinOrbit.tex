@@ -203,5 +203,45 @@ is equivalent to the Schnittman expression
 Thus, we find that the Schnittman equilibria are probably correct, but the
 detailed EOM about them may not necessarily be.
 
+\section{06/10/21}
+
+Oops, I lost this chapter of the writeup, I should probably stop hard reseting
+hahaha.
+
+We numerically observe that $\Delta \phi$ seems to be oscillating, and
+eventually begins to narrow as GW radiation shrinks the orbit. Can we understand
+this analytically?
+
+Call $\bm{S} = \bm{s}_1 + \bm{s}_2$ and $\bm{\Delta} = \bm{s}_1 - \bm{s}_2$. The
+equations of motion are:
+\begin{align}
+    \rd{\bm{S}}{\psi} &= \uv{J} \times \bm{S},\\
+    \rd{\bm{\Delta}}{\psi} &= \uv{J} \times \bm{\Delta}
+        - \alpha \bm{S} \times \bm{\Delta}.
+\end{align}
+We go to the corotating frame about $\uv{J}$, which is perfectly legal in the
+absence of GW radiation, in which case the EOM becom:
+\begin{align}
+    \p{\rd{\bm{S}}{\psi}}_{\rm rot} &= 0,\\
+    \p{\rd{\bm{\Delta}}{\psi}}_{\rm rot} &= - \alpha \bm{S} \times \bm{\Delta}.
+\end{align}
+It can be shown that, since $\bm{\Delta} = \bm{S} - 2\bm{s}_2 = 2\bm{s}_1 -
+\bm{S}$, that:
+\begin{align}
+    \p{\rd{\bm{s}_i}{t}} &= \alpha\p{\bm{S} \times \bm{s}_i}.
+\end{align}
+Thus, in the absence of GW radiation, both spins just precess about their sum,
+very clean. This explains why $\Delta \phi$ oscillates very cleanly: if the
+spins are both on the same side of the chosen $\uv{z}$ coordinate axis (in our
+numerical experiments, $\propto \bm{L}$ the angular momentum axis), then the
+$\phi$ angles will be librating very simply. Nothing magical.
+
+However, in our change of reference frame, we changed to be corotating about
+$\uv{J}$, which itself is not a fixed axis. Thus, there should really be a
+time-dependent term that captures the rotation of $\uv{J}$; what is it? Could it
+cause the opening angle $\cos \theta_{i} \propto \bm{s}_i \cdot \bm{S}$ to
+decrease (and thus decrease the range of oscillation about $\Delta \phi =
+180^\circ$)? Only time will tell :o
+
 \end{document}
 
