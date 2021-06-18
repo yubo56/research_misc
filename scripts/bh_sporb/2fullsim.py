@@ -2,6 +2,7 @@
 I don't know what's going on, so this is just a direct implementation of R08's
 Equations 3.2 + GW radiation (with a bit of acceleration)
 '''
+from multiprocessing import Pool
 import os, pickle, lzma
 import numpy as np
 import matplotlib
@@ -59,17 +60,20 @@ def run_example(fn='2plots/1example',
                 q1=np.radians(30),
                 phi1=np.radians(60),
                 q2=np.radians(75),
-                phi2=np.radians(200)):
-    m1 = 1
-    m2 = 1
+                phi2=np.radians(200),
+                m1=1,
+                m2=1,
+                s1mult=1,
+                s2mult=1,
+                only_ret=False):
     m12 = m1 + m2
     mu = (m1 * m2) / m12
     v_over_c = 0.05
     a = k * (m12) / (v_over_c**2 * c**2) # AU
 
     lin_mag = mu * np.sqrt(k * m12 * a)
-    s1mag = k * m1**2 / c
-    s2mag = k * m2**2 / c
+    s1mag = k * m1**2 / c * s1mult
+    s2mag = k * m2**2 / c * s2mult
 
     s1vec0 = s1mag * np.array([
         np.sin(q1) * np.cos(phi1),
@@ -83,25 +87,30 @@ def run_example(fn='2plots/1example',
     ])
     lvec0 = lin_mag * np.array([0, 0, 1])
     y0 = np.concatenate((s1vec0, s2vec0, lvec0))
+
+    r_sch = k * m12 / c**2
     def term_event(t, y, m1, m2):
+        ''' stop at around a ~ r_schwarzschild '''
         lvec = y[6:9]
         m12 = m1 + m2
         mu = (m1 * m2) / m12
         a_curr = np.sum(lvec**2) / (mu**2 * k * m12)
-        return a_curr / a - 0.001
+        return a_curr - r_sch
     term_event.terminal = True
 
     pkl_fn = fn + '.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
         ret = solve_ivp(dydt, (0, 100), y0, args=[m1, m2], method='DOP853',
-                        atol=1e-8, rtol=1e-8, events=[term_event])
+                        atol=1e-10, rtol=1e-10, events=[term_event])
         with lzma.open(pkl_fn, 'wb') as f:
             pickle.dump((ret), f)
     else:
         with lzma.open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             ret = pickle.load(f)
+    if only_ret:
+        return ret
 
     s1vec = ret.y[ :3]
     s2vec = ret.y[3:6]
@@ -109,24 +118,31 @@ def run_example(fn='2plots/1example',
     a = np.sum(lvec**2, axis=0) / (mu**2 * k * m12)
     jvec = s1vec + s2vec + lvec
     jvecmag = np.sqrt(np.sum(jvec**2, axis=0))
+    phi1 = np.unwrap(np.arctan2(s1vec[1], s1vec[0]))
+    phi2 = np.unwrap(np.arctan2(s2vec[1], s2vec[0]))
+    stot = s1vec + s2vec
+
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(
         2, 2,
         figsize=(8, 8),
         sharex=True)
-    phi1 = np.unwrap(np.arctan2(s1vec[1], s1vec[0]))
-    phi2 = np.unwrap(np.arctan2(s2vec[1], s2vec[0]))
 
-    ax1.semilogx(a, np.degrees(phi1 - phi2) % 360)
+    ax1.semilogx(a / r_sch, np.degrees(phi1 - phi2) % 360)
     ax1.set_ylabel(r'$\Delta \phi$')
-    ax2.semilogx(a, ts_dot(s1vec, s2vec) /
-             np.sqrt(np.sum(s1vec**2, axis=0) * np.sum(s2vec**2, axis=0)))
-    ax2.set_ylabel(r'$\hat{s}_1 \cdot \hat{s}_2$')
+    # ax2.semilogx(a / r_sch, ts_dot_uv(s1vec, s2vec))
+    # ax2.set_ylabel(r'$\hat{s}_1 \cdot \hat{s}_2$')
+    ax2.semilogx(a / r_sch, ts_dot_uv(s1vec, stot))
+    ax2.semilogx(a / r_sch, ts_dot_uv(s2vec, stot))
 
     # try to find an AI
     # this one is conserved
-    ax3.plot(a, ts_dot(jvec / jvecmag, s1vec + s2vec))
+    # ax3.plot(a / r_sch, ts_dot_uv(jvec / jvecmag, s1vec + s2vec))
+    # ax3.plot(a / r_sch, np.sum(stot**2, axis=0), alpha=0.8, lw=3.0)
+    ax3.semilogy(a / r_sch, np.sum(lvec**2, axis=0), alpha=0.8, lw=3.0)
+    ax3.semilogy(a / r_sch, np.sum(s1vec**2, axis=0), alpha=0.5)
+    ax3.semilogy(a / r_sch, np.sum(s2vec**2, axis=0), alpha=0.5)
     # find another one?
-    ax4.plot(a, ts_dot(s1vec - s2vec, s1vec + s2vec))
+    ax4.plot(a / r_sch, ts_dot_uv(s1vec - s2vec, s1vec + s2vec))
 
     ax3.set_xlabel(r'$a$ [AU]')
     ax4.set_xlabel(r'$a$ [AU]')
@@ -135,11 +151,86 @@ def run_example(fn='2plots/1example',
     plt.tight_layout()
     plt.savefig(fn, dpi=300)
 
+def get_traj_angs(ret):
+    s1vec = ret.y[ :3]
+    s2vec = ret.y[3:6]
+    phi1 = np.unwrap(np.arctan2(s1vec[1], s1vec[0]))
+    phi2 = np.unwrap(np.arctan2(s2vec[1], s2vec[0]))
+    dphi = (np.degrees(phi1 - phi2) % 360)
+    q1i = np.degrees(np.arccos(s1vec[2] / np.sqrt(np.sum(s1vec**2, axis=0)))[0])
+    q2i = np.degrees(np.arccos(s2vec[2] / np.sqrt(np.sum(s2vec**2, axis=0)))[0])
+    stotvechat = s1vec + s2vec
+    stotvechat /= np.sqrt(np.sum(stotvechat**2, axis=0))
+    return q1i, q2i, dphi[0], dphi[-1], np.degrees(np.arccos(stotvechat[2])[0])
+
+def pop(m1=1, m2=1, s1mult=1, s2mult=1, n_pts=1000, fn='2equal'):
+    os.makedirs('2plots/{}'.format(fn), exist_ok=True)
+    q1s = np.arccos(np.random.uniform(-1, 1, n_pts))
+    phi1s = np.random.uniform(0, 2 * np.pi, n_pts)
+    q2s = np.arccos(np.random.uniform(-1, 1, n_pts))
+    phi2s = np.random.uniform(0, 2 * np.pi, n_pts)
+    args = [
+        ('2plots/{}/{}'.format(fn, idx), q1, phi1, q2, phi2,
+         m1, m2, s1mult, s2mult, True)
+        for idx, (q1, phi1, q2, phi2) in enumerate(zip(q1s, phi1s, q2s, phi2s))]
+    pkl_fn = fn + '.pkl'
+    if not os.path.exists(pkl_fn):
+        print('Running %s' % pkl_fn)
+        with Pool(10) as p:
+            rets = p.starmap(run_example, args)
+        angs = np.array([get_traj_angs(r) for r in rets]).T
+        with lzma.open(pkl_fn, 'wb') as f:
+            pickle.dump((angs), f)
+    else:
+        with lzma.open(pkl_fn, 'rb') as f:
+            print('Loading %s' % pkl_fn)
+            angs = pickle.load(f)
+    q1is, q2is, dphi_i, dphi_f, qtotis = angs
+    fig, (ax1, ax2) = plt.subplots(
+        2, 1,
+        figsize=(8, 8),
+        sharex=True)
+    ax1.hist(dphi_i)
+    ax2.hist(dphi_f)
+    ax1.set_ylabel('Initial')
+    ax2.set_ylabel('Final')
+    ax2.set_xlabel(r'$\Delta \phi$')
+    plt.tight_layout()
+    plt.savefig(fn + '_dphis', dpi=200)
+    plt.close()
+
+    plt.scatter(q1is, q2is, c=dphi_f)
+    cb = plt.colorbar()
+    cb.set_label(r'$\Delta \phi_{\rm f}$')
+    plt.xlabel(r'$\theta_{\rm sl1}$')
+    plt.ylabel(r'$\theta_{\rm sl2}$')
+    plt.tight_layout()
+    plt.savefig(fn + '_qscat', dpi=200)
+    plt.close()
+
+    plt.scatter(qtotis, dphi_f, c='k')
+    plt.xlabel(r'$\theta_{\rm sl, tot}$')
+    plt.ylabel(r'$\Delta \phi_{\rm f}$')
+    plt.tight_layout()
+    plt.savefig(fn + '_qtotscat', dpi=200)
+    plt.close()
+
 if __name__ == '__main__':
-    run_example()
-    run_example(fn='2plots/1example_aligned',
-                q1=np.radians(5), phi1=np.radians(10),
-                q2=np.radians(10), phi2=np.radians(20))
-    run_example(fn='2plots/1example_antialigned',
-                q1=np.radians(5), phi1=np.radians(10),
-                q2=np.radians(160), phi2=np.radians(200))
+    pass
+    # run_example()
+    # run_example(fn='2plots/1example_aligned',
+    #             q1=np.radians(5), phi1=np.radians(10),
+    #             q2=np.radians(10), phi2=np.radians(20))
+    # run_example(fn='2plots/1example_antialigned',
+    #             q1=np.radians(5), phi1=np.radians(10),
+    #             q2=np.radians(160), phi2=np.radians(200))
+    # run_example(fn='2plots/1_unequal', m2=0.5)
+    # run_example(s1mult=0.01, s2mult=0.01,
+    #             fn='2plots/1example_lowspin')
+    # run_example(fn='2plots/1example_antialigned_lowspin',
+    #             q1=np.radians(5), phi1=np.radians(10),
+    #             q2=np.radians(160), phi2=np.radians(200),
+    #             s1mult=0.01, s2mult=0.01)
+    pop()
+    pop(m2=0.5, fn='2half')
+    pop(s1mult=0.05, s2mult=0.05, fn='2lowspin')
