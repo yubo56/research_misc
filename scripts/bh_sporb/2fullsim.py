@@ -52,7 +52,9 @@ def dydt(t, y, m1, m2):
         s2)
     ret[6:9] = prefix * np.cross(
         stot + 3 * (1 + mu / m12 * l_const) * s0,
+        ## real GW
         # lvec) - 32/5 * mu * m12**2 / (c**5 * a**4) * lvec
+        ## accelerated GW
         lvec) - 10 * 32/5 * mu * m12**2 / (c**5 * a**4) * lvec
     return ret
 
@@ -65,7 +67,8 @@ def run_example(fn='2plots/1example',
                 m2=1,
                 s1mult=1,
                 s2mult=1,
-                only_ret=False):
+                only_ret=False,
+                r_mult=1):
     m12 = m1 + m2
     mu = (m1 * m2) / m12
     v_over_c = 0.05
@@ -88,7 +91,7 @@ def run_example(fn='2plots/1example',
     lvec0 = lin_mag * np.array([0, 0, 1])
     y0 = np.concatenate((s1vec0, s2vec0, lvec0))
 
-    r_sch = k * m12 / c**2
+    r_sch = r_mult * k * m12 / c**2
     def term_event(t, y, m1, m2):
         ''' stop at around a ~ r_schwarzschild '''
         lvec = y[6:9]
@@ -156,14 +159,20 @@ def get_traj_angs(ret):
     s2vec = ret.y[3:6]
     phi1 = np.unwrap(np.arctan2(s1vec[1], s1vec[0]))
     phi2 = np.unwrap(np.arctan2(s2vec[1], s2vec[0]))
-    dphi = (np.degrees(phi1 - phi2) % 360)
+    dphibase = np.degrees(phi1 - phi2)
+    dphi = dphibase % 360
     q1i = np.degrees(np.arccos(s1vec[2] / np.sqrt(np.sum(s1vec**2, axis=0)))[0])
     q2i = np.degrees(np.arccos(s2vec[2] / np.sqrt(np.sum(s2vec**2, axis=0)))[0])
     stotvechat = s1vec + s2vec
     stotvechat /= np.sqrt(np.sum(stotvechat**2, axis=0))
-    return q1i, q2i, dphi[0], dphi[-1], np.degrees(np.arccos(stotvechat[2])[0])
 
-def pop(m1=1, m2=1, s1mult=1, s2mult=1, n_pts=1000, fn='2equal'):
+    dphiinterest = dphibase[int(len(dphibase) * 0.99): ]
+    return (
+        q1i, q2i, dphi[0], dphi[-1], np.degrees(np.arccos(stotvechat[2])[0]),
+        dphiinterest.max() - dphiinterest.min()
+    )
+
+def pop(m1=1, m2=1, s1mult=1, s2mult=1, n_pts=1000, fn='2equal', r_mult=1):
     os.makedirs('2plots/{}'.format(fn), exist_ok=True)
     q1s = np.arccos(np.random.uniform(-1, 1, n_pts))
     phi1s = np.random.uniform(0, 2 * np.pi, n_pts)
@@ -171,12 +180,12 @@ def pop(m1=1, m2=1, s1mult=1, s2mult=1, n_pts=1000, fn='2equal'):
     phi2s = np.random.uniform(0, 2 * np.pi, n_pts)
     args = [
         ('2plots/{}/{}'.format(fn, idx), q1, phi1, q2, phi2,
-         m1, m2, s1mult, s2mult, True)
+         m1, m2, s1mult, s2mult, True, r_mult)
         for idx, (q1, phi1, q2, phi2) in enumerate(zip(q1s, phi1s, q2s, phi2s))]
     pkl_fn = fn + '.pkl'
     if not os.path.exists(pkl_fn):
         print('Running %s' % pkl_fn)
-        with Pool(10) as p:
+        with Pool(4) as p:
             rets = p.starmap(run_example, args)
         angs = np.array([get_traj_angs(r) for r in rets]).T
         with lzma.open(pkl_fn, 'wb') as f:
@@ -185,34 +194,63 @@ def pop(m1=1, m2=1, s1mult=1, s2mult=1, n_pts=1000, fn='2equal'):
         with lzma.open(pkl_fn, 'rb') as f:
             print('Loading %s' % pkl_fn)
             angs = pickle.load(f)
-    q1is, q2is, dphi_i, dphi_f, qtotis = angs
+    q1is, q2is, dphi_i, dphi_f, qtotis, dphi_tot = angs
     fig, (ax1, ax2) = plt.subplots(
         2, 1,
         figsize=(8, 8),
         sharex=True)
-    ax1.hist(dphi_i)
-    ax2.hist(dphi_f)
+    ax1.hist(dphi_i, bins=30)
+    ax2.hist(dphi_f, bins=30)
     ax1.set_ylabel('Initial')
     ax2.set_ylabel('Final')
-    ax2.set_xlabel(r'$\Delta \phi$')
+    ax2.set_xlabel(r'$\Delta \Phi$')
     plt.tight_layout()
     plt.savefig(fn + '_dphis', dpi=200)
     plt.close()
 
     plt.scatter(q1is, q2is, c=dphi_f)
     cb = plt.colorbar()
-    cb.set_label(r'$\Delta \phi_{\rm f}$')
-    plt.xlabel(r'$\theta_{\rm sl1}$')
-    plt.ylabel(r'$\theta_{\rm sl2}$')
+    cb.set_label(r'$\Delta \Phi_{\rm f}$')
+    plt.xlabel(r'$\theta_{\rm s_1L}$')
+    plt.ylabel(r'$\theta_{\rm s_2L}$')
     plt.tight_layout()
     plt.savefig(fn + '_qscat', dpi=200)
     plt.close()
 
+    # version w/ histogram?
+    # fig, (ax1, ax2) = plt.subplots(
+    #     2, 1,
+    #     figsize=(8, 8),
+    #     sharex=True)
+    # mu_totis = np.cos(np.radians(qtotis))
+    # attractor_idxs = np.where(np.abs(dphi_f - 180) < 20)[0]
+    # other_idxs = np.where(np.abs(dphi_f - 180) > 20)[0]
+    # ax1.hist([mu_totis[attractor_idxs], mu_totis[other_idxs]], stacked=True, bins=50)
+    # ax2.scatter(mu_totis, dphi_f, c='k')
+    # ax2.set_xlabel(r'$\cos \theta_{\rm SL}$')
+    # ax2.set_ylabel(r'$\Delta \Phi_{\rm f}$')
+    # plt.scatter(mu_totis, dphi_f, c='k')
+    # plt.tight_layout()
+    # fig.subplots_adjust(hspace=0.02)
+    # plt.savefig(fn + '_qtotscat', dpi=200)
+    # plt.close()
+
     plt.scatter(qtotis, dphi_f, c='k')
-    plt.xlabel(r'$\theta_{\rm sl, tot}$')
-    plt.ylabel(r'$\Delta \phi_{\rm f}$')
+    plt.xlabel(r'$\theta_{\rm SL}$')
+    plt.ylabel(r'$\Delta \Phi_{\rm f}$')
     plt.tight_layout()
     plt.savefig(fn + '_qtotscat', dpi=200)
+    plt.close()
+
+    gtidx = np.where(dphi_tot > 730)[0]
+    ltidx = np.where(dphi_tot < 730)[0]
+    plt.scatter(qtotis[ltidx], dphi_tot[ltidx], c='k')
+    plt.scatter(qtotis[gtidx], np.full_like(gtidx, 730), c='r', marker='^')
+    plt.xlabel(r'$\theta_{\rm SL}$')
+    plt.ylabel(r'$\Delta \Phi_{\max} - \Delta \Phi_{\min}$')
+    plt.ylim(top=735)
+    plt.tight_layout()
+    plt.savefig(fn + '_deltaphi', dpi=200)
     plt.close()
 
 if __name__ == '__main__':
@@ -231,6 +269,8 @@ if __name__ == '__main__':
     #             q1=np.radians(5), phi1=np.radians(10),
     #             q2=np.radians(160), phi2=np.radians(200),
     #             s1mult=0.01, s2mult=0.01)
+
     pop()
     pop(m2=0.5, fn='2half')
     pop(s1mult=0.05, s2mult=0.05, fn='2lowspin')
+    pop(r_mult=0.01, fn='2limit')
