@@ -243,5 +243,30 @@ cause the opening angle $\cos \theta_{i} \propto \bm{s}_i \cdot \bm{S}$ to
 decrease (and thus decrease the range of oscillation about $\Delta \phi =
 180^\circ$)? Only time will tell :o
 
+\section{06/28/21}
+
+Okay, so we've been on a wild goose chase numerically, since we forgot that
+$\uv{l}$ doesn't point in a single consistent direction and have been analyzing
+$\Delta \Phi$ in the inertial frame with $\uv{z} = \uv{l}_{\rm i}$. Furthermore,
+by our results, it seems that $\cos \theta_{\rm 12} \equiv \uv{s}_1 \cdot
+\uv{s}_2 \to 1$ if $\theta_1 \approx 0$, indeed following the Schnittman
+reported behavior, but only when $m_1 \neq m_2$. This is indeed puzzling.
+
+What is the origin of this? Examining this dot product, we find that:
+\begin{align}
+    \rd{}{\psi}\p{\uv{s}_1 \cdot \uv{s}_2}
+        &= \underbrace{\frac{3}{7 - 3\lambda/2}\s{
+            \frac{m_2}{m_1} - \frac{m_1}{m_2}
+            - \lambda\mu\p{\frac{1}{m_1} - \frac{1}{m_2}}}}_{\beta_-}
+            \uv{J} \cdot \p{\uv{s}_1 \times \uv{s}_2}.
+\end{align}
+This expression is a bit difficult to figure out, since it seems to depend on
+the relative azimuthal phases of $\uv{s}_i$ and $\uv{l}$ (see e.g.\ Schnittman).
+It's also possible that any change in this quantity really requires GW to find.
+
+It's obvious that if $\theta_{12}$ is being driven to $0^\circ$ or $180^\circ$
+that $\Delta \Phi$ will also be attracted accordingly. This is a bit more subtle
+than we've been investigating recently, oops.
+
 \end{document}
 
